@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qu.modules.web.mapper.OptionMapper">
+
+    <select id="selectQoptionBySubId" parameterType="java.lang.Integer" resultType="com.qu.modules.web.entity.Qoption">
+        select * from qoption where sub_id = #{subId} and del = 0  order by op_order
+    </select>
+
+    <update id="deleteOptionBySubId" parameterType="java.lang.Integer">
+        update qoption set del = 1 where sub_id = #{subId}
+    </update>
+</mapper>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qu.modules.web.mapper.QsubjectMapper">
+
+    <select id="selectSumCount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select count(1) from qsubject where qu_id = #{quId} and del = 0
+    </select>
+
+    <select id="selectSubjectByQuId" parameterType="java.lang.Integer" resultType="com.qu.modules.web.entity.Qsubject">
+        select * from qsubject where qu_id = #{quId} and del = 0 order by order_num
+    </select>
+
+    <select id="selectIdByGroupIdsLike" parameterType="java.lang.Integer" resultType="com.qu.modules.web.entity.Qsubject">
+        select * from qsubject where group_ids like  CONCAT('%',#{subId},'%')  and qu_id = (select qu_id from qsubject where id = #{subId}) limit 1
+    </select>
+</mapper>
