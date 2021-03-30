@@ -11,4 +11,6 @@ public class QoptionlibParam {
     private java.lang.String opName;
     @ApiModelProperty(value = "是否其他  0:否 1:是")
     private Integer others;
+    @ApiModelProperty(value = "绑定值")
+    private java.lang.String bindValue;
 }

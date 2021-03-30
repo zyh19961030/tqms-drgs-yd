@@ -77,6 +77,9 @@ public class SubjectVo {
     @ApiModelProperty(value = "分组题包含题号")
     private String groupIds;
 
+    @ApiModelProperty(value = "绑定值")
+    private java.lang.String bindValue;
+
     /**数据库列名*/
     @Excel(name = "数据库列名", width = 15)
     @ApiModelProperty(value = "数据库列名")

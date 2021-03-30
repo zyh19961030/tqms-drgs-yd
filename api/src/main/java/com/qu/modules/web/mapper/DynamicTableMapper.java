@@ -8,4 +8,7 @@ public interface DynamicTableMapper extends BaseMapper {
     int createDynamicTable(@Param("sql") String sql);
 
     int insertDynamicTable(@Param("sql") String sql);
+
+    String selectDynamicTable(@Param("sql") String sql);
+
 }

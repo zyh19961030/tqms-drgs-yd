@@ -16,4 +16,6 @@ public class QuestionParam {
     @Excel(name = "问卷描述", width = 15)
     @ApiModelProperty(value = "问卷描述")
     private java.lang.String quDesc;
+    @ApiModelProperty(value = "答案对应数据库名")
+    private java.lang.String tableName;
 }

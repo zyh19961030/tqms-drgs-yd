@@ -9,4 +9,8 @@
     <insert id="insertDynamicTable" parameterType="java.lang.String">
         ${sql}
     </insert>
+
+    <select id="selectDynamicTable" parameterType="java.lang.String" resultType="java.lang.String">
+        ${sql}
+    </select>
 </mapper>

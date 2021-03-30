@@ -2,13 +2,15 @@ package com.qu.modules.web.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qu.modules.web.entity.Qoption;
-import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.OptionMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
 import com.qu.modules.web.param.QuestionEditParam;
 import com.qu.modules.web.param.QuestionParam;
+import com.qu.modules.web.param.UpdateDeptIdsParam;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.QuestionPageVo;
 import com.qu.modules.web.vo.QuestionVo;
@@ -38,6 +40,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Autowired
     private OptionMapper optionMapper;
+
+    @Autowired
+    private DynamicTableMapper dynamicTableMapper;
 
     @Override
     public Question saveQuestion(QuestionParam questionParam) {
@@ -133,7 +138,22 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             question.setUpdater(1);
             question.setUpdateTime(new Date());
             questionMapper.updateById(question);
+            question = questionMapper.selectById(questionEditParam.getId());
+            //如果是已发布，建表
+            if (question.getQuStatus() == 1) {
+                StringBuffer sql = new StringBuffer();
+                sql.append("CREATE TABLE `" + question.getTableName() + "` (");
+                sql.append("`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',");
+                List<Qsubject> subjectList = subjectMapper.selectSubjectByQuId(questionEditParam.getId());
+                for (Qsubject qsubject : subjectList) {
+                    sql.append("`" + qsubject.getColumnName() + "` varchar(2000) COMMENT '" + qsubject.getSubName() + "',");
+                }
+                sql.append(" PRIMARY KEY (`id`)");
+                sql.append(") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+                dynamicTableMapper.createDynamicTable(sql.toString());
+            }
         } catch (Exception e) {
+            question = null;
             log.error(e.getMessage(), e);
         }
         return question;
@@ -173,5 +193,52 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             log.error(e.getMessage(), e);
         }
         return questionPageVo;
+    }
+
+    @Override
+    public QuestionPageVo questionFillInList(QuestionParam questionParam, Integer pageNo, Integer pageSize) {
+        QuestionPageVo questionPageVo = new QuestionPageVo();
+        try {
+            Map<String, Object> params = new HashMap<>();
+            params.put("quName", questionParam.getQuName());
+            params.put("quDesc", questionParam.getQuDesc());
+            params.put("startRow", (pageNo - 1) * pageSize);
+            params.put("pageSize", pageSize);
+            int total = questionMapper.questionFillInListCount(params);
+            List<Question> questionList = questionMapper.questionFillInList(params);
+            questionPageVo.setTotal(total);
+            questionPageVo.setQuestionList(questionList);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return questionPageVo;
+    }
+
+    @Override
+    public Boolean updateDeptIdsParam(UpdateDeptIdsParam updateDeptIdsParam) {
+        Boolean flag = true;
+        try {
+            String[] quIds = updateDeptIdsParam.getQuIds();
+            String[] deptIds = updateDeptIdsParam.getDeptIds();
+            if (quIds != null && deptIds != null) {
+                StringBuffer deptid = new StringBuffer();
+                for (String did : deptIds) {
+                    deptid.append(did);
+                    deptid.append(",");
+                }
+                ///更新
+                for (String qid : quIds) {
+                    Question question = new Question();
+                    question.setId(Integer.parseInt(qid));
+                    question.setDeptIds(deptid.toString());
+                    question.setUpdateTime(new Date());
+                    questionMapper.updateById(question);
+                }
+            }
+        } catch (Exception e) {
+            flag = false;
+            log.error(e.getMessage(), e);
+        }
+        return flag;
     }
 }

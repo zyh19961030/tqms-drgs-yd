@@ -16,9 +16,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @Description: 题目表
@@ -42,6 +40,13 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
         Qsubject subject = new Qsubject();
         try {
             BeanUtils.copyProperties(subjectParam, subject);
+            Map<String, Object> param = new HashMap<>();
+            param.put("quId", subjectParam.getQuId());
+            param.put("columnName", subjectParam.getColumnName());
+            int colCount = qsubjectMapper.selectColumnNameCount(param);
+            if (colCount > 0) {//字段重复
+                return null;
+            }
             //计算题号
             Integer subSumCount = qsubjectMapper.selectSumCount(subjectParam.getQuId());
             subject.setOrderNum(subSumCount + 1);
@@ -99,16 +104,18 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
         try {
             BeanUtils.copyProperties(subjectEditParam, subject);
             //如果是分组题，计算分组题号字段
-            if (subjectEditParam.getSubType().equals("8")) {
-                String[] gids = subjectEditParam.getGroupIds();
-                StringBuffer groupIds = new StringBuffer();
-                if (null != gids) {
-                    for (String gid : gids) {
-                        groupIds.append(gid);
-                        groupIds.append(",");
+            if (subjectEditParam.getSubType() != null) {
+                if (subjectEditParam.getSubType().equals("8")) {
+                    String[] gids = subjectEditParam.getGroupIds();
+                    StringBuffer groupIds = new StringBuffer();
+                    if (null != gids) {
+                        for (String gid : gids) {
+                            groupIds.append(gid);
+                            groupIds.append(",");
+                        }
                     }
+                    subject.setGroupIds(groupIds.toString());
                 }
-                subject.setGroupIds(groupIds.toString());
             }
             subject.setUpdater(1);
             subject.setUpdateTime(new Date());
@@ -116,7 +123,7 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
             //拷贝到Vo对象
             BeanUtils.copyProperties(subject, subjectVo);
             //删除以前的所有选项
-            int delCount = optionMapper.deleteOptionBySubId(subject.getId());
+            //int delCount = optionMapper.deleteOptionBySubId(subject.getId());
             //选项
             List<Qoption> optionList = new ArrayList<>();
             List<QoptionParam> optionParamList = subjectEditParam.getOptionParamList();
@@ -132,10 +139,16 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
                     option.setCreateTime(new Date());
                     option.setUpdater(1);
                     option.setUpdateTime(new Date());
-                    optionMapper.insert(option);
+                    if (option.getId() != null && option.getId() != 0) {//如果有id，更新
+                        optionMapper.updateById(option);
+                    } else {
+                        optionMapper.insert(option);
+                    }
                     i++;
                     optionList.add(option);
                 }
+                //删除应该删除的选项
+
                 subjectVo.setOptionList(optionList);
             }
         } catch (Exception e) {
@@ -154,6 +167,24 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
             subject.setUpdater(1);
             subject.setUpdateTime(new Date());
             qsubjectMapper.updateById(subject);
+            //如果此题在分组中，删除分组题中的groupIds
+            Qsubject groupQsubject = qsubjectMapper.selectIdByGroupIdsLike(id);
+            if (groupQsubject != null) {
+                Integer groupSubId = groupQsubject.getId();
+                String groupIds = groupQsubject.getGroupIds();
+                String[] gids = groupIds.split(",");
+                StringBuffer groupIdsNew = new StringBuffer();
+                for (String gid : gids) {
+                    if (id != Integer.parseInt(gid)) {
+                        groupIdsNew.append(gid);
+                        groupIdsNew.append(",");
+                    }
+                }
+                Qsubject qsubjectUpdate = new Qsubject();
+                qsubjectUpdate.setId(groupSubId);
+                qsubjectUpdate.setGroupIds(groupIdsNew.toString());
+                qsubjectMapper.updateById(qsubjectUpdate);
+            }
         } catch (Exception e) {
             delFlag = false;
             log.error(e.getMessage(), e);

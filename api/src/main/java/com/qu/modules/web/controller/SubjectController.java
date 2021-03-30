@@ -65,6 +65,10 @@ public class SubjectController {
         Result<SubjectVo> result = new Result<SubjectVo>();
         try {
             SubjectVo so = subjectService.saveSubject(subjectParam);
+            if (so == null) {
+                result.error500("添加失败,字段名重复!");
+                return result;
+            }
             result.setResult(so);
             result.success("添加成功！");
         } catch (Exception e) {

@@ -13,4 +13,8 @@
     <select id="selectIdByGroupIdsLike" parameterType="java.lang.Integer" resultType="com.qu.modules.web.entity.Qsubject">
         select * from qsubject where group_ids like  CONCAT('%',#{subId},'%')  and qu_id = (select qu_id from qsubject where id = #{subId}) limit 1
     </select>
+
+    <select id="selectColumnNameCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select count(1) from qsubject where qu_id = #{quId} and column_name = #{columnName}
+    </select>
 </mapper>

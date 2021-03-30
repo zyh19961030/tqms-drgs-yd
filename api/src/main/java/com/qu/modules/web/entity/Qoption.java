@@ -50,6 +50,9 @@ public class Qoption {
 	@ApiModelProperty(value = "是否其他  0:否 1:是")
 	private Integer others;
 
+	@ApiModelProperty(value = "绑定值")
+	private java.lang.String bindValue;
+
 	/**0:正常1:已删除*/
 	@Excel(name = "0:正常1:已删除", width = 15)
     @ApiModelProperty(value = "0:正常1:已删除")

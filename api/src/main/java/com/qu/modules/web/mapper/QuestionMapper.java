@@ -18,4 +18,8 @@ public interface QuestionMapper extends BaseMapper<Question> {
 
     List<Question> queryPageList(Map<String, Object> params);
 
+    int questionFillInListCount(Map<String, Object> params);
+
+    List<Question> questionFillInList(Map<String, Object> params);
+
 }

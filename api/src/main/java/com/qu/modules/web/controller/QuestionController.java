@@ -3,6 +3,7 @@ package com.qu.modules.web.controller;
 import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.param.QuestionEditParam;
 import com.qu.modules.web.param.QuestionParam;
+import com.qu.modules.web.param.UpdateDeptIdsParam;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.QuestionPageVo;
 import com.qu.modules.web.vo.QuestionVo;
@@ -87,6 +88,10 @@ public class QuestionController {
     public Result<Question> edit(@RequestBody QuestionEditParam questionEditParam) {
         Result<Question> result = new Result<Question>();
         Question question = questionService.updateQuestionById(questionEditParam);
+        if (question == null) {
+            result.error500("建表失败，表名重复!");
+            return result;
+        }
         result.setResult(question);
         result.success("修改成功!");
         return result;
@@ -143,6 +148,34 @@ public class QuestionController {
         QuestionVo questionVo = questionService.queryById(id);
         result.setResult(questionVo);
         result.setSuccess(true);
+        return result;
+    }
+
+    @ApiOperation(value = "问卷填报分页列表", notes = "问卷填报分页列表")
+    @GetMapping(value = "/questionFillInList")
+    public Result<QuestionPageVo> questionFillInList(QuestionParam questionParam,
+                                                     @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                     @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                     HttpServletRequest req) {
+        Result<QuestionPageVo> result = new Result<QuestionPageVo>();
+        QuestionPageVo questionPageVo = questionService.questionFillInList(questionParam, pageNo, pageSize);
+        result.setSuccess(true);
+        result.setResult(questionPageVo);
+        return result;
+    }
+
+    @ApiOperation(value = "批量更新问卷权限", notes = "批量更新问卷权限")
+    @PostMapping(value = "/updateDeptIdsParam")
+    public Result<Boolean> updateDeptIdsParam(@RequestBody UpdateDeptIdsParam updateDeptIdsParam) {
+        Result<Boolean> result = new Result<Boolean>();
+        try {
+            Boolean ok = questionService.updateDeptIdsParam(updateDeptIdsParam);
+            result.setResult(ok);
+            result.success("更新成功！");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            result.error500("更新失败");
+        }
         return result;
     }
 
