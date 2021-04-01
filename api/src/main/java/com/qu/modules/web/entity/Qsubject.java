@@ -24,7 +24,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Accessors(chain = true)
 @ApiModel(value="qsubject对象", description="题目表")
 public class Qsubject {
-    
+
 	/**主键*/
 	@TableId(type = IdType.AUTO)
 	@Excel(name = "主键", width = 15)
@@ -89,6 +89,12 @@ public class Qsubject {
 
 	@ApiModelProperty(value = "绑定值")
 	private java.lang.String bindValue;
+
+	@ApiModelProperty(value = "是否抓取0:不是抓取  1:抓取")
+	private java.lang.Integer grab;
+
+	@ApiModelProperty(value = "抓取类型")
+	private java.lang.String grabType;
 
 	/**数据库列名*/
 	@Excel(name = "数据库列名", width = 15)

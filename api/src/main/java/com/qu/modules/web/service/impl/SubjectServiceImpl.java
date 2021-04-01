@@ -105,6 +105,7 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
             BeanUtils.copyProperties(subjectEditParam, subject);
             //如果是分组题，计算分组题号字段
             if (subjectEditParam.getSubType() != null) {
+                Map<String, String> existCache = new HashMap<>();
                 if (subjectEditParam.getSubType().equals("8")) {
                     String[] gids = subjectEditParam.getGroupIds();
                     StringBuffer groupIds = new StringBuffer();
@@ -112,9 +113,33 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
                         for (String gid : gids) {
                             groupIds.append(gid);
                             groupIds.append(",");
+                            existCache.put(gid, "1");
                         }
                     }
                     subject.setGroupIds(groupIds.toString());
+                }
+                //如果其他分组题中groupIds字段包含此题中的groupIds,删除
+                //查询此问卷下所有的分组题
+                Map<String, Object> groupParam = new HashMap();
+                groupParam.put("quId", subjectEditParam.getQuId());
+                groupParam.put("subId", subjectEditParam.getId());
+                List<Qsubject> qsubjectList = qsubjectMapper.selectGroupQsubjectByQuId(groupParam);
+                for (Qsubject qsubject : qsubjectList) {
+                    StringBuffer groupIdsUpdate = new StringBuffer();
+                    String groupIdsDB = qsubject.getGroupIds();
+                    if (groupIdsDB != null && groupIdsDB.length() > 0) {
+                        String[] gidsdb = groupIdsDB.split(",");
+                        for (String giddb : gidsdb) {
+                            if (existCache.get(giddb) == null) {
+                                groupIdsUpdate.append(giddb);
+                                groupIdsUpdate.append(",");
+                            }
+                        }
+                        Qsubject qsubjectUpdate = new Qsubject();
+                        qsubjectUpdate.setId(qsubject.getId());
+                        qsubjectUpdate.setGroupIds(groupIdsUpdate.toString());
+                        qsubjectMapper.updateById(qsubjectUpdate);
+                    }
                 }
             }
             subject.setUpdater(1);
@@ -148,6 +173,7 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
                     optionList.add(option);
                 }
                 //删除应该删除的选项
+
 
                 subjectVo.setOptionList(optionList);
             }

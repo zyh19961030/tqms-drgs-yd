@@ -22,4 +22,6 @@ public interface QsubjectMapper extends BaseMapper<Qsubject> {
 
     int selectColumnNameCount(Map<String, Object> param);
 
+    List<Qsubject> selectGroupQsubjectByQuId(Map<String, Object> groupParam);
+
 }

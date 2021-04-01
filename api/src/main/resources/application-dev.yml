@@ -42,16 +42,6 @@ spring:
           password: question01
           driver-class-name: com.mysql.jdbc.Driver
 
-  #上传文件大小
-  hhtp:
-    multipart:
-      maxFileSize: 10MB
-      maxRequestSize: 1000MB
-  servlet:
-    multipart:
-      maxFileSize: 10MB
-      maxRequestSize: 100MB
-
 
 #mybatis plus 设置
 mybatis-plus:
