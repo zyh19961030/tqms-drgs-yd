@@ -9,7 +9,9 @@ import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
 import com.qu.modules.web.vo.AnswerPageVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
 import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
@@ -17,7 +19,9 @@ import org.jeecg.common.aspect.annotation.AutoLog;
 import org.jeecg.common.util.oConvertUtils;
 import com.qu.modules.web.entity.QSingleDiseaseTake;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
+
 import java.util.Date;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -38,42 +42,60 @@ import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
- /**
+/**
  * @Description: 单病种总表
  * @Author: jeecg-boot
- * @Date:   2021-04-02
+ * @Date: 2021-04-02
  * @Version: V1.0
  */
 @Slf4j
-@Api(tags="单病种总表")
+@Api(tags = "单病种总表")
 @RestController
 @RequestMapping("/business/qSingleDiseaseTake")
 public class QSingleDiseaseTakeController {
-	@Autowired
-	private IQSingleDiseaseTakeService qSingleDiseaseTakeService;
+    @Autowired
+    private IQSingleDiseaseTakeService qSingleDiseaseTakeService;
 
 
-	 /**
-	  * 按单病种填报
-	  */
-	 @AutoLog(value = "按单病种填报查询")
-	 @ApiOperation(value="按单病种填报查询", notes="按单病种填报查询")
-	 @GetMapping(value = "/singleDiseaseList")
-	 public Result<List<QSingleDiseaseTakeVo>> singleDiseaseList(@RequestParam(name = "name", required = false) String name) {
-		 Result<List<QSingleDiseaseTakeVo>> result = new Result<>();
-		List<QSingleDiseaseTakeVo> list =  qSingleDiseaseTakeService.singleDiseaseList(name);
-		 result.setSuccess(true);
-		 result.setResult(list);
-	 	return result;
-	 }
-	/**
-	  * 分页列表查询
-	 * @param qSingleDiseaseTake
-	 * @param pageNo
-	 * @param pageSize
-	 * @param req
-	 * @return
-	 *//*
+    /**
+     * 按单病种填报
+     */
+    @AutoLog(value = "按单病种填报查询")
+    @ApiOperation(value = "按单病种填报查询", notes = "按单病种填报查询")
+    @GetMapping(value = "/singleDiseaseList")
+    public Result<List<QSingleDiseaseTakeVo>> singleDiseaseList(@RequestParam(name = "name", required = false) String name) {
+        Result<List<QSingleDiseaseTakeVo>> result = new Result<>();
+        List<QSingleDiseaseTakeVo> list = qSingleDiseaseTakeService.singleDiseaseList(name);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+    /**
+     * 按单病种填报
+     */
+    @AutoLog(value = "按医生填报查询")
+    @ApiOperation(value = "按医生填报查询", notes = "按医生填报查询")
+    @GetMapping(value = "/singleDiseaseByDoctorList")
+    public Result<QSingleDiseaseTakeByDoctorPageVo> singleDiseaseByDoctorList(QSingleDiseaseTakeByDoctorParam qSingleDiseaseTakeByDoctorParam,
+                                                                                    @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                                    @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize
+    ) {
+        Result<QSingleDiseaseTakeByDoctorPageVo> result = new Result<>();
+        QSingleDiseaseTakeByDoctorPageVo list = qSingleDiseaseTakeService.singleDiseaseByDoctorList(qSingleDiseaseTakeByDoctorParam,pageNo,pageSize);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+    /**
+     * 分页列表查询
+     * @param qSingleDiseaseTake
+     * @param pageNo
+     * @param pageSize
+     * @param req
+     * @return
+     *//*
 	@AutoLog(value = "单病种总表-分页列表查询")
 	@ApiOperation(value="单病种总表-分页列表查询", notes="单病种总表-分页列表查询")
 	@GetMapping(value = "/list")
@@ -91,10 +113,10 @@ public class QSingleDiseaseTakeController {
 	}
 	
 	*//**
-	  *   添加
-	 * @param qSingleDiseaseTake
-	 * @return
-	 *//*
+     *   添加
+     * @param qSingleDiseaseTake
+     * @return
+     *//*
 	@AutoLog(value = "单病种总表-添加")
 	@ApiOperation(value="单病种总表-添加", notes="单病种总表-添加")
 	@PostMapping(value = "/add")
@@ -111,10 +133,10 @@ public class QSingleDiseaseTakeController {
 	}
 	
 	*//**
-	  *  编辑
-	 * @param qSingleDiseaseTake
-	 * @return
-	 *//*
+     *  编辑
+     * @param qSingleDiseaseTake
+     * @return
+     *//*
 	@AutoLog(value = "单病种总表-编辑")
 	@ApiOperation(value="单病种总表-编辑", notes="单病种总表-编辑")
 	@PutMapping(value = "/edit")
@@ -135,10 +157,10 @@ public class QSingleDiseaseTakeController {
 	}
 	
 	*//**
-	  *   通过id删除
-	 * @param id
-	 * @return
-	 *//*
+     *   通过id删除
+     * @param id
+     * @return
+     *//*
 	@AutoLog(value = "单病种总表-通过id删除")
 	@ApiOperation(value="单病种总表-通过id删除", notes="单病种总表-通过id删除")
 	@DeleteMapping(value = "/delete")
@@ -158,10 +180,10 @@ public class QSingleDiseaseTakeController {
 	}
 	
 	*//**
-	  *  批量删除
-	 * @param ids
-	 * @return
-	 *//*
+     *  批量删除
+     * @param ids
+     * @return
+     *//*
 	@AutoLog(value = "单病种总表-批量删除")
 	@ApiOperation(value="单病种总表-批量删除", notes="单病种总表-批量删除")
 	@DeleteMapping(value = "/deleteBatch")
@@ -177,10 +199,10 @@ public class QSingleDiseaseTakeController {
 	}
 	
 	*//**
-	  * 通过id查询
-	 * @param id
-	 * @return
-	 *//*
+     * 通过id查询
+     * @param id
+     * @return
+     *//*
 	@AutoLog(value = "单病种总表-通过id查询")
 	@ApiOperation(value="单病种总表-通过id查询", notes="单病种总表-通过id查询")
 	@GetMapping(value = "/queryById")
@@ -197,11 +219,11 @@ public class QSingleDiseaseTakeController {
 	}
 
   *//**
-      * 导出excel
-   *
-   * @param request
-   * @param response
-   *//*
+     * 导出excel
+     *
+     * @param request
+     * @param response
+     *//*
   @RequestMapping(value = "/exportXls")
   public ModelAndView exportXls(HttpServletRequest request, HttpServletResponse response) {
       // Step.1 组装查询条件
@@ -229,12 +251,12 @@ public class QSingleDiseaseTakeController {
   }
 
   *//**
-      * 通过excel导入数据
-   *
-   * @param request
-   * @param response
-   * @return
-   *//*
+     * 通过excel导入数据
+     *
+     * @param request
+     * @param response
+     * @return
+     *//*
   @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
   public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
       MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;

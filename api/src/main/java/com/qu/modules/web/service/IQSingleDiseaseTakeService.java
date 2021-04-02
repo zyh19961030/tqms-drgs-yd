@@ -2,6 +2,8 @@ package com.qu.modules.web.service;
 
 import com.qu.modules.web.entity.QSingleDiseaseTake;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
+import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
 import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
 
 import java.util.List;
@@ -15,5 +17,7 @@ import java.util.List;
 public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake> {
 
     List<QSingleDiseaseTakeVo> singleDiseaseList(String name);
+
+    QSingleDiseaseTakeByDoctorPageVo singleDiseaseByDoctorList(QSingleDiseaseTakeByDoctorParam qSingleDiseaseTakeByDoctorParam, Integer pageNo, Integer pageSize);
 
 }
