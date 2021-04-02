@@ -1,0 +1,19 @@
+package com.qu.modules.web.service;
+
+import com.qu.modules.web.entity.QSingleDiseaseTake;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
+
+import java.util.List;
+
+/**
+ * @Description: 单病种总表
+ * @Author: jeecg-boot
+ * @Date:   2021-04-02
+ * @Version: V1.0
+ */
+public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake> {
+
+    List<QSingleDiseaseTakeVo> singleDiseaseList(String name);
+
+}
