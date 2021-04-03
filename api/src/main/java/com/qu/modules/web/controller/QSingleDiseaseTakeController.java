@@ -1,46 +1,23 @@
 package com.qu.modules.web.controller;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.qu.constant.QSingleDiseaseTakeConstant;
+import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
 import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
-import com.qu.modules.web.vo.AnswerPageVo;
+import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
+import com.qu.modules.web.service.IQSingleDiseaseTakeService;
 import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
 import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.system.query.QueryGenerator;
-import org.jeecg.common.aspect.annotation.AutoLog;
-import org.jeecg.common.util.oConvertUtils;
-import com.qu.modules.web.entity.QSingleDiseaseTake;
-import com.qu.modules.web.service.IQSingleDiseaseTakeService;
-
-import java.util.Date;
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import lombok.extern.slf4j.Slf4j;
-
-import org.jeecgframework.poi.excel.ExcelImportUtil;
-import org.jeecgframework.poi.excel.def.NormalExcelConstants;
-import org.jeecgframework.poi.excel.entity.ExportParams;
-import org.jeecgframework.poi.excel.entity.ImportParams;
-import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.servlet.ModelAndView;
-import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.aspect.annotation.AutoLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @Description: 单病种总表
@@ -72,21 +49,124 @@ public class QSingleDiseaseTakeController {
     }
 
     /**
-     * 按单病种填报
+     * 按医生填报查询
      */
     @AutoLog(value = "按医生填报查询")
     @ApiOperation(value = "按医生填报查询", notes = "按医生填报查询")
     @GetMapping(value = "/singleDiseaseByDoctorList")
     public Result<QSingleDiseaseTakeByDoctorPageVo> singleDiseaseByDoctorList(QSingleDiseaseTakeByDoctorParam qSingleDiseaseTakeByDoctorParam,
-                                                                                    @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
-                                                                                    @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize
+                                                                              @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                              @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize
     ) {
         Result<QSingleDiseaseTakeByDoctorPageVo> result = new Result<>();
-        QSingleDiseaseTakeByDoctorPageVo list = qSingleDiseaseTakeService.singleDiseaseByDoctorList(qSingleDiseaseTakeByDoctorParam,pageNo,pageSize);
+        QSingleDiseaseTakeByDoctorPageVo list = qSingleDiseaseTakeService.singleDiseaseByDoctorList(qSingleDiseaseTakeByDoctorParam, pageNo, pageSize);
         result.setSuccess(true);
         result.setResult(list);
         return result;
     }
+
+    /**
+     * 设为无需填报
+     */
+    @AutoLog(value = "设为无需填报")
+    @ApiOperation(value = "设为无需填报", notes = "设为无需填报")
+    @PostMapping(value = "/setSingleDiseaseNoNeed")
+    public Result<Boolean> setSingleDiseaseNoNeed(@Validated QSingleDiseaseTakeNoNeedParam qSingleDiseaseTakeNoNeedParam) {
+        Result<Boolean> result = new Result<>();
+        Boolean flag = qSingleDiseaseTakeService.setSingleDiseaseNoNeed(qSingleDiseaseTakeNoNeedParam);
+        result.setSuccess(true);
+        result.setResult(flag);
+        return result;
+    }
+
+    /**
+     * 单病种上报待审查询
+     */
+    @AutoLog(value = "单病种上报待审查询")
+    @ApiOperation(value = "单病种上报待审查询", notes = "单病种上报待审查询")
+    @GetMapping(value = "/singleDiseaseWaitUploadList")
+    public Result<QSingleDiseaseTakeByDoctorPageVo> singleDiseaseWaitUploadList(@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                                @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+        Result<QSingleDiseaseTakeByDoctorPageVo> result = new Result<>();
+        QSingleDiseaseTakeByDoctorPageVo list = qSingleDiseaseTakeService.singleDiseaseWaitUploadList(pageNo, pageSize);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+    /**
+     * 单病种审核通过
+     */
+    @AutoLog(value = "单病种审核通过")
+    @ApiOperation(value = "单病种审核通过", notes = "单病种审核通过")
+    @PostMapping(value = "/setSingleDiseasePass")
+    public Result<Boolean> setSingleDiseasePass(@RequestBody String[] ids) {
+        Result<Boolean> result = new Result<>();
+        String msg = qSingleDiseaseTakeService.setSingleDiseaseStatus(ids, QSingleDiseaseTakeConstant.STATUS_PASS_WAIT_UPLOAD);
+        if (StringUtils.isBlank(msg)) {
+            result.setSuccess(true);
+            result.setResult(true);
+            return result;
+        } else {
+            result.setSuccess(false);
+            result.setResult(false);
+            result.setMessage(msg);
+            return result;
+        }
+    }
+
+    /**
+     * 单病种驳回
+     */
+    @AutoLog(value = "单病种驳回")
+    @ApiOperation(value = "单病种驳回", notes = "单病种驳回")
+    @PostMapping(value = "/setSingleDiseaseReject")
+    public Result<Boolean> setSingleDiseaseReject(@RequestBody String[] ids) {
+        Result<Boolean> result = new Result<>();
+        String msg = qSingleDiseaseTakeService.setSingleDiseaseStatus(ids, QSingleDiseaseTakeConstant.STATUS_REJECT);
+        if (StringUtils.isBlank(msg)) {
+            result.setSuccess(true);
+            result.setResult(true);
+            return result;
+        } else {
+            result.setSuccess(false);
+            result.setResult(false);
+            result.setMessage(msg);
+            return result;
+        }
+    }
+
+    /**
+     * 单病种驳回待处理查询
+     */
+    @AutoLog(value = "单病种驳回待处理查询")
+    @ApiOperation(value = "单病种驳回待处理查询", notes = "单病种驳回待处理查询")
+    @GetMapping(value = "/singleDiseaseRejectList")
+    public Result<QSingleDiseaseTakeByDoctorPageVo> singleDiseaseRejectList(@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+        Result<QSingleDiseaseTakeByDoctorPageVo> result = new Result<>();
+        QSingleDiseaseTakeByDoctorPageVo list = qSingleDiseaseTakeService.singleDiseaseRejectList(pageNo, pageSize);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+    /**
+     * 本科室单病种上报记录查询
+     */
+    @AutoLog(value = "本科室单病种上报记录查询")
+    @ApiOperation(value = "本科室单病种上报记录查询", notes = "本科室单病种上报记录查询")
+    @GetMapping(value = "/singleDiseaseByDeptList")
+    public Result<QSingleDiseaseTakeByDoctorPageVo> singleDiseaseByDeptList(QSingleDiseaseTakeByDeptParam qSingleDiseaseTakeByDeptParam,
+                                                                            @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+        Result<QSingleDiseaseTakeByDoctorPageVo> result = new Result<>();
+        QSingleDiseaseTakeByDoctorPageVo list = qSingleDiseaseTakeService.singleDiseaseByDeptList(qSingleDiseaseTakeByDeptParam, pageNo, pageSize);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
 
     /**
      * 分页列表查询
@@ -111,7 +191,7 @@ public class QSingleDiseaseTakeController {
 		result.setResult(pageList);
 		return result;
 	}
-	
+
 	*//**
      *   添加
      * @param qSingleDiseaseTake
@@ -131,7 +211,7 @@ public class QSingleDiseaseTakeController {
 		}
 		return result;
 	}
-	
+
 	*//**
      *  编辑
      * @param qSingleDiseaseTake
@@ -152,10 +232,10 @@ public class QSingleDiseaseTakeController {
 				result.success("修改成功!");
 			}
 		}
-		
+
 		return result;
 	}
-	
+
 	*//**
      *   通过id删除
      * @param id
@@ -175,10 +255,10 @@ public class QSingleDiseaseTakeController {
 				result.success("删除成功!");
 			}
 		}
-		
+
 		return result;
 	}
-	
+
 	*//**
      *  批量删除
      * @param ids
@@ -197,7 +277,7 @@ public class QSingleDiseaseTakeController {
 		}
 		return result;
 	}
-	
+
 	*//**
      * 通过id查询
      * @param id

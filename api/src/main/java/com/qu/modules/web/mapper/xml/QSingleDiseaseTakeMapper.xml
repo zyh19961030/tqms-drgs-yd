@@ -2,12 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.qu.modules.web.mapper.QSingleDiseaseTakeMapper">
     <select id="singleDiseaseList" parameterType="String" resultType="com.qu.modules.web.vo.QSingleDiseaseTakeVo">
-    SELECT icd_name disease,count(1) count,icon  FROM `q_single_disease_take`
-    <where>
-        <if test="name !=null and name !=''">
-            and icd_name like CONCAT('%',#{quName},'%')
-        </if>
-    </where>
-     group by icd_name
+        SELECT icd_name disease,count(1) count,icon  FROM `q_single_disease_take`
+        <where>
+            <if test="name !=null and name !=''">
+                and icd_name like CONCAT('%',#{quName},'%')
+            </if>
+        </where>
+        group by icd_name
     </select>
 </mapper>

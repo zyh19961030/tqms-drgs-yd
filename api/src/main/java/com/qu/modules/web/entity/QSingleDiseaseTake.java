@@ -1,24 +1,21 @@
 package com.qu.modules.web.entity;
 
-import java.io.Serializable;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
+
+import java.util.Date;
 
 /**
  * @Description: 单病种总表
  * @Author: jeecg-boot
- * @Date:   2021-04-02
+ * @Date:   2021-04-03
  * @Version: V1.0
  */
 @Data
@@ -60,20 +57,14 @@ public class QSingleDiseaseTake {
 	@Excel(name = "疾病名称", width = 15)
     @ApiModelProperty(value = "疾病名称")
 	private String icdName;
-	/**状态：0待填报 1填报中 2已填报待审核 3审核失败驳回 4通过上报上中 5已上报待国家审核 6已完成 7已被国家驳回*/
-	@Excel(name = "状态：0待填报 1填报中 2已填报待审核 3审核失败驳回 4通过上报上中 5已上报待国家审核 6已完成 7已被国家驳回", width = 15)
-    @ApiModelProperty(value = "状态：0待填报 1填报中 2已填报待审核 3审核失败驳回 4通过上报上中 5已上报待国家审核 6已完成 7已被国家驳回")
-	private String status;
+	/**状态：0待填报 1填报中 2已填报待审核 3审核失败驳回 4通过上报上中 5已上报待国家审核 6已完成 7已被国家驳回 8无需填报*/
+	@Excel(name = "状态：0待填报 1填报中 2已填报待审核 3审核失败驳回 4通过上报上中 5已上报待国家审核 6已完成 7已被国家驳回 8无需填报", width = 15)
+    @ApiModelProperty(value = "状态：0待填报 1填报中 2已填报待审核 3审核失败驳回 4通过上报上中 5已上报待国家审核 6已完成 7已被国家驳回 8无需填报")
+	private Integer status;
 	/**住院时间*/
-	@Excel(name = "住院时间", width = 20, format = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "住院时间")
 	private Date inTime;
 	/**出院时间*/
-	@Excel(name = "出院时间", width = 20, format = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "出院时间")
 	private Date outTime;
 	/**手术名称*/
@@ -91,7 +82,7 @@ public class QSingleDiseaseTake {
 	/**填报表单id*/
 	@Excel(name = "填报表单id", width = 15)
     @ApiModelProperty(value = "填报表单id")
-	private String questionId;
+	private Integer questionId;
 	/**填报表单名称*/
 	@Excel(name = "填报表单名称", width = 15)
     @ApiModelProperty(value = "填报表单名称")
