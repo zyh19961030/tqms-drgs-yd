@@ -24,4 +24,6 @@ public interface QsubjectMapper extends BaseMapper<Qsubject> {
 
     List<Qsubject> selectGroupQsubjectByQuId(Map<String, Object> groupParam);
 
+    List<Qsubject> selectPersonSubjectByQuId(Integer id);
+
 }

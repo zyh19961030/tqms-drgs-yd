@@ -22,4 +22,8 @@
         select * from qsubject where qu_id = #{quId} and sub_type = '8' <![CDATA[ and id <> #{subId} ]]>
     </select>
 
+    <select id="selectPersonSubjectByQuId" parameterType="java.lang.Integer" resultType="com.qu.modules.web.entity.Qsubject">
+        select * from qsubject where qu_id = #{quId} and del = 0 and grab_type = 'person' order by order_num
+    </select>
+
 </mapper>

@@ -151,6 +151,16 @@ public class QuestionController {
         return result;
     }
 
+    @ApiOperation(value = "问卷表-通过id查询人工类型", notes = "问卷表-通过id查询人工类型")
+    @GetMapping(value = "/queryPersonById")
+    public Result<QuestionVo> queryPersonById(@RequestParam(name = "id", required = true) Integer id) {
+        Result<QuestionVo> result = new Result<QuestionVo>();
+        QuestionVo questionVo = questionService.queryPersonById(id);
+        result.setResult(questionVo);
+        result.setSuccess(true);
+        return result;
+    }
+
     @ApiOperation(value = "问卷填报分页列表", notes = "问卷填报分页列表")
     @GetMapping(value = "/questionFillInList")
     public Result<QuestionPageVo> questionFillInList(QuestionParam questionParam,

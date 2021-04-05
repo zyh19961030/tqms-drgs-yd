@@ -241,4 +241,71 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         }
         return flag;
     }
+
+    @Override
+    public QuestionVo queryPersonById(Integer id) {
+        QuestionVo questionVo = new QuestionVo();
+        try {
+            Question question = questionMapper.selectById(id);
+            BeanUtils.copyProperties(question, questionVo);
+            List<Qsubject> subjectList = subjectMapper.selectPersonSubjectByQuId(id);
+            List<SubjectVo> subjectVoList = new ArrayList<>();
+            for (Qsubject subject : subjectList) {
+                SubjectVo subjectVo = new SubjectVo();
+                BeanUtils.copyProperties(subject, subjectVo);
+                List<Qoption> qoptionList = optionMapper.selectQoptionBySubId(subject.getId());
+                subjectVo.setOptionList(qoptionList);
+                subjectVoList.add(subjectVo);
+            }
+            //开始组装分组题逻辑
+            //先缓存
+            Map<Integer, SubjectVo> mapCache = new HashMap<>();
+            for (SubjectVo subjectVo : subjectVoList) {
+                mapCache.put(subjectVo.getId(), subjectVo);
+            }
+            //开始算
+            StringBuffer groupIdsAll = new StringBuffer();
+            for (SubjectVo subjectVo : subjectVoList) {
+                //如果是分组题
+                if (subjectVo.getSubType().equals("8")) {
+                    String groupIds = subjectVo.getGroupIds();//包含题号
+                    if (null != groupIds) {
+                        String[] gids = groupIds.split(",");
+                        List<SubjectVo> subjectVoGroupList = new ArrayList<>();
+                        for (String subId : gids) {
+                            groupIdsAll.append(subId);
+                            groupIdsAll.append(",");
+                            SubjectVo svo = mapCache.get(Integer.parseInt(subId));
+                            subjectVoGroupList.add(svo);
+                        }
+                        //设置到分组题对象列表
+                        subjectVo.setSubjectVoList(subjectVoGroupList);
+                    }
+                }
+            }
+            //删除在subjectVoList集合中删除groupIdsAll包含的题
+            if (groupIdsAll.length() != 0) {
+                String removeIds = groupIdsAll.toString();
+                String[] remIds = removeIds.split(",");
+                if (null != remIds && remIds.length > 0) {
+                    for (int i = 0; i < subjectVoList.size(); i++) {
+                        //for (SubjectVo subjectVo : subjectVoList) {
+                        SubjectVo subjectVo = subjectVoList.get(i);
+                        Integer nowId = subjectVo.getId();
+                        for (String remId : remIds) {
+                            if (nowId == Integer.parseInt(remId)) {
+                                subjectVoList.remove(i);//移除
+                                i--;
+                            }
+                        }
+
+                    }
+                }
+            }
+            questionVo.setSubjectVoList(subjectVoList);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return questionVo;
+    }
 }

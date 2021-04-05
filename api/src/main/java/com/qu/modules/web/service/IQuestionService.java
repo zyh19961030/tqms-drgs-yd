@@ -30,4 +30,6 @@ public interface IQuestionService extends IService<Question> {
 
     Boolean updateDeptIdsParam(UpdateDeptIdsParam updateDeptIdsParam);
 
+    QuestionVo queryPersonById(Integer id);
+
 }
