@@ -71,7 +71,7 @@ public class QSingleDiseaseTakeController {
     @AutoLog(value = "设为无需填报")
     @ApiOperation(value = "设为无需填报", notes = "设为无需填报")
     @PostMapping(value = "/setSingleDiseaseNoNeed")
-    public Result<Boolean> setSingleDiseaseNoNeed(@Validated QSingleDiseaseTakeNoNeedParam qSingleDiseaseTakeNoNeedParam) {
+    public Result<Boolean> setSingleDiseaseNoNeed(@RequestBody @Validated QSingleDiseaseTakeNoNeedParam qSingleDiseaseTakeNoNeedParam) {
         Result<Boolean> result = new Result<>();
         Boolean flag = qSingleDiseaseTakeService.setSingleDiseaseNoNeed(qSingleDiseaseTakeNoNeedParam);
         result.setSuccess(true);
@@ -192,27 +192,38 @@ public class QSingleDiseaseTakeController {
 		return result;
 	}
 
-	*//**
-     *   添加
+	*/
+
+    /**
+     * 添加
+     *
      * @param qSingleDiseaseTake
      * @return
      *//*
-	@AutoLog(value = "单病种总表-添加")
-	@ApiOperation(value="单病种总表-添加", notes="单病种总表-添加")
-	@PostMapping(value = "/add")
-	public Result<QSingleDiseaseTake> add(@RequestBody QSingleDiseaseTake qSingleDiseaseTake) {
-		Result<QSingleDiseaseTake> result = new Result<QSingleDiseaseTake>();
-		try {
-			qSingleDiseaseTakeService.save(qSingleDiseaseTake);
-			result.success("添加成功！");
-		} catch (Exception e) {
-			log.error(e.getMessage(),e);
-			result.error500("操作失败");
-		}
-		return result;
-	}
+    @AutoLog(value = "单病种总表-添加")
+    @ApiOperation(value = "单病种总表-添加", notes = "单病种总表-添加")
+    @PostMapping(value = "/add")
+    public Result<QSingleDiseaseTake> add(*//*@RequestBody QSingleDiseaseTake qSingleDiseaseTake*//*) {
+        Result<QSingleDiseaseTake> result = new Result<QSingleDiseaseTake>();
+        try {
+            List<QSingleDiseaseTake> list = qSingleDiseaseTakeService.list();
+            for (int i = 0; i < list.size(); i++) {
+                QSingleDiseaseTake l = list.get(i);
+                l.setId(null);
+                l.setPatientId("patientId1"+i);
+                l.setPatientName("患者姓名1"+i);
+                qSingleDiseaseTakeService.save(l*//*qSingleDiseaseTake*//*);
+            }
 
-	*//**
+            result.success("添加成功！");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            result.error500("操作失败");
+        }
+        return result;
+    }
+
+    *//**
      *  编辑
      * @param qSingleDiseaseTake
      * @return
