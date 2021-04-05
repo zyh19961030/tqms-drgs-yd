@@ -72,7 +72,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         }
 
         if (qSingleDiseaseTakeByDoctorParam.getStatus() != null) {
-            queryWrapper.eq("status", qSingleDiseaseTakeByDoctorParam.getStatus());
+            queryWrapper.in("status", qSingleDiseaseTakeByDoctorParam.getStatus());
         }
 
         IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, queryWrapper);
