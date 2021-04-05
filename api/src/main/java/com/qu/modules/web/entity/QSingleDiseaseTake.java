@@ -26,7 +26,7 @@ import java.util.Date;
 public class QSingleDiseaseTake {
     
 	/**id*/
-	@TableId(type = IdType.UUID)
+	@TableId(type = IdType.AUTO)
     @ApiModelProperty(value = "id")
 	private Integer id;
 	/**患者id*/
