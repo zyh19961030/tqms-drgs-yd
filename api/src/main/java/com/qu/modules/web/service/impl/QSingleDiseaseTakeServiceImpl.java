@@ -41,7 +41,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
     @Override
     public QSingleDiseaseTakeByDoctorPageVo singleDiseaseByDoctorList(QSingleDiseaseTakeByDoctorParam qSingleDiseaseTakeByDoctorParam, Integer pageNo, Integer pageSize) {
-        Page<QSingleDiseaseTake> page = new Page<>((pageNo - 1) * pageSize, pageSize);
+        Page<QSingleDiseaseTake> page = new Page<>(pageNo, pageSize);
         QueryWrapper<QSingleDiseaseTake> queryWrapper = new QueryWrapper<>();
         if (StringUtils.isNotBlank(qSingleDiseaseTakeByDoctorParam.getPatientName())) {
             queryWrapper.like("patient_name", qSingleDiseaseTakeByDoctorParam.getPatientName());
@@ -100,7 +100,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
     @Override
     public QSingleDiseaseTakeByDoctorPageVo singleDiseaseWaitUploadList(Integer pageNo, Integer pageSize) {
-        Page<QSingleDiseaseTake> page = new Page<>((pageNo - 1) * pageSize, pageSize);
+        Page<QSingleDiseaseTake> page = new Page<>(pageNo, pageSize);
         QueryWrapper<QSingleDiseaseTake> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("status", QSingleDiseaseTakeConstant.STATUS_WAIT_UPLOAD);
         IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, queryWrapper);
@@ -142,7 +142,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
     @Override
     public QSingleDiseaseTakeByDoctorPageVo singleDiseaseRejectList(Integer pageNo, Integer pageSize) {
-        Page<QSingleDiseaseTake> page = new Page<>((pageNo - 1) * pageSize, pageSize);
+        Page<QSingleDiseaseTake> page = new Page<>(pageNo, pageSize);
         QueryWrapper<QSingleDiseaseTake> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("status", QSingleDiseaseTakeConstant.STATUS_REJECT);
         IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, queryWrapper);
@@ -155,7 +155,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     @Override
     public QSingleDiseaseTakeByDoctorPageVo singleDiseaseByDeptList(QSingleDiseaseTakeByDeptParam qSingleDiseaseTakeByDeptParam, Integer pageNo, Integer pageSize) {
         //todo  添加科室操作
-        Page<QSingleDiseaseTake> page = new Page<>((pageNo - 1) * pageSize, pageSize);
+        Page<QSingleDiseaseTake> page = new Page<>(pageNo, pageSize);
         QueryWrapper<QSingleDiseaseTake> queryWrapper = new QueryWrapper<>();
         if (StringUtils.isNotBlank(qSingleDiseaseTakeByDeptParam.getDiseaseName())) {
             queryWrapper.like("icd_name", qSingleDiseaseTakeByDeptParam.getDiseaseName());
@@ -170,7 +170,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         }
 
         if (qSingleDiseaseTakeByDeptParam.getStatus() != null) {
-            queryWrapper.eq("status", qSingleDiseaseTakeByDeptParam.getStatus());
+            queryWrapper.in("status", qSingleDiseaseTakeByDeptParam.getStatus());
         }
 
         IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, queryWrapper);
