@@ -8,6 +8,6 @@
                 and icd_name like CONCAT('%',#{name},'%')
             </if>
         </where>
-        group by icd_name
+        group by icd_name  order by id
     </select>
 </mapper>
