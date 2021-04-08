@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
 import com.qu.constant.QSingleDiseaseTakeConstant;
 import com.qu.modules.web.entity.QSingleDiseaseTake;
 import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
@@ -75,6 +76,10 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             queryWrapper.in("status", qSingleDiseaseTakeByDoctorParam.getStatus());
         }
 
+        if (StringUtils.isNotBlank(qSingleDiseaseTakeByDoctorParam.getMainDiagnosis())) {
+            queryWrapper.like("main_diagnosis", qSingleDiseaseTakeByDoctorParam.getMainDiagnosis());
+        }
+
         IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, queryWrapper);
         QSingleDiseaseTakeByDoctorPageVo qsubjectlibPageVo = new QSingleDiseaseTakeByDoctorPageVo();
         qsubjectlibPageVo.setTotal(qSingleDiseaseTakeIPage.getTotal());
@@ -86,11 +91,22 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     public Boolean setSingleDiseaseNoNeed(QSingleDiseaseTakeNoNeedParam qSingleDiseaseTakeNoNeedParam) {
         boolean updateFlag = true;
         try {
-            QSingleDiseaseTake qSingleDiseaseTake = new QSingleDiseaseTake();
-            qSingleDiseaseTake.setId(qSingleDiseaseTakeNoNeedParam.getId());
-            qSingleDiseaseTake.setExamineReason(qSingleDiseaseTakeNoNeedParam.getReason());
-            qSingleDiseaseTake.setStatus(QSingleDiseaseTakeConstant.STATUS_NO_NEED);
-            updateFlag = this.updateById(qSingleDiseaseTake);
+            Integer id = qSingleDiseaseTakeNoNeedParam.getId();
+            QSingleDiseaseTake byId = this.getById(id);
+//            QSingleDiseaseTakeConstant.STATUS_WAIT_WRITE
+
+            List<Integer> statusList = Lists.newArrayList(QSingleDiseaseTakeConstant.STATUS_WAIT_WRITE, QSingleDiseaseTakeConstant.STATUS_WAIT_WRITE_GOING, QSingleDiseaseTakeConstant.STATUS_REJECT);
+            if (statusList.contains(byId.getStatus())) {
+                QSingleDiseaseTake qSingleDiseaseTake = new QSingleDiseaseTake();
+                qSingleDiseaseTake.setId(id);
+                qSingleDiseaseTake.setReportNoReason(qSingleDiseaseTakeNoNeedParam.getReason());
+                qSingleDiseaseTake.setReportNoReasonId(qSingleDiseaseTakeNoNeedParam.getReasonId());
+                qSingleDiseaseTake.setReportNoReasonNote(qSingleDiseaseTakeNoNeedParam.getReasonNote());
+                qSingleDiseaseTake.setReportStatus(QSingleDiseaseTakeConstant.REPORT_STATUS_NO_NEED);
+                updateFlag = this.updateById(qSingleDiseaseTake);
+            } else {
+                updateFlag = false;
+            }
         } catch (Exception e) {
             updateFlag = false;
             log.error(e.getMessage(), e);
@@ -161,12 +177,32 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             queryWrapper.like("icd_name", qSingleDiseaseTakeByDeptParam.getDiseaseName());
         }
 
+        if (StringUtils.isNotBlank(qSingleDiseaseTakeByDeptParam.getPatientName())) {
+            queryWrapper.like("patient_name", qSingleDiseaseTakeByDeptParam.getPatientName());
+        }
+
         if (qSingleDiseaseTakeByDeptParam.getOutHospitalStartDate() != null) {
             queryWrapper.ge("out_time", qSingleDiseaseTakeByDeptParam.getOutHospitalStartDate());
         }
 
         if (qSingleDiseaseTakeByDeptParam.getOutHospitalEndDate() != null) {
             queryWrapper.le("out_time", qSingleDiseaseTakeByDeptParam.getOutHospitalEndDate());
+        }
+
+        if (StringUtils.isNotBlank(qSingleDiseaseTakeByDeptParam.getDoctorName())) {
+            queryWrapper.like("doctor_name", qSingleDiseaseTakeByDeptParam.getDoctorName());
+        }
+
+        if (StringUtils.isNotBlank(qSingleDiseaseTakeByDeptParam.getMainDiagnosis())) {
+            queryWrapper.like("main_diagnosis", qSingleDiseaseTakeByDeptParam.getMainDiagnosis());
+        }
+
+        if (qSingleDiseaseTakeByDeptParam.getWriteTimeStartDate() != null) {
+            queryWrapper.ge("write_time", qSingleDiseaseTakeByDeptParam.getWriteTimeStartDate());
+        }
+
+        if (qSingleDiseaseTakeByDeptParam.getWriteTimeEndDate() != null) {
+            queryWrapper.le("write_time", qSingleDiseaseTakeByDeptParam.getWriteTimeEndDate());
         }
 
         if (qSingleDiseaseTakeByDeptParam.getStatus() != null) {

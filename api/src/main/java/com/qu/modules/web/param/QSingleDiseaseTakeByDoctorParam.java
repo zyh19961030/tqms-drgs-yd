@@ -13,7 +13,7 @@ import java.util.Date;
 public class QSingleDiseaseTakeByDoctorParam {
     @ApiModelProperty(value = "患者姓名")
     private String patientName;
-    @ApiModelProperty(value = "主治医生")
+    @ApiModelProperty(value = "主管医生")
     private String doctorName;
     @ApiModelProperty(value = "病种名称")
     private String diseaseName;
@@ -35,4 +35,6 @@ public class QSingleDiseaseTakeByDoctorParam {
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "出院日期结束时间 格式：yyyy-MM-dd HH:mm:ss")
     private Date outHospitalEndDate;
+    @ApiModelProperty(value = "主要诊断")
+    private String mainDiagnosis;
 }

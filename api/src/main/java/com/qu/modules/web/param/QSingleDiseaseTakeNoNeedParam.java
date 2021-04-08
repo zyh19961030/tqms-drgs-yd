@@ -13,7 +13,11 @@ public class QSingleDiseaseTakeNoNeedParam {
     @NotNull(message = "ID不能为空")
     @ApiModelProperty(value = "id 必填")
     private Integer id;
+    @ApiModelProperty(value = "原因id 暂时不传")
+    private String reasonId;
     @NotBlank(message = "原因不能为空")
     @ApiModelProperty(value = "原因 必填")
     private String reason;
+    @ApiModelProperty(value = "原因中的备注")
+    private String reasonNote;
 }

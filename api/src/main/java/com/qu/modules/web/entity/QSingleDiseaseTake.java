@@ -90,10 +90,26 @@ public class QSingleDiseaseTake {
 	/**是否需要上报 0不需要上报  1需要上报*/
 	@Excel(name = "是否需要上报 0不需要上报  1需要上报", width = 15)
     @ApiModelProperty(value = "是否需要上报 0不需要上报  1需要上报")
-	private String reportStatus;
-	/**科室名*/
-	@Excel(name = "科室名", width = 15)
-    @ApiModelProperty(value = "科室名")
+	private Integer reportStatus;
+	/**不需要上报原因id*/
+	@Excel(name = "不需要上报原因id", width = 15)
+    @ApiModelProperty(value = "不需要上报原因id")
+	private String reportNoReasonId;
+	/**不需要上报原因*/
+	@Excel(name = "不需要上报原因", width = 15)
+    @ApiModelProperty(value = "不需要上报原因")
+	private String reportNoReason;
+	/**不需要上报原因中的备注*/
+	@Excel(name = "不需要上报原因中的备注", width = 15)
+    @ApiModelProperty(value = "不需要上报原因中的备注")
+	private String reportNoReasonNote;
+	/**医院科室id*/
+	@Excel(name = "医院科室id", width = 15)
+    @ApiModelProperty(value = "医院科室id")
+	private String departmentId;
+	/**医院科室名*/
+	@Excel(name = "医院科室名", width = 15)
+    @ApiModelProperty(value = "医院科室名")
 	private String department;
 	/**审核状态  0未审核  1已审核通过 2审核不通过*/
 	@Excel(name = "审核状态  0未审核  1已审核通过 2审核不通过", width = 15)
@@ -115,4 +131,14 @@ public class QSingleDiseaseTake {
 	@Excel(name = "身份证号", width = 15)
     @ApiModelProperty(value = "身份证号")
 	private String idCard;
+	/**创建时间*/
+	@ApiModelProperty(value = "创建时间")
+	private Date createTime;
+	/**填写时间*/
+	@ApiModelProperty(value = "填写时间")
+	private Date writeTime;
+	/**主要诊断*/
+	@Excel(name = "主要诊断", width = 15)
+	@ApiModelProperty(value = "主要诊断")
+	private String mainDiagnosis;
 }
