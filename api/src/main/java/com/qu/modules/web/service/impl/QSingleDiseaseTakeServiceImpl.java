@@ -103,6 +103,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 qSingleDiseaseTake.setReportNoReasonId(qSingleDiseaseTakeNoNeedParam.getReasonId());
                 qSingleDiseaseTake.setReportNoReasonNote(qSingleDiseaseTakeNoNeedParam.getReasonNote());
                 qSingleDiseaseTake.setReportStatus(QSingleDiseaseTakeConstant.REPORT_STATUS_NO_NEED);
+                qSingleDiseaseTake.setStatus(QSingleDiseaseTakeConstant.STATUS_NO_NEED);
                 updateFlag = this.updateById(qSingleDiseaseTake);
             } else {
                 updateFlag = false;
@@ -160,6 +161,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     public QSingleDiseaseTakeByDoctorPageVo singleDiseaseRejectList(Integer pageNo, Integer pageSize) {
         Page<QSingleDiseaseTake> page = new Page<>(pageNo, pageSize);
         QueryWrapper<QSingleDiseaseTake> queryWrapper = new QueryWrapper<>();
+        //todo  改成7，3 国家驳回和医院审核驳回的
         queryWrapper.eq("status", QSingleDiseaseTakeConstant.STATUS_REJECT);
         IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, queryWrapper);
         QSingleDiseaseTakeByDoctorPageVo qsubjectlibPageVo = new QSingleDiseaseTakeByDoctorPageVo();
