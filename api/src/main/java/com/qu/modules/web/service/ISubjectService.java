@@ -2,6 +2,7 @@ package com.qu.modules.web.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.param.InsertSubjectParam;
 import com.qu.modules.web.param.SubjectEditParam;
 import com.qu.modules.web.param.SubjectParam;
 import com.qu.modules.web.param.UpdateOrderNumParam;
@@ -22,5 +23,7 @@ public interface ISubjectService extends IService<Qsubject> {
     Boolean removeSubjectById(Integer id);
 
     Boolean updateOrderNum(UpdateOrderNumParam updateOrderNumParam);
+
+    SubjectVo insertSubject(InsertSubjectParam insertSubjectParam);
 
 }

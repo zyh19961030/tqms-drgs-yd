@@ -26,4 +26,8 @@ public interface QsubjectMapper extends BaseMapper<Qsubject> {
 
     List<Qsubject> selectPersonSubjectByQuId(Integer id);
 
+    Integer selectNextOrderNum(Integer upSubId);
+
+    void updateNextOrderNum(Map<String, Object> param);
+
 }

@@ -1,5 +1,6 @@
 package com.qu.modules.web.controller;
 
+import com.qu.modules.web.param.InsertSubjectParam;
 import com.qu.modules.web.param.SubjectEditParam;
 import com.qu.modules.web.param.SubjectParam;
 import com.qu.modules.web.param.UpdateOrderNumParam;
@@ -65,6 +66,25 @@ public class SubjectController {
         Result<SubjectVo> result = new Result<SubjectVo>();
         try {
             SubjectVo so = subjectService.saveSubject(subjectParam);
+            if (so == null) {
+                result.error500("添加失败,字段名重复!");
+                return result;
+            }
+            result.setResult(so);
+            result.success("添加成功！");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            result.error500("操作失败");
+        }
+        return result;
+    }
+
+    @ApiOperation(value = "在某题下面插入题目", notes = "在某题下面插入题目")
+    @PostMapping(value = "/insertSubject")
+    public Result<SubjectVo> insertSubject(@RequestBody InsertSubjectParam insertSubjectParam) {
+        Result<SubjectVo> result = new Result<SubjectVo>();
+        try {
+            SubjectVo so = subjectService.insertSubject(insertSubjectParam);
             if (so == null) {
                 result.error500("添加失败,字段名重复!");
                 return result;

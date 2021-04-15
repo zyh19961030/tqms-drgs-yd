@@ -26,4 +26,12 @@
         select * from qsubject where qu_id = #{quId} and del = 0 and grab_type = 'person' order by order_num
     </select>
 
+    <select id="selectNextOrderNum" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select order_num from qsubject where id = #{upSubId} and del = 0 limit 1
+    </select>
+
+    <update id="updateNextOrderNum" parameterType="java.util.Map">
+        <![CDATA[ update qsubject set order_num=order_num+1 where order_num >= #{nextOrderNum} and qu_id = #{quId} and id<> #{subId} and del = 0 ]]>
+    </update>
+
 </mapper>

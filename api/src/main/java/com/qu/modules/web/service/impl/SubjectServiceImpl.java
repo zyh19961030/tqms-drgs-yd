@@ -5,10 +5,7 @@ import com.qu.modules.web.entity.Qoption;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.mapper.OptionMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.param.QoptionParam;
-import com.qu.modules.web.param.SubjectEditParam;
-import com.qu.modules.web.param.SubjectParam;
-import com.qu.modules.web.param.UpdateOrderNumParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.SubjectVo;
 import lombok.extern.slf4j.Slf4j;
@@ -73,6 +70,79 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
             //选项
             List<Qoption> optionList = new ArrayList<>();
             List<QoptionParam> optionParamList = subjectParam.getOptionParamList();
+            if (null != optionParamList) {
+                int i = 1;
+                for (QoptionParam optionParam : optionParamList) {
+                    Qoption option = new Qoption();
+                    BeanUtils.copyProperties(optionParam, option);
+                    option.setSubId(subject.getId());
+                    option.setOpOrder(i);
+                    option.setDel(0);
+                    option.setCreater(1);
+                    option.setCreateTime(new Date());
+                    option.setUpdater(1);
+                    option.setUpdateTime(new Date());
+                    optionMapper.insert(option);
+                    i++;
+                    optionList.add(option);
+                }
+                subjectVo.setOptionList(optionList);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return subjectVo;
+    }
+
+    @Override
+    public SubjectVo insertSubject(InsertSubjectParam insertSubjectParam) {
+        SubjectVo subjectVo = new SubjectVo();
+        Qsubject subject = new Qsubject();
+        try {
+            BeanUtils.copyProperties(insertSubjectParam, subject);
+            Map<String, Object> param = new HashMap<>();
+            param.put("quId", insertSubjectParam.getQuId());
+            param.put("columnName", insertSubjectParam.getColumnName());
+            int colCount = qsubjectMapper.selectColumnNameCount(param);
+            if (colCount > 0) {//字段重复
+                return null;
+            }
+
+            //计算题号
+            Integer nextOrderNum = qsubjectMapper.selectNextOrderNum(insertSubjectParam.getUpSubId());
+            subject.setOrderNum(nextOrderNum + 1);
+
+            //如果是分组题，计算分组题号字段
+            if (insertSubjectParam.getSubType().equals("8")) {
+                String[] gids = insertSubjectParam.getGroupIds();
+                StringBuffer groupIds = new StringBuffer();
+                if (null != gids) {
+                    for (String gid : gids) {
+                        groupIds.append(gid);
+                        groupIds.append(",");
+                    }
+                }
+                subject.setGroupIds(groupIds.toString());
+            }
+            subject.setDel(0);
+            subject.setCreater(1);
+            subject.setCreateTime(new Date());
+            subject.setUpdater(1);
+            subject.setUpdateTime(new Date());
+            qsubjectMapper.insert(subject);
+
+            //把这道题以后的所有题的序号都加1
+            Map<String, Object> insParam = new HashMap<>();
+            insParam.put("quId", insertSubjectParam.getQuId());
+            insParam.put("nextOrderNum", nextOrderNum + 1);
+            insParam.put("subId", subject.getId());
+            qsubjectMapper.updateNextOrderNum(insParam);
+
+            //拷贝到Vo对象
+            BeanUtils.copyProperties(subject, subjectVo);
+            //选项
+            List<Qoption> optionList = new ArrayList<>();
+            List<QoptionParam> optionParamList = insertSubjectParam.getOptionParamList();
             if (null != optionParamList) {
                 int i = 1;
                 for (QoptionParam optionParam : optionParamList) {
