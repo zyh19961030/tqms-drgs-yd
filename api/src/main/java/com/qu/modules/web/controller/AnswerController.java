@@ -98,4 +98,14 @@ public class AnswerController {
         return result;
     }
 
+    @ApiOperation(value = "撤回编辑", notes = "撤回编辑")
+    @GetMapping(value = "/withdrawEdit")
+    public Result<String> withdrawEdit(@RequestParam Integer id) {
+        Result<String> result = new Result<String>();
+        String answer = answerService.withdrawEdit(id);
+        result.setSuccess(true);
+        result.setResult(answer);
+        return result;
+    }
+
 }

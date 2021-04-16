@@ -40,6 +40,10 @@ public class Answer {
 	@Excel(name = "答案json", width = 15)
     @ApiModelProperty(value = "答案json")
 	private Object answerJson;
+
+	@ApiModelProperty(value = "0:草稿1:已提交")
+	private Integer answerStatus;
+
 	/**答题人*/
 	@Excel(name = "答题人", width = 15)
     @ApiModelProperty(value = "答题人")

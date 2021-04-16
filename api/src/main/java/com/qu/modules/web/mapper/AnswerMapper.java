@@ -19,4 +19,6 @@ public interface AnswerMapper extends BaseMapper<Answer> {
 
     List<AnswerVo> questionFillInList(Map<String, Object> params);
 
+    int updateWithdrawEdit(Integer id);
+
 }

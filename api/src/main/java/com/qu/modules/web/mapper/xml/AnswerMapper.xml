@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.qu.modules.web.mapper.AnswerMapper">
     <select id="questionFillInListCount" parameterType="java.util.Map" resultType="java.lang.Integer">
-        select count(1) from  answer
+        select count(1) from  answer where answer_status = 1
     </select>
 
     <select id="questionFillInList" parameterType="java.util.Map" resultType="com.qu.modules.web.vo.AnswerVo">
@@ -15,7 +15,12 @@
         a.create_time createTime
         from  answer a
         left join question q on q.id=a.qu_id
+        where answer_status = 1
         order by a.create_time desc
         limit #{startRow},#{pageSize}
     </select>
+
+    <update id="updateWithdrawEdit" parameterType="java.lang.Integer">
+        update answer set answer_status = 0 where id = #{id}
+    </update>
 </mapper>

@@ -19,6 +19,8 @@ public class AnswerVo {
     private java.lang.String quName;
     @ApiModelProperty(value = "问卷描述")
     private java.lang.String quDesc;
+    @ApiModelProperty(value = "0:草稿1:已提交")
+    private Integer answerStatus;
     @ApiModelProperty(value = "答题人")
     private Integer creater;
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")

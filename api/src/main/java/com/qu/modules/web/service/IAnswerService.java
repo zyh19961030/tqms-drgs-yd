@@ -17,4 +17,6 @@ public interface IAnswerService  extends IService<Answer> {
 
     AnswerPageVo questionFillInList(Integer pageNo, Integer pageSize);
 
+    String withdrawEdit(Integer id);
+
 }

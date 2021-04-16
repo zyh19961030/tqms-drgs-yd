@@ -130,4 +130,15 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         }
         return answerPageVo;
     }
+
+    @Override
+    public String withdrawEdit(Integer id) {
+        String answer = "";
+        try {
+            int row = answerMapper.updateWithdrawEdit(id);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return answer;
+    }
 }
