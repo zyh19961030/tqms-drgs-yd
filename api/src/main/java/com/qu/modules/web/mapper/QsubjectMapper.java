@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * @Description: 题目表
  * @Author: jeecg-boot
- * @Date:   2021-03-19
+ * @Date: 2021-03-19
  * @Version: V1.0
  */
 public interface QsubjectMapper extends BaseMapper<Qsubject> {
@@ -29,5 +29,7 @@ public interface QsubjectMapper extends BaseMapper<Qsubject> {
     Integer selectNextOrderNum(Integer upSubId);
 
     void updateNextOrderNum(Map<String, Object> param);
+
+    Qsubject selectGroupQsubject(Map<String, Object> insParam);
 
 }

@@ -138,6 +138,30 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
             insParam.put("subId", subject.getId());
             qsubjectMapper.updateNextOrderNum(insParam);
 
+            //如果upSubId属于分组，把此题也插入分组中
+            Map<String, Object> selectParam = new HashMap<>();
+            selectParam.put("quId", insertSubjectParam.getQuId());
+            selectParam.put("subId", insertSubjectParam.getUpSubId());
+            Qsubject groupQsubject = qsubjectMapper.selectGroupQsubject(selectParam);
+            if (groupQsubject != null) {
+                String groupIds = groupQsubject.getGroupIds();
+                String[] gids = groupIds.split(",");
+                StringBuffer groupIdsNew = new StringBuffer();
+                for (String gid : gids) {
+                    groupIdsNew.append(gid);
+                    groupIdsNew.append(",");
+                    if (Integer.parseInt(gid) == insertSubjectParam.getUpSubId()) {
+                        groupIdsNew.append(subject.getId());
+                        groupIdsNew.append(",");
+                    }
+                }
+                //更新数据库
+                Qsubject updateQsubject = new Qsubject();
+                updateQsubject.setId(groupQsubject.getId());
+                updateQsubject.setGroupIds(groupIdsNew.toString());
+                qsubjectMapper.updateById(updateQsubject);
+            }
+
             //拷贝到Vo对象
             BeanUtils.copyProperties(subject, subjectVo);
             //选项

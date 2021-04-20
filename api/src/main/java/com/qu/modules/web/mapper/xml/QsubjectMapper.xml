@@ -34,4 +34,8 @@
         <![CDATA[ update qsubject set order_num=order_num+1 where order_num >= #{nextOrderNum} and qu_id = #{quId} and id<> #{subId} and del = 0 ]]>
     </update>
 
+    <select id="selectGroupQsubject" parameterType="java.util.Map" resultType="com.qu.modules.web.entity.Qsubject">
+        select * from qsubject where  group_ids like  CONCAT('%',#{subId},'%')  and qu_id = #{quId}  and del = 0 limit 1
+    </select>
+
 </mapper>
