@@ -51,3 +51,6 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 
+#token解析url
+system:
+  tokenUrl: http://tqmskszkservice.shijiyunyi.com/business/tbUser/currentInfo

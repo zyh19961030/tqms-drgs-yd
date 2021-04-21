@@ -1,8 +1,6 @@
 package com.qu.util;
 
 
-import com.alibaba.fastjson.JSON;
-import com.qu.modules.web.pojo.JsonRootBean;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -22,6 +20,9 @@ import java.util.*;
 
 
 public class HttpClient {
+
+
+
 
     public static String doGet(String url) {
         CloseableHttpClient httpClient = null;
@@ -69,7 +70,7 @@ public class HttpClient {
         return result;
     }
 
-    public static String doPost(String url, Map<String, Object> paramMap) {
+    public static String doPost(String url, String cookie, Map<String, Object> paramMap) {
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse httpResponse = null;
         String result = "";
@@ -85,7 +86,7 @@ public class HttpClient {
 
         httpPost.addHeader("Content-Type", "application/x-www-form-urlencoded");
 
-        httpPost.setHeader("Cookie", "JSESSIONID=49D51463352ECBD1A9F172A30BDBB024");
+        httpPost.setHeader("Cookie", cookie);
 
         if (null != paramMap && paramMap.size() > 0) {
             List<NameValuePair> nvps = new ArrayList<NameValuePair>();
@@ -137,8 +138,8 @@ public class HttpClient {
 
 
     public static void main(String[] args) {
-        String res = doPost("http://tqmskszkservice.shijiyunyi.com/business/tbUser/currentInfo", null);
-        JsonRootBean jsonRootBean = JSON.parseObject(res, JsonRootBean.class);
-        System.out.println(res);
+//        String res = doPost(tokenUrl, null);
+//        JsonRootBean jsonRootBean = JSON.parseObject(res, JsonRootBean.class);
+//        System.out.println(res);
     }
 }

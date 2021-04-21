@@ -11,8 +11,12 @@
         a.qu_id quId,
         q.qu_name quName,
         q.qu_desc quDesc,
+        a.answer_status answerStatus,
         a.creater,
-        a.create_time createTime
+        a.creater_name createrName,
+        a.create_time createTime,
+        a.creater_deptid createrDeptid,
+        a.creater_deptname createrDeptname
         from  answer a
         left join question q on q.id=a.qu_id
         where answer_status = 1

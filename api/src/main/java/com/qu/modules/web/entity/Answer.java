@@ -17,41 +17,57 @@ import java.util.Date;
 /**
  * @Description: 作答
  * @Author: jeecg-boot
- * @Date:   2021-03-28
+ * @Date: 2021-03-28
  * @Version: V1.0
  */
 @Data
 @TableName("answer")
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@ApiModel(value="answer对象", description="作答")
+@ApiModel(value = "answer对象", description = "作答")
 public class Answer {
-    
-	/**主键*/
-	@TableId(type = IdType.AUTO)
-	@Excel(name = "主键", width = 15)
+
+    /**
+     * 主键
+     */
+    @TableId(type = IdType.AUTO)
+    @Excel(name = "主键", width = 15)
     @ApiModelProperty(value = "主键")
-	private Integer id;
-	/**问卷id*/
-	@Excel(name = "问卷id", width = 15)
+    private Integer id;
+    /**
+     * 问卷id
+     */
+    @Excel(name = "问卷id", width = 15)
     @ApiModelProperty(value = "问卷id")
-	private Integer quId;
-	/**答案json*/
-	@Excel(name = "答案json", width = 15)
+    private Integer quId;
+    /**
+     * 答案json
+     */
+    @Excel(name = "答案json", width = 15)
     @ApiModelProperty(value = "答案json")
-	private Object answerJson;
+    private Object answerJson;
 
-	@ApiModelProperty(value = "0:草稿1:已提交")
-	private Integer answerStatus;
+    @ApiModelProperty(value = "0:草稿1:已提交")
+    private Integer answerStatus;
 
-	/**答题人*/
-	@Excel(name = "答题人", width = 15)
+
     @ApiModelProperty(value = "答题人")
-	private Integer creater;
-	/**答题时间*/
-	@Excel(name = "答题时间", width = 20, format = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    private String creater;
+
+    @ApiModelProperty(value = "答题人姓名")
+    private String createrName;
+
+    /**
+     * 答题时间
+     */
+    @Excel(name = "答题时间", width = 20, format = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "答题时间")
-	private Date createTime;
+    private Date createTime;
+
+    @ApiModelProperty(value = "答题人部门id")
+    private String createrDeptid;
+    @ApiModelProperty(value = "答题人部门名称")
+    private String createrDeptname;
 }

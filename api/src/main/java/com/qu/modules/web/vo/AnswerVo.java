@@ -22,10 +22,19 @@ public class AnswerVo {
     @ApiModelProperty(value = "0:草稿1:已提交")
     private Integer answerStatus;
     @ApiModelProperty(value = "答题人")
-    private Integer creater;
-    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    private String creater;
+
+    @ApiModelProperty(value = "答题人姓名")
+    private String createrName;
+
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "答题时间")
     private Date createTime;
+
+    @ApiModelProperty(value = "答题人部门id")
+    private String createrDeptid;
+    @ApiModelProperty(value = "答题人部门名称")
+    private String createrDeptname;
 
 }

@@ -53,10 +53,11 @@ public class AnswerController {
 
     @ApiOperation(value = "答题", notes = "答题")
     @PostMapping(value = "/answer")
-    public Result<Boolean> answer(@RequestBody AnswerParam answerParam) {
+    public Result<Boolean> answer(@RequestBody AnswerParam answerParam, HttpServletRequest request) {
         Result<Boolean> result = new Result<Boolean>();
+        String cookie = request.getHeader("Cookie");
         log.info("-----------answerParam={}", JSON.toJSONString(answerParam));
-        Boolean flag = answerService.answer(answerParam);
+        Boolean flag = answerService.answer(cookie, answerParam);
         result.setSuccess(true);
         result.setResult(flag);
         return result;

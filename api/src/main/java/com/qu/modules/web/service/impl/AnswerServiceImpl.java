@@ -11,12 +11,15 @@ import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
 import com.qu.modules.web.param.AnswerParam;
 import com.qu.modules.web.param.Answers;
+import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IAnswerService;
 import com.qu.modules.web.vo.AnswerPageVo;
 import com.qu.modules.web.vo.AnswerVo;
 import com.qu.util.DateUtil;
+import com.qu.util.HttpClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -40,6 +43,10 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
     @Autowired
     private QuestionMapper questionMapper;
 
+
+    @Value("${system.tokenUrl}")
+    private String tokenUrl;
+
     @Override
     public int createDynamicTable(String sql) {
         return dynamicTableMapper.createDynamicTable(sql);
@@ -51,15 +58,31 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
     }
 
     @Override
-    public Boolean answer(AnswerParam answerParam) {
+    public Boolean answer(String cookie, AnswerParam answerParam) {
         Boolean falg = true;
         try {
+            //解析token
+            String res = HttpClient.doPost(tokenUrl, cookie, null);
+            JsonRootBean jsonRootBean = JSON.parseObject(res, JsonRootBean.class);
+            String creater = "";
+            String creater_name = "";
+            String creater_deptid = "";
+            String creater_deptname = "";
+            if (jsonRootBean != null) {
+                if (jsonRootBean.getData() != null) {
+                    creater = jsonRootBean.getData().getTbUser().getId();
+                    creater_name = jsonRootBean.getData().getTbUser().getUserName();
+                    creater_deptid = jsonRootBean.getData().getDeps().get(0).getId();
+                    creater_deptname = jsonRootBean.getData().getDeps().get(0).getDepName();
+                }
+            }
             StringBuffer sql = new StringBuffer();
-            sql.append("insert into answer (qu_id,answer_json,creater,create_time) values (");
+            sql.append("insert into answer (qu_id,answer_json,answer_status,creater,creater_name,create_time,creater_deptid,creater_deptname) values (");
             sql.append("'" + answerParam.getQuId() + "',");
-            sql.append("'" + JSON.toJSONString(answerParam.getAnswers()) + "',");
-            sql.append("1,");
-            sql.append("'" + DateUtil.date2String(new Date(), DateUtil.YYYY_MM_DD_HH_MM_SS) + "'");
+            sql.append("'" + JSON.toJSONString(answerParam.getAnswers()) + "',1,");
+            sql.append("'" + creater + "','" + creater_name + "',");
+            sql.append("'" + DateUtil.date2String(new Date(), DateUtil.YYYY_MM_DD_HH_MM_SS) + "',");
+            sql.append("'" + creater_deptid + "','" + creater_deptname + "'");
             sql.append(")");
             log.info("-----insert sql:{}", sql.toString());
             dynamicTableMapper.insertDynamicTable(sql.toString());
