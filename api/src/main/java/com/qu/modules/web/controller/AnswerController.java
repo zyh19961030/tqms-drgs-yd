@@ -55,7 +55,8 @@ public class AnswerController {
     @PostMapping(value = "/answer")
     public Result<Boolean> answer(@RequestBody AnswerParam answerParam, HttpServletRequest request) {
         Result<Boolean> result = new Result<Boolean>();
-        String cookie = request.getHeader("Cookie");
+        String token = request.getHeader("token");
+        String cookie = "JSESSIONID=" + token;
         log.info("-----------answerParam={}", JSON.toJSONString(answerParam));
         Boolean flag = answerService.answer(cookie, answerParam);
         result.setSuccess(true);
