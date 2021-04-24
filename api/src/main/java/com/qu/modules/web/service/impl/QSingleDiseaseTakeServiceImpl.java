@@ -93,8 +93,6 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         try {
             Integer id = qSingleDiseaseTakeNoNeedParam.getId();
             QSingleDiseaseTake byId = this.getById(id);
-//            QSingleDiseaseTakeConstant.STATUS_WAIT_WRITE
-
             List<Integer> statusList = Lists.newArrayList(QSingleDiseaseTakeConstant.STATUS_WAIT_WRITE, QSingleDiseaseTakeConstant.STATUS_WAIT_WRITE_GOING, QSingleDiseaseTakeConstant.STATUS_REJECT);
             if (statusList.contains(byId.getStatus())) {
                 QSingleDiseaseTake qSingleDiseaseTake = new QSingleDiseaseTake();
@@ -161,8 +159,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     public QSingleDiseaseTakeByDoctorPageVo singleDiseaseRejectList(Integer pageNo, Integer pageSize) {
         Page<QSingleDiseaseTake> page = new Page<>(pageNo, pageSize);
         QueryWrapper<QSingleDiseaseTake> queryWrapper = new QueryWrapper<>();
-        //todo  改成7，3 国家驳回和医院审核驳回的
-        queryWrapper.eq("status", QSingleDiseaseTakeConstant.STATUS_REJECT);
+        queryWrapper.eq("status", QSingleDiseaseTakeConstant.STATUS_REJECT_AND_COUNTRY_REJECT);
         IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, queryWrapper);
         QSingleDiseaseTakeByDoctorPageVo qsubjectlibPageVo = new QSingleDiseaseTakeByDoctorPageVo();
         qsubjectlibPageVo.setTotal(qSingleDiseaseTakeIPage.getTotal());

@@ -15,7 +15,7 @@ import java.util.Date;
 /**
  * @Description: 单病种总表
  * @Author: jeecg-boot
- * @Date:   2021-04-03
+ * @Date:   2021-04-24
  * @Version: V1.0
  */
 @Data
@@ -57,9 +57,9 @@ public class QSingleDiseaseTake {
 	@Excel(name = "疾病名称", width = 15)
     @ApiModelProperty(value = "疾病名称")
 	private String icdName;
-	/**状态：0待填报 1填报中 2已填报待审核 3审核失败驳回 4通过上报上中 5已上报待国家审核 6已完成 7已被国家驳回*/
-	@Excel(name = "状态：0待填报 1填报中 2已填报待审核 3审核失败驳回 4通过上报上中 5已上报待国家审核 6已完成 7已被国家驳回", width = 15)
-    @ApiModelProperty(value = "状态：0待填报 1填报中 2已填报待审核 3审核失败驳回 4通过上报上中 5已上报待国家审核 6已完成 7已被国家驳回")
+	/**状态：0待填报 1填报中 2已填报待审核 3审核失败驳回 4通过上报上中 5已上报待国家审核 6已完成 7已被国家驳回 8无需填报*/
+	@Excel(name = "状态：0待填报 1填报中 2已填报待审核 3审核失败驳回 4通过上报上中 5已上报待国家审核 6已完成 7已被国家驳回 8无需填报", width = 15)
+    @ApiModelProperty(value = "状态：0待填报 1填报中 2已填报待审核 3审核失败驳回 4通过上报上中 5已上报待国家审核 6已完成 7已被国家驳回 8无需填报")
 	private Integer status;
 	/**住院时间*/
     @ApiModelProperty(value = "住院时间")
@@ -132,13 +132,41 @@ public class QSingleDiseaseTake {
     @ApiModelProperty(value = "身份证号")
 	private String idCard;
 	/**创建时间*/
-	@ApiModelProperty(value = "创建时间")
+    @ApiModelProperty(value = "创建时间")
 	private Date createTime;
 	/**填写时间*/
-	@ApiModelProperty(value = "填写时间")
+    @ApiModelProperty(value = "填写时间")
 	private Date writeTime;
 	/**主要诊断*/
 	@Excel(name = "主要诊断", width = 15)
-	@ApiModelProperty(value = "主要诊断")
+    @ApiModelProperty(value = "主要诊断")
 	private String mainDiagnosis;
+	/**提交时间*/
+	@Excel(name = "提交时间", width = 15)
+    @ApiModelProperty(value = "提交时间")
+	private String submitTime;
+	/**次要诊断*/
+	@Excel(name = "次要诊断", width = 15)
+    @ApiModelProperty(value = "次要诊断")
+	private String secondaryDiagnosis;
+	/**住院天数*/
+	@Excel(name = "住院天数", width = 15)
+    @ApiModelProperty(value = "住院天数")
+	private Integer inHospitalDay;
+	/**住院费用 单位分*/
+	@Excel(name = "住院费用 单位分", width = 15)
+    @ApiModelProperty(value = "住院费用 单位分")
+	private Integer inHospitalFee;
+	/**药品费用 单位分*/
+	@Excel(name = "药品费用 单位分", width = 15)
+    @ApiModelProperty(value = "药品费用 单位分")
+	private Integer drugFee;
+	/**手术治疗费用 单位分*/
+	@Excel(name = "手术治疗费用 单位分", width = 15)
+    @ApiModelProperty(value = "手术治疗费用 单位分")
+	private Integer operationTreatmentFee;
+	/**一次性耗材费用 单位分*/
+	@Excel(name = "一次性耗材费用 单位分", width = 15)
+    @ApiModelProperty(value = "一次性耗材费用 单位分")
+	private Integer disposableConsumable;
 }
