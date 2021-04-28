@@ -202,6 +202,24 @@ public class QSingleDiseaseTakeController {
         return result;
     }
 
+    /**
+     * 全院单病种上报统计查询
+     */
+    @AutoLog(value = "科室单病种上报统计查询")
+    @ApiOperation(value = "科室单病种上报统计查询", notes = "科室单病种上报统计查询")
+    @GetMapping(value = "/deptSingleDiseaseReportStatistic")
+    public Result<QSingleDiseaseTakeReportStatisticPageVo> deptSingleDiseaseReportStatistic(@Validated QSingleDiseaseTakeReportStatisticParam qSingleDiseaseTakeReportStatisticParam,
+                                                                                           @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                                           @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+
+        Result<QSingleDiseaseTakeReportStatisticPageVo> result = new Result<>();
+        //todo  加科室过滤
+        QSingleDiseaseTakeReportStatisticPageVo list = qSingleDiseaseTakeService.allSingleDiseaseReportStatistic(qSingleDiseaseTakeReportStatisticParam, pageNo, pageSize);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
 
 
 
