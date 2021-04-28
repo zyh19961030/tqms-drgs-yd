@@ -1,0 +1,34 @@
+package com.qu.modules.web.param;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
+@Data
+@ApiModel(value="本科室单病种上报记录查询", description="本科室单病种上报记录查询")
+public class QSingleDiseaseTakeReportStatisticParam {
+    @ApiModelProperty(value = "病种名称")
+    private String diseaseName;
+    @NotNull(message = "时间类型不能为空")
+    @Min(value = 0,message = "时间类型最小为0")
+    @Max(value = 2,message = "时间类型最大为2")
+    @ApiModelProperty(value = "时间类型：0年 1月 2日")
+    private Integer dateType;
+    @NotNull(message = "开始时间不能为空")
+    @Pattern(regexp="\\d{4}|\\d{4}-(0[1-9]|1[0-2])|\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])",message="开始时间格式不对")
+    @ApiModelProperty(value = "开始时间  格式：年:yyyy 月:yyyy-MM 日:yyyy-MM-dd")
+    private String dateStart;
+    @NotNull(message = "结束时间不能为空")
+    @Pattern(regexp="\\d{4}|\\d{4}-(0[1-9]|1[0-2])|\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])",message="结束时间格式不对")
+    @ApiModelProperty(value = "结束时间  格式：年:yyyy 月:yyyy-MM 日:yyyy-MM-dd")
+    private String dateEnd;
+    @ApiModelProperty(value = "科室id数组")
+    private String[] dept;
+    @ApiModelProperty(value = "是否显示科室  0不显示科室  1显示科室")
+    private Integer deptShow;
+}

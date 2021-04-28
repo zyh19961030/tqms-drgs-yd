@@ -11,15 +11,26 @@ import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
 import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
 import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
 import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
-import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
+import com.qu.modules.web.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.Months;
+import org.joda.time.Years;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Description: 单病种总表
@@ -213,5 +224,141 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         qsubjectlibPageVo.setTotal(qSingleDiseaseTakeIPage.getTotal());
         qsubjectlibPageVo.setQSingleDiseaseTakeList(qSingleDiseaseTakeIPage.getRecords());
         return qsubjectlibPageVo;
+    }
+
+    @Override
+    public QSingleDiseaseTakeReportStatisticPageVo allSingleDiseaseReportStatistic(QSingleDiseaseTakeReportStatisticParam qSingleDiseaseTakeReportStatisticParam, Integer pageNo, Integer pageSize) {
+        QSingleDiseaseTakeReportStatisticPageVo qSingleDiseaseTakeReportStatisticPageVo = new QSingleDiseaseTakeReportStatisticPageVo();
+        Map<String, Object> params = new HashMap<>();
+        params.put("startRow", (pageNo - 1) * pageSize);
+        params.put("pageSize", pageSize);
+        params.put("diseaseName", qSingleDiseaseTakeReportStatisticParam.getDiseaseName());
+        Integer dateType = qSingleDiseaseTakeReportStatisticParam.getDateType();
+        String dateStart = qSingleDiseaseTakeReportStatisticParam.getDateStart();
+        String dateEnd = qSingleDiseaseTakeReportStatisticParam.getDateEnd();
+        Date startDate;
+        Date endDate;
+        Date samePeriodStartDateTime;
+        Date samePeriodEndDateTime;
+        Date lastCycleStartDateTime;
+        Date lastCycleEndDateTime;
+        params.put("dateType", dateType);
+        if (dateType.equals(0)) {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy");
+            DateTime startDateTime = dateTimeFormatter.parseDateTime(dateStart);
+            startDate = startDateTime.dayOfMonth().withMinimumValue().toDate();
+            DateTime endDateTime = dateTimeFormatter.parseDateTime(dateEnd);
+            endDate = endDateTime.dayOfYear().withMaximumValue().plusDays(1).toDate();
+
+            int years = Years.yearsBetween(startDateTime, endDateTime).getYears()+1;
+            samePeriodStartDateTime = startDateTime.minusYears(years).toDate();
+            samePeriodEndDateTime = startDateTime.toDate();
+            lastCycleStartDateTime = startDateTime.minusYears(years).toDate();
+            lastCycleEndDateTime = startDateTime.toDate();
+        } else if (dateType.equals(1)) {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM");
+            DateTime startDateTime = dateTimeFormatter.parseDateTime(dateStart);
+            startDate = startDateTime.dayOfMonth().withMinimumValue().toDate();
+            DateTime endDateTime = dateTimeFormatter.parseDateTime(dateEnd);
+            endDate = endDateTime.dayOfMonth().withMaximumValue().plusDays(1).toDate();
+
+            int months = Months.monthsBetween(startDateTime, endDateTime).getMonths()+1;
+            samePeriodStartDateTime = startDateTime.dayOfMonth().withMinimumValue().minusYears(1).toDate();
+            samePeriodEndDateTime = endDateTime.dayOfMonth().withMaximumValue().plusDays(1).minusYears(1).toDate();
+            lastCycleStartDateTime = startDateTime.minusMonths(months).toDate();
+            lastCycleEndDateTime = startDateTime.toDate();
+        } else {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
+            DateTime startDateTime = dateTimeFormatter.parseDateTime(dateStart);
+            startDate = startDateTime.toDate();
+            DateTime endDateTime = dateTimeFormatter.parseDateTime(dateEnd);
+            endDate = endDateTime.plusDays(1).toDate();
+
+            int days = Days.daysBetween(startDateTime, endDateTime).getDays()+1;
+            samePeriodStartDateTime = startDateTime.minusMonths(1).toDate();
+            samePeriodEndDateTime = endDateTime.plusDays(1).minusMonths(1).toDate();
+            lastCycleStartDateTime = startDateTime.minusDays(days).toDate();
+            lastCycleEndDateTime = startDateTime.toDate();
+        }
+        params.put("dateStart", startDate);
+        params.put("dateEnd", endDate);
+        params.put("dept", qSingleDiseaseTakeReportStatisticParam.getDept());
+        params.put("deptShow", qSingleDiseaseTakeReportStatisticParam.getDeptShow());
+        Integer total = qSingleDiseaseTakeMapper.allSingleDiseaseReportStatisticCount(params);
+        List<QSingleDiseaseTakeReportStatisticVo> allSingleDiseaseReportStatisticList = qSingleDiseaseTakeMapper.allSingleDiseaseReportStatistic(params);
+//        List<Map<String, Object>> resList = qSingleDiseaseTakeMapper.allSingleDiseaseReportStatistic(params);
+        for (int i = 0; i < allSingleDiseaseReportStatisticList.size(); i++) {
+            QSingleDiseaseTakeReportStatisticVo qSingleDiseaseTakeReportStatisticVo = allSingleDiseaseReportStatisticList.get(i);
+            Map<String, Object> countParams = new HashMap<>();
+            countParams.put("disease", qSingleDiseaseTakeReportStatisticVo.getDisease());
+            countParams.put("dept", qSingleDiseaseTakeReportStatisticVo.getDept());
+            countParams.put("status", QSingleDiseaseTakeConstant.STATUS_NO_NEED);
+            countParams.put("dateType", dateType);
+            countParams.put("dateStart", startDate);
+            countParams.put("dateEnd", endDate);
+
+            Integer inHospitalCount = qSingleDiseaseTakeReportStatisticVo.getInHospitalCount();
+            Integer noNeedWriteCount = qSingleDiseaseTakeMapper.countSql(countParams);
+            qSingleDiseaseTakeReportStatisticVo.setNoNeedWriteCount(noNeedWriteCount);
+            Integer needWriteCount = inHospitalCount - noNeedWriteCount;
+            qSingleDiseaseTakeReportStatisticVo.setNeedWriteCount(needWriteCount);
+
+            countParams.put("status", QSingleDiseaseTakeConstant.STATUS_WAIT_WRITE);
+            Integer notWriteCount = qSingleDiseaseTakeMapper.countSql(countParams);
+            qSingleDiseaseTakeReportStatisticVo.setNotWriteCount(notWriteCount);
+            Integer completeWriteCount = needWriteCount - notWriteCount;
+            qSingleDiseaseTakeReportStatisticVo.setCompleteWriteCount(completeWriteCount);
+
+            NumberFormat numberFormat = NumberFormat.getInstance();
+            numberFormat.setMaximumFractionDigits(2);
+            String hospitalWriteRate = numberFormat.format((float)  completeWriteCount/ (float)needWriteCount* 100)+"%";
+            qSingleDiseaseTakeReportStatisticVo.setHospitalWriteRate(hospitalWriteRate);
+
+            countParams.put("status", QSingleDiseaseTakeConstant.STATUS_COMPLETE);
+            Integer completeReportCountryCount = qSingleDiseaseTakeMapper.countSql(countParams);
+            qSingleDiseaseTakeReportStatisticVo.setCompleteReportCountryCount(completeReportCountryCount);
+            String completeReportCountryRate = numberFormat.format((float)  completeReportCountryCount/ (float)needWriteCount* 100)+"%";
+            qSingleDiseaseTakeReportStatisticVo.setCompleteReportCountryRate(completeReportCountryRate);
+
+            //同期数量
+            countParams.put("dateStart", samePeriodStartDateTime);
+            countParams.put("dateEnd", samePeriodEndDateTime);
+            Integer samePeriodReportCount = qSingleDiseaseTakeMapper.countSql(countParams);
+            Float s = samePeriodReportCount==0?(float)completeReportCountryCount*100:(float)completeReportCountryCount - (float)samePeriodReportCount/  (float)samePeriodReportCount * 100;
+            String samePeriodReportRate = "增长"+numberFormat.format(s)+"%";
+            qSingleDiseaseTakeReportStatisticVo.setSamePeriodReportCount(samePeriodReportCount);
+            qSingleDiseaseTakeReportStatisticVo.setSamePeriodReportRate(samePeriodReportRate);
+            //上期数量
+            countParams.put("dateStart", lastCycleStartDateTime);
+            countParams.put("dateEnd", lastCycleEndDateTime);
+            Integer lastCycleReportCount = qSingleDiseaseTakeMapper.countSql(countParams);
+            Float l = lastCycleReportCount==0? (float)  completeReportCountryCount*100:(float)completeReportCountryCount - (float)  lastCycleReportCount/(float)  lastCycleReportCount * 100;
+            String lastCycleReportRate = "增长"+numberFormat.format(l)+"%";
+            qSingleDiseaseTakeReportStatisticVo.setLastCycleReportCount(lastCycleReportCount);
+            qSingleDiseaseTakeReportStatisticVo.setLastCycleReportRate(lastCycleReportRate);
+
+            countParams.put("dateStart", startDate);
+            countParams.put("dateEnd", endDate);
+            Map<String,Object> map = qSingleDiseaseTakeMapper.countAvgSql(countParams);
+            BigDecimal avgInHospitalDay =  (BigDecimal)map.get("avgInHospitalDay");
+            BigDecimal avgInHospitalFee =  (BigDecimal)map.get("avgInHospitalFee");
+            BigDecimal avgDrugFee =  (BigDecimal)map.get("avgDrugFee");
+            BigDecimal avgOperationTreatmentFee =  (BigDecimal)map.get("avgOperationTreatmentFee");
+            BigDecimal avgDisposableConsumable =  (BigDecimal)map.get("avgDisposableConsumable");
+            qSingleDiseaseTakeReportStatisticVo.setAverageInHospitalDay(avgInHospitalDay);
+            qSingleDiseaseTakeReportStatisticVo.setAverageInHospitalFee(avgInHospitalFee);
+            qSingleDiseaseTakeReportStatisticVo.setAverageDrugFee(avgDrugFee);
+            qSingleDiseaseTakeReportStatisticVo.setAverageOperationFee(avgOperationTreatmentFee);
+            qSingleDiseaseTakeReportStatisticVo.setAverageDisposableConsumableFee(avgDisposableConsumable);
+        }
+        qSingleDiseaseTakeReportStatisticPageVo.setTotal(total);
+        qSingleDiseaseTakeReportStatisticPageVo.setQSingleDiseaseTakeList(allSingleDiseaseReportStatisticList);
+        return qSingleDiseaseTakeReportStatisticPageVo;
+    }
+
+
+    @Override
+    public List<QSingleDiseaseTakeReportStatisticDeptVo> singleDiseaseReportStatisticDept() {
+        return qSingleDiseaseTakeMapper.selectDept();
     }
 }

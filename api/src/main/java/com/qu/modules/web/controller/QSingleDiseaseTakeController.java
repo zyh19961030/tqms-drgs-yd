@@ -4,8 +4,11 @@ import com.qu.constant.QSingleDiseaseTakeConstant;
 import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
 import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
 import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
 import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
 import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -167,6 +170,83 @@ public class QSingleDiseaseTakeController {
         return result;
     }
 
+    /**
+     * 全院单病种上报统计查询
+     */
+    @AutoLog(value = "全院单病种上报统计查询")
+    @ApiOperation(value = "全院单病种上报统计查询", notes = "全院单病种上报统计查询")
+    @GetMapping(value = "/allSingleDiseaseReportStatistic")
+    public Result<QSingleDiseaseTakeReportStatisticPageVo> allSingleDiseaseReportStatistic(@Validated QSingleDiseaseTakeReportStatisticParam qSingleDiseaseTakeReportStatisticParam,
+                                                                                           @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                                           @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+
+        Result<QSingleDiseaseTakeReportStatisticPageVo> result = new Result<>();
+        QSingleDiseaseTakeReportStatisticPageVo list = qSingleDiseaseTakeService.allSingleDiseaseReportStatistic(qSingleDiseaseTakeReportStatisticParam, pageNo, pageSize);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+    /**
+     * 单病种上报统计查询中-科室列表筛选条件
+     */
+    @AutoLog(value = "单病种上报统计查询中-科室列表筛选条件")
+    @ApiOperation(value = "单病种上报统计查询中-科室列表筛选条件", notes = "单病种上报统计查询中-科室列表筛选条件")
+    @GetMapping(value = "/singleDiseaseReportStatisticDept")
+    public Result<List<QSingleDiseaseTakeReportStatisticDeptVo>> singleDiseaseReportStatisticDept() {
+
+        Result<List<QSingleDiseaseTakeReportStatisticDeptVo>> result = new Result<>();
+        List<QSingleDiseaseTakeReportStatisticDeptVo> list = qSingleDiseaseTakeService.singleDiseaseReportStatisticDept();
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+
+
+
+
+    /*@AutoLog(value = "单病种总表-test")
+    @ApiOperation(value = "单病种总表-test", notes = "单病种总表-test")
+    @GetMapping(value = "/test")
+    public Result<QSingleDiseaseTake> test() {
+        Result<QSingleDiseaseTake> result = new Result<QSingleDiseaseTake>();
+        try {
+            List<QSingleDiseaseTake> list = qSingleDiseaseTakeService.list();
+            for (int i = 0; i < list.size(); i++) {
+                QSingleDiseaseTake l = list.get(i);
+                String department = l.getDepartment();
+                if ("儿科".equals(department)) {
+                    l.setDepartmentId("07a3e1200a554dedac5b02bacb98b2e8");
+                } else if ("外科".equals(department)) {
+                    l.setDepartmentId("f6cf3a6e696f46f2a09dd764486c9f3e");
+                } else if ("内科".equals(department)) {
+                    l.setDepartmentId("61be392ea5984ce599547720814ebd30");
+                } else if ("神经科".equals(department)) {
+                    l.setDepartmentId("de92bf65d27743a38f05ee2e9472bc0b");
+                } else {
+                    log.error("-----------------");
+                }
+                *//*int i1 = RandomUtils.nextInt(0,100000);
+                l.setInHospitalDay(i1);
+                i1 = RandomUtils.nextInt(0,100000);
+                l.setInHospitalFee(i1);
+                i1 = RandomUtils.nextInt(0,100000);
+                l.setDrugFee(i1);
+                i1 = RandomUtils.nextInt(0,100000);
+                l.setOperationTreatmentFee(i1);
+                i1 = RandomUtils.nextInt(0,100000);
+                l.setDisposableConsumable(i1);*//*
+                qSingleDiseaseTakeService.updateById(l);
+            }
+
+            result.success("添加成功！");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            result.error500("操作失败");
+        }
+        return result;
+    }*/
 
     /**
      * 分页列表查询

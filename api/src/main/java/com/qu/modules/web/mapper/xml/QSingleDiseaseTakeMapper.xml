@@ -10,4 +10,91 @@
         </where>
         group by icd_name  order by id
     </select>
+
+    <sql id="reportStatisticCount">
+        SELECT icd_name disease,
+        <if test="deptShow !=null and deptShow==1 ">
+            department dept,
+        </if>
+        count(1) inHospitalCount
+        FROM `q_single_disease_take`
+        <where>
+            <if test="diseaseName!=null and diseaseName!=''">
+                and icd_name =#{diseaseName}
+            </if>
+            <if test="dateType!=null">
+                and in_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
+                and in_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
+            </if>
+            <if test="dept!=null and dept.length > 0">
+                and department_id in
+                <foreach close=")" collection="dept" item="listItem" open="(" separator=",">
+                    #{listItem}
+                </foreach>
+            </if>
+        </where>
+         group by icd_name
+        <if test="deptShow !=null and deptShow==1 ">
+            ,department
+        </if>
+    </sql>
+
+    <select id="allSingleDiseaseReportStatisticCount" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select count(1) from (
+        <include refid="reportStatisticCount"></include>
+        ) t
+    </select>
+
+
+    <!--<select id="allSingleDiseaseReportStatistic" parameterType="java.lang.String" resultType="map">-->
+    <select id="allSingleDiseaseReportStatistic" parameterType="java.lang.String" resultType="com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo">
+    <include refid="reportStatisticCount"></include> limit #{startRow},#{pageSize}
+    </select>
+
+    <select id="countSql" parameterType="map" resultType="java.lang.Integer">
+        SELECT count(1) FROM `q_single_disease_take`
+        <where>
+            <if test="disease!=null and disease!=''">
+                and icd_name =#{disease}
+            </if>
+            <if test="dept!=null and dept!=''">
+                and department_id =#{dept}
+            </if>
+            <if test="status!=null">
+                and status=#{status}
+            </if>
+            <if test="dateType!=null">
+                and in_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
+                and in_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
+            </if>
+        </where>
+    </select>
+
+
+    <select id="countAvgSql" parameterType="map" resultType="map">
+        /*round(AVG(drug_fee),2)*/
+        select
+            IFNULL(avg(in_hospital_day),0) avgInHospitalDay,
+            IFNULL(AVG(in_hospital_fee),0) avgInHospitalFee,
+            IFNULL(AVG(drug_fee),0) avgDrugFee,
+            IFNULL(AVG(operation_treatment_fee),0) avgOperationTreatmentFee,
+            IFNULL(AVG(disposable_consumable),0) avgDisposableConsumable
+        FROM `q_single_disease_take`
+        <where>
+            <if test="disease!=null and disease!=''">
+                and icd_name =#{disease}
+            </if>
+            <if test="dept!=null and dept!=''">
+                and department_id =#{dept}
+            </if>
+            <if test="dateType!=null">
+                and in_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
+                and in_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectDept" parameterType="map" resultType="com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo">
+        select department_id departmentId,department from q_single_disease_take group by department_id,department
+    </select>
 </mapper>

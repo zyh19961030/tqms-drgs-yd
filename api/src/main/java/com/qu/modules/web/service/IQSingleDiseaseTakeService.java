@@ -5,7 +5,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
 import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
 import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
 import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
 import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
 
 import java.util.List;
@@ -31,5 +34,10 @@ public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake>
     QSingleDiseaseTakeByDoctorPageVo singleDiseaseRejectList(Integer pageNo, Integer pageSize);
 
     QSingleDiseaseTakeByDoctorPageVo singleDiseaseByDeptList(QSingleDiseaseTakeByDeptParam qSingleDiseaseTakeByDeptParam, Integer pageNo, Integer pageSize);
+
+    QSingleDiseaseTakeReportStatisticPageVo allSingleDiseaseReportStatistic(QSingleDiseaseTakeReportStatisticParam qSingleDiseaseTakeReportStatisticParam, Integer pageNo, Integer pageSize);
+
+    List<QSingleDiseaseTakeReportStatisticDeptVo> singleDiseaseReportStatisticDept();
+
 
 }
