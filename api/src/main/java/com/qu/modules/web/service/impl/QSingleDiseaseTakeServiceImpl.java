@@ -236,7 +236,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         params.put("startRow", (pageNo - 1) * pageSize);
         params.put("pageSize", pageSize);
         params.put("diseaseName", qSingleDiseaseTakeReportStatisticParam.getDiseaseName());
-        Integer dateType = qSingleDiseaseTakeReportStatisticParam.getDateType();
+        String dateType = qSingleDiseaseTakeReportStatisticParam.getDateType();
         String dateStart = qSingleDiseaseTakeReportStatisticParam.getDateStart();
         String dateEnd = qSingleDiseaseTakeReportStatisticParam.getDateEnd();
         Date startDate;
@@ -246,7 +246,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         Date lastCycleStartDateTime;
         Date lastCycleEndDateTime;
         params.put("dateType", dateType);
-        if (dateType.equals(0)) {
+        if (QSingleDiseaseTakeConstant.DATE_TYPE_YEARLY.equals(dateType)) {
             DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy");
             DateTime startDateTime = dateTimeFormatter.parseDateTime(dateStart);
             startDate = startDateTime.dayOfMonth().withMinimumValue().toDate();
@@ -258,7 +258,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             samePeriodEndDateTime = startDateTime.toDate();
             lastCycleStartDateTime = startDateTime.minusYears(years).toDate();
             lastCycleEndDateTime = startDateTime.toDate();
-        } else if (dateType.equals(1)) {
+        } else if (QSingleDiseaseTakeConstant.DATE_TYPE_MONTHLY.equals(dateType)) {
             DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM");
             DateTime startDateTime = dateTimeFormatter.parseDateTime(dateStart);
             startDate = startDateTime.dayOfMonth().withMinimumValue().toDate();

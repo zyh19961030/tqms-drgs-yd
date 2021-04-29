@@ -4,8 +4,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
@@ -15,10 +13,9 @@ public class QSingleDiseaseTakeReportStatisticParam {
     @ApiModelProperty(value = "病种名称")
     private String diseaseName;
     @NotNull(message = "时间类型不能为空")
-    @Min(value = 0,message = "时间类型最小为0")
-    @Max(value = 2,message = "时间类型最大为2")
-    @ApiModelProperty(value = "时间类型：0年 1月 2日")
-    private Integer dateType;
+    @Pattern(regexp = "yearly|monthly|daily",message = "时间类型不正确")
+    @ApiModelProperty(value = "时间类型：年yearly 月monthly 日daily")
+    private String dateType;
     @NotNull(message = "开始时间不能为空")
     @Pattern(regexp="\\d{4}|\\d{4}-(0[1-9]|1[0-2])|\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])",message="开始时间格式不对")
     @ApiModelProperty(value = "开始时间  格式：年:yyyy 月:yyyy-MM 日:yyyy-MM-dd")
