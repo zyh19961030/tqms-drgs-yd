@@ -361,7 +361,17 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
 
     @Override
-    public List<QSingleDiseaseTakeReportStatisticDeptVo> singleDiseaseReportStatisticDept() {
+    public List<QSingleDiseaseTakeReportStatisticDeptVo> allSingleDiseaseReportStatisticDept() {
         return qSingleDiseaseTakeMapper.selectDept();
+    }
+
+    @Override
+    public List<QSingleDiseaseTakeReportStatisticDeptVo> deptSingleDiseaseReportStatisticDept() {
+        List<QSingleDiseaseTakeReportStatisticDeptVo> list = Lists.newArrayList();
+        QSingleDiseaseTakeReportStatisticDeptVo q= new QSingleDiseaseTakeReportStatisticDeptVo();
+        q.setDepartmentId("test");
+        q.setDepartment("测试科室");
+        list.add(q);
+        return list;
     }
 }

@@ -185,22 +185,22 @@ public class QSingleDiseaseTakeController {
     }
 
     /**
-     * 单病种上报统计查询中-科室列表筛选条件
+     * 全院单病种上报统计查询中-科室列表筛选条件
      */
-    @AutoLog(value = "单病种上报统计查询中-科室列表筛选条件")
-    @ApiOperation(value = "单病种上报统计查询中-科室列表筛选条件", notes = "单病种上报统计查询中-科室列表筛选条件")
-    @GetMapping(value = "/singleDiseaseReportStatisticDept")
-    public Result<List<QSingleDiseaseTakeReportStatisticDeptVo>> singleDiseaseReportStatisticDept() {
+    @AutoLog(value = "全院单病种上报统计查询中-科室列表筛选条件")
+    @ApiOperation(value = "全院单病种上报统计查询中-科室列表筛选条件", notes = "全院单病种上报统计查询中-科室列表筛选条件")
+    @GetMapping(value = "/allSingleDiseaseReportStatisticDept")
+    public Result<List<QSingleDiseaseTakeReportStatisticDeptVo>> allSingleDiseaseReportStatisticDept() {
 
         Result<List<QSingleDiseaseTakeReportStatisticDeptVo>> result = new Result<>();
-        List<QSingleDiseaseTakeReportStatisticDeptVo> list = qSingleDiseaseTakeService.singleDiseaseReportStatisticDept();
+        List<QSingleDiseaseTakeReportStatisticDeptVo> list = qSingleDiseaseTakeService.allSingleDiseaseReportStatisticDept();
         result.setSuccess(true);
         result.setResult(list);
         return result;
     }
 
     /**
-     * 全院单病种上报统计查询
+     * 科室单病种上报统计查询
      */
     @AutoLog(value = "科室单病种上报统计查询")
     @ApiOperation(value = "科室单病种上报统计查询", notes = "科室单病种上报统计查询")
@@ -212,6 +212,21 @@ public class QSingleDiseaseTakeController {
         Result<QSingleDiseaseTakeReportStatisticPageVo> result = new Result<>();
         //todo  加科室过滤
         QSingleDiseaseTakeReportStatisticPageVo list = qSingleDiseaseTakeService.allSingleDiseaseReportStatistic(qSingleDiseaseTakeReportStatisticParam, pageNo, pageSize);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+    /**
+     * 科室单病种上报统计查询中-科室列表筛选条件
+     */
+    @AutoLog(value = "科室单病种上报统计查询中-科室列表筛选条件")
+    @ApiOperation(value = "科室单病种上报统计查询中-科室列表筛选条件", notes = "科室单病种上报统计查询中-科室列表筛选条件")
+    @GetMapping(value = "/deptSingleDiseaseReportStatisticDept")
+    public Result<List<QSingleDiseaseTakeReportStatisticDeptVo>> deptSingleDiseaseReportStatisticDept() {
+
+        Result<List<QSingleDiseaseTakeReportStatisticDeptVo>> result = new Result<>();
+        List<QSingleDiseaseTakeReportStatisticDeptVo> list = qSingleDiseaseTakeService.deptSingleDiseaseReportStatisticDept();
         result.setSuccess(true);
         result.setResult(list);
         return result;

@@ -37,7 +37,9 @@ public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake>
 
     QSingleDiseaseTakeReportStatisticPageVo allSingleDiseaseReportStatistic(QSingleDiseaseTakeReportStatisticParam qSingleDiseaseTakeReportStatisticParam, Integer pageNo, Integer pageSize);
 
-    List<QSingleDiseaseTakeReportStatisticDeptVo> singleDiseaseReportStatisticDept();
+    List<QSingleDiseaseTakeReportStatisticDeptVo> allSingleDiseaseReportStatisticDept();
+
+    List<QSingleDiseaseTakeReportStatisticDeptVo> deptSingleDiseaseReportStatisticDept();
 
 
 }
