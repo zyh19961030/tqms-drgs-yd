@@ -7,8 +7,7 @@ package com.qu.constant;
  */
 public class Constant {
 
-
-
+    public static final Integer ERROR_CODE_60001 = 60001;
 
 
 }
