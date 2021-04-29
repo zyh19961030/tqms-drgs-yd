@@ -1,10 +1,7 @@
 package com.qu.modules.web.controller;
 
 import com.qu.constant.QSingleDiseaseTakeConstant;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
 import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
 import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
@@ -105,7 +102,7 @@ public class QSingleDiseaseTakeController {
     @PostMapping(value = "/setSingleDiseasePass")
     public Result<Boolean> setSingleDiseasePass(@RequestBody String[] ids) {
         Result<Boolean> result = new Result<>();
-        String msg = qSingleDiseaseTakeService.setSingleDiseaseStatus(ids, QSingleDiseaseTakeConstant.STATUS_PASS_WAIT_UPLOAD);
+        String msg = qSingleDiseaseTakeService.setSingleDiseaseStatus(ids, QSingleDiseaseTakeConstant.STATUS_PASS_WAIT_UPLOAD,null);
         if (StringUtils.isBlank(msg)) {
             result.setSuccess(true);
             result.setResult(true);
@@ -124,9 +121,9 @@ public class QSingleDiseaseTakeController {
     @AutoLog(value = "单病种驳回")
     @ApiOperation(value = "单病种驳回", notes = "单病种驳回")
     @PostMapping(value = "/setSingleDiseaseReject")
-    public Result<Boolean> setSingleDiseaseReject(@RequestBody String[] ids) {
+    public Result<Boolean> setSingleDiseaseReject(@RequestBody SingleDiseaseRejectParam singleDiseaseRejectParam) {
         Result<Boolean> result = new Result<>();
-        String msg = qSingleDiseaseTakeService.setSingleDiseaseStatus(ids, QSingleDiseaseTakeConstant.STATUS_REJECT);
+        String msg = qSingleDiseaseTakeService.setSingleDiseaseStatus(singleDiseaseRejectParam.getIds(), QSingleDiseaseTakeConstant.STATUS_REJECT,singleDiseaseRejectParam.getExamineReason());
         if (StringUtils.isBlank(msg)) {
             result.setSuccess(true);
             result.setResult(true);
