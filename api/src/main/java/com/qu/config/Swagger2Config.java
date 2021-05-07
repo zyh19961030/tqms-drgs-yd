@@ -60,8 +60,8 @@ public class Swagger2Config implements WebMvcConfigurer {
                 //加了ApiOperation注解的类，才生成接口文档
                 .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
                 .paths(PathSelectors.any())
-                .build();
-                //.globalOperationParameters(setHeaderToken());
+                .build()//;
+                .globalOperationParameters(setHeaderToken());
     }
 
     /**
@@ -72,7 +72,7 @@ public class Swagger2Config implements WebMvcConfigurer {
     private List<Parameter> setHeaderToken() {
         ParameterBuilder tokenPar = new ParameterBuilder();
         List<Parameter> pars = new ArrayList<>();
-        //tokenPar.name("X-Access-Token").description("token").modelRef(new ModelRef("string")).parameterType("header").required(false).build();
+        tokenPar.name("token").description("token").modelRef(new ModelRef("string")).parameterType("header").required(false).build();
         pars.add(tokenPar.build());
         return pars;
     }
