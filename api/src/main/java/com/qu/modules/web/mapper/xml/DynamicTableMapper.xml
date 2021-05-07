@@ -13,4 +13,13 @@
     <select id="selectDynamicTable" parameterType="java.lang.String" resultType="java.lang.String">
         ${sql}
     </select>
+
+    <update id="updateDynamicTable" parameterType="java.lang.String">
+        ${sql}
+    </update>
+
+    <select id="selectDynamicTableColumn" parameterType="java.lang.String" resultType="map">
+        ${sql}
+    </select>
+
 </mapper>

@@ -1,5 +1,6 @@
 package com.qu.modules.web.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -7,13 +8,17 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.qu.constant.QSingleDiseaseTakeConstant;
 import com.qu.modules.web.entity.QSingleDiseaseTake;
+import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
+import com.qu.modules.web.mapper.QsubjectMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.param.*;
+import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
 import com.qu.modules.web.vo.*;
+import com.qu.util.HttpClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -23,14 +28,12 @@ import org.joda.time.Years;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Description: 单病种总表
@@ -44,6 +47,18 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
     @Autowired
     private QSingleDiseaseTakeMapper qSingleDiseaseTakeMapper;
+
+    @Autowired
+    private QsubjectMapper qsubjectMapper;
+
+    @Autowired
+    private QuestionMapper questionMapper;
+
+    @Autowired
+    private DynamicTableMapper dynamicTableMapper;
+
+    @Value("${system.tokenUrl}")
+    private String tokenUrl;
 
     @Override
     public List<QSingleDiseaseTakeVo> singleDiseaseList(String name) {
@@ -373,5 +388,137 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         q.setDepartment("测试科室");
         list.add(q);
         return list;
+    }
+
+    @Override
+    public Boolean singleDiseaseStageAnswer(String cookie, SingleDiseaseAnswerParam singleDiseaseAnswerParam) {
+        Boolean falg = true;
+        try {
+            saveAnswer(cookie, singleDiseaseAnswerParam,QSingleDiseaseTakeConstant.ANSWER_STATUS_NOT_SUBMIT,QSingleDiseaseTakeConstant.STATUS_WAIT_WRITE_GOING);
+        } catch (Exception e) {
+            falg = false;
+            log.error(e.getMessage(), e);
+        }
+        return falg;
+    }
+
+    private void saveAnswer(String cookie, SingleDiseaseAnswerParam singleDiseaseAnswerParam,Integer answerStatus,Integer status) {
+        //解析token
+        String res = HttpClient.doPost(tokenUrl, cookie, null);
+        JsonRootBean jsonRootBean = JSON.parseObject(res, JsonRootBean.class);
+        String answer = "";
+        String answerName = "";
+        String answerDeptid = "";
+        String answerDeptname = "";
+        if (jsonRootBean != null) {
+            if (jsonRootBean.getData() != null) {
+                answer = jsonRootBean.getData().getTbUser().getId();
+                answerName = jsonRootBean.getData().getTbUser().getUserName();
+                answerDeptid = jsonRootBean.getData().getDeps().get(0).getId();
+                answerDeptname = jsonRootBean.getData().getDeps().get(0).getDepName();
+            }
+        }
+        QSingleDiseaseTake qSingleDiseaseTake = new QSingleDiseaseTake();
+        qSingleDiseaseTake.setId(singleDiseaseAnswerParam.getId());
+        qSingleDiseaseTake.setAnswerJson(JSON.toJSONString(singleDiseaseAnswerParam.getAnswers()));
+        qSingleDiseaseTake.setAnswerStatus(answerStatus);
+        qSingleDiseaseTake.setStatus(status);
+        qSingleDiseaseTake.setAnswer(answer);
+        qSingleDiseaseTake.setAnswerName(answerName);
+        qSingleDiseaseTake.setAnswerTime(new Date());
+        qSingleDiseaseTake.setAnswerDeptid(answerDeptid);
+        qSingleDiseaseTake.setAnswerDeptid(answerDeptname);
+        this.qSingleDiseaseTakeMapper.updateById(qSingleDiseaseTake);
+    }
+
+
+    @Override
+    public Boolean singleDiseaseAnswer(String cookie, SingleDiseaseAnswerParam singleDiseaseAnswerParam) {
+        Boolean falg = true;
+        try {
+            QSingleDiseaseTake qSingleDiseaseTake = this.getById(singleDiseaseAnswerParam.getId());
+            if(qSingleDiseaseTake==null){
+                return false;
+            }
+            saveAnswer(cookie, singleDiseaseAnswerParam,QSingleDiseaseTakeConstant.ANSWER_STATUS_SUBMIT,QSingleDiseaseTakeConstant.STATUS_WAIT_UPLOAD);
+            //插入答案表
+            SingleDiseaseAnswer[] answers = singleDiseaseAnswerParam.getAnswers();
+            Map<Integer, String> mapCache = new HashMap<>();
+            for (SingleDiseaseAnswer a : answers) {
+                if(StringUtils.isNotBlank(a.getBindValue())){
+                    mapCache.put(a.getSubId(), a.getBindValue());
+                }else{
+                    mapCache.put(a.getSubId(), a.getSubValue());
+                }
+            }
+            StringBuffer sqlAns = new StringBuffer();
+            Question question = questionMapper.selectById(singleDiseaseAnswerParam.getQuId());
+            if (question != null) {
+                sqlAns.append("update " + question.getTableName() + " set ");
+                List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(singleDiseaseAnswerParam.getQuId());
+                for (int i = 0; i < subjectList.size(); i++) {
+                    Qsubject qsubject = subjectList.get(i);
+                    sqlAns.append(qsubject.getColumnName());
+                    sqlAns.append("=");
+                    sqlAns.append(mapCache.get(qsubject.getId()));
+                    if (i < subjectList.size() - 1) {
+                        sqlAns.append(",");
+                    }
+                }
+                sqlAns.append(" where id = ");
+                sqlAns.append(qSingleDiseaseTake.getTableId());
+                log.info("-----insert sqlAns:{}", sqlAns.toString());
+                dynamicTableMapper.updateDynamicTable(sqlAns.toString());
+            }
+        } catch (Exception e) {
+            falg = false;
+            log.error(e.getMessage(), e);
+        }
+        return falg;
+    }
+
+    @Override
+    public String singleDiseaseAnswerQueryById(Integer id) {
+//        String answer = "[{\"subId\":318,\"subValue\":\"test\"},{\"subId\":319,\"subValue\":\"Z37.0 单一活产\"},{\"subId\":320,\"subValue\":\"无\"},{\"subId\":321,\"subValue\":\"否\"},{\"subId\":324,\"subValue\":\"血、尿常规$凝血功能$特殊感染性疾病筛查\"},{\"subId\":327,\"subValue\":\"有默认值的多行文本2\"}]";
+        String answer = null;
+
+        QSingleDiseaseTake qSingleDiseaseTake = qSingleDiseaseTakeMapper.selectById(id);
+        String answerJson = (String) qSingleDiseaseTake.getAnswerJson();
+//        answerJson = "[{\"subId\":318,\"subValue\":\"test\"},{\"subId\":319,\"subValue\":\"Z37.0 单一活产\"},{\"subId\":320,\"subValue\":\"无\"},{\"subId\":321,\"subValue\":\"否\"},{\"subId\":324,\"subValue\":\"血、尿常规$凝血功能$特殊感染性疾病筛查\"},{\"subId\":327,\"subValue\":\"有默认值的多行文本2\"}]";
+        List<SingleDiseaseAnswer> singleDiseaseAnswerList = JSON.parseArray(answerJson, SingleDiseaseAnswer.class);
+        Map<Integer, SingleDiseaseAnswer> mapCache = new HashMap<>();
+        if(singleDiseaseAnswerList!=null && !singleDiseaseAnswerList.isEmpty()){
+            for (SingleDiseaseAnswer a : singleDiseaseAnswerList) {
+                mapCache.put(a.getSubId(), a);
+            }
+        }
+        Question question = questionMapper.selectById(qSingleDiseaseTake.getQuestionId());
+        StringBuffer sqlAns = new StringBuffer();
+        if (question != null) {
+            sqlAns.append("select * from ");
+            sqlAns.append(question.getTableName());
+            sqlAns.append(" where id =");
+            sqlAns.append(qSingleDiseaseTake.getTableId());
+                Map<String,String> map = dynamicTableMapper.selectDynamicTableColumn(sqlAns.toString());
+//            String s = "select * from q_single_disease_take where id =20 ";
+//            Map<String, String> map = dynamicTableMapper.selectDynamicTableColumn(s);
+            if(map==null){
+                return null;
+            }
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                QueryWrapper<Qsubject> wrapper = new QueryWrapper<Qsubject>();
+                wrapper.eq("column_name", entry.getKey());
+                wrapper.eq("qu_id", qSingleDiseaseTake.getQuestionId());
+                Qsubject qsubject = qsubjectMapper.selectOne(wrapper);
+                SingleDiseaseAnswer singleDiseaseAnswer = new SingleDiseaseAnswer();
+                singleDiseaseAnswer.setSubId(qsubject.getId());
+                singleDiseaseAnswer.setSubValue(entry.getValue());
+                mapCache.put(qsubject.getId(), singleDiseaseAnswer);
+            }
+            List<String> resList = new ArrayList<>(map.values());
+            answer = JSON.toJSONString(resList);
+        }
+
+        return answer;
     }
 }

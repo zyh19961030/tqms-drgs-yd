@@ -3,12 +3,14 @@ package com.qu.modules.web.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.jeecgframework.poi.excel.annotation.Excel;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -169,4 +171,36 @@ public class QSingleDiseaseTake {
 	@Excel(name = "一次性耗材费用 单位分", width = 15)
     @ApiModelProperty(value = "一次性耗材费用 单位分")
 	private Integer disposableConsumable;
+	/**
+	 * 答案json
+	 */
+	@Excel(name = "答案json", width = 15)
+	@ApiModelProperty(value = "答案json")
+	private Object answerJson;
+	/**
+	 * 状态0:草稿1:已提交
+	 */
+	@ApiModelProperty(value = "状态0:草稿1:已提交")
+	private Integer answerStatus;
+	@ApiModelProperty(value = "答题人id")
+	private String answer;
+
+	@ApiModelProperty(value = "答题人姓名")
+	private String answerName;
+
+	/**
+	 * 答题时间
+	 */
+	@Excel(name = "答题时间", width = 20, format = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@ApiModelProperty(value = "答题时间")
+	private Date answerTime;
+
+	@ApiModelProperty(value = "答题人部门id")
+	private String answerDeptid;
+	@ApiModelProperty(value = "答题人部门名称")
+	private String answerDeptname;
+	@ApiModelProperty(value = "动态创建表的id")
+	private String tableId;
 }

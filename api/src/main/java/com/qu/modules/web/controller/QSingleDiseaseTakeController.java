@@ -1,5 +1,6 @@
 package com.qu.modules.web.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.qu.constant.QSingleDiseaseTakeConstant;
 import com.qu.modules.web.param.*;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
@@ -9,6 +10,7 @@ import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
 import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.api.vo.Result;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -231,6 +234,57 @@ public class QSingleDiseaseTakeController {
         result.setResult(list);
         return result;
     }
+
+    /**
+     * 单病种阶段性保存
+     */
+    @AutoLog(value = "单病种阶段性保存")
+    @ApiOperation(value = "单病种阶段性保存", notes = "单病种阶段性保存")
+    @PostMapping(value = "/singleDiseaseStageAnswer")
+    public Result<Boolean> singleDiseaseStageAnswer(@RequestBody SingleDiseaseAnswerParam singleDiseaseAnswerParam, HttpServletRequest request) {
+        Result<Boolean> result = new Result<>();
+        String token = request.getHeader("token");
+        String cookie = "JSESSIONID=" + token;
+        log.info("-----------singleDiseaseAnswerParam={}", JSON.toJSONString(singleDiseaseAnswerParam));
+        Boolean flag = qSingleDiseaseTakeService.singleDiseaseStageAnswer(cookie,singleDiseaseAnswerParam);
+        result.setSuccess(true);
+        result.setResult(flag);
+        return result;
+    }
+
+    /**
+     * 单病种填报
+     */
+    @AutoLog(value = "单病种填报")
+    @ApiOperation(value = "单病种填报", notes = "单病种填报")
+    @PostMapping(value = "/singleDiseaseAnswer")
+    public Result<Boolean> singleDiseaseAnswer(@RequestBody SingleDiseaseAnswerParam singleDiseaseAnswerParam, HttpServletRequest request) {
+        Result<Boolean> result = new Result<>();
+        String token = request.getHeader("token");
+        String cookie = "JSESSIONID=" + token;
+        log.info("-----------singleDiseaseAnswerParam={}", JSON.toJSONString(singleDiseaseAnswerParam));
+        Boolean flag = qSingleDiseaseTakeService.singleDiseaseAnswer(cookie,singleDiseaseAnswerParam);
+        result.setSuccess(true);
+        result.setResult(flag);
+        return result;
+    }
+
+
+    /**
+     * 单病种回显
+     */
+    @AutoLog(value = "单病种回显")
+    @ApiOperation(value = "单病种回显", notes = "单病种回显")
+    @GetMapping(value = "/singleDiseaseAnswerQueryById")
+    public Result<String> singleDiseaseAnswerQueryById(@RequestParam @ApiParam("单病种总表id,从医生填报查询中获得的id") Integer id) {
+        Result<String> result = new Result<>();
+        String answer = qSingleDiseaseTakeService.singleDiseaseAnswerQueryById(id);
+        result.setSuccess(true);
+        result.setResult(answer);
+        return result;
+    }
+
+
 
 
 

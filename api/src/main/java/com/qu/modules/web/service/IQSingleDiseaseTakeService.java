@@ -2,10 +2,7 @@ package com.qu.modules.web.service;
 
 import com.qu.modules.web.entity.QSingleDiseaseTake;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
 import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
 import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
@@ -42,4 +39,9 @@ public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake>
     List<QSingleDiseaseTakeReportStatisticDeptVo> deptSingleDiseaseReportStatisticDept();
 
 
+    Boolean singleDiseaseStageAnswer(String cookie, SingleDiseaseAnswerParam singleDiseaseAnswerParam);
+
+    Boolean singleDiseaseAnswer(String cookie, SingleDiseaseAnswerParam singleDiseaseAnswerParam);
+
+    String singleDiseaseAnswerQueryById(Integer id);
 }
