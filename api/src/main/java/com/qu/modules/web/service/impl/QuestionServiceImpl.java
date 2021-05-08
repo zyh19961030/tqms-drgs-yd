@@ -15,6 +15,8 @@ import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.QuestionPageVo;
 import com.qu.modules.web.vo.QuestionVo;
 import com.qu.modules.web.vo.SubjectVo;
+import com.qu.util.IntegerUtil;
+import com.qu.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,8 +98,10 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                         for (String subId : gids) {
                             groupIdsAll.append(subId);
                             groupIdsAll.append(",");
-                            SubjectVo svo = mapCache.get(Integer.parseInt(subId));
-                            subjectVoGroupList.add(svo);
+                            if (!StringUtil.isEmpty(subId)) {
+                                SubjectVo svo = mapCache.get(Integer.parseInt(subId));
+                                subjectVoGroupList.add(svo);
+                            }
                         }
                         //设置到分组题对象列表
                         subjectVo.setSubjectVoList(subjectVoGroupList);
@@ -114,9 +118,11 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                         SubjectVo subjectVo = subjectVoList.get(i);
                         Integer nowId = subjectVo.getId();
                         for (String remId : remIds) {
-                            if (nowId == Integer.parseInt(remId)) {
-                                subjectVoList.remove(i);//移除
-                                i--;
+                            if (!IntegerUtil.isNull(nowId) && !StringUtil.isEmpty(remId)) {
+                                if (nowId == Integer.parseInt(remId)) {
+                                    subjectVoList.remove(i);//移除
+                                    i--;
+                                }
                             }
                         }
 
