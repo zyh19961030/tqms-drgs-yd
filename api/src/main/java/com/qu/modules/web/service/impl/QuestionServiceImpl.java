@@ -318,18 +318,22 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Override
     public void updateCategoryIdParam(UpdateCategoryIdParam updateCategoryIdParam) {
-        String[] quIds = updateCategoryIdParam.getQuId();
+        Integer[] quIds = updateCategoryIdParam.getQuId();
         Integer[] categoryIds = updateCategoryIdParam.getCategoryId();
         if (quIds != null && categoryIds != null) {
             StringBuffer categoryId = new StringBuffer();
-            for (Integer cid : categoryIds) {
-                categoryId.append(cid);
-                categoryId.append(",");
+            if (categoryIds.length == 1) {
+                categoryId.append(categoryIds[0]);
+            } else {
+                for (Integer cid : categoryIds) {
+                    categoryId.append(cid);
+                    categoryId.append(",");
+                }
             }
             //更新
-            for (String qid : quIds) {
+            for (Integer qid : quIds) {
                 Question question = new Question();
-                question.setId(Integer.parseInt(qid));
+                question.setId(qid);
                 question.setCategoryId(categoryId.toString());
                 question.setUpdateTime(new Date());
                 questionMapper.updateById(question);

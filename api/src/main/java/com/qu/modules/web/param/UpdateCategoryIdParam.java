@@ -8,7 +8,7 @@ import lombok.Data;
 @ApiModel(value = "设置分类Param", description = "设置分类Param")
 public class UpdateCategoryIdParam {
     @ApiModelProperty(value = "问卷id")
-    private String[] quId;
+    private Integer[] quId;
     @ApiModelProperty(value = "分类id")
     private Integer[] categoryId;
 }
