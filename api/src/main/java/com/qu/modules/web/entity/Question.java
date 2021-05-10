@@ -81,5 +81,5 @@ public class Question {
 	/**分类id*/
 	@Excel(name = "分类id", width = 15)
 	@ApiModelProperty(value = "分类id")
-	private java.lang.Integer categoryId;
+	private java.lang.String categoryId;
 }
