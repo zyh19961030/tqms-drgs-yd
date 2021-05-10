@@ -6,6 +6,7 @@ import com.qu.modules.web.param.QuestionEditParam;
 import com.qu.modules.web.param.QuestionParam;
 import com.qu.modules.web.param.UpdateCategoryIdParam;
 import com.qu.modules.web.param.UpdateDeptIdsParam;
+import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
 import com.qu.modules.web.vo.QuestionPageVo;
 import com.qu.modules.web.vo.QuestionVo;
 
@@ -25,7 +26,7 @@ public interface IQuestionService extends IService<Question> {
 
     boolean removeQuestionById(Integer id);
 
-    QuestionPageVo queryPageList(QuestionParam questionParam, Integer pageNo, Integer pageSize);
+    QuestionAndCategoryPageVo queryPageList(QuestionParam questionParam, Integer pageNo, Integer pageSize);
 
     QuestionPageVo questionFillInList(QuestionParam questionParam, Integer pageNo, Integer pageSize);
 

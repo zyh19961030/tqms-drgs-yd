@@ -13,7 +13,7 @@
         </if>
     </select>
 
-    <select id="queryPageList" parameterType="java.util.Map" resultType="com.qu.modules.web.entity.Question">
+    <select id="queryPageList" parameterType="java.util.Map" resultType="com.qu.modules.web.vo.QuestionAndCategoryVo">
         select * from  question
         where del = 0
         <if test="quName !=null and quName !=''">

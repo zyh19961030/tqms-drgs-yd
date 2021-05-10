@@ -6,6 +6,7 @@ import com.qu.modules.web.param.QuestionParam;
 import com.qu.modules.web.param.UpdateCategoryIdParam;
 import com.qu.modules.web.param.UpdateDeptIdsParam;
 import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
 import com.qu.modules.web.vo.QuestionPageVo;
 import com.qu.modules.web.vo.QuestionVo;
 import io.swagger.annotations.Api;
@@ -44,14 +45,14 @@ public class QuestionController {
     @AutoLog(value = "问卷表-分页列表查询")
     @ApiOperation(value = "问卷表-分页列表查询", notes = "问卷表-分页列表查询")
     @GetMapping(value = "/list")
-    public Result<QuestionPageVo> queryPageList(QuestionParam questionParam,
-                                                @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
-                                                @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
-                                                HttpServletRequest req) {
-        Result<QuestionPageVo> result = new Result<QuestionPageVo>();
-        QuestionPageVo questionPageVo = questionService.queryPageList(questionParam, pageNo, pageSize);
+    public Result<QuestionAndCategoryPageVo> queryPageList(QuestionParam questionParam,
+                                                           @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                           @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                           HttpServletRequest req) {
+        Result<QuestionAndCategoryPageVo> result = new Result<>();
+        QuestionAndCategoryPageVo questionAndCategoryPageVo = questionService.queryPageList(questionParam, pageNo, pageSize);
         result.setSuccess(true);
-        result.setResult(questionPageVo);
+        result.setResult(questionAndCategoryPageVo);
         return result;
     }
 

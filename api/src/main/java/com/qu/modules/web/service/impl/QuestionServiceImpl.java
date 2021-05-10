@@ -1,29 +1,28 @@
 package com.qu.modules.web.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qu.modules.web.entity.Qoption;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.OptionMapper;
-import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.entity.TqmsQuotaCategory;
+import com.qu.modules.web.mapper.*;
 import com.qu.modules.web.param.QuestionEditParam;
 import com.qu.modules.web.param.QuestionParam;
 import com.qu.modules.web.param.UpdateCategoryIdParam;
 import com.qu.modules.web.param.UpdateDeptIdsParam;
 import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.vo.QuestionPageVo;
-import com.qu.modules.web.vo.QuestionVo;
-import com.qu.modules.web.vo.SubjectVo;
+import com.qu.modules.web.vo.*;
 import com.qu.util.IntegerUtil;
 import com.qu.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 问卷表
@@ -46,6 +45,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Autowired
     private DynamicTableMapper dynamicTableMapper;
+
+    @Autowired
+    private TqmsQuotaCategoryMapper tqmsQuotaCategoryMapper;
 
     @Override
     public Question saveQuestion(QuestionParam questionParam) {
@@ -184,22 +186,29 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     }
 
     @Override
-    public QuestionPageVo queryPageList(QuestionParam questionParam, Integer pageNo, Integer pageSize) {
-        QuestionPageVo questionPageVo = new QuestionPageVo();
-        try {
-            Map<String, Object> params = new HashMap<>();
-            params.put("quName", questionParam.getQuName());
-            params.put("quDesc", questionParam.getQuDesc());
-            params.put("startRow", (pageNo - 1) * pageSize);
-            params.put("pageSize", pageSize);
-            int total = questionMapper.queryPageListCount(params);
-            List<Question> questionList = questionMapper.queryPageList(params);
-            questionPageVo.setTotal(total);
-            questionPageVo.setQuestionList(questionList);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
+    public QuestionAndCategoryPageVo queryPageList(QuestionParam questionParam, Integer pageNo, Integer pageSize) {
+        QuestionAndCategoryPageVo questionAndCategoryPageVo = new QuestionAndCategoryPageVo();
+        QueryWrapper<TqmsQuotaCategory> queryWrapper = new QueryWrapper<>();
+//        queryWrapper.eq("is_single_disease", TqmsQuotaCategoryConstant.IS_SINGLE_DISEASE);
+        List<TqmsQuotaCategory> quotaCategoryList = tqmsQuotaCategoryMapper.selectList(queryWrapper);
+        Map<Integer, String> quotaCategoryMap = quotaCategoryList.stream().collect(Collectors.toMap(TqmsQuotaCategory::getCategoryId, a -> a.getCategoryName(), (k1, k2) -> k1));
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("quName", questionParam.getQuName());
+        params.put("quDesc", questionParam.getQuDesc());
+        params.put("startRow", (pageNo - 1) * pageSize);
+        params.put("pageSize", pageSize);
+        int total = questionMapper.queryPageListCount(params);
+        List<QuestionAndCategoryVo> questionList = questionMapper.queryPageList(params);
+        for (QuestionAndCategoryVo questionAndCategoryVo : questionList) {
+            String categoryId = questionAndCategoryVo.getCategoryId();
+            if (StringUtils.isNotBlank(categoryId)) {
+                questionAndCategoryVo.setCategoryName(quotaCategoryMap.get(Integer.parseInt(categoryId)));
+            }
         }
-        return questionPageVo;
+        questionAndCategoryPageVo.setTotal(total);
+        questionAndCategoryPageVo.setQuestionList(questionList);
+        return questionAndCategoryPageVo;
     }
 
     @Override
@@ -320,6 +329,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     public void updateCategoryIdParam(UpdateCategoryIdParam updateCategoryIdParam) {
         Integer[] quIds = updateCategoryIdParam.getQuId();
         Integer[] categoryIds = updateCategoryIdParam.getCategoryId();
+        Integer categoryType = updateCategoryIdParam.getCategoryType();
         if (quIds != null && categoryIds != null) {
             StringBuffer categoryId = new StringBuffer();
             if (categoryIds.length == 1) {
@@ -335,6 +345,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                 Question question = new Question();
                 question.setId(qid);
                 question.setCategoryId(categoryId.toString());
+                question.setCategoryType(categoryType);
                 question.setUpdateTime(new Date());
                 questionMapper.updateById(question);
             }
