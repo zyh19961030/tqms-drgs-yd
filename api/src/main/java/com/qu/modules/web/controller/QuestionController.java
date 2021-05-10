@@ -3,6 +3,7 @@ package com.qu.modules.web.controller;
 import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.param.QuestionEditParam;
 import com.qu.modules.web.param.QuestionParam;
+import com.qu.modules.web.param.UpdateCategoryIdParam;
 import com.qu.modules.web.param.UpdateDeptIdsParam;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.QuestionPageVo;
@@ -181,6 +182,21 @@ public class QuestionController {
         try {
             Boolean ok = questionService.updateDeptIdsParam(updateDeptIdsParam);
             result.setResult(ok);
+            result.success("更新成功！");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            result.error500("更新失败");
+        }
+        return result;
+    }
+
+    @ApiOperation(value = "设置分类", notes = "设置分类")
+    @PostMapping(value = "/updateCategoryIdParam")
+    public Result<Boolean> updateCategoryIdParam(@RequestBody UpdateCategoryIdParam updateCategoryIdParam) {
+        Result<Boolean> result = new Result<Boolean>();
+        try {
+            questionService.updateCategoryIdParam(updateCategoryIdParam);
+            result.setResult(true);
             result.success("更新成功！");
         } catch (Exception e) {
             log.error(e.getMessage(), e);

@@ -368,6 +368,9 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             qSingleDiseaseTakeReportStatisticVo.setAverageDrugFee(avgDrugFee);
             qSingleDiseaseTakeReportStatisticVo.setAverageOperationFee(avgOperationTreatmentFee);
             qSingleDiseaseTakeReportStatisticVo.setAverageDisposableConsumableFee(avgDisposableConsumable);
+
+            Question question = questionMapper.selectById(qSingleDiseaseTakeReportStatisticVo.getQuestionId());
+            qSingleDiseaseTakeReportStatisticVo.setCategoryId(question.getCategoryId());
         }
         qSingleDiseaseTakeReportStatisticPageVo.setTotal(total);
         qSingleDiseaseTakeReportStatisticPageVo.setQSingleDiseaseTakeList(allSingleDiseaseReportStatisticList);

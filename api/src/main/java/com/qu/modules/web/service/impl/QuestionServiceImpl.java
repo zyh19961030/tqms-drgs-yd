@@ -10,6 +10,7 @@ import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
 import com.qu.modules.web.param.QuestionEditParam;
 import com.qu.modules.web.param.QuestionParam;
+import com.qu.modules.web.param.UpdateCategoryIdParam;
 import com.qu.modules.web.param.UpdateDeptIdsParam;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.QuestionPageVo;
@@ -313,5 +314,16 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             log.error(e.getMessage(), e);
         }
         return questionVo;
+    }
+
+    @Override
+    public void updateCategoryIdParam(UpdateCategoryIdParam updateCategoryIdParam) {
+        String quId = updateCategoryIdParam.getQuId();
+        Integer categoryId = updateCategoryIdParam.getCategoryId();
+        Question question = new Question();
+        question.setId(Integer.parseInt(quId));
+        question.setCategoryId(categoryId);
+        question.setUpdateTime(new Date());
+        questionMapper.updateById(question);
     }
 }

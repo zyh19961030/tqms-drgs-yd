@@ -12,7 +12,7 @@
     </select>
 
     <sql id="reportStatisticCount">
-        SELECT icd_name disease,
+        SELECT icd_name disease,question_id questionId,
         <if test="deptShow !=null and deptShow==1 ">
             department dept,
         </if>
