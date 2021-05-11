@@ -105,7 +105,9 @@ public class QSingleDiseaseTakeController {
     @PostMapping(value = "/setSingleDiseasePass")
     public Result<Boolean> setSingleDiseasePass(@RequestBody String[] ids) {
         Result<Boolean> result = new Result<>();
-        String msg = qSingleDiseaseTakeService.setSingleDiseaseStatus(ids, QSingleDiseaseTakeConstant.STATUS_PASS_WAIT_UPLOAD,null);
+        //todo 为展会 审核通过直接已完成
+        String msg = qSingleDiseaseTakeService.setSingleDiseaseStatus(ids, QSingleDiseaseTakeConstant.STATUS_COMPLETE,null);
+//        String msg = qSingleDiseaseTakeService.setSingleDiseaseStatus(ids, QSingleDiseaseTakeConstant.STATUS_PASS_WAIT_UPLOAD,null);
         if (StringUtils.isBlank(msg)) {
             result.setSuccess(true);
             result.setResult(true);

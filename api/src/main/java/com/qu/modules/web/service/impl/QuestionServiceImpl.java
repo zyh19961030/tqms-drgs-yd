@@ -191,7 +191,10 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         QueryWrapper<TqmsQuotaCategory> queryWrapper = new QueryWrapper<>();
 //        queryWrapper.eq("is_single_disease", TqmsQuotaCategoryConstant.IS_SINGLE_DISEASE);
         List<TqmsQuotaCategory> quotaCategoryList = tqmsQuotaCategoryMapper.selectList(queryWrapper);
-        Map<Integer, String> quotaCategoryMap = quotaCategoryList.stream().collect(Collectors.toMap(TqmsQuotaCategory::getCategoryId, a -> a.getCategoryName(), (k1, k2) -> k1));
+        Map<Long, String> quotaCategoryMap = quotaCategoryList.stream().collect(Collectors.toMap(TqmsQuotaCategory::getCategoryId, TqmsQuotaCategory::getCategoryName, (k1, k2) -> k1));
+
+//        Integer i = 9;
+//        i.longValue()
 
         Map<String, Object> params = new HashMap<>();
         params.put("quName", questionParam.getQuName());
@@ -203,7 +206,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         for (QuestionAndCategoryVo questionAndCategoryVo : questionList) {
             String categoryId = questionAndCategoryVo.getCategoryId();
             if (StringUtils.isNotBlank(categoryId)) {
-                questionAndCategoryVo.setCategoryName(quotaCategoryMap.get(Integer.parseInt(categoryId)));
+                questionAndCategoryVo.setCategoryName(quotaCategoryMap.get(Long.parseLong(categoryId)));
             }
         }
         questionAndCategoryPageVo.setTotal(total);

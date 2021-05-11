@@ -24,7 +24,7 @@ public class TqmsQuotaCategory {
 	/**categoryId*/
 	@Excel(name = "categoryId", width = 15)
     @ApiModelProperty(value = "categoryId")
-	private Integer categoryId;
+	private Long categoryId;
 	/**分类名称*/
 	@Excel(name = "分类名称", width = 15)
     @ApiModelProperty(value = "分类名称")
