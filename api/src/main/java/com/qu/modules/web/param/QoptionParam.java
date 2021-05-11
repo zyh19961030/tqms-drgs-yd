@@ -22,4 +22,8 @@ public class QoptionParam {
     private Integer others;
     @ApiModelProperty(value = "绑定值")
     private java.lang.String bindValue;
+    /**选项值*/
+    @Excel(name = "选项值", width = 15)
+    @ApiModelProperty(value = "选项值")
+    private java.lang.String opValue;
 }

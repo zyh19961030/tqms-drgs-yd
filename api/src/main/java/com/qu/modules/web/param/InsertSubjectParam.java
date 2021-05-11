@@ -83,6 +83,11 @@ public class InsertSubjectParam {
     @ApiModelProperty(value = "数据库列名")
     private java.lang.String columnName;
 
+    /**创建数据库列名的数据类型*/
+    @Excel(name = "创建数据库列名的数据类型", width = 15)
+    @ApiModelProperty(value = "创建数据库列名的数据类型")
+    private java.lang.String columnType;
+
     @ApiModelProperty(value = "选项")
     private List<QoptionParam> optionParamList;
 }

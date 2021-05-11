@@ -35,6 +35,8 @@ public class QsubjectlibEditParam {
     private String remark;
     @ApiModelProperty(value = "数据库列名")
     private java.lang.String columnName;
+    @ApiModelProperty(value = "创建数据库列名的数据类型")
+    private java.lang.String columnType;
 
     @ApiModelProperty(value = "选项")
     private List<QoptionlibParam> qoptionlibParamList;

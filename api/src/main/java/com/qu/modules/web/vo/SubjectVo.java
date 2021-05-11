@@ -90,6 +90,10 @@ public class SubjectVo {
     @Excel(name = "数据库列名", width = 15)
     @ApiModelProperty(value = "数据库列名")
     private java.lang.String columnName;
+    /**创建数据库列名的数据类型*/
+    @Excel(name = "创建数据库列名的数据类型", width = 15)
+    @ApiModelProperty(value = "创建数据库列名的数据类型")
+    private java.lang.String columnType;
     /**0:正常1:已删除*/
     @Excel(name = "0:正常1:已删除", width = 15)
     @ApiModelProperty(value = "0:正常1:已删除")
