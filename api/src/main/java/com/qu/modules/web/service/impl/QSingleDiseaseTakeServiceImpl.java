@@ -510,6 +510,9 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             }
             for (Map.Entry<String, String> entry : map.entrySet()) {
                 QueryWrapper<Qsubject> wrapper = new QueryWrapper<Qsubject>();
+                if("id".equals(entry.getKey())){
+                    continue;
+                }
                 wrapper.eq("column_name", entry.getKey());
                 wrapper.eq("qu_id", qSingleDiseaseTake.getQuestionId());
                 Qsubject qsubject = qsubjectMapper.selectOne(wrapper);
@@ -518,7 +521,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 singleDiseaseAnswer.setSubValue(entry.getValue());
                 mapCache.put(qsubject.getId(), singleDiseaseAnswer);
             }
-            List<String> resList = new ArrayList<>(map.values());
+            List<SingleDiseaseAnswer> resList = new ArrayList<>(mapCache.values());
             answer = JSON.toJSONString(resList);
         }
 
