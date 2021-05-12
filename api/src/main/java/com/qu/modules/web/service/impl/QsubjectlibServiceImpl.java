@@ -59,6 +59,7 @@ public class QsubjectlibServiceImpl extends ServiceImpl<QsubjectlibMapper, Qsubj
         QsubjectlibVo qsubjectlibVo = new QsubjectlibVo();
         Qsubjectlib qsubjectlib = new Qsubjectlib();
         try {
+            qsubjectlibAddParam.setColumnType(conversionColumnType(qsubjectlibAddParam.getColumnType()));
             BeanUtils.copyProperties(qsubjectlibAddParam, qsubjectlib);
             qsubjectlib.setDel(0);
             qsubjectlib.setCreater(1);
@@ -95,11 +96,25 @@ public class QsubjectlibServiceImpl extends ServiceImpl<QsubjectlibMapper, Qsubj
         return qsubjectlibVo;
     }
 
+    private String conversionColumnType(String columnType) {
+        switch (columnType) {
+            case "字符串":
+            case "数组":
+                return "varchar";
+            case "数值":
+                return "int";
+            default:
+                break;
+        }
+        return null;
+    }
+
     @Override
     public QsubjectlibVo updateQsubjectlibById(QsubjectlibEditParam qsubjectlibEditParam) {
         QsubjectlibVo qsubjectlibVo = new QsubjectlibVo();
         Qsubjectlib qsubjectlib = new Qsubjectlib();
         try {
+            qsubjectlibEditParam.setColumnType(conversionColumnType(qsubjectlibEditParam.getColumnType()));
             BeanUtils.copyProperties(qsubjectlibEditParam, qsubjectlib);
             qsubjectlib.setUpdater(1);
             qsubjectlib.setUpdateTime(new Date());

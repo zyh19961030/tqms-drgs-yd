@@ -36,6 +36,8 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
         SubjectVo subjectVo = new SubjectVo();
         Qsubject subject = new Qsubject();
         try {
+            subjectParam.setColumnType(conversionColumnType(subjectParam.getColumnType()));
+
             BeanUtils.copyProperties(subjectParam, subject);
             Map<String, Object> param = new HashMap<>();
             param.put("quId", subjectParam.getQuId());
@@ -94,11 +96,25 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
         return subjectVo;
     }
 
+    private String conversionColumnType(String columnType) {
+        switch (columnType) {
+            case "字符串":
+            case "数组":
+                return "varchar";
+            case "数值":
+                return "int";
+            default:
+                break;
+        }
+        return null;
+    }
+
     @Override
     public SubjectVo insertSubject(InsertSubjectParam insertSubjectParam) {
         SubjectVo subjectVo = new SubjectVo();
         Qsubject subject = new Qsubject();
         try {
+            insertSubjectParam.setColumnType(conversionColumnType(insertSubjectParam.getColumnType()));
             BeanUtils.copyProperties(insertSubjectParam, subject);
             Map<String, Object> param = new HashMap<>();
             param.put("quId", insertSubjectParam.getQuId());
@@ -196,6 +212,7 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
         SubjectVo subjectVo = new SubjectVo();
         Qsubject subject = new Qsubject();
         try {
+            subjectEditParam.setColumnType(conversionColumnType(subjectEditParam.getColumnType()));
             BeanUtils.copyProperties(subjectEditParam, subject);
             //如果是分组题，计算分组题号字段
             if (subjectEditParam.getSubType() != null) {
