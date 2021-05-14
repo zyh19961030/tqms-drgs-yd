@@ -1,14 +1,16 @@
 package com.qu.modules.web.mapper;
 
+import java.util.List;
+import java.util.Map;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.qu.modules.web.entity.QSingleDiseaseTake;
 import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewLineVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewPieVo;
 import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo;
 import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
 import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @Description: 单病种总表
@@ -31,4 +33,7 @@ public interface QSingleDiseaseTakeMapper extends BaseMapper<QSingleDiseaseTake>
 
     List<QSingleDiseaseTakeReportStatisticDeptVo> selectDept();
 
+    List<QSingleDiseaseTakeReportStatisticOverviewLineVo> allSingleDiseaseReportStatisticOverviewLine(Map<String, Object> params);
+
+    List<QSingleDiseaseTakeReportStatisticOverviewPieVo> allSingleDiseaseReportStatisticOverviewPie(Map<String, Object> params);
 }

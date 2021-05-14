@@ -97,4 +97,79 @@
     <select id="selectDept" parameterType="map" resultType="com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo">
         select department_id departmentId,department from q_single_disease_take group by department_id,department
     </select>
+
+    <select id="allSingleDiseaseReportStatisticOverviewLine"
+            parameterType="map"
+            resultType="com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewLineVo">
+        select
+        <if test="dateType!=null and dateType=='yearly'">
+            DATE_FORMAT(country_report_time,'%Y') date,
+        </if>
+        <if test="dateType!=null and dateType=='monthly'">
+            DATE_FORMAT(country_report_time,'%Y-%m') date,
+        </if>
+        <if test="dateType!=null and dateType=='daily'">
+            DATE_FORMAT(country_report_time,'%Y-%m-%d') date,
+        </if>
+        count(1) number from q_single_disease_take
+        <where>
+            <if test="diseaseName!=null and diseaseName.length > 0">
+                and icd_name in
+                <foreach close=")" collection="diseaseName" item="listItem" open="(" separator=",">
+                    #{listItem}
+                </foreach>
+            </if>
+            <if test="status!=null">
+                and status=#{status}
+            </if>
+            <if test="dateType!=null">
+                and country_report_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
+                and country_report_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
+            </if>
+            <if test="dept!=null and dept.length > 0">
+                and department_id in
+                <foreach close=")" collection="dept" item="listItem" open="(" separator=",">
+                    #{listItem}
+                </foreach>
+            </if>
+        </where>
+        group by
+        <if test="dateType!=null and dateType=='yearly'">
+            DATE_FORMAT(country_report_time,'%Y')
+        </if>
+        <if test="dateType!=null and dateType=='monthly'">
+            DATE_FORMAT(country_report_time,'%Y-%m')
+        </if>
+        <if test="dateType!=null and dateType=='daily'">
+            DATE_FORMAT(country_report_time,'%Y-%m-%d')
+        </if>
+    </select>
+
+    <select id="allSingleDiseaseReportStatisticOverviewPie" parameterType="map"
+            resultType="com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewPieVo">
+        select
+        icd_name disease, count(1) number from q_single_disease_take
+        <where>
+            <if test="diseaseName!=null and diseaseName.length > 0">
+                and icd_name in
+                <foreach close=")" collection="diseaseName" item="listItem" open="(" separator=",">
+                    #{listItem}
+                </foreach>
+            </if>
+            <if test="status!=null">
+                and status=#{status}
+            </if>
+            <if test="dateType!=null">
+                and country_report_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
+                and country_report_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
+            </if>
+            <if test="dept!=null and dept.length > 0">
+                and department_id in
+                <foreach close=")" collection="dept" item="listItem" open="(" separator=",">
+                    #{listItem}
+                </foreach>
+            </if>
+        </where>
+        group by icd_name
+    </select>
 </mapper>
