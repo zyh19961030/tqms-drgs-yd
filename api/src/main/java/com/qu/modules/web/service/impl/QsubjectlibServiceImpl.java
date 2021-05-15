@@ -13,6 +13,7 @@ import com.qu.modules.web.service.IQsubjectlibService;
 import com.qu.modules.web.vo.QsubjectlibPageVo;
 import com.qu.modules.web.vo.QsubjectlibVo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -58,41 +59,42 @@ public class QsubjectlibServiceImpl extends ServiceImpl<QsubjectlibMapper, Qsubj
     public QsubjectlibVo saveQsubjectlib(QsubjectlibAddParam qsubjectlibAddParam) {
         QsubjectlibVo qsubjectlibVo = new QsubjectlibVo();
         Qsubjectlib qsubjectlib = new Qsubjectlib();
-        try {
-            qsubjectlibAddParam.setColumnType(conversionColumnType(qsubjectlibAddParam.getColumnType()));
-            BeanUtils.copyProperties(qsubjectlibAddParam, qsubjectlib);
-            qsubjectlib.setDel(0);
-            qsubjectlib.setCreater(1);
-            qsubjectlib.setCreateTime(new Date());
-            qsubjectlib.setUpdater(1);
-            qsubjectlib.setUpdateTime(new Date());
-            qsubjectlibMapper.insert(qsubjectlib);
-            //拷贝到Vo对象
-            BeanUtils.copyProperties(qsubjectlib, qsubjectlibVo);
-            //选项
-            List<Qoptionlib> qoptionlibList = new ArrayList<>();
-            List<QoptionlibParam> qoptionlibParamList = qsubjectlibAddParam.getQoptionlibParamList();
-            if (null != qoptionlibParamList) {
-                int i = 1;
-                for (QoptionlibParam qoptionlibParam : qoptionlibParamList) {
-                    Qoptionlib qoptionlib = new Qoptionlib();
-                    BeanUtils.copyProperties(qoptionlibParam, qoptionlib);
-                    qoptionlib.setSubId(qsubjectlib.getId());
-                    qoptionlib.setOpOrder(i);
-                    qoptionlib.setDel(0);
-                    qoptionlib.setCreater(1);
-                    qoptionlib.setCreateTime(new Date());
-                    qoptionlib.setUpdater(1);
-                    qoptionlib.setUpdateTime(new Date());
-                    qoptionlibMapper.insert(qoptionlib);
-                    i++;
-                    qoptionlibList.add(qoptionlib);
-                }
-                qsubjectlibVo.setQoptionlibList(qoptionlibList);
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
+
+        String columnType = qsubjectlibAddParam.getColumnType();
+        if (StringUtils.isNotBlank(columnType)) {
+            qsubjectlib.setColumnTypeDatabase(conversionColumnType(qsubjectlibAddParam.getColumnType()));
         }
+        BeanUtils.copyProperties(qsubjectlibAddParam, qsubjectlib);
+        qsubjectlib.setDel(0);
+        qsubjectlib.setCreater(1);
+        qsubjectlib.setCreateTime(new Date());
+        qsubjectlib.setUpdater(1);
+        qsubjectlib.setUpdateTime(new Date());
+        qsubjectlibMapper.insert(qsubjectlib);
+        //拷贝到Vo对象
+        BeanUtils.copyProperties(qsubjectlib, qsubjectlibVo);
+        //选项
+        List<Qoptionlib> qoptionlibList = new ArrayList<>();
+        List<QoptionlibParam> qoptionlibParamList = qsubjectlibAddParam.getQoptionlibParamList();
+        if (null != qoptionlibParamList) {
+            int i = 1;
+            for (QoptionlibParam qoptionlibParam : qoptionlibParamList) {
+                Qoptionlib qoptionlib = new Qoptionlib();
+                BeanUtils.copyProperties(qoptionlibParam, qoptionlib);
+                qoptionlib.setSubId(qsubjectlib.getId());
+                qoptionlib.setOpOrder(i);
+                qoptionlib.setDel(0);
+                qoptionlib.setCreater(1);
+                qoptionlib.setCreateTime(new Date());
+                qoptionlib.setUpdater(1);
+                qoptionlib.setUpdateTime(new Date());
+                qoptionlibMapper.insert(qoptionlib);
+                i++;
+                qoptionlibList.add(qoptionlib);
+            }
+            qsubjectlibVo.setQoptionlibList(qoptionlibList);
+        }
+
         return qsubjectlibVo;
     }
 
@@ -113,40 +115,41 @@ public class QsubjectlibServiceImpl extends ServiceImpl<QsubjectlibMapper, Qsubj
     public QsubjectlibVo updateQsubjectlibById(QsubjectlibEditParam qsubjectlibEditParam) {
         QsubjectlibVo qsubjectlibVo = new QsubjectlibVo();
         Qsubjectlib qsubjectlib = new Qsubjectlib();
-        try {
-            qsubjectlibEditParam.setColumnType(conversionColumnType(qsubjectlibEditParam.getColumnType()));
-            BeanUtils.copyProperties(qsubjectlibEditParam, qsubjectlib);
-            qsubjectlib.setUpdater(1);
-            qsubjectlib.setUpdateTime(new Date());
-            qsubjectlibMapper.updateById(qsubjectlib);
-            //拷贝到Vo对象
-            BeanUtils.copyProperties(qsubjectlib, qsubjectlibVo);
-            //删除以前的所有选项
-            int delCount = qoptionlibMapper.deleteOptionBySubId(qsubjectlib.getId());
-            //选项
-            List<Qoptionlib> qoptionlibList = new ArrayList<>();
-            List<QoptionlibParam> qoptionlibParamList = qsubjectlibEditParam.getQoptionlibParamList();
-            if (null != qoptionlibParamList) {
-                int i = 1;
-                for (QoptionlibParam qoptionlibParam : qoptionlibParamList) {
-                    Qoptionlib qoptionlib = new Qoptionlib();
-                    BeanUtils.copyProperties(qoptionlibParam, qoptionlib);
-                    qoptionlib.setSubId(qsubjectlibEditParam.getId());
-                    qoptionlib.setOpOrder(i);
-                    qoptionlib.setDel(0);
-                    qoptionlib.setCreater(1);
-                    qoptionlib.setCreateTime(new Date());
-                    qoptionlib.setUpdater(1);
-                    qoptionlib.setUpdateTime(new Date());
-                    qoptionlibMapper.insert(qoptionlib);
-                    i++;
-                    qoptionlibList.add(qoptionlib);
-                }
-                qsubjectlibVo.setQoptionlibList(qoptionlibList);
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
+
+        String columnType = qsubjectlibEditParam.getColumnType();
+        if (StringUtils.isNotBlank(columnType)) {
+            qsubjectlib.setColumnTypeDatabase(conversionColumnType(qsubjectlibEditParam.getColumnType()));
         }
+        BeanUtils.copyProperties(qsubjectlibEditParam, qsubjectlib);
+        qsubjectlib.setUpdater(1);
+        qsubjectlib.setUpdateTime(new Date());
+        qsubjectlibMapper.updateById(qsubjectlib);
+        //拷贝到Vo对象
+        BeanUtils.copyProperties(qsubjectlib, qsubjectlibVo);
+        //删除以前的所有选项
+        int delCount = qoptionlibMapper.deleteOptionBySubId(qsubjectlib.getId());
+        //选项
+        List<Qoptionlib> qoptionlibList = new ArrayList<>();
+        List<QoptionlibParam> qoptionlibParamList = qsubjectlibEditParam.getQoptionlibParamList();
+        if (null != qoptionlibParamList) {
+            int i = 1;
+            for (QoptionlibParam qoptionlibParam : qoptionlibParamList) {
+                Qoptionlib qoptionlib = new Qoptionlib();
+                BeanUtils.copyProperties(qoptionlibParam, qoptionlib);
+                qoptionlib.setSubId(qsubjectlibEditParam.getId());
+                qoptionlib.setOpOrder(i);
+                qoptionlib.setDel(0);
+                qoptionlib.setCreater(1);
+                qoptionlib.setCreateTime(new Date());
+                qoptionlib.setUpdater(1);
+                qoptionlib.setUpdateTime(new Date());
+                qoptionlibMapper.insert(qoptionlib);
+                i++;
+                qoptionlibList.add(qoptionlib);
+            }
+            qsubjectlibVo.setQoptionlibList(qoptionlibList);
+        }
+
         return qsubjectlibVo;
     }
 

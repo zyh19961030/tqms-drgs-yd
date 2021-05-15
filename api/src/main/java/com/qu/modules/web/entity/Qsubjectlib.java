@@ -15,7 +15,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 /**
  * @Description: 题库题目表
  * @Author: jeecg-boot
- * @Date:   2021-05-11
+ * @Date:   2021-05-15
  * @Version: V1.0
  */
 @Data
@@ -82,6 +82,10 @@ public class Qsubjectlib {
 	@Excel(name = "创建数据库列名的数据类型", width = 15)
 	@ApiModelProperty(value = "创建数据库列名的数据类型")
 	private java.lang.String columnType;
+	/**创建数据库列名的数据类型英文名称*/
+	@Excel(name = "创建数据库列名的数据类型英文名称", width = 15)
+	@ApiModelProperty(value = "创建数据库列名的数据类型英文名称")
+	private java.lang.String columnTypeDatabase;
 	/**0:正常1:已删除*/
 	@Excel(name = "0:正常1:已删除", width = 15)
 	@ApiModelProperty(value = "0:正常1:已删除")
