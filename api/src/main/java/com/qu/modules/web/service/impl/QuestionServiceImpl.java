@@ -2,6 +2,7 @@ package com.qu.modules.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.qu.constant.QuestionConstant;
 import com.qu.modules.web.entity.Qoption;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.entity.Question;
@@ -155,7 +156,24 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                 sql.append("`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',");
                 List<Qsubject> subjectList = subjectMapper.selectSubjectByQuId(questionEditParam.getId());
                 for (Qsubject qsubject : subjectList) {
-                    sql.append("`" + qsubject.getColumnName() + "` varchar(2000) COMMENT '" + qsubject.getSubName() + "',");
+                    Integer limitWords = qsubject.getLimitWords();
+                    if(limitWords==null || limitWords==0){
+                        limitWords=50;
+                    }
+                    String subType = qsubject.getSubType();
+                    Integer del = qsubject.getDel();
+                    if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType) || QuestionConstant.DEL_DELETED.equals(del)) {
+                        continue;
+                    }
+                    sql.append("`")
+                            .append(qsubject.getColumnName())
+                            .append("` ")
+                            .append(qsubject.getColumnTypeDatabase())
+                            .append("(")
+                            .append(limitWords)
+                            .append(") COMMENT '")
+                            .append(qsubject.getSubName())
+                            .append("',");
                 }
                 sql.append(" PRIMARY KEY (`id`)");
                 sql.append(") ENGINE=InnoDB DEFAULT CHARSET=utf8;");

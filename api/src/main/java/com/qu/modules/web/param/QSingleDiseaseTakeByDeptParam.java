@@ -11,8 +11,8 @@ import java.util.Date;
 @Data
 @ApiModel(value="本科室单病种上报记录查询", description="本科室单病种上报记录查询")
 public class QSingleDiseaseTakeByDeptParam {
-    @ApiModelProperty(value = "病种名称")
-    private String diseaseName;
+    @ApiModelProperty(value = "分类id")
+    private String categoryId;
     @ApiModelProperty(value = "患者姓名")
     private String patientName;
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")

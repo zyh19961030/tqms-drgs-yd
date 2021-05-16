@@ -5,10 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
-@ApiModel(value = "按单病种填报Vo", description = "按单病种填报Vo")
-public class QSingleDiseaseTakeVo {
-    /*@ApiModelProperty(value = "人数")
-    private int count;*/
+@ApiModel(value = "病种名称筛选条件Vo", description = "按单病种填报Vo")
+public class QSingleDiseaseNameVo {
     @ApiModelProperty(value = "分类id")
     private String categoryId;
     @ApiModelProperty(value = "图片")

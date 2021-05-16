@@ -1,20 +1,11 @@
 package com.qu.modules.web.service;
 
-import java.util.List;
-
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.QSingleDiseaseTake;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
-import com.qu.modules.web.param.SingleDiseaseAnswerParam;
-import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
+import com.qu.modules.web.param.*;
+import com.qu.modules.web.vo.*;
+
+import java.util.List;
 
 /**
  * @Description: 单病种总表
@@ -25,6 +16,8 @@ import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
 public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake> {
 
     List<QSingleDiseaseTakeVo> singleDiseaseList(String name);
+
+    List<QSingleDiseaseNameVo> singleDiseaseNameList();
 
     QSingleDiseaseTakeByDoctorPageVo singleDiseaseByDoctorList(QSingleDiseaseTakeByDoctorParam qSingleDiseaseTakeByDoctorParam, Integer pageNo, Integer pageSize);
 
@@ -52,5 +45,6 @@ public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake>
     String singleDiseaseAnswerQueryById(Integer id);
 
     QSingleDiseaseTakeReportStatisticOverviewVo allSingleDiseaseReportStatisticOverview(QSingleDiseaseTakeReportStatisticOverviewParam qSingleDiseaseTakeReportStatisticOverviewParam);
+
 
 }

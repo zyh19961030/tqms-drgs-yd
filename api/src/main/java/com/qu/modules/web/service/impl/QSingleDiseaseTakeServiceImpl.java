@@ -1,13 +1,5 @@
 package com.qu.modules.web.service.impl;
 
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -22,23 +14,10 @@ import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
-import com.qu.modules.web.param.SingleDiseaseAnswer;
-import com.qu.modules.web.param.SingleDiseaseAnswerParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
-import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewLineVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewPieVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
+import com.qu.modules.web.vo.*;
 import com.qu.util.HttpClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -51,6 +30,11 @@ import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 单病种总表
@@ -79,9 +63,37 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
     @Override
     public List<QSingleDiseaseTakeVo> singleDiseaseList(String name) {
-        return qSingleDiseaseTakeMapper.singleDiseaseList(name);
+        QueryWrapper<Question> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("qu_Status","1");
+        queryWrapper.eq("del","0");
+        //todo 科室匹配
+        List<Question> questions = questionMapper.selectList(queryWrapper);
+        List<QSingleDiseaseTakeVo> qSingleDiseaseTakeVoList = questions.stream().map(q -> {
+            QSingleDiseaseTakeVo qSingleDiseaseTakeVo = new QSingleDiseaseTakeVo();
+            qSingleDiseaseTakeVo.setIcon(q.getIcon());
+            qSingleDiseaseTakeVo.setDisease(q.getQuName());
+            qSingleDiseaseTakeVo.setCategoryId(q.getCategoryId());
+            return qSingleDiseaseTakeVo;
+        }).collect(Collectors.toList());
+        return qSingleDiseaseTakeVoList;
     }
 
+    @Override
+    public List<QSingleDiseaseNameVo> singleDiseaseNameList() {
+        QueryWrapper<Question> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("qu_Status","1");
+        queryWrapper.eq("del","0");
+        //todo 科室匹配
+        List<Question> questions = questionMapper.selectList(queryWrapper);
+        List<QSingleDiseaseNameVo> qSingleDiseaseTakeVoList = questions.stream().map(q -> {
+            QSingleDiseaseNameVo qSingleDiseaseTakeVo = new QSingleDiseaseNameVo();
+            qSingleDiseaseTakeVo.setIcon(q.getIcon());
+            qSingleDiseaseTakeVo.setDisease(q.getQuName());
+            qSingleDiseaseTakeVo.setCategoryId(q.getCategoryId());
+            return qSingleDiseaseTakeVo;
+        }).collect(Collectors.toList());
+        return qSingleDiseaseTakeVoList;
+    }
 
     @Override
     public QSingleDiseaseTakeByDoctorPageVo singleDiseaseByDoctorList(QSingleDiseaseTakeByDoctorParam qSingleDiseaseTakeByDoctorParam, Integer pageNo, Integer pageSize) {
@@ -95,8 +107,8 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             queryWrapper.like("doctor_name", qSingleDiseaseTakeByDoctorParam.getDoctorName());
         }
 
-        if (StringUtils.isNotBlank(qSingleDiseaseTakeByDoctorParam.getDiseaseName())) {
-            queryWrapper.like("icd_name", qSingleDiseaseTakeByDoctorParam.getDiseaseName());
+        if (StringUtils.isNotBlank(qSingleDiseaseTakeByDoctorParam.getCategoryId())) {
+            queryWrapper.like("category_id", qSingleDiseaseTakeByDoctorParam.getCategoryId());
         }
 
         if (qSingleDiseaseTakeByDoctorParam.getInHospitalStartDate() != null) {
@@ -123,7 +135,16 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             queryWrapper.like("main_diagnosis", qSingleDiseaseTakeByDoctorParam.getMainDiagnosis());
         }
 
+        QueryWrapper<Question> questionQueryWrapper = new QueryWrapper<>();
         IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, queryWrapper);
+        for (QSingleDiseaseTake record : qSingleDiseaseTakeIPage.getRecords()) {
+            String dynamicTableName = record.getDynamicTableName();
+            if(StringUtils.isNotBlank(dynamicTableName)){
+                questionQueryWrapper.eq("table_name", dynamicTableName);
+                Question question = questionMapper.selectOne(questionQueryWrapper);
+                record.setQuestionId(question.getId());
+            }
+        }
         QSingleDiseaseTakeByDoctorPageVo qsubjectlibPageVo = new QSingleDiseaseTakeByDoctorPageVo();
         qsubjectlibPageVo.setTotal(qSingleDiseaseTakeIPage.getTotal());
         qsubjectlibPageVo.setQSingleDiseaseTakeList(qSingleDiseaseTakeIPage.getRecords());
@@ -218,8 +239,8 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         //todo  添加科室操作
         Page<QSingleDiseaseTake> page = new Page<>(pageNo, pageSize);
         QueryWrapper<QSingleDiseaseTake> queryWrapper = new QueryWrapper<>();
-        if (StringUtils.isNotBlank(qSingleDiseaseTakeByDeptParam.getDiseaseName())) {
-            queryWrapper.like("icd_name", qSingleDiseaseTakeByDeptParam.getDiseaseName());
+        if (StringUtils.isNotBlank(qSingleDiseaseTakeByDeptParam.getCategoryId())) {
+            queryWrapper.like("category_id", qSingleDiseaseTakeByDeptParam.getCategoryId());
         }
 
         if (StringUtils.isNotBlank(qSingleDiseaseTakeByDeptParam.getPatientName())) {
@@ -267,7 +288,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         Map<String, Object> params = new HashMap<>();
         params.put("startRow", (pageNo - 1) * pageSize);
         params.put("pageSize", pageSize);
-        params.put("diseaseName", qSingleDiseaseTakeReportStatisticParam.getDiseaseName());
+        params.put("category_id", qSingleDiseaseTakeReportStatisticParam.getCategoryId());
         String dateType = qSingleDiseaseTakeReportStatisticParam.getDateType();
         String dateStart = qSingleDiseaseTakeReportStatisticParam.getDateStart();
         String dateEnd = qSingleDiseaseTakeReportStatisticParam.getDateEnd();
@@ -512,7 +533,10 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 mapCache.put(a.getSubId(), a);
             }
         }
-        Question question = questionMapper.selectById(qSingleDiseaseTake.getQuestionId());
+        String dynamicTableName = qSingleDiseaseTake.getDynamicTableName();
+        QueryWrapper<Question> questionQueryWrapper = new QueryWrapper<>();
+        questionQueryWrapper.eq("table_name", dynamicTableName);
+        Question question = questionMapper.selectOne(questionQueryWrapper);
         StringBuffer sqlAns = new StringBuffer();
         if (question != null) {
             sqlAns.append("select * from ");
@@ -531,7 +555,8 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                     continue;
                 }
                 wrapper.eq("column_name", entry.getKey());
-                wrapper.eq("qu_id", qSingleDiseaseTake.getQuestionId());
+                wrapper.eq("qu_id", question.getId());
+                wrapper.eq("del", "0");
                 Qsubject qsubject = qsubjectMapper.selectOne(wrapper);
                 SingleDiseaseAnswer singleDiseaseAnswer = new SingleDiseaseAnswer();
                 singleDiseaseAnswer.setSubId(qsubject.getId());
@@ -575,10 +600,10 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         params.put("dateStart", startDate);
         params.put("dateEnd", endDate);
         String[] dept = qSingleDiseaseTakeReportStatisticOverviewParam.getDept();
-        String[] diseaseName = qSingleDiseaseTakeReportStatisticOverviewParam.getDiseaseName();
+        String[] categoryId = qSingleDiseaseTakeReportStatisticOverviewParam.getCategoryId();
         params.put("dept", dept);
         params.put("dateType", dateType);
-        params.put("diseaseName", diseaseName);
+        params.put("category_id", categoryId);
         params.put("status", QSingleDiseaseTakeConstant.STATUS_COMPLETE);
         List<QSingleDiseaseTakeReportStatisticOverviewLineVo> overviewLineVoList =  this.qSingleDiseaseTakeMapper.allSingleDiseaseReportStatisticOverviewLine(params);
         List<QSingleDiseaseTakeReportStatisticOverviewPieVo> overviewPieVoList =  this.qSingleDiseaseTakeMapper.allSingleDiseaseReportStatisticOverviewPie(params);

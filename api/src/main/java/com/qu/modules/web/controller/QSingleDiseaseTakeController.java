@@ -1,24 +1,10 @@
 package com.qu.modules.web.controller;
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
 import com.alibaba.fastjson.JSON;
 import com.qu.constant.QSingleDiseaseTakeConstant;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
-import com.qu.modules.web.param.SingleDiseaseAnswerParam;
-import com.qu.modules.web.param.SingleDiseaseRejectParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
-import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
+import com.qu.modules.web.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -28,12 +14,10 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @Description: 单病种总表
@@ -59,6 +43,20 @@ public class QSingleDiseaseTakeController {
     public Result<List<QSingleDiseaseTakeVo>> singleDiseaseList(@RequestParam(name = "name", required = false) String name) {
         Result<List<QSingleDiseaseTakeVo>> result = new Result<>();
         List<QSingleDiseaseTakeVo> list = qSingleDiseaseTakeService.singleDiseaseList(name);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+    /**
+     * 按医生填报查询-本科室单病种上报记录-全院单病种上报统计-科室单病种上报统计-单病种指标统计-病种名称筛选条件
+     */
+    @AutoLog(value = "按医生填报查询-本科室单病种上报记录-全院单病种上报统计-科室单病种上报统计-单病种指标统计-病种名称筛选条件")
+    @ApiOperation(value = "按医生填报查询-本科室单病种上报记录-全院单病种上报统计-科室单病种上报统计-单病种指标统计-病种名称筛选条件", notes = "按医生填报查询-本科室单病种上报记录-全院单病种上报统计-科室单病种上报统计-单病种指标统计-病种名称筛选条件")
+    @GetMapping(value = "/singleDiseaseNameList")
+    public Result<List<QSingleDiseaseNameVo>> singleDiseaseNameList() {
+        Result<List<QSingleDiseaseNameVo>> result = new Result<>();
+        List<QSingleDiseaseNameVo> list = qSingleDiseaseTakeService.singleDiseaseNameList();
         result.setSuccess(true);
         result.setResult(list);
         return result;

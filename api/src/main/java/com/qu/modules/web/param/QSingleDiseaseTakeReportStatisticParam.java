@@ -10,8 +10,8 @@ import javax.validation.constraints.Pattern;
 @Data
 @ApiModel(value="本科室单病种上报记录查询", description="本科室单病种上报记录查询")
 public class QSingleDiseaseTakeReportStatisticParam {
-    @ApiModelProperty(value = "病种名称")
-    private String diseaseName;
+    @ApiModelProperty(value = "分类id")
+    private String categoryId;
     @NotNull(message = "时间类型不能为空")
     @Pattern(regexp = "yearly|monthly|daily",message = "时间类型不正确")
     @ApiModelProperty(value = "时间类型：年yearly 月monthly 日daily")

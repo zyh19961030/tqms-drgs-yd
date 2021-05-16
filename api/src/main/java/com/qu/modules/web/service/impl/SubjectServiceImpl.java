@@ -290,8 +290,10 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
                 optionList.add(option);
             }
             //删除应该删除的选项
-
-
+            List<Integer> optionDeleteList = subjectEditParam.getOptionDeleteList();
+            if(optionDeleteList!=null && !optionDeleteList.isEmpty()){
+                optionMapper.deleteBatchIds(optionDeleteList);
+            }
             subjectVo.setOptionList(optionList);
         }
 

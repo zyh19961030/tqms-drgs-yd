@@ -86,4 +86,7 @@ public class SubjectEditParam {
 
     @ApiModelProperty(value = "选项")
     private List<QoptionParam>  optionParamList;
+
+    @ApiModelProperty(value = "删除的选项id集合")
+    private List<Integer>  optionDeleteList;
 }

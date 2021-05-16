@@ -19,7 +19,8 @@ public class InterceptorConfig extends WebMvcConfigurationSupport {
         super.addInterceptors(registry);
         registry.addInterceptor(localInterceptor()).addPathPatterns("/**")
                 .excludePathPatterns("/rest/login.do/info")
-                .excludePathPatterns("/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html/**");
+                .excludePathPatterns("/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html/**")
+                .excludePathPatterns(("/static/**"));
     }
 
     @Override

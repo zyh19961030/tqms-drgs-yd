@@ -86,4 +86,8 @@ public class Question {
 	@Excel(name = "0其他 1单病种", width = 15)
 	@ApiModelProperty(value = "0其他 1单病种")
 	private java.lang.Integer categoryType;
+	/**图标*/
+	@Excel(name = "图标", width = 15)
+	@ApiModelProperty(value = "图标")
+	private java.lang.String icon;
 }

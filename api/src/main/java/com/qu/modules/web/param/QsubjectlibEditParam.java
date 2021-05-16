@@ -40,4 +40,7 @@ public class QsubjectlibEditParam {
 
     @ApiModelProperty(value = "选项")
     private List<QoptionlibParam> qoptionlibParamList;
+
+    @ApiModelProperty(value = "删除的选项id集合")
+    private List<Integer>  qoptionlibDeleteList;
 }

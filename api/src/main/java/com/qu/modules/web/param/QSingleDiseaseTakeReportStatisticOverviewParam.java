@@ -1,11 +1,11 @@
 package com.qu.modules.web.param;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 @Data
 @ApiModel(value="全院单病种上报数量统计-查看图表-单病种上报数据概览入参", description="全院单病种上报数量统计-查看图表-单病种上报数据概览入参")
@@ -24,6 +24,6 @@ public class QSingleDiseaseTakeReportStatisticOverviewParam {
     private String dateEnd;
     @ApiModelProperty(value = "科室id数组")
     private String[] dept;
-    @ApiModelProperty(value = "病种名称")
-    private String[] diseaseName;
+    @ApiModelProperty(value = "分类id数组")
+    private String[] categoryId;
 }
