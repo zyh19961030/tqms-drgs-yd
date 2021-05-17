@@ -1,12 +1,24 @@
 package com.qu.modules.web.service.impl;
 
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.qu.constant.QSingleDiseaseTakeConstant;
+import com.qu.constant.QuestionConstant;
 import com.qu.modules.web.entity.QSingleDiseaseTake;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.entity.Question;
@@ -14,11 +26,26 @@ import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.*;
+import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
+import com.qu.modules.web.param.SingleDiseaseAnswer;
+import com.qu.modules.web.param.SingleDiseaseAnswerParam;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
-import com.qu.modules.web.vo.*;
+import com.qu.modules.web.vo.QSingleDiseaseNameVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewLineVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewPieVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
 import com.qu.util.HttpClient;
+import com.qu.util.PriceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -30,11 +57,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @Description: 单病种总表
@@ -135,11 +157,12 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             queryWrapper.like("main_diagnosis", qSingleDiseaseTakeByDoctorParam.getMainDiagnosis());
         }
 
-        QueryWrapper<Question> questionQueryWrapper = new QueryWrapper<>();
+
         IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, queryWrapper);
         for (QSingleDiseaseTake record : qSingleDiseaseTakeIPage.getRecords()) {
             String dynamicTableName = record.getDynamicTableName();
             if(StringUtils.isNotBlank(dynamicTableName)){
+                QueryWrapper<Question> questionQueryWrapper = new QueryWrapper<>();
                 questionQueryWrapper.eq("table_name", dynamicTableName);
                 Question question = questionMapper.selectOne(questionQueryWrapper);
                 record.setQuestionId(question.getId());
@@ -459,9 +482,12 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 answerDeptname = jsonRootBean.getData().getDeps().get(0).getDepName();
             }
         }
-        QSingleDiseaseTake qSingleDiseaseTake = new QSingleDiseaseTake();
+        SingleDiseaseAnswer[] answersArray = singleDiseaseAnswerParam.getAnswers();
+
+//        QSingleDiseaseTake qSingleDiseaseTake = new QSingleDiseaseTake();
+        QSingleDiseaseTake qSingleDiseaseTake = this.getById(singleDiseaseAnswerParam.getId());
         qSingleDiseaseTake.setId(singleDiseaseAnswerParam.getId());
-        qSingleDiseaseTake.setAnswerJson(JSON.toJSONString(singleDiseaseAnswerParam.getAnswers()));
+        qSingleDiseaseTake.setAnswerJson(JSON.toJSONString(answersArray));
         qSingleDiseaseTake.setAnswerStatus(answerStatus);
         qSingleDiseaseTake.setStatus(status);
         qSingleDiseaseTake.setAnswer(answer);
@@ -469,7 +495,163 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         qSingleDiseaseTake.setAnswerTime(new Date());
         qSingleDiseaseTake.setAnswerDeptid(answerDeptid);
         qSingleDiseaseTake.setAnswerDeptid(answerDeptname);
+
+        //todo 现在是id  需要改成字段名
+        Map<Integer, String> mapCache = new HashMap<>();
+        for (SingleDiseaseAnswer a : answersArray) {
+            if(StringUtils.isNotBlank(a.getBindValue())){
+                mapCache.put(a.getSubId(), a.getBindValue());
+            }else{
+                mapCache.put(a.getSubId(), a.getSubValue());
+            }
+        }
+        LambdaQueryWrapper<Qsubject> lambdaPatientName = new QueryWrapper<Qsubject>().lambda();
+        lambdaPatientName.eq(Qsubject::getColumnName,"xm");
+        lambdaPatientName.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        Qsubject qsubject = qsubjectMapper.selectOne(lambdaPatientName);
+        String patientName = mapCache.get(qsubject.getId());
+        qSingleDiseaseTake.setPatientName(patientName);
+
+        LambdaQueryWrapper<Qsubject> lambdaPatientGender = new QueryWrapper<Qsubject>().lambda();
+        lambdaPatientGender.eq(Qsubject::getColumnName,"CM-0-2-1-2");
+        lambdaPatientGender.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        qsubject = qsubjectMapper.selectOne(lambdaPatientGender);
+        qSingleDiseaseTake.setPatientGender(mapCache.get(qsubject.getId()));
+
+        LambdaQueryWrapper<Qsubject> lambdaBirthday = new QueryWrapper<Qsubject>().lambda();
+        lambdaBirthday.eq(Qsubject::getColumnName,"CM-0-2-1-1");
+        lambdaBirthday.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        qsubject = qsubjectMapper.selectOne(lambdaBirthday);
+        String birthday = mapCache.get(qsubject.getId());
+        if(StringUtils.isNotBlank(birthday)){
+            qSingleDiseaseTake.setAge(String.valueOf(DateUtil.ageOfNow(birthday)));
+        }
+
+        LambdaQueryWrapper<Qsubject> lambdaInTime = new QueryWrapper<Qsubject>().lambda();
+        lambdaInTime.eq(Qsubject::getColumnName,"CM-0-2-4-1");
+        lambdaInTime.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        qsubject = qsubjectMapper.selectOne(lambdaInTime);
+        String dateInTimeString = mapCache.get(qsubject.getId());
+        if(StringUtils.isNotBlank(dateInTimeString)){
+            Date dateInTime = DateUtil.parse(dateInTimeString).toJdkDate();
+            qSingleDiseaseTake.setInTime(dateInTime);
+        }
+
+        LambdaQueryWrapper<Qsubject> lambdaOutTime = new QueryWrapper<Qsubject>().lambda();
+        lambdaOutTime.eq(Qsubject::getColumnName,"CM-0-2-4-2");
+        lambdaOutTime.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        qsubject = qsubjectMapper.selectOne(lambdaOutTime);
+        String dateOutTimeString = mapCache.get(qsubject.getId());
+        if(StringUtils.isNotBlank(dateInTimeString)){
+            Date dateOutTime = DateUtil.parse(dateOutTimeString).toJdkDate();
+            qSingleDiseaseTake.setOutTime(dateOutTime);
+        }
+
+        LambdaQueryWrapper<Qsubject> lambdaDoctor = new QueryWrapper<Qsubject>().lambda();
+        lambdaDoctor.eq(Qsubject::getColumnName,"CM-0-1-1-3");
+        lambdaDoctor.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        qsubject = qsubjectMapper.selectOne(lambdaDoctor);
+        qSingleDiseaseTake.setDoctorName(mapCache.get(qsubject.getId()));
+
+        LambdaQueryWrapper<Qsubject> lambdaDept = new QueryWrapper<Qsubject>().lambda();
+        lambdaDept.eq(Qsubject::getColumnName,"CM-0-1-1-5");
+        lambdaDept.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        qsubject = qsubjectMapper.selectOne(lambdaDept);
+        qSingleDiseaseTake.setDepartment(mapCache.get(qsubject.getId()));
+
+        LambdaQueryWrapper<Qsubject> lambdaIdCard = new QueryWrapper<Qsubject>().lambda();
+        lambdaIdCard.eq(Qsubject::getColumnName,"IDCard");
+        lambdaIdCard.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        qsubject = qsubjectMapper.selectOne(lambdaIdCard);
+        qSingleDiseaseTake.setIdCard(mapCache.get(qsubject.getId()));
+
+        LambdaQueryWrapper<Qsubject> lambdaInHospitalDay = new QueryWrapper<Qsubject>().lambda();
+        lambdaInHospitalDay.eq(Qsubject::getColumnName,"CM-4-1");
+        lambdaInHospitalDay.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        qsubject = qsubjectMapper.selectOne(lambdaInHospitalDay);
+        String inHospitalDayString = mapCache.get(qsubject.getId());
+        if(StringUtils.isNotBlank(inHospitalDayString)){
+            if(inHospitalDayString.contains("天")){
+                inHospitalDayString = inHospitalDayString.replaceAll("天","");
+            }
+            qSingleDiseaseTake.setInHospitalDay(Integer.parseInt(inHospitalDayString));
+        }
+
+        LambdaQueryWrapper<Qsubject> lambdaInHospitalFee = new QueryWrapper<Qsubject>().lambda();
+        lambdaInHospitalFee.eq(Qsubject::getColumnName,"CM-6-1");
+        lambdaInHospitalFee.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        qsubject = qsubjectMapper.selectOne(lambdaInHospitalFee);
+        String inHospitalFee = mapCache.get(qsubject.getId());
+        if(StringUtils.isNotBlank(inHospitalFee)){
+            qSingleDiseaseTake.setInHospitalFee(PriceUtil.toFenInt(new BigDecimal(inHospitalFee)));
+        }
+
+        LambdaQueryWrapper<Qsubject> lambdaOperationTreatmentFee = new QueryWrapper<Qsubject>().lambda();
+        lambdaOperationTreatmentFee.eq(Qsubject::getColumnName,"CM-6-13");
+        lambdaOperationTreatmentFee.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        qsubject = qsubjectMapper.selectOne(lambdaOperationTreatmentFee);
+        String operationTreatmentFeeString = mapCache.get(qsubject.getId());
+        if(StringUtils.isNotBlank(operationTreatmentFeeString)){
+            qSingleDiseaseTake.setOperationTreatmentFee(PriceUtil.toFenInt(new BigDecimal(operationTreatmentFeeString)));
+        }
+
+        LambdaQueryWrapper<Qsubject> lambdaDisposableConsumable = new QueryWrapper<Qsubject>().lambda();
+        lambdaDisposableConsumable.eq(Qsubject::getColumnName,"CM-6-29");
+        lambdaDisposableConsumable.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        qsubject = qsubjectMapper.selectOne(lambdaDisposableConsumable);
+        String operationDisposableMaterialFeeString = mapCache.get(qsubject.getId())==null?"0":mapCache.get(qsubject.getId());
+        Integer operationDisposableMaterialFee = PriceUtil.toFenInt(new BigDecimal(operationDisposableMaterialFeeString));
+
+        LambdaQueryWrapper<Qsubject> lambdaExaminationDisposableConsumable = new QueryWrapper<Qsubject>().lambda();
+        lambdaExaminationDisposableConsumable.eq(Qsubject::getColumnName,"CM-6-27");
+        lambdaExaminationDisposableConsumable.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        qsubject = qsubjectMapper.selectOne(lambdaExaminationDisposableConsumable);
+        String examinationDisposableMaterialFeeString = mapCache.get(qsubject.getId())==null?"0":mapCache.get(qsubject.getId());
+        Integer examinationDisposableMaterialFee = PriceUtil.toFenInt(new BigDecimal(examinationDisposableMaterialFeeString));
+
+        LambdaQueryWrapper<Qsubject> lambdaTreatmentDisposableConsumable = new QueryWrapper<Qsubject>().lambda();
+        lambdaTreatmentDisposableConsumable.eq(Qsubject::getColumnName,"CM-6-28");
+        lambdaTreatmentDisposableConsumable.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        qsubject = qsubjectMapper.selectOne(lambdaTreatmentDisposableConsumable);
+        String treatmentDisposableMaterialFeeString = mapCache.get(qsubject.getId())==null?"0":mapCache.get(qsubject.getId());
+        Integer treatmentDisposableMaterialFee = PriceUtil.toFenInt(new BigDecimal(treatmentDisposableMaterialFeeString));
+
+        qSingleDiseaseTake.setDisposableConsumable(treatmentDisposableMaterialFee+examinationDisposableMaterialFee+operationDisposableMaterialFee);
+
+        qSingleDiseaseTake.setQuestionId(qsubject.getQuId());
+
         this.qSingleDiseaseTakeMapper.updateById(qSingleDiseaseTake);
+
+        //插入答案表
+        StringBuffer sqlAns = new StringBuffer();
+        Question question = questionMapper.selectById(singleDiseaseAnswerParam.getQuId());
+        if (question != null) {
+            sqlAns.append("update " + question.getTableName() + " set ");
+            List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(singleDiseaseAnswerParam.getQuId());
+            for (int i = 0; i < subjectList.size(); i++) {
+                Qsubject qsubjectDynamicTable = subjectList.get(i);
+                String subType = qsubjectDynamicTable.getSubType();
+                Integer del = qsubjectDynamicTable.getDel();
+                if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                        || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getId())==null) {
+                    continue;
+                }
+                sqlAns.append("`");
+                sqlAns.append(qsubjectDynamicTable.getColumnName());
+                sqlAns.append("`");
+                sqlAns.append("=");
+                sqlAns.append("'");
+                sqlAns.append(mapCache.get(qsubjectDynamicTable.getId()));
+                sqlAns.append("'");
+                if (i < subjectList.size() - 1) {
+                    sqlAns.append(",");
+                }
+            }
+            sqlAns.append(" where id = ");
+            sqlAns.append(qSingleDiseaseTake.getTableId());
+            log.info("-----insert sqlAns:{}", sqlAns.toString());
+            dynamicTableMapper.updateDynamicTable(sqlAns.toString());
+        }
     }
 
 
@@ -482,35 +664,6 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 return false;
             }
             saveAnswer(cookie, singleDiseaseAnswerParam,QSingleDiseaseTakeConstant.ANSWER_STATUS_SUBMIT,QSingleDiseaseTakeConstant.STATUS_WAIT_UPLOAD);
-            //插入答案表
-            SingleDiseaseAnswer[] answers = singleDiseaseAnswerParam.getAnswers();
-            Map<Integer, String> mapCache = new HashMap<>();
-            for (SingleDiseaseAnswer a : answers) {
-                if(StringUtils.isNotBlank(a.getBindValue())){
-                    mapCache.put(a.getSubId(), a.getBindValue());
-                }else{
-                    mapCache.put(a.getSubId(), a.getSubValue());
-                }
-            }
-            StringBuffer sqlAns = new StringBuffer();
-            Question question = questionMapper.selectById(singleDiseaseAnswerParam.getQuId());
-            if (question != null) {
-                sqlAns.append("update " + question.getTableName() + " set ");
-                List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(singleDiseaseAnswerParam.getQuId());
-                for (int i = 0; i < subjectList.size(); i++) {
-                    Qsubject qsubject = subjectList.get(i);
-                    sqlAns.append(qsubject.getColumnName());
-                    sqlAns.append("=");
-                    sqlAns.append(mapCache.get(qsubject.getId()));
-                    if (i < subjectList.size() - 1) {
-                        sqlAns.append(",");
-                    }
-                }
-                sqlAns.append(" where id = ");
-                sqlAns.append(qSingleDiseaseTake.getTableId());
-                log.info("-----insert sqlAns:{}", sqlAns.toString());
-                dynamicTableMapper.updateDynamicTable(sqlAns.toString());
-            }
         } catch (Exception e) {
             falg = false;
             log.error(e.getMessage(), e);
@@ -560,7 +713,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 Qsubject qsubject = qsubjectMapper.selectOne(wrapper);
                 SingleDiseaseAnswer singleDiseaseAnswer = new SingleDiseaseAnswer();
                 singleDiseaseAnswer.setSubId(qsubject.getId());
-                singleDiseaseAnswer.setSubValue(entry.getValue());
+                singleDiseaseAnswer.setSubValue(String.valueOf(entry.getValue()));
                 mapCache.put(qsubject.getId(), singleDiseaseAnswer);
             }
             List<SingleDiseaseAnswer> resList = new ArrayList<>(mapCache.values());
