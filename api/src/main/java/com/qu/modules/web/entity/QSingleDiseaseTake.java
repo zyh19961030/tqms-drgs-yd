@@ -207,4 +207,8 @@ public class QSingleDiseaseTake {
 	@Excel(name = "动态创建表的表名", width = 15)
 	@ApiModelProperty(value = "动态创建表的表名")
 	private java.lang.String dynamicTableName;
+    /**分类id*/
+    @Excel(name = "分类id", width = 15)
+    @ApiModelProperty(value = "分类id")
+    private java.lang.Integer categoryId;
 }

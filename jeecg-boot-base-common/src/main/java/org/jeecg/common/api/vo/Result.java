@@ -1,11 +1,11 @@
 package org.jeecg.common.api.vo;
 
+import java.io.Serializable;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.jeecg.common.constant.CommonConstant;
-
-import java.io.Serializable;
 
 /**
  *   接口返回数据格式
@@ -64,7 +64,7 @@ public class Result<T> implements Serializable {
 		//this.code = CommonConstant.SC_OK_200;
 		this.success = true;
 	}
-	
+
 	public static Result<Object> error(String msg) {
 		return error(CommonConstant.SC_INTERNAL_SERVER_ERROR_500, msg);
 	}

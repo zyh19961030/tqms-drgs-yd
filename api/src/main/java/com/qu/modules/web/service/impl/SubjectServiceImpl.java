@@ -1,11 +1,21 @@
 package com.qu.modules.web.service.impl;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qu.modules.web.entity.Qoption;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.mapper.OptionMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.param.*;
+import com.qu.modules.web.param.InsertSubjectParam;
+import com.qu.modules.web.param.QoptionParam;
+import com.qu.modules.web.param.SubjectEditParam;
+import com.qu.modules.web.param.SubjectParam;
+import com.qu.modules.web.param.UpdateOrderNumParam;
 import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.SubjectVo;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.*;
 
 /**
  * @Description: 题目表
@@ -281,7 +289,7 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
                 option.setCreateTime(new Date());
                 option.setUpdater(1);
                 option.setUpdateTime(new Date());
-                if (option.getId() != null && option.getId() != 0) {//如果有id，更新
+                if (option.getId() != null && option.getId() != 0) {
                     optionMapper.updateById(option);
                 } else {
                     optionMapper.insert(option);

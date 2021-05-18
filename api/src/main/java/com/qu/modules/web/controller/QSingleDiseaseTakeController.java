@@ -1,10 +1,25 @@
 package com.qu.modules.web.controller;
 
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
 import com.alibaba.fastjson.JSON;
 import com.qu.constant.QSingleDiseaseTakeConstant;
-import com.qu.modules.web.param.*;
+import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
+import com.qu.modules.web.param.SingleDiseaseAnswerParam;
+import com.qu.modules.web.param.SingleDiseaseRejectParam;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
-import com.qu.modules.web.vo.*;
+import com.qu.modules.web.vo.QSingleDiseaseNameVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -14,10 +29,12 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @Description: 单病种总表
@@ -260,8 +277,13 @@ public class QSingleDiseaseTakeController {
         String cookie = "JSESSIONID=" + token;
         log.info("-----------singleDiseaseAnswerParam={}", JSON.toJSONString(singleDiseaseAnswerParam));
         Boolean flag = qSingleDiseaseTakeService.singleDiseaseStageAnswer(cookie,singleDiseaseAnswerParam);
-        result.setSuccess(true);
-        result.setResult(flag);
+        if(flag){
+            result.setSuccess(false);
+            result.setResult(flag);
+        }else{
+            result.setSuccess(false);
+            result.setResult(flag);
+        }
         return result;
     }
 
@@ -277,8 +299,13 @@ public class QSingleDiseaseTakeController {
         String cookie = "JSESSIONID=" + token;
         log.info("-----------singleDiseaseAnswerParam={}", JSON.toJSONString(singleDiseaseAnswerParam));
         Boolean flag = qSingleDiseaseTakeService.singleDiseaseAnswer(cookie,singleDiseaseAnswerParam);
-        result.setSuccess(true);
-        result.setResult(flag);
+        if(flag){
+            result.setSuccess(false);
+            result.setResult(flag);
+        }else{
+            result.setSuccess(false);
+            result.setResult(flag);
+        }
         return result;
     }
 
