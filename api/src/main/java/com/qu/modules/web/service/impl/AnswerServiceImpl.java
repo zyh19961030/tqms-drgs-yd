@@ -99,7 +99,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
                 List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
                 for (int i = 0; i < subjectList.size(); i++) {
                     Qsubject qsubject = subjectList.get(i);
-                    sqlAns.append(qsubject.getColumnName());
+                    sqlAns.append("`" + qsubject.getColumnName() + "`");
                     if (i < subjectList.size() - 1) {
                         sqlAns.append(",");
                     }
@@ -107,7 +107,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
                 sqlAns.append(") values (");
                 for (int i = 0; i < subjectList.size(); i++) {
                     Qsubject qsubject = subjectList.get(i);
-                    sqlAns.append(mapCache.get(qsubject.getId()));
+                    sqlAns.append("'" + mapCache.get(qsubject.getId()) + "'");
                     if (i < subjectList.size() - 1) {
                         sqlAns.append(",");
                     }
