@@ -12,15 +12,15 @@
     </select>
 
     <sql id="reportStatisticCount">
-        SELECT icd_name disease,question_id questionId,
+        SELECT dynamic_table_name dynamicTableName,question_id questionId,
         <if test="deptShow !=null and deptShow==1 ">
             department dept,
         </if>
         count(1) inHospitalCount
         FROM `q_single_disease_take`
         <where>
-            <if test="diseaseName!=null and diseaseName!=''">
-                and icd_name =#{diseaseName}
+            <if test="categoryId!=null and categoryId!=''">
+                and category_id =#{categoryId}
             </if>
             <if test="dateType!=null">
                 and in_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
@@ -54,8 +54,8 @@
     <select id="countSql" parameterType="map" resultType="java.lang.Integer">
         SELECT count(1) FROM `q_single_disease_take`
         <where>
-            <if test="disease!=null and disease!=''">
-                and icd_name =#{disease}
+            <if test="categoryId!=null and categoryId!=''">
+                and category_id =#{categoryId}
             </if>
             <if test="dept!=null and dept!=''">
                 and department_id =#{dept}
@@ -81,8 +81,8 @@
             IFNULL(AVG(disposable_consumable),0) avgDisposableConsumable
         FROM `q_single_disease_take`
         <where>
-            <if test="disease!=null and disease!=''">
-                and icd_name =#{disease}
+            <if test="categoryId!=null and categoryId!=''">
+                and category_id =#{categoryId}
             </if>
             <if test="dept!=null and dept!=''">
                 and department_id =#{dept}
@@ -113,9 +113,9 @@
         </if>
         count(1) number from q_single_disease_take
         <where>
-            <if test="diseaseName!=null and diseaseName.length > 0">
-                and icd_name in
-                <foreach close=")" collection="diseaseName" item="listItem" open="(" separator=",">
+            <if test="categoryId!=null and categoryId.length > 0">
+                and category_id in
+                <foreach close=")" collection="categoryId" item="listItem" open="(" separator=",">
                     #{listItem}
                 </foreach>
             </if>
@@ -150,9 +150,9 @@
         select
         icd_name disease, count(1) number from q_single_disease_take
         <where>
-            <if test="diseaseName!=null and diseaseName.length > 0">
-                and icd_name in
-                <foreach close=")" collection="diseaseName" item="listItem" open="(" separator=",">
+            <if test="categoryId!=null and categoryId.length > 0">
+                and category_id in
+                <foreach close=")" collection="categoryId" item="listItem" open="(" separator=",">
                     #{listItem}
                 </foreach>
             </if>

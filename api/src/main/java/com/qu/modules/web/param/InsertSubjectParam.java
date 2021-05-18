@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.jeecgframework.poi.excel.annotation.Excel;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
@@ -14,17 +16,21 @@ public class InsertSubjectParam {
     /**问卷id*/
     @Excel(name = "问卷id", width = 15)
     @ApiModelProperty(value = "问卷id")
+    @NotNull(message = "问卷id不能为空")
     private java.lang.Integer quId;
 
     @ApiModelProperty(value = "上一道题的id")
+    @NotNull(message = "上一道题的id不能为空")
     private java.lang.Integer upSubId;
 
     /**题目名称*/
     @Excel(name = "题目名称", width = 15)
     @ApiModelProperty(value = "题目名称")
+    @NotBlank(message = "题目名称不能为空")
     private java.lang.String subName;
 
     @ApiModelProperty(value = "题目类型 1.单选 2.多选 3.日期 4.时间 5.下拉框 6.单行文本 7.多行文本 8.分组框 9.提示标题")
+    @NotBlank(message = "题目类型不能为空")
     private java.lang.String subType;
     /**是否为必填 0:非必填 1:必填*/
     @Excel(name = "是否为必填 0:非必填 1:必填", width = 15)
@@ -81,11 +87,13 @@ public class InsertSubjectParam {
     /**数据库列名*/
     @Excel(name = "数据库列名", width = 15)
     @ApiModelProperty(value = "数据库列名")
+    @NotBlank(message = "数据库列名不能为空")
     private java.lang.String columnName;
 
     /**创建数据库列名的数据类型*/
     @Excel(name = "创建数据库列名的数据类型", width = 15)
     @ApiModelProperty(value = "创建数据库列名的数据类型")
+    @NotBlank(message = "创建数据库列名的数据类型不能为空")
     private java.lang.String columnType;
 
     @ApiModelProperty(value = "选项")

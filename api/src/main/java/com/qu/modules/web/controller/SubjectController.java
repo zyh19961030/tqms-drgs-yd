@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -62,7 +63,7 @@ public class SubjectController {
     @AutoLog(value = "题目表-添加")
     @ApiOperation(value = "题目表-添加", notes = "题目表-添加")
     @PostMapping(value = "/add")
-    public Result<SubjectVo> add(@RequestBody SubjectParam subjectParam) {
+    public Result<SubjectVo> add(@RequestBody @Validated SubjectParam subjectParam) {
         Result<SubjectVo> result = new Result<SubjectVo>();
         try {
             SubjectVo so = subjectService.saveSubject(subjectParam);

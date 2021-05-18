@@ -9,6 +9,8 @@ import lombok.Data;
 public class QSingleDiseaseTakeVo {
     /*@ApiModelProperty(value = "人数")
     private int count;*/
+    @ApiModelProperty(value = "问卷id")
+    private Integer quId;
     @ApiModelProperty(value = "分类id")
     private String categoryId;
     @ApiModelProperty(value = "图片")

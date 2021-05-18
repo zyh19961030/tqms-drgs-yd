@@ -19,6 +19,7 @@ public class QSingleDiseaseTakeReportStatisticVo {
     private Integer questionId;
     @ApiModelProperty(value = "分类id")
     private String categoryId;
+    private String dynamicTableName;
     @ApiModelProperty(value = "病种名称")
     private String disease;
     @ApiModelProperty(value = "科室名称,勾选显示科室返回有值,其它为空")

@@ -176,7 +176,11 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                             .append("',");
                 }
                 sql.append(" PRIMARY KEY (`id`)");
-                sql.append(") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+                if(subjectList.size()>=50){
+                    sql.append(") ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+                }else{
+                    sql.append(") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+                }
                 dynamicTableMapper.createDynamicTable(sql.toString());
             }
         } catch (Exception e) {
