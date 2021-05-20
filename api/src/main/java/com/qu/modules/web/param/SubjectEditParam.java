@@ -1,13 +1,14 @@
 package com.qu.modules.web.param;
 
+import java.util.List;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.jeecgframework.poi.excel.annotation.Excel;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.util.List;
 
 @Data
 @ApiModel(value="题目编辑入参", description="题目编辑入参")
@@ -83,13 +84,11 @@ public class SubjectEditParam {
     /**数据库列名*/
     @Excel(name = "数据库列名", width = 15)
     @ApiModelProperty(value = "数据库列名")
-    @NotBlank(message = "数据库列名不能为空")
     private String columnName;
 
     /**创建数据库列名的数据类型*/
     @Excel(name = "创建数据库列名的数据类型", width = 15)
     @ApiModelProperty(value = "创建数据库列名的数据类型")
-    @NotBlank(message = "创建数据库列名的数据类型不能为空")
     private java.lang.String columnType;
 
     @ApiModelProperty(value = "选项")
