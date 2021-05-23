@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * @Description: 题目字段表
  * @Author: jeecg-boot
@@ -37,13 +39,13 @@ public class QsubjectFieldController {
     @AutoLog(value = "题目字段表-通过题目名查询")
     @ApiOperation(value = "题目字段表-通过题目名查询", notes = "题目字段表-通过题目名查询")
     @GetMapping(value = "/queryBySubjectName")
-    public Result<QsubjectField> queryBySubjectName(@RequestParam(name = "subjectName", required = true) @ApiParam("题目名") String subjectName) {
-        Result<QsubjectField> result = new Result<>();
-        QsubjectField qsubjectField = qsubjectFieldService.getBySubjectName(subjectName);
-        if (qsubjectField == null) {
+    public Result<List<QsubjectField>> queryBySubjectName(@RequestParam(name = "subjectName", required = true) @ApiParam("题目名") String subjectName) {
+        Result<List<QsubjectField>> result = new Result<>();
+        List<QsubjectField> qsubjectFieldList = qsubjectFieldService.getBySubjectName(subjectName);
+        if (qsubjectFieldList == null) {
             result.error500("未找到对应实体");
         } else {
-            result.setResult(qsubjectField);
+            result.setResult(qsubjectFieldList);
             result.setSuccess(true);
         }
         return result;

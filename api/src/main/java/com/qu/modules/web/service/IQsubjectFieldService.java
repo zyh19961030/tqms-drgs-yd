@@ -1,7 +1,9 @@
 package com.qu.modules.web.service;
 
-import com.qu.modules.web.entity.QsubjectField;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.qu.modules.web.entity.QsubjectField;
+
+import java.util.List;
 
 /**
  * @Description: 题目字段表
@@ -11,6 +13,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IQsubjectFieldService extends IService<QsubjectField> {
 
-    QsubjectField getBySubjectName(String subjectName);
+    List<QsubjectField> getBySubjectName(String subjectName);
 
 }

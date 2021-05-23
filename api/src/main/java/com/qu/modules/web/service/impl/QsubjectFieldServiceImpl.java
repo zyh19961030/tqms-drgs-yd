@@ -18,10 +18,10 @@ import java.util.List;
 @Service
 public class QsubjectFieldServiceImpl extends ServiceImpl<QsubjectFieldMapper, QsubjectField> implements IQsubjectFieldService {
     @Override
-    public QsubjectField getBySubjectName(String subjectName) {
+    public List<QsubjectField> getBySubjectName(String subjectName) {
         QueryWrapper<QsubjectField> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("subject_name", subjectName);
         List<QsubjectField> qsubjectFields = this.baseMapper.selectList(queryWrapper);
-        return qsubjectFields.isEmpty() ? null : qsubjectFields.get(0);
+        return qsubjectFields;
     }
 }
