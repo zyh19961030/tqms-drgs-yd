@@ -1,14 +1,5 @@
 package com.qu.modules.web.service.impl;
 
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -26,24 +17,10 @@ import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
-import com.qu.modules.web.param.SingleDiseaseAnswer;
-import com.qu.modules.web.param.SingleDiseaseAnswerParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
-import com.qu.modules.web.vo.QSingleDiseaseNameVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewLineVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewPieVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
+import com.qu.modules.web.vo.*;
 import com.qu.util.HttpClient;
 import com.qu.util.PriceUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +34,11 @@ import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 单病种总表
@@ -808,7 +790,86 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     }
 
     @Override
-    public QSingleDiseaseTakeReportStatisticOverviewVo allSingleDiseaseReportStatisticOverview(QSingleDiseaseTakeReportStatisticOverviewParam qSingleDiseaseTakeReportStatisticOverviewParam) {
+    public List<QSingleDiseaseTakeReportStatisticOverviewLineVo> allSingleDiseaseReportStatisticOverviewLine(QSingleDiseaseTakeReportStatisticOverviewLineParam qSingleDiseaseTakeReportStatisticOverviewLineParam) {
+        String dateType = qSingleDiseaseTakeReportStatisticOverviewLineParam.getDateType();
+        String dateStart = qSingleDiseaseTakeReportStatisticOverviewLineParam.getDateStart();
+        String dateEnd = qSingleDiseaseTakeReportStatisticOverviewLineParam.getDateEnd();
+        Date startDate;
+        Date endDate;
+        if (QSingleDiseaseTakeConstant.DATE_TYPE_YEARLY.equals(dateType)) {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy");
+            DateTime startDateTime = dateTimeFormatter.parseDateTime(dateStart);
+            startDate = startDateTime.dayOfMonth().withMinimumValue().toDate();
+            DateTime endDateTime = dateTimeFormatter.parseDateTime(dateEnd);
+            endDate = endDateTime.dayOfYear().withMaximumValue().plusDays(1).toDate();
+        } else if (QSingleDiseaseTakeConstant.DATE_TYPE_MONTHLY.equals(dateType)) {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM");
+            DateTime startDateTime = dateTimeFormatter.parseDateTime(dateStart);
+            startDate = startDateTime.dayOfMonth().withMinimumValue().toDate();
+            DateTime endDateTime = dateTimeFormatter.parseDateTime(dateEnd);
+            endDate = endDateTime.dayOfMonth().withMaximumValue().plusDays(1).toDate();
+        } else {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
+            DateTime startDateTime = dateTimeFormatter.parseDateTime(dateStart);
+            startDate = startDateTime.toDate();
+            DateTime endDateTime = dateTimeFormatter.parseDateTime(dateEnd);
+            endDate = endDateTime.plusDays(1).toDate();
+        }
+        Map<String, Object> params = new HashMap<>();
+        params.put("dateStart", startDate);
+        params.put("dateEnd", endDate);
+        String[] dept = qSingleDiseaseTakeReportStatisticOverviewLineParam.getDept();
+        String[] categoryId = qSingleDiseaseTakeReportStatisticOverviewLineParam.getCategoryId();
+        params.put("dept", dept);
+        params.put("dateType", dateType);
+        params.put("categoryId", categoryId);
+        params.put("status", QSingleDiseaseTakeConstant.STATUS_COMPLETE);
+        List<QSingleDiseaseTakeReportStatisticOverviewLineVo> overviewLineVoList =  this.qSingleDiseaseTakeMapper.allSingleDiseaseReportStatisticOverviewLine(params);
+        return overviewLineVoList;
+    }
+
+    @Override
+    public List<QSingleDiseaseTakeReportStatisticOverviewPieVo> allSingleDiseaseReportStatisticOverviewPie(QSingleDiseaseTakeReportStatisticOverviewPieParam qSingleDiseaseTakeReportStatisticOverviewPieParam) {
+        String dateType = qSingleDiseaseTakeReportStatisticOverviewPieParam.getDateType();
+        String dateStr = qSingleDiseaseTakeReportStatisticOverviewPieParam.getDate();
+        Date date;
+        if (QSingleDiseaseTakeConstant.DATE_TYPE_YEARLY.equals(dateType)) {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy");
+            DateTime startDateTime = dateTimeFormatter.parseDateTime(dateStr);
+            date = startDateTime.dayOfMonth().withMinimumValue().toDate();
+        } else if (QSingleDiseaseTakeConstant.DATE_TYPE_MONTHLY.equals(dateType)) {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM");
+            DateTime startDateTime = dateTimeFormatter.parseDateTime(dateStr);
+            date = startDateTime.dayOfMonth().withMinimumValue().toDate();
+        } else {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
+            DateTime startDateTime = dateTimeFormatter.parseDateTime(dateStr);
+            date = startDateTime.toDate();
+        }
+        Map<String, Object> params = new HashMap<>();
+        params.put("date", dateStr);
+        String[] dept = qSingleDiseaseTakeReportStatisticOverviewPieParam.getDept();
+        String[] categoryId = qSingleDiseaseTakeReportStatisticOverviewPieParam.getCategoryId();
+        params.put("dept", dept);
+        params.put("dateType", dateType);
+        params.put("categoryId", categoryId);
+        params.put("status", QSingleDiseaseTakeConstant.STATUS_COMPLETE);
+
+        List<QSingleDiseaseTakeReportStatisticOverviewPieVo> overviewPieVoList =  this.qSingleDiseaseTakeMapper.allSingleDiseaseReportStatisticOverviewPie(params);
+//        overviewPieVoList.stream().count()
+        int sum = overviewPieVoList.stream().mapToInt(q->Integer.parseInt(q.getNumber())).sum();
+        for (QSingleDiseaseTakeReportStatisticOverviewPieVo qSingleDiseaseTakeReportStatisticOverviewPieVo : overviewPieVoList) {
+            int i = Integer.parseInt(qSingleDiseaseTakeReportStatisticOverviewPieVo.getNumber());
+            NumberFormat numberFormat = NumberFormat.getInstance();
+            numberFormat.setMaximumFractionDigits(2);
+            String percentage = numberFormat.format((float) i / (float) sum * 100) + "%";
+            qSingleDiseaseTakeReportStatisticOverviewPieVo.setPercentage(percentage);
+        }
+        return overviewPieVoList;
+    }
+
+    @Override
+    public List<QSingleDiseaseTakeReportStatisticTrendVo> allSingleDiseaseReportStatisticTrend(QSingleDiseaseTakeReportStatisticOverviewLineParam qSingleDiseaseTakeReportStatisticOverviewParam) {
         String dateType = qSingleDiseaseTakeReportStatisticOverviewParam.getDateType();
         String dateStart = qSingleDiseaseTakeReportStatisticOverviewParam.getDateStart();
         String dateEnd = qSingleDiseaseTakeReportStatisticOverviewParam.getDateEnd();
@@ -842,17 +903,83 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         params.put("dateType", dateType);
         params.put("categoryId", categoryId);
         params.put("status", QSingleDiseaseTakeConstant.STATUS_COMPLETE);
-        List<QSingleDiseaseTakeReportStatisticOverviewLineVo> overviewLineVoList =  this.qSingleDiseaseTakeMapper.allSingleDiseaseReportStatisticOverviewLine(params);
-        List<QSingleDiseaseTakeReportStatisticOverviewPieVo> overviewPieVoList =  this.qSingleDiseaseTakeMapper.allSingleDiseaseReportStatisticOverviewPie(params);
-//        overviewPieVoList.stream().count()
-        int sum = overviewPieVoList.stream().mapToInt(q->Integer.parseInt(q.getNumber())).sum();
-        for (QSingleDiseaseTakeReportStatisticOverviewPieVo qSingleDiseaseTakeReportStatisticOverviewPieVo : overviewPieVoList) {
-            int i = Integer.parseInt(qSingleDiseaseTakeReportStatisticOverviewPieVo.getNumber());
-            NumberFormat numberFormat = NumberFormat.getInstance();
-            numberFormat.setMaximumFractionDigits(2);
-            String percentage = numberFormat.format((float) i / (float) sum * 100) + "%";
-            qSingleDiseaseTakeReportStatisticOverviewPieVo.setPercentage(percentage);
-        }
-        return QSingleDiseaseTakeReportStatisticOverviewVo.builder().overviewLineVoList(overviewLineVoList).overviewPieVoList(overviewPieVoList).build();
+        List<QSingleDiseaseTakeReportStatisticTrendVo> overviewLineVoList =  this.qSingleDiseaseTakeMapper.allSingleDiseaseReportStatisticTrend(params);
+        return overviewLineVoList;
     }
+
+
+    @Override
+    public List<QSingleDiseaseTakeReportStatisticDeptPermutationVo> allSingleDiseaseReportStatisticDeptPermutation(QSingleDiseaseTakeReportStatisticDeptPermutationParam qSingleDiseaseTakeReportStatisticDeptPermutationParam) {
+        String dateType = qSingleDiseaseTakeReportStatisticDeptPermutationParam.getDateType();
+        String dateStart = qSingleDiseaseTakeReportStatisticDeptPermutationParam.getDateStart();
+        String dateEnd = qSingleDiseaseTakeReportStatisticDeptPermutationParam.getDateEnd();
+        Date startDate;
+        Date endDate;
+        if (QSingleDiseaseTakeConstant.DATE_TYPE_YEARLY.equals(dateType)) {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy");
+            DateTime startDateTime = dateTimeFormatter.parseDateTime(dateStart);
+            startDate = startDateTime.dayOfMonth().withMinimumValue().toDate();
+            DateTime endDateTime = dateTimeFormatter.parseDateTime(dateEnd);
+            endDate = endDateTime.dayOfYear().withMaximumValue().plusDays(1).toDate();
+        } else if (QSingleDiseaseTakeConstant.DATE_TYPE_MONTHLY.equals(dateType)) {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM");
+            DateTime startDateTime = dateTimeFormatter.parseDateTime(dateStart);
+            startDate = startDateTime.dayOfMonth().withMinimumValue().toDate();
+            DateTime endDateTime = dateTimeFormatter.parseDateTime(dateEnd);
+            endDate = endDateTime.dayOfMonth().withMaximumValue().plusDays(1).toDate();
+        } else {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
+            DateTime startDateTime = dateTimeFormatter.parseDateTime(dateStart);
+            startDate = startDateTime.toDate();
+            DateTime endDateTime = dateTimeFormatter.parseDateTime(dateEnd);
+            endDate = endDateTime.plusDays(1).toDate();
+        }
+        Map<String, Object> params = new HashMap<>();
+        params.put("dateStart", startDate);
+        params.put("dateEnd", endDate);
+        String[] categoryId = qSingleDiseaseTakeReportStatisticDeptPermutationParam.getCategoryId();
+        params.put("dateType", dateType);
+        params.put("categoryId", categoryId);
+        params.put("status", QSingleDiseaseTakeConstant.STATUS_COMPLETE);
+        List<QSingleDiseaseTakeReportStatisticDeptPermutationVo> overviewLineVoList =  this.qSingleDiseaseTakeMapper.allSingleDiseaseReportStatisticDeptPermutation(params);
+        return overviewLineVoList;
+    }
+
+    @Override
+    public List<QSingleDiseaseTakeReportStatisticSummaryVo> allSingleDiseaseReportStatisticSummary(QSingleDiseaseTakeReportStatisticSummaryParam qSingleDiseaseTakeReportStatisticSummaryParam){
+        String dateType = qSingleDiseaseTakeReportStatisticSummaryParam.getDateType();
+        String dateStart = qSingleDiseaseTakeReportStatisticSummaryParam.getDateStart();
+        String dateEnd = qSingleDiseaseTakeReportStatisticSummaryParam.getDateEnd();
+        Date startDate;
+        Date endDate;
+        if (QSingleDiseaseTakeConstant.DATE_TYPE_YEARLY.equals(dateType)) {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy");
+            DateTime startDateTime = dateTimeFormatter.parseDateTime(dateStart);
+            startDate = startDateTime.dayOfMonth().withMinimumValue().toDate();
+            DateTime endDateTime = dateTimeFormatter.parseDateTime(dateEnd);
+            endDate = endDateTime.dayOfYear().withMaximumValue().plusDays(1).toDate();
+        } else if (QSingleDiseaseTakeConstant.DATE_TYPE_MONTHLY.equals(dateType)) {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM");
+            DateTime startDateTime = dateTimeFormatter.parseDateTime(dateStart);
+            startDate = startDateTime.dayOfMonth().withMinimumValue().toDate();
+            DateTime endDateTime = dateTimeFormatter.parseDateTime(dateEnd);
+            endDate = endDateTime.dayOfMonth().withMaximumValue().plusDays(1).toDate();
+        } else {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
+            DateTime startDateTime = dateTimeFormatter.parseDateTime(dateStart);
+            startDate = startDateTime.toDate();
+            DateTime endDateTime = dateTimeFormatter.parseDateTime(dateEnd);
+            endDate = endDateTime.plusDays(1).toDate();
+        }
+        Map<String, Object> params = new HashMap<>();
+        params.put("dateStart", startDate);
+        params.put("dateEnd", endDate);
+        String dept = qSingleDiseaseTakeReportStatisticSummaryParam.getDept();
+        params.put("dept", dept);
+        params.put("dateType", dateType);
+        params.put("status", QSingleDiseaseTakeConstant.STATUS_COMPLETE);
+        List<QSingleDiseaseTakeReportStatisticSummaryVo> overviewLineVoList =  this.qSingleDiseaseTakeMapper.allSingleDiseaseReportStatisticSummary(params);
+        return overviewLineVoList;
+    }
+
 }

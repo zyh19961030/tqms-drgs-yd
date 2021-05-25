@@ -147,8 +147,51 @@
 
     <select id="allSingleDiseaseReportStatisticOverviewPie" parameterType="map"
             resultType="com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewPieVo">
+        select category_name disease,icd_name , count(1) number from q_single_disease_take q
+        left join tqms_quota_category t  on q.category_id=t.category_id
+        <where>
+            <if test="categoryId!=null and categoryId.length > 0">
+                and category_id in
+                <foreach close=")" collection="categoryId" item="listItem" open="(" separator=",">
+                    #{listItem}
+                </foreach>
+            </if>
+            <if test="status!=null">
+                and status=#{status}
+            </if>
+            <if test="dateType!=null and dateType=='yearly'">
+                and DATE_FORMAT(country_report_time,'%Y') =#{date}
+            </if>
+            <if test="dateType!=null and dateType=='monthly'">
+                and DATE_FORMAT(country_report_time,'%Y-%m') =#{date}
+            </if>
+            <if test="dateType!=null and dateType=='daily'">
+                and DATE_FORMAT(country_report_time,'%Y-%m-%d') =#{date}
+            </if>
+            <if test="dept!=null and dept.length > 0">
+                and department_id in
+                <foreach close=")" collection="dept" item="listItem" open="(" separator=",">
+                    #{listItem}
+                </foreach>
+            </if>
+        </where>
+        group by category_name
+    </select>
+
+    <select id="allSingleDiseaseReportStatisticTrend"
+            parameterType="map"
+            resultType="com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticTrendVo">
         select
-        icd_name disease, count(1) number from q_single_disease_take
+        <if test="dateType!=null and dateType=='yearly'">
+            DATE_FORMAT(country_report_time,'%Y') date,
+        </if>
+        <if test="dateType!=null and dateType=='monthly'">
+            DATE_FORMAT(country_report_time,'%Y-%m') date,
+        </if>
+        <if test="dateType!=null and dateType=='daily'">
+            DATE_FORMAT(country_report_time,'%Y-%m-%d') date,
+        </if>
+        count(1) number from q_single_disease_take
         <where>
             <if test="categoryId!=null and categoryId.length > 0">
                 and category_id in
@@ -170,6 +213,63 @@
                 </foreach>
             </if>
         </where>
-        group by icd_name
+        group by
+        <if test="dateType!=null and dateType=='yearly'">
+            DATE_FORMAT(country_report_time,'%Y')
+        </if>
+        <if test="dateType!=null and dateType=='monthly'">
+            DATE_FORMAT(country_report_time,'%Y-%m')
+        </if>
+        <if test="dateType!=null and dateType=='daily'">
+            DATE_FORMAT(country_report_time,'%Y-%m-%d')
+        </if>
+    </select>
+
+
+    <select id="allSingleDiseaseReportStatisticDeptPermutation"
+            parameterType="map"
+            resultType="com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptPermutationVo">
+        select department dept,
+        count(1) number from q_single_disease_take
+        <where>
+            <if test="categoryId!=null and categoryId.length > 0">
+                and category_id in
+                <foreach close=")" collection="categoryId" item="listItem" open="(" separator=",">
+                    #{listItem}
+                </foreach>
+            </if>
+            <if test="status!=null">
+                and status=#{status}
+            </if>
+            <if test="dateType!=null">
+                and country_report_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
+                and country_report_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
+            </if>
+        </where>
+        group by
+        department
+        order by number desc
+    </select>
+
+    <select id="allSingleDiseaseReportStatisticSummary"
+            parameterType="map"
+            resultType="com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticSummaryVo">
+        select category_name disease,icd_name , count(1) number from q_single_disease_take q
+        left join tqms_quota_category t  on q.category_id=t.category_id
+        <where>
+            <if test="status!=null">
+                and status=#{status}
+            </if>
+            <if test="dateType!=null">
+                and country_report_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
+                and country_report_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
+            </if>
+            <if test="dept!=null">
+                and department_id =#{dept}
+            </if>
+        </where>
+        group by
+        disease
+        order by number desc
     </select>
 </mapper>

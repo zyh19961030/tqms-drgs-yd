@@ -1,10 +1,6 @@
 package com.qu.config;
 
-import com.alibaba.fastjson.JSON;
-import com.qu.constant.Constant;
-import com.qu.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.jeecg.common.api.vo.Result;
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -45,19 +41,19 @@ public class LoginInterceptor implements HandlerInterceptor {
 //        if (requestUrl.indexOf(URL_REGISTER) != -1) {
 //            return true;
 //        }
-        String token = request.getHeader("token");
-        if (StringUtil.isEmpty(token)) {
-            log.info("----------------token is empty...");
-            Result result = new Result();
-            result.setCode(Constant.ERROR_CODE_60001);
-            result.setMessage("token is empty...");
-            result.setSuccess(false);
-            result.setTimestamp(System.currentTimeMillis());
-            request.setCharacterEncoding("UTF-8");
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().append(JSON.toJSONString(result));
-            return false;
-        }
+//        String token = request.getHeader("token");
+//        if (StringUtil.isEmpty(token)) {
+//            log.info("----------------token is empty...");
+//            Result result = new Result();
+//            result.setCode(Constant.ERROR_CODE_60001);
+//            result.setMessage("token is empty...");
+//            result.setSuccess(false);
+//            result.setTimestamp(System.currentTimeMillis());
+//            request.setCharacterEncoding("UTF-8");
+//            response.setCharacterEncoding("UTF-8");
+//            response.getWriter().append(JSON.toJSONString(result));
+//            return false;
+//        }
         return true;
     }
 

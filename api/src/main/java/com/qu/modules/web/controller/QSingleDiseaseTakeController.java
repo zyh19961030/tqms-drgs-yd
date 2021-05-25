@@ -1,25 +1,10 @@
 package com.qu.modules.web.controller;
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
 import com.alibaba.fastjson.JSON;
 import com.qu.constant.QSingleDiseaseTakeConstant;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
-import com.qu.modules.web.param.SingleDiseaseAnswerParam;
-import com.qu.modules.web.param.SingleDiseaseRejectParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
-import com.qu.modules.web.vo.QSingleDiseaseNameVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
+import com.qu.modules.web.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -29,12 +14,10 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @Description: 单病种总表
@@ -325,17 +308,202 @@ public class QSingleDiseaseTakeController {
     }
 
     /**
-     * 全院单病种上报数量统计-查看图表-单病种上报数据概览
+     * 全院单病种上报数量统计-查看图表-单病种上报数据概览-折线图数据
      */
-    @AutoLog(value = "全院单病种上报数量统计-查看图表-单病种上报数据概览")
-    @ApiOperation(value = "全院单病种上报数量统计-查看图表-单病种上报数据概览", notes = "全院单病种上报数量统计-查看图表-单病种上报数据概览")
-    @GetMapping(value = "/allSingleDiseaseReportStatisticOverview")
-    public Result<QSingleDiseaseTakeReportStatisticOverviewVo> allSingleDiseaseReportStatisticOverview(@Validated QSingleDiseaseTakeReportStatisticOverviewParam qSingleDiseaseTakeReportStatisticOverviewParam
+    @AutoLog(value = "全院单病种上报数量统计-查看图表-单病种上报数据概览-折线图数据")
+    @ApiOperation(value = "全院单病种上报数量统计-查看图表-单病种上报数据概览-折线图数据", notes = "全院单病种上报数量统计-查看图表-单病种上报数据概览-折线图数据")
+    @GetMapping(value = "/allSingleDiseaseReportStatisticOverviewLine")
+    public Result<List<QSingleDiseaseTakeReportStatisticOverviewLineVo>> allSingleDiseaseReportStatisticOverviewLine(
+                                                    @Validated QSingleDiseaseTakeReportStatisticOverviewLineParam qSingleDiseaseTakeReportStatisticOverviewLineParam
                                                                                            /*@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*/) {
 
+        Result<List<QSingleDiseaseTakeReportStatisticOverviewLineVo>> result = new Result<>();
+        List<QSingleDiseaseTakeReportStatisticOverviewLineVo> list = qSingleDiseaseTakeService
+                .allSingleDiseaseReportStatisticOverviewLine(qSingleDiseaseTakeReportStatisticOverviewLineParam);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+    /**
+     * 全院单病种上报数量统计-查看图表-单病种上报数据概览-饼图数据
+     */
+    @AutoLog(value = "全院单病种上报数量统计-查看图表-单病种上报数据概览-饼图数据")
+    @ApiOperation(value = "全院单病种上报数量统计-查看图表-单病种上报数据概览-饼图数据", notes = "全院单病种上报数量统计-查看图表-单病种上报数据概览-饼图数据")
+    @GetMapping(value = "/allSingleDiseaseReportStatisticOverviewPie")
+    public Result<List<QSingleDiseaseTakeReportStatisticOverviewPieVo>> allSingleDiseaseReportStatisticOverviewPie(
+            @Validated QSingleDiseaseTakeReportStatisticOverviewPieParam qSingleDiseaseTakeReportStatisticOverviewParam
+                                                                                           /*@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                                           @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*/) {
+
+        Result<List<QSingleDiseaseTakeReportStatisticOverviewPieVo>> result = new Result<>();
+        List<QSingleDiseaseTakeReportStatisticOverviewPieVo> list = qSingleDiseaseTakeService
+                .allSingleDiseaseReportStatisticOverviewPie(qSingleDiseaseTakeReportStatisticOverviewParam);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+    /**
+     * 全院单病种上报数量统计-查看图表-单病种数量上报趋势图
+     */
+    @AutoLog(value = "全院单病种上报数量统计-查看图表-单病种数量上报趋势图")
+    @ApiOperation(value = "全院单病种上报数量统计-查看图表-单病种数量上报趋势图", notes = "全院单病种上报数量统计-查看图表-单病种数量上报趋势图")
+    @GetMapping(value = "/allSingleDiseaseReportStatisticTrend")
+    public Result<List<QSingleDiseaseTakeReportStatisticTrendVo>> allSingleDiseaseReportStatisticTrend(@Validated QSingleDiseaseTakeReportStatisticOverviewLineParam qSingleDiseaseTakeReportStatisticOverviewParam
+                                                                                           /*@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                                           @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*/) {
+
+        Result<List<QSingleDiseaseTakeReportStatisticTrendVo>> result = new Result<>();
+        List<QSingleDiseaseTakeReportStatisticTrendVo> list = qSingleDiseaseTakeService.allSingleDiseaseReportStatisticTrend(qSingleDiseaseTakeReportStatisticOverviewParam);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+    /**
+     * 全院单病种上报数量统计-查看图表-科室上报单病种数量排列图
+     */
+    @AutoLog(value = "全院单病种上报数量统计-查看图表-科室上报单病种数量排列图")
+    @ApiOperation(value = "全院单病种上报数量统计-查看图表-科室上报单病种数量排列图", notes = "全院单病种上报数量统计-查看图表-科室上报单病种数量排列图")
+    @GetMapping(value = "/allSingleDiseaseReportStatisticDeptPermutation")
+    public Result<List<QSingleDiseaseTakeReportStatisticDeptPermutationVo>> allSingleDiseaseReportStatisticDeptPermutation(@Validated QSingleDiseaseTakeReportStatisticDeptPermutationParam qSingleDiseaseTakeReportStatisticDeptPermutationParam
+                                                                                           /*@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                                           @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*/) {
+
+        Result<List<QSingleDiseaseTakeReportStatisticDeptPermutationVo>> result = new Result<>();
+        List<QSingleDiseaseTakeReportStatisticDeptPermutationVo> list = qSingleDiseaseTakeService.allSingleDiseaseReportStatisticDeptPermutation(qSingleDiseaseTakeReportStatisticDeptPermutationParam);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+    /**
+     * 全院单病种上报数量统计-查看图表-各病种上报情况汇总表
+     */
+    @AutoLog(value = "全院单病种上报数量统计-查看图表-各病种上报情况汇总表")
+    @ApiOperation(value = "全院单病种上报数量统计-查看图表-各病种上报情况汇总表", notes = "全院单病种上报数量统计-查看图表-各病种上报情况汇总表")
+    @GetMapping(value = "/allSingleDiseaseReportStatisticSummary")
+    public Result<List<QSingleDiseaseTakeReportStatisticSummaryVo>> allSingleDiseaseReportStatisticSummary(@Validated QSingleDiseaseTakeReportStatisticSummaryParam qSingleDiseaseTakeReportStatisticSummaryParam
+                                                                                           /*@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                                           @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*/) {
+
+        Result<List<QSingleDiseaseTakeReportStatisticSummaryVo>> result = new Result<>();
+        List<QSingleDiseaseTakeReportStatisticSummaryVo> list = qSingleDiseaseTakeService.allSingleDiseaseReportStatisticSummary(qSingleDiseaseTakeReportStatisticSummaryParam);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+
+    /**
+     * 科室单病种上报数量统计-查看图表-单病种上报数据概览
+     */
+    /*@AutoLog(value = "科室单病种上报数量统计-查看图表-单病种上报数据概览")
+    @ApiOperation(value = "科室单病种上报数量统计-查看图表-单病种上报数据概览", notes = "科室单病种上报数量统计-查看图表-单病种上报数据概览")
+    @GetMapping(value = "/deptSingleDiseaseReportStatisticOverview")
+    public Result<QSingleDiseaseTakeReportStatisticOverviewVo> deptSingleDiseaseReportStatisticOverview(@Validated QSingleDiseaseTakeReportStatisticOverviewLineParam qSingleDiseaseTakeReportStatisticOverviewParam
+                                                                                           *//*@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                                           @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*//*) {
+
         Result<QSingleDiseaseTakeReportStatisticOverviewVo> result = new Result<>();
+        //todo 加科室过滤
         QSingleDiseaseTakeReportStatisticOverviewVo list = qSingleDiseaseTakeService.allSingleDiseaseReportStatisticOverview(qSingleDiseaseTakeReportStatisticOverviewParam);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }*/
+
+    /**
+     * 科室单病种上报数量统计-查看图表-单病种上报数据概览-折线图数据
+     */
+    @AutoLog(value = "科室单病种上报数量统计-查看图表-单病种上报数据概览-折线图数据")
+    @ApiOperation(value = "科室单病种上报数量统计-查看图表-单病种上报数据概览-折线图数据", notes = "科室单病种上报数量统计-查看图表-单病种上报数据概览-折线图数据")
+    @GetMapping(value = "/deptSingleDiseaseReportStatisticOverviewLine")
+    public Result<List<QSingleDiseaseTakeReportStatisticOverviewLineVo>> deptSingleDiseaseReportStatisticOverviewLine(
+            @Validated QSingleDiseaseTakeReportStatisticOverviewLineParam qSingleDiseaseTakeReportStatisticOverviewLineParam
+                                                                                           /*@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                                           @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*/) {
+
+        Result<List<QSingleDiseaseTakeReportStatisticOverviewLineVo>> result = new Result<>();
+        //todo 加科室过滤
+        List<QSingleDiseaseTakeReportStatisticOverviewLineVo> list = qSingleDiseaseTakeService
+                .allSingleDiseaseReportStatisticOverviewLine(qSingleDiseaseTakeReportStatisticOverviewLineParam);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+    /**
+     * 科室单病种上报数量统计-查看图表-单病种上报数据概览-饼图数据
+     */
+    @AutoLog(value = "科室单病种上报数量统计-查看图表-单病种上报数据概览-饼图数据")
+    @ApiOperation(value = "科室单病种上报数量统计-查看图表-单病种上报数据概览-饼图数据", notes = "科室单病种上报数量统计-查看图表-单病种上报数据概览-饼图数据")
+    @GetMapping(value = "/deptSingleDiseaseReportStatisticOverviewPie")
+    public Result<List<QSingleDiseaseTakeReportStatisticOverviewPieVo>> deptSingleDiseaseReportStatisticOverviewPie(
+            @Validated QSingleDiseaseTakeReportStatisticOverviewPieParam qSingleDiseaseTakeReportStatisticOverviewParam
+                                                                                           /*@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                                           @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*/) {
+
+        Result<List<QSingleDiseaseTakeReportStatisticOverviewPieVo>> result = new Result<>();
+        //todo 加科室过滤
+        List<QSingleDiseaseTakeReportStatisticOverviewPieVo> list = qSingleDiseaseTakeService
+                .allSingleDiseaseReportStatisticOverviewPie(qSingleDiseaseTakeReportStatisticOverviewParam);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+    /**
+     * 科室单病种上报数量统计-查看图表-单病种数量上报趋势图
+     */
+    @AutoLog(value = "科室单病种上报数量统计-查看图表-单病种数量上报趋势图")
+    @ApiOperation(value = "科室单病种上报数量统计-查看图表-单病种数量上报趋势图", notes = "科室单病种上报数量统计-查看图表-单病种数量上报趋势图")
+    @GetMapping(value = "/deptSingleDiseaseReportStatisticTrend")
+    public Result<List<QSingleDiseaseTakeReportStatisticTrendVo>> deptSingleDiseaseReportStatisticTrend(@Validated QSingleDiseaseTakeReportStatisticOverviewLineParam qSingleDiseaseTakeReportStatisticOverviewParam
+                                                                                           /*@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                                           @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*/) {
+
+        Result<List<QSingleDiseaseTakeReportStatisticTrendVo>> result = new Result<>();
+        //todo 加科室过滤
+        List<QSingleDiseaseTakeReportStatisticTrendVo> list = qSingleDiseaseTakeService.allSingleDiseaseReportStatisticTrend(qSingleDiseaseTakeReportStatisticOverviewParam);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+    /**
+     * 科室单病种上报数量统计-查看图表-科室上报单病种数量排列图
+     */
+    @AutoLog(value = "科室单病种上报数量统计-查看图表-科室上报单病种数量排列图")
+    @ApiOperation(value = "科室单病种上报数量统计-查看图表-科室上报单病种数量排列图", notes = "科室单病种上报数量统计-查看图表-科室上报单病种数量排列图")
+    @GetMapping(value = "/deptSingleDiseaseReportStatisticDeptPermutation")
+    public Result<List<QSingleDiseaseTakeReportStatisticDeptPermutationVo>> deptSingleDiseaseReportStatisticDeptPermutation(@Validated QSingleDiseaseTakeReportStatisticDeptPermutationParam qSingleDiseaseTakeReportStatisticDeptPermutationParam
+                                                                                           /*@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                                           @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*/) {
+
+        Result<List<QSingleDiseaseTakeReportStatisticDeptPermutationVo>> result = new Result<>();
+        //todo 加科室过滤
+        List<QSingleDiseaseTakeReportStatisticDeptPermutationVo> list = qSingleDiseaseTakeService.allSingleDiseaseReportStatisticDeptPermutation(qSingleDiseaseTakeReportStatisticDeptPermutationParam);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+    /**
+     * 科室单病种上报数量统计-查看图表-各病种上报情况汇总表
+     */
+    @AutoLog(value = "科室单病种上报数量统计-查看图表-各病种上报情况汇总表")
+    @ApiOperation(value = "科室单病种上报数量统计-查看图表-各病种上报情况汇总表", notes = "科室单病种上报数量统计-查看图表-各病种上报情况汇总表")
+    @GetMapping(value = "/deptSingleDiseaseReportStatisticSummary")
+    public Result<List<QSingleDiseaseTakeReportStatisticSummaryVo>> deptSingleDiseaseReportStatisticSummary(@Validated QSingleDiseaseTakeReportStatisticSummaryParam qSingleDiseaseTakeReportStatisticSummaryParam
+                                                                                           /*@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                                           @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*/) {
+
+        Result<List<QSingleDiseaseTakeReportStatisticSummaryVo>> result = new Result<>();
+        //todo 加科室过滤
+        List<QSingleDiseaseTakeReportStatisticSummaryVo> list = qSingleDiseaseTakeService.allSingleDiseaseReportStatisticSummary(qSingleDiseaseTakeReportStatisticSummaryParam);
         result.setSuccess(true);
         result.setResult(list);
         return result;
