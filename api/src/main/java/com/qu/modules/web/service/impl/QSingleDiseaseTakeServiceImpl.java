@@ -488,33 +488,32 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         qSingleDiseaseTake.setQuestionId(singleDiseaseAnswerParam.getQuId());
         qSingleDiseaseTake.setWriteTime(new Date());
 
-        //todo 现在是id  需要改成字段名
-        Map<Integer, String> mapCache = new HashMap<>();
+        Map<String, String> mapCache = new HashMap<>();
         for (SingleDiseaseAnswer a : answersArray) {
             if(StringUtils.isNotBlank(a.getBindValue())){
-                mapCache.put(a.getSubId(), a.getBindValue());
+                mapCache.put(a.getSubColumnName(), a.getBindValue());
             }else{
-                mapCache.put(a.getSubId(), a.getSubValue());
+                mapCache.put(a.getSubColumnName(), a.getSubValue());
             }
         }
         LambdaQueryWrapper<Qsubject> lambdaPatientName = new QueryWrapper<Qsubject>().lambda();
         lambdaPatientName.eq(Qsubject::getColumnName,"xm");
         lambdaPatientName.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         Qsubject qsubject = qsubjectMapper.selectOne(lambdaPatientName);
-        String patientName = mapCache.get(qsubject.getId());
+        String patientName = mapCache.get(qsubject.getColumnName());
         qSingleDiseaseTake.setPatientName(patientName);
 
         LambdaQueryWrapper<Qsubject> lambdaPatientGender = new QueryWrapper<Qsubject>().lambda();
         lambdaPatientGender.eq(Qsubject::getColumnName,"CM-0-2-1-2");
         lambdaPatientGender.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         qsubject = qsubjectMapper.selectOne(lambdaPatientGender);
-        qSingleDiseaseTake.setPatientGender(mapCache.get(qsubject.getId()));
+        qSingleDiseaseTake.setPatientGender(mapCache.get(qsubject.getColumnName()));
 
         LambdaQueryWrapper<Qsubject> lambdaBirthday = new QueryWrapper<Qsubject>().lambda();
         lambdaBirthday.eq(Qsubject::getColumnName,"CM-0-2-1-1");
         lambdaBirthday.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         qsubject = qsubjectMapper.selectOne(lambdaBirthday);
-        String birthday = mapCache.get(qsubject.getId());
+        String birthday = mapCache.get(qsubject.getColumnName());
         if(StringUtils.isNotBlank(birthday)){
             qSingleDiseaseTake.setAge(String.valueOf(DateUtil.ageOfNow(birthday)));
         }
@@ -523,7 +522,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaInTime.eq(Qsubject::getColumnName,"CM-0-2-4-1");
         lambdaInTime.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         qsubject = qsubjectMapper.selectOne(lambdaInTime);
-        String dateInTimeString = mapCache.get(qsubject.getId());
+        String dateInTimeString = mapCache.get(qsubject.getColumnName());
         if(StringUtils.isNotBlank(dateInTimeString)){
             Date dateInTime = DateUtil.parse(dateInTimeString).toJdkDate();
             qSingleDiseaseTake.setInTime(dateInTime);
@@ -533,7 +532,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaOutTime.eq(Qsubject::getColumnName,"CM-0-2-4-2");
         lambdaOutTime.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         qsubject = qsubjectMapper.selectOne(lambdaOutTime);
-        String dateOutTimeString = mapCache.get(qsubject.getId());
+        String dateOutTimeString = mapCache.get(qsubject.getColumnName());
         if(StringUtils.isNotBlank(dateInTimeString)){
             Date dateOutTime = DateUtil.parse(dateOutTimeString).toJdkDate();
             qSingleDiseaseTake.setOutTime(dateOutTime);
@@ -543,25 +542,25 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaDoctor.eq(Qsubject::getColumnName,"CM-0-1-1-3");
         lambdaDoctor.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         qsubject = qsubjectMapper.selectOne(lambdaDoctor);
-        qSingleDiseaseTake.setDoctorName(mapCache.get(qsubject.getId()));
+        qSingleDiseaseTake.setDoctorName(mapCache.get(qsubject.getColumnName()));
 
         LambdaQueryWrapper<Qsubject> lambdaDept = new QueryWrapper<Qsubject>().lambda();
         lambdaDept.eq(Qsubject::getColumnName,"CM-0-1-1-5");
         lambdaDept.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         qsubject = qsubjectMapper.selectOne(lambdaDept);
-        qSingleDiseaseTake.setDepartment(mapCache.get(qsubject.getId()));
+        qSingleDiseaseTake.setDepartment(mapCache.get(qsubject.getColumnName()));
 
         LambdaQueryWrapper<Qsubject> lambdaIdCard = new QueryWrapper<Qsubject>().lambda();
         lambdaIdCard.eq(Qsubject::getColumnName,"IDCard");
         lambdaIdCard.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         qsubject = qsubjectMapper.selectOne(lambdaIdCard);
-        qSingleDiseaseTake.setIdCard(mapCache.get(qsubject.getId()));
+        qSingleDiseaseTake.setIdCard(mapCache.get(qsubject.getColumnName()));
 
         LambdaQueryWrapper<Qsubject> lambdaInHospitalDay = new QueryWrapper<Qsubject>().lambda();
         lambdaInHospitalDay.eq(Qsubject::getColumnName,"CM-4-1");
         lambdaInHospitalDay.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         qsubject = qsubjectMapper.selectOne(lambdaInHospitalDay);
-        String inHospitalDayString = mapCache.get(qsubject.getId());
+        String inHospitalDayString = mapCache.get(qsubject.getColumnName());
         if(StringUtils.isNotBlank(inHospitalDayString)){
             if(inHospitalDayString.contains("天")){
                 inHospitalDayString = inHospitalDayString.replaceAll("天","");
@@ -573,7 +572,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaInHospitalFee.eq(Qsubject::getColumnName,"CM-6-1");
         lambdaInHospitalFee.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         qsubject = qsubjectMapper.selectOne(lambdaInHospitalFee);
-        String inHospitalFee = mapCache.get(qsubject.getId());
+        String inHospitalFee = mapCache.get(qsubject.getColumnName());
         if(StringUtils.isNotBlank(inHospitalFee)){
             qSingleDiseaseTake.setInHospitalFee(PriceUtil.toFenInt(new BigDecimal(inHospitalFee)));
         }
@@ -582,7 +581,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaOperationTreatmentFee.eq(Qsubject::getColumnName,"CM-6-13");
         lambdaOperationTreatmentFee.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         qsubject = qsubjectMapper.selectOne(lambdaOperationTreatmentFee);
-        String operationTreatmentFeeString = mapCache.get(qsubject.getId());
+        String operationTreatmentFeeString = mapCache.get(qsubject.getColumnName());
         if(StringUtils.isNotBlank(operationTreatmentFeeString)){
             qSingleDiseaseTake.setOperationTreatmentFee(PriceUtil.toFenInt(new BigDecimal(operationTreatmentFeeString)));
         }
@@ -591,21 +590,21 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaDisposableConsumable.eq(Qsubject::getColumnName,"CM-6-29");
         lambdaDisposableConsumable.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         qsubject = qsubjectMapper.selectOne(lambdaDisposableConsumable);
-        String operationDisposableMaterialFeeString = mapCache.get(qsubject.getId())==null?"0":mapCache.get(qsubject.getId());
+        String operationDisposableMaterialFeeString = mapCache.get(qsubject.getColumnName())==null?"0":mapCache.get(qsubject.getColumnName());
         Integer operationDisposableMaterialFee = PriceUtil.toFenInt(new BigDecimal(operationDisposableMaterialFeeString));
 
         LambdaQueryWrapper<Qsubject> lambdaExaminationDisposableConsumable = new QueryWrapper<Qsubject>().lambda();
         lambdaExaminationDisposableConsumable.eq(Qsubject::getColumnName,"CM-6-27");
         lambdaExaminationDisposableConsumable.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         qsubject = qsubjectMapper.selectOne(lambdaExaminationDisposableConsumable);
-        String examinationDisposableMaterialFeeString = mapCache.get(qsubject.getId())==null?"0":mapCache.get(qsubject.getId());
+        String examinationDisposableMaterialFeeString = mapCache.get(qsubject.getColumnName())==null?"0":mapCache.get(qsubject.getColumnName());
         Integer examinationDisposableMaterialFee = PriceUtil.toFenInt(new BigDecimal(examinationDisposableMaterialFeeString));
 
         LambdaQueryWrapper<Qsubject> lambdaTreatmentDisposableConsumable = new QueryWrapper<Qsubject>().lambda();
         lambdaTreatmentDisposableConsumable.eq(Qsubject::getColumnName,"CM-6-28");
         lambdaTreatmentDisposableConsumable.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         qsubject = qsubjectMapper.selectOne(lambdaTreatmentDisposableConsumable);
-        String treatmentDisposableMaterialFeeString = mapCache.get(qsubject.getId())==null?"0":mapCache.get(qsubject.getId());
+        String treatmentDisposableMaterialFeeString = mapCache.get(qsubject.getColumnName())==null?"0":mapCache.get(qsubject.getColumnName());
         Integer treatmentDisposableMaterialFee = PriceUtil.toFenInt(new BigDecimal(treatmentDisposableMaterialFeeString));
 
         qSingleDiseaseTake.setDisposableConsumable(treatmentDisposableMaterialFee+examinationDisposableMaterialFee+operationDisposableMaterialFee);
@@ -631,7 +630,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 String subType = qsubjectDynamicTable.getSubType();
                 Integer del = qsubjectDynamicTable.getDel();
                 if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
-                        || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getId())==null) {
+                        || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null) {
                     continue;
                 }
                 sqlAns.append("`");
@@ -639,7 +638,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 sqlAns.append("`");
                 sqlAns.append("=");
                 sqlAns.append("'");
-                sqlAns.append(mapCache.get(qsubjectDynamicTable.getId()));
+                sqlAns.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
                 sqlAns.append("'");
                 sqlAns.append(",");
             }
@@ -657,7 +656,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 String subType = qsubjectDynamicTable.getSubType();
                 Integer del = qsubjectDynamicTable.getDel();
                 if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
-                        || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getId())==null) {
+                        || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null) {
                     continue;
                 }
                 sqlAns.append("`");
@@ -673,11 +672,11 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 String subType = qsubjectDynamicTable.getSubType();
                 Integer del = qsubjectDynamicTable.getDel();
                 if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
-                        || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getId())==null) {
+                        || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null) {
                     continue;
                 }
                 sqlAns.append("'");
-                sqlAns.append(mapCache.get(qsubjectDynamicTable.getId()));
+                sqlAns.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
                 sqlAns.append("'");
                 sqlAns.append(",");
             }
@@ -696,7 +695,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 String subType = qsubjectDynamicTable.getSubType();
                 Integer del = qsubjectDynamicTable.getDel();
                 if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
-                        || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getId())==null) {
+                        || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null) {
                     continue;
                 }
                 sqlSelect.append("`");
@@ -704,7 +703,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 sqlSelect.append("`");
                 sqlSelect.append("=");
                 sqlSelect.append("'");
-                sqlSelect.append(mapCache.get(qsubjectDynamicTable.getId()));
+                sqlSelect.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
                 sqlSelect.append("'");
                 sqlSelect.append(" and ");
             }
@@ -743,10 +742,10 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         String answerJson = (String) qSingleDiseaseTake.getAnswerJson();
 //        answerJson = "[{\"subId\":318,\"subValue\":\"test\"},{\"subId\":319,\"subValue\":\"Z37.0 单一活产\"},{\"subId\":320,\"subValue\":\"无\"},{\"subId\":321,\"subValue\":\"否\"},{\"subId\":324,\"subValue\":\"血、尿常规$凝血功能$特殊感染性疾病筛查\"},{\"subId\":327,\"subValue\":\"有默认值的多行文本2\"}]";
         List<SingleDiseaseAnswer> singleDiseaseAnswerList = JSON.parseArray(answerJson, SingleDiseaseAnswer.class);
-        Map<Integer, SingleDiseaseAnswer> mapCache = new HashMap<>();
+        Map<String, SingleDiseaseAnswer> mapCache = new HashMap<>();
         if(singleDiseaseAnswerList!=null && !singleDiseaseAnswerList.isEmpty()){
             for (SingleDiseaseAnswer a : singleDiseaseAnswerList) {
-                mapCache.put(a.getSubId(), a);
+                mapCache.put(a.getSubColumnName(), a);
             }
         }
         String dynamicTableName = qSingleDiseaseTake.getDynamicTableName();
@@ -778,9 +777,9 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                     continue;
                 }
                 SingleDiseaseAnswer singleDiseaseAnswer = new SingleDiseaseAnswer();
-                singleDiseaseAnswer.setSubId(qsubject.getId());
+                singleDiseaseAnswer.setSubColumnName(qsubject.getColumnName());
                 singleDiseaseAnswer.setSubValue(String.valueOf(entry.getValue()));
-                mapCache.put(qsubject.getId(), singleDiseaseAnswer);
+                mapCache.put(qsubject.getColumnName(), singleDiseaseAnswer);
             }
             List<SingleDiseaseAnswer> resList = new ArrayList<>(mapCache.values());
             answer = JSON.toJSONString(resList);
