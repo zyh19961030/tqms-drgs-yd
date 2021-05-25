@@ -95,7 +95,7 @@
     </select>
 
     <select id="selectDept" parameterType="map" resultType="com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo">
-        select department_id departmentId,department from q_single_disease_take group by department_id,department
+        select department_id departmentId,department from q_single_disease_take where department is not null and department is not null  group by department_id,department
     </select>
 
     <select id="allSingleDiseaseReportStatisticOverviewLine"

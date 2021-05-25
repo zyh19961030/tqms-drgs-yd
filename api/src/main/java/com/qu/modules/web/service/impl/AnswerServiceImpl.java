@@ -88,9 +88,9 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
             dynamicTableMapper.insertDynamicTable(sql.toString());
             //插入答案表
             Answers[] answers = answerParam.getAnswers();
-            Map<Integer, String> mapCache = new HashMap<>();
+            Map<String, String> mapCache = new HashMap<>();
             for (Answers a : answers) {
-                mapCache.put(a.getSubId(), a.getSubValue());
+                mapCache.put(a.getSubColumnName(), a.getSubValue());
             }
             StringBuffer sqlAns = new StringBuffer();
             Question question = questionMapper.selectById(answerParam.getQuId());
@@ -107,7 +107,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
                 sqlAns.append(") values (");
                 for (int i = 0; i < subjectList.size(); i++) {
                     Qsubject qsubject = subjectList.get(i);
-                    sqlAns.append("'" + mapCache.get(qsubject.getId()) + "'");
+                    sqlAns.append("'" + mapCache.get(qsubject.getColumnName()) + "'");
                     if (i < subjectList.size() - 1) {
                         sqlAns.append(",");
                     }
