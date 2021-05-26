@@ -261,7 +261,7 @@ public class QSingleDiseaseTakeController {
         log.info("-----------singleDiseaseAnswerParam={}", JSON.toJSONString(singleDiseaseAnswerParam));
         Boolean flag = qSingleDiseaseTakeService.singleDiseaseStageAnswer(cookie,singleDiseaseAnswerParam);
         if(flag){
-            result.setSuccess(false);
+            result.setSuccess(true);
             result.setResult(flag);
         }else{
             result.setSuccess(false);

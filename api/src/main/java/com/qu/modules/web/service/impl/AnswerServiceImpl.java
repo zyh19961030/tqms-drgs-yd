@@ -2,6 +2,7 @@ package com.qu.modules.web.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.qu.constant.QuestionConstant;
 import com.qu.modules.web.entity.Answer;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.entity.Question;
@@ -96,22 +97,40 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
             Question question = questionMapper.selectById(answerParam.getQuId());
             if (question != null) {
                 sqlAns.append("insert into " + question.getTableName() + " (");
+
                 List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
                 for (int i = 0; i < subjectList.size(); i++) {
-                    Qsubject qsubject = subjectList.get(i);
-                    sqlAns.append("`" + qsubject.getColumnName() + "`");
-                    if (i < subjectList.size() - 1) {
-                        sqlAns.append(",");
+                    Qsubject qsubjectDynamicTable = subjectList.get(i);
+                    String subType = qsubjectDynamicTable.getSubType();
+                    Integer del = qsubjectDynamicTable.getDel();
+                    if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                            || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null) {
+                        continue;
                     }
+
+                    Qsubject qsubject = subjectList.get(i);
+                    sqlAns.append("`");
+                    sqlAns.append(qsubject.getColumnName());
+                    sqlAns.append("`");
+                    sqlAns.append(",");
                 }
+                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
                 sqlAns.append(") values (");
                 for (int i = 0; i < subjectList.size(); i++) {
-                    Qsubject qsubject = subjectList.get(i);
-                    sqlAns.append("'" + mapCache.get(qsubject.getColumnName()) + "'");
-                    if (i < subjectList.size() - 1) {
-                        sqlAns.append(",");
+                    Qsubject qsubjectDynamicTable = subjectList.get(i);
+                    String subType = qsubjectDynamicTable.getSubType();
+                    Integer del = qsubjectDynamicTable.getDel();
+                    if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                            || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null) {
+                        continue;
                     }
+                    sqlAns.append("'");
+                    sqlAns.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
+                    sqlAns.append("'");
+                    sqlAns.append(",");
                 }
+                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
+
                 sqlAns.append(")");
                 log.info("-----insert sqlAns:{}", sqlAns.toString());
                 dynamicTableMapper.insertDynamicTable(sqlAns.toString());

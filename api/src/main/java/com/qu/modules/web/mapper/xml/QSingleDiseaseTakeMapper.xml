@@ -63,7 +63,7 @@
             <if test="status!=null">
                 and status=#{status}
             </if>
-            <if test="dateType!=null">
+            <if test="dateType!=null  and dateType!=''">
                 and in_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
                 and in_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
             </if>
@@ -87,7 +87,7 @@
             <if test="dept!=null and dept!=''">
                 and department_id =#{dept}
             </if>
-            <if test="dateType!=null">
+            <if test="dateType!=null  and dateType!=''">
                 and in_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
                 and in_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
             </if>
@@ -122,7 +122,7 @@
             <if test="status!=null">
                 and status=#{status}
             </if>
-            <if test="dateType!=null">
+            <if test="dateType!=null  and dateType!=''">
                 and country_report_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
                 and country_report_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
             </if>
@@ -202,7 +202,7 @@
             <if test="status!=null">
                 and status=#{status}
             </if>
-            <if test="dateType!=null">
+            <if test="dateType!=null  and dateType!=''">
                 and country_report_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
                 and country_report_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
             </if>
@@ -241,7 +241,7 @@
             <if test="status!=null">
                 and status=#{status}
             </if>
-            <if test="dateType!=null">
+            <if test="dateType!=null  and dateType!=''">
                 and country_report_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
                 and country_report_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
             </if>
@@ -260,11 +260,11 @@
             <if test="status!=null">
                 and status=#{status}
             </if>
-            <if test="dateType!=null">
+            <if test="dateType!=null and dateType!=''">
                 and country_report_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
                 and country_report_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
             </if>
-            <if test="dept!=null">
+            <if test="dept!=null and dept!=''">
                 and department_id =#{dept}
             </if>
         </where>
