@@ -15,9 +15,9 @@ import java.util.List;
  */
 public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake> {
 
-    List<QSingleDiseaseTakeVo> singleDiseaseList(String name);
+    List<QSingleDiseaseTakeVo> singleDiseaseList(String name, String deptId);
 
-    List<QSingleDiseaseNameVo> singleDiseaseNameList();
+    List<QSingleDiseaseNameVo> singleDiseaseNameList(String deptId);
 
     QSingleDiseaseTakeByDoctorPageVo singleDiseaseByDoctorList(QSingleDiseaseTakeByDoctorParam qSingleDiseaseTakeByDoctorParam, Integer pageNo, Integer pageSize);
 
@@ -29,7 +29,7 @@ public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake>
 
     QSingleDiseaseTakeByDoctorPageVo singleDiseaseRejectList(Integer pageNo, Integer pageSize);
 
-    QSingleDiseaseTakeByDoctorPageVo singleDiseaseByDeptList(QSingleDiseaseTakeByDeptParam qSingleDiseaseTakeByDeptParam, Integer pageNo, Integer pageSize);
+    QSingleDiseaseTakeByDoctorPageVo singleDiseaseByDeptList(QSingleDiseaseTakeByDeptParam qSingleDiseaseTakeByDeptParam, Integer pageNo, Integer pageSize, String deptId);
 
     QSingleDiseaseTakeReportStatisticPageVo allSingleDiseaseReportStatistic(QSingleDiseaseTakeReportStatisticParam qSingleDiseaseTakeReportStatisticParam, Integer pageNo, Integer pageSize);
 

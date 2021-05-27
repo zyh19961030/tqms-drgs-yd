@@ -66,12 +66,15 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     private String tokenUrl;
 
     @Override
-    public List<QSingleDiseaseTakeVo> singleDiseaseList(String name) {
+    public List<QSingleDiseaseTakeVo> singleDiseaseList(String name, String deptId) {
         QueryWrapper<Question> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("qu_Status","1");
         queryWrapper.eq("category_type","1");
         queryWrapper.eq("del","0");
-        //todo 科室匹配
+        //todo 科室匹配 按单病种填报 问卷设置科室权限---
+        if(StringUtils.isNotBlank(deptId)){
+            queryWrapper.like("dept_ids",deptId);
+        }
         List<Question> questions = questionMapper.selectList(queryWrapper);
         List<QSingleDiseaseTakeVo> qSingleDiseaseTakeVoList = questions.stream().map(q -> {
             QSingleDiseaseTakeVo qSingleDiseaseTakeVo = new QSingleDiseaseTakeVo();
@@ -85,13 +88,16 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     }
 
     @Override
-    public List<QSingleDiseaseNameVo> singleDiseaseNameList() {
+    public List<QSingleDiseaseNameVo> singleDiseaseNameList(String deptId) {
         QueryWrapper<Question> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("qu_Status","1");
         queryWrapper.eq("category_type","1");
         queryWrapper.eq("qu_Status","1");
         queryWrapper.eq("del","0");
-        //todo 科室匹配
+        if(StringUtils.isNotBlank(deptId)){
+            queryWrapper.like("dept_ids",deptId);
+        }
+        //todo 科室匹配 按医生填报查询-本科室单病种上报记录-全院单病种上报统计-科室单病种上报统计-单病种指标统计-病种名称筛选条件
         List<Question> questions = questionMapper.selectList(queryWrapper);
         List<QSingleDiseaseNameVo> qSingleDiseaseTakeVoList = questions.stream().map(q -> {
             QSingleDiseaseNameVo qSingleDiseaseTakeVo = new QSingleDiseaseNameVo();
@@ -152,6 +158,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 questionQueryWrapper.eq("table_name", dynamicTableName);
                 Question question = questionMapper.selectOne(questionQueryWrapper);
                 record.setQuestionId(question.getId());
+                record.setQuestionName(question.getQuName());
             }
         }
         QSingleDiseaseTakeByDoctorPageVo qsubjectlibPageVo = new QSingleDiseaseTakeByDoctorPageVo();
@@ -192,6 +199,17 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         QueryWrapper<QSingleDiseaseTake> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("status", QSingleDiseaseTakeConstant.STATUS_WAIT_UPLOAD);
         IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, queryWrapper);
+
+        for (QSingleDiseaseTake record : qSingleDiseaseTakeIPage.getRecords()) {
+            String dynamicTableName = record.getDynamicTableName();
+            if(StringUtils.isNotBlank(dynamicTableName)){
+                QueryWrapper<Question> questionQueryWrapper = new QueryWrapper<>();
+                questionQueryWrapper.eq("table_name", dynamicTableName);
+                Question question = questionMapper.selectOne(questionQueryWrapper);
+                record.setQuestionId(question.getId());
+                record.setQuestionName(question.getQuName());
+            }
+        }
         QSingleDiseaseTakeByDoctorPageVo qsubjectlibPageVo = new QSingleDiseaseTakeByDoctorPageVo();
         qsubjectlibPageVo.setTotal(qSingleDiseaseTakeIPage.getTotal());
         qsubjectlibPageVo.setQSingleDiseaseTakeList(qSingleDiseaseTakeIPage.getRecords());
@@ -244,8 +262,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     }
 
     @Override
-    public QSingleDiseaseTakeByDoctorPageVo singleDiseaseByDeptList(QSingleDiseaseTakeByDeptParam qSingleDiseaseTakeByDeptParam, Integer pageNo, Integer pageSize) {
-        //todo  添加科室操作
+    public QSingleDiseaseTakeByDoctorPageVo singleDiseaseByDeptList(QSingleDiseaseTakeByDeptParam qSingleDiseaseTakeByDeptParam, Integer pageNo, Integer pageSize, String deptId) {
         Page<QSingleDiseaseTake> page = new Page<>(pageNo, pageSize);
         QueryWrapper<QSingleDiseaseTake> queryWrapper = new QueryWrapper<>();
         if (StringUtils.isNotBlank(qSingleDiseaseTakeByDeptParam.getCategoryId())) {
@@ -282,6 +299,10 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
         if (qSingleDiseaseTakeByDeptParam.getStatus() != null) {
             queryWrapper.in("status", qSingleDiseaseTakeByDeptParam.getStatus());
+        }
+        //todo  添加科室操作---
+        if (StringUtils.isNotBlank(deptId)) {
+            queryWrapper.in("tqms_dept", deptId);
         }
 
         IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, queryWrapper);
@@ -762,7 +783,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             sqlAns.append(question.getTableName());
             sqlAns.append(" where id =");
             sqlAns.append(qSingleDiseaseTake.getTableId());
-                Map<String,String> map = dynamicTableMapper.selectDynamicTableColumn(sqlAns.toString());
+            Map<String,String> map = dynamicTableMapper.selectDynamicTableColumn(sqlAns.toString());
 //            String s = "select * from q_single_disease_take where id =20 ";
 //            Map<String, String> map = dynamicTableMapper.selectDynamicTableColumn(s);
             if(map==null){

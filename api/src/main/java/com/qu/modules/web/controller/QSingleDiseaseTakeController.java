@@ -1,8 +1,12 @@
 package com.qu.modules.web.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
+import com.qu.constant.Constant;
 import com.qu.constant.QSingleDiseaseTakeConstant;
 import com.qu.modules.web.param.*;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.pojo.Deps;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
 import com.qu.modules.web.vo.*;
 import io.swagger.annotations.Api;
@@ -17,6 +21,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,9 +45,12 @@ public class QSingleDiseaseTakeController {
     @AutoLog(value = "按单病种填报查询")
     @ApiOperation(value = "按单病种填报查询", notes = "按单病种填报查询")
     @GetMapping(value = "/singleDiseaseList")
-    public Result<List<QSingleDiseaseTakeVo>> singleDiseaseList(@RequestParam(name = "name", required = false) String name) {
+    public Result<List<QSingleDiseaseTakeVo>> singleDiseaseList(@RequestParam(name = "name", required = false) String name,HttpServletRequest request) {
         Result<List<QSingleDiseaseTakeVo>> result = new Result<>();
-        List<QSingleDiseaseTakeVo> list = qSingleDiseaseTakeService.singleDiseaseList(name);
+        //todo  加科室过滤---
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String deptId = data.getDeps().get(0).getId();
+        List<QSingleDiseaseTakeVo> list = qSingleDiseaseTakeService.singleDiseaseList(name,deptId);
         result.setSuccess(true);
         result.setResult(list);
         return result;
@@ -54,9 +62,12 @@ public class QSingleDiseaseTakeController {
     @AutoLog(value = "按医生填报查询-本科室单病种上报记录-全院单病种上报统计-科室单病种上报统计-单病种指标统计-病种名称筛选条件")
     @ApiOperation(value = "按医生填报查询-本科室单病种上报记录-全院单病种上报统计-科室单病种上报统计-单病种指标统计-病种名称筛选条件", notes = "按医生填报查询-本科室单病种上报记录-全院单病种上报统计-科室单病种上报统计-单病种指标统计-病种名称筛选条件")
     @GetMapping(value = "/singleDiseaseNameList")
-    public Result<List<QSingleDiseaseNameVo>> singleDiseaseNameList() {
+    public Result<List<QSingleDiseaseNameVo>> singleDiseaseNameList(HttpServletRequest request) {
         Result<List<QSingleDiseaseNameVo>> result = new Result<>();
-        List<QSingleDiseaseNameVo> list = qSingleDiseaseTakeService.singleDiseaseNameList();
+        //todo  加科室过滤---
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String deptId = data.getDeps().get(0).getId();
+        List<QSingleDiseaseNameVo> list = qSingleDiseaseTakeService.singleDiseaseNameList(deptId);
         result.setSuccess(true);
         result.setResult(list);
         return result;
@@ -116,9 +127,9 @@ public class QSingleDiseaseTakeController {
     @PostMapping(value = "/setSingleDiseasePass")
     public Result<Boolean> setSingleDiseasePass(@RequestBody String[] ids) {
         Result<Boolean> result = new Result<>();
-        //todo 为展会 审核通过直接已完成
-        String msg = qSingleDiseaseTakeService.setSingleDiseaseStatus(ids, QSingleDiseaseTakeConstant.STATUS_COMPLETE,null);
-//        String msg = qSingleDiseaseTakeService.setSingleDiseaseStatus(ids, QSingleDiseaseTakeConstant.STATUS_PASS_WAIT_UPLOAD,null);
+        //审核通过直接已完成
+//        String msg = qSingleDiseaseTakeService.setSingleDiseaseStatus(ids, QSingleDiseaseTakeConstant.STATUS_COMPLETE,null);
+        String msg = qSingleDiseaseTakeService.setSingleDiseaseStatus(ids, QSingleDiseaseTakeConstant.STATUS_PASS_WAIT_UPLOAD,null);
         if (StringUtils.isBlank(msg)) {
             result.setSuccess(true);
             result.setResult(true);
@@ -175,9 +186,13 @@ public class QSingleDiseaseTakeController {
     @GetMapping(value = "/singleDiseaseByDeptList")
     public Result<QSingleDiseaseTakeByDoctorPageVo> singleDiseaseByDeptList(QSingleDiseaseTakeByDeptParam qSingleDiseaseTakeByDeptParam,
                                                                             @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
-                                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+                                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                                            HttpServletRequest request) {
         Result<QSingleDiseaseTakeByDoctorPageVo> result = new Result<>();
-        QSingleDiseaseTakeByDoctorPageVo list = qSingleDiseaseTakeService.singleDiseaseByDeptList(qSingleDiseaseTakeByDeptParam, pageNo, pageSize);
+        //todo  加科室过滤---
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String deptId = data.getDeps().get(0).getId();
+        QSingleDiseaseTakeByDoctorPageVo list = qSingleDiseaseTakeService.singleDiseaseByDeptList(qSingleDiseaseTakeByDeptParam, pageNo, pageSize,deptId);
         result.setSuccess(true);
         result.setResult(list);
         return result;
@@ -222,11 +237,21 @@ public class QSingleDiseaseTakeController {
     @ApiOperation(value = "科室单病种上报统计查询", notes = "科室单病种上报统计查询")
     @GetMapping(value = "/deptSingleDiseaseReportStatistic")
     public Result<QSingleDiseaseTakeReportStatisticPageVo> deptSingleDiseaseReportStatistic(@Validated QSingleDiseaseTakeReportStatisticParam qSingleDiseaseTakeReportStatisticParam,
-                                                                                           @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
-                                                                                           @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
-
+                                                                                            @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                                                            HttpServletRequest request) {
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
         Result<QSingleDiseaseTakeReportStatisticPageVo> result = new Result<>();
-        //todo  加科室过滤
+        //todo  加科室过滤---
+        String[] dept = qSingleDiseaseTakeReportStatisticParam.getDept();
+        if(dept!=null){
+            ArrayList<String> strings = Lists.newArrayList(dept);
+            strings.add(data.getDeps().get(0).getId());
+            dept= strings.toArray(new String[0]);
+        }else{
+            dept= new String[]{data.getDeps().get(0).getId()};
+        }
+        qSingleDiseaseTakeReportStatisticParam.setDept(dept);
         QSingleDiseaseTakeReportStatisticPageVo list = qSingleDiseaseTakeService.allSingleDiseaseReportStatistic(qSingleDiseaseTakeReportStatisticParam, pageNo, pageSize);
         result.setSuccess(true);
         result.setResult(list);
@@ -239,10 +264,18 @@ public class QSingleDiseaseTakeController {
     @AutoLog(value = "科室单病种上报统计查询中-科室列表筛选条件")
     @ApiOperation(value = "科室单病种上报统计查询中-科室列表筛选条件", notes = "科室单病种上报统计查询中-科室列表筛选条件")
     @GetMapping(value = "/deptSingleDiseaseReportStatisticDept")
-    public Result<List<QSingleDiseaseTakeReportStatisticDeptVo>> deptSingleDiseaseReportStatisticDept() {
+    public Result<List<QSingleDiseaseTakeReportStatisticDeptVo>> deptSingleDiseaseReportStatisticDept(HttpServletRequest request) {
 
         Result<List<QSingleDiseaseTakeReportStatisticDeptVo>> result = new Result<>();
-        List<QSingleDiseaseTakeReportStatisticDeptVo> list = qSingleDiseaseTakeService.deptSingleDiseaseReportStatisticDept();
+        //todo  加科室过滤---
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        Deps deps = data.getDeps().get(0);
+        List<QSingleDiseaseTakeReportStatisticDeptVo> list= Lists.newArrayList();
+        QSingleDiseaseTakeReportStatisticDeptVo q= new QSingleDiseaseTakeReportStatisticDeptVo();
+        q.setDepartmentId(deps.getId());
+        q.setDepartment(deps.getDepName());
+        list.add(q);
+//        List<QSingleDiseaseTakeReportStatisticDeptVo> list = qSingleDiseaseTakeService.deptSingleDiseaseReportStatisticDept(deptId);
         result.setSuccess(true);
         result.setResult(list);
         return result;
@@ -314,7 +347,7 @@ public class QSingleDiseaseTakeController {
     @ApiOperation(value = "全院单病种上报数量统计-查看图表-单病种上报数据概览-折线图数据", notes = "全院单病种上报数量统计-查看图表-单病种上报数据概览-折线图数据")
     @GetMapping(value = "/allSingleDiseaseReportStatisticOverviewLine")
     public Result<List<QSingleDiseaseTakeReportStatisticOverviewLineVo>> allSingleDiseaseReportStatisticOverviewLine(
-                                                    @Validated QSingleDiseaseTakeReportStatisticOverviewLineParam qSingleDiseaseTakeReportStatisticOverviewLineParam
+            @Validated QSingleDiseaseTakeReportStatisticOverviewLineParam qSingleDiseaseTakeReportStatisticOverviewLineParam
                                                                                            /*@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*/) {
 
@@ -408,7 +441,6 @@ public class QSingleDiseaseTakeController {
                                                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*//*) {
 
         Result<QSingleDiseaseTakeReportStatisticOverviewVo> result = new Result<>();
-        //todo 加科室过滤
         QSingleDiseaseTakeReportStatisticOverviewVo list = qSingleDiseaseTakeService.allSingleDiseaseReportStatisticOverview(qSingleDiseaseTakeReportStatisticOverviewParam);
         result.setSuccess(true);
         result.setResult(list);
@@ -422,12 +454,22 @@ public class QSingleDiseaseTakeController {
     @ApiOperation(value = "科室单病种上报数量统计-查看图表-单病种上报数据概览-折线图数据", notes = "科室单病种上报数量统计-查看图表-单病种上报数据概览-折线图数据")
     @GetMapping(value = "/deptSingleDiseaseReportStatisticOverviewLine")
     public Result<List<QSingleDiseaseTakeReportStatisticOverviewLineVo>> deptSingleDiseaseReportStatisticOverviewLine(
-            @Validated QSingleDiseaseTakeReportStatisticOverviewLineParam qSingleDiseaseTakeReportStatisticOverviewLineParam
+            @Validated QSingleDiseaseTakeReportStatisticOverviewLineParam qSingleDiseaseTakeReportStatisticOverviewLineParam,HttpServletRequest request
                                                                                            /*@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*/) {
 
         Result<List<QSingleDiseaseTakeReportStatisticOverviewLineVo>> result = new Result<>();
-        //todo 加科室过滤
+        //todo  加科室过滤---
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String[] dept = qSingleDiseaseTakeReportStatisticOverviewLineParam.getDept();
+        if(dept!=null){
+            ArrayList<String> strings = Lists.newArrayList(dept);
+            strings.add(data.getDeps().get(0).getId());
+            dept= strings.toArray(new String[0]);
+        }else{
+            dept= new String[]{data.getDeps().get(0).getId()};
+        }
+        qSingleDiseaseTakeReportStatisticOverviewLineParam.setDept(dept);
         List<QSingleDiseaseTakeReportStatisticOverviewLineVo> list = qSingleDiseaseTakeService
                 .allSingleDiseaseReportStatisticOverviewLine(qSingleDiseaseTakeReportStatisticOverviewLineParam);
         result.setSuccess(true);
@@ -442,12 +484,24 @@ public class QSingleDiseaseTakeController {
     @ApiOperation(value = "科室单病种上报数量统计-查看图表-单病种上报数据概览-饼图数据", notes = "科室单病种上报数量统计-查看图表-单病种上报数据概览-饼图数据")
     @GetMapping(value = "/deptSingleDiseaseReportStatisticOverviewPie")
     public Result<List<QSingleDiseaseTakeReportStatisticOverviewPieVo>> deptSingleDiseaseReportStatisticOverviewPie(
-            @Validated QSingleDiseaseTakeReportStatisticOverviewPieParam qSingleDiseaseTakeReportStatisticOverviewParam
+            @Validated QSingleDiseaseTakeReportStatisticOverviewPieParam qSingleDiseaseTakeReportStatisticOverviewParam,
+            HttpServletRequest request
                                                                                            /*@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*/) {
 
         Result<List<QSingleDiseaseTakeReportStatisticOverviewPieVo>> result = new Result<>();
-        //todo 加科室过滤
+        //todo  加科室过滤---
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String[] dept = qSingleDiseaseTakeReportStatisticOverviewParam.getDept();
+        if(dept!=null){
+            ArrayList<String> strings = Lists.newArrayList(dept);
+            strings.add(data.getDeps().get(0).getId());
+            dept= strings.toArray(new String[0]);
+        }else{
+            dept= new String[]{data.getDeps().get(0).getId()};
+        }
+        qSingleDiseaseTakeReportStatisticOverviewParam.setDept(dept);
+
         List<QSingleDiseaseTakeReportStatisticOverviewPieVo> list = qSingleDiseaseTakeService
                 .allSingleDiseaseReportStatisticOverviewPie(qSingleDiseaseTakeReportStatisticOverviewParam);
         result.setSuccess(true);
@@ -461,12 +515,23 @@ public class QSingleDiseaseTakeController {
     @AutoLog(value = "科室单病种上报数量统计-查看图表-单病种数量上报趋势图")
     @ApiOperation(value = "科室单病种上报数量统计-查看图表-单病种数量上报趋势图", notes = "科室单病种上报数量统计-查看图表-单病种数量上报趋势图")
     @GetMapping(value = "/deptSingleDiseaseReportStatisticTrend")
-    public Result<List<QSingleDiseaseTakeReportStatisticTrendVo>> deptSingleDiseaseReportStatisticTrend(@Validated QSingleDiseaseTakeReportStatisticOverviewLineParam qSingleDiseaseTakeReportStatisticOverviewParam
+    public Result<List<QSingleDiseaseTakeReportStatisticTrendVo>> deptSingleDiseaseReportStatisticTrend(@Validated QSingleDiseaseTakeReportStatisticOverviewLineParam qSingleDiseaseTakeReportStatisticOverviewParam,
+                                                                                                        HttpServletRequest request
                                                                                            /*@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*/) {
 
         Result<List<QSingleDiseaseTakeReportStatisticTrendVo>> result = new Result<>();
-        //todo 加科室过滤
+        //todo  加科室过滤---
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String[] dept = qSingleDiseaseTakeReportStatisticOverviewParam.getDept();
+        if(dept!=null){
+            ArrayList<String> strings = Lists.newArrayList(dept);
+            strings.add(data.getDeps().get(0).getId());
+            dept= strings.toArray(new String[0]);
+        }else{
+            dept= new String[]{data.getDeps().get(0).getId()};
+        }
+        qSingleDiseaseTakeReportStatisticOverviewParam.setDept(dept);
         List<QSingleDiseaseTakeReportStatisticTrendVo> list = qSingleDiseaseTakeService.allSingleDiseaseReportStatisticTrend(qSingleDiseaseTakeReportStatisticOverviewParam);
         result.setSuccess(true);
         result.setResult(list);
@@ -484,7 +549,6 @@ public class QSingleDiseaseTakeController {
                                                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*/) {
 
         Result<List<QSingleDiseaseTakeReportStatisticDeptPermutationVo>> result = new Result<>();
-        //todo 加科室过滤
         List<QSingleDiseaseTakeReportStatisticDeptPermutationVo> list = qSingleDiseaseTakeService.allSingleDiseaseReportStatisticDeptPermutation(qSingleDiseaseTakeReportStatisticDeptPermutationParam);
         result.setSuccess(true);
         result.setResult(list);
@@ -497,12 +561,15 @@ public class QSingleDiseaseTakeController {
     @AutoLog(value = "科室单病种上报数量统计-查看图表-各病种上报情况汇总表")
     @ApiOperation(value = "科室单病种上报数量统计-查看图表-各病种上报情况汇总表", notes = "科室单病种上报数量统计-查看图表-各病种上报情况汇总表")
     @GetMapping(value = "/deptSingleDiseaseReportStatisticSummary")
-    public Result<List<QSingleDiseaseTakeReportStatisticSummaryVo>> deptSingleDiseaseReportStatisticSummary(@Validated QSingleDiseaseTakeReportStatisticSummaryParam qSingleDiseaseTakeReportStatisticSummaryParam
+    public Result<List<QSingleDiseaseTakeReportStatisticSummaryVo>> deptSingleDiseaseReportStatisticSummary(@Validated QSingleDiseaseTakeReportStatisticSummaryParam qSingleDiseaseTakeReportStatisticSummaryParam,
+                                                                                                            HttpServletRequest request
                                                                                            /*@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*/) {
 
         Result<List<QSingleDiseaseTakeReportStatisticSummaryVo>> result = new Result<>();
-        //todo 加科室过滤
+        //todo  加科室过滤---
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        qSingleDiseaseTakeReportStatisticSummaryParam.setDept(data.getDeps().get(0).getId());
         List<QSingleDiseaseTakeReportStatisticSummaryVo> list = qSingleDiseaseTakeService.allSingleDiseaseReportStatisticSummary(qSingleDiseaseTakeReportStatisticSummaryParam);
         result.setSuccess(true);
         result.setResult(list);
