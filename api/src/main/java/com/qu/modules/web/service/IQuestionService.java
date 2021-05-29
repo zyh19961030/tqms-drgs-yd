@@ -30,7 +30,7 @@ public interface IQuestionService extends IService<Question> {
 
     QuestionPageVo questionFillInList(QuestionParam questionParam, Integer pageNo, Integer pageSize);
 
-    Boolean updateDeptIdsParam(UpdateDeptIdsParam updateDeptIdsParam);
+    void updateDeptIdsParam(UpdateDeptIdsParam updateDeptIdsParam);
 
     QuestionVo queryPersonById(Integer id);
 

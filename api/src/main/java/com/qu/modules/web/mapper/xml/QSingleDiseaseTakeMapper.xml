@@ -151,7 +151,7 @@
         left join tqms_quota_category t  on q.category_id=t.category_id
         <where>
             <if test="categoryId!=null and categoryId.length > 0">
-                and category_id in
+                and q.category_id in
                 <foreach close=")" collection="categoryId" item="listItem" open="(" separator=",">
                     #{listItem}
                 </foreach>

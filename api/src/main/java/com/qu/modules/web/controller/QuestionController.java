@@ -181,8 +181,8 @@ public class QuestionController {
     public Result<Boolean> updateDeptIdsParam(@RequestBody UpdateDeptIdsParam updateDeptIdsParam) {
         Result<Boolean> result = new Result<Boolean>();
         try {
-            Boolean ok = questionService.updateDeptIdsParam(updateDeptIdsParam);
-            result.setResult(ok);
+            questionService.updateDeptIdsParam(updateDeptIdsParam);
+            result.setResult(true);
             result.success("更新成功！");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
