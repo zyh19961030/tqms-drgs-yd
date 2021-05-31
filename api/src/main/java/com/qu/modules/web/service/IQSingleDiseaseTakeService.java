@@ -54,4 +54,6 @@ public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake>
 
     List<QSingleDiseaseTakeReportStatisticSummaryVo> allSingleDiseaseReportStatisticSummary(QSingleDiseaseTakeReportStatisticSummaryParam qSingleDiseaseTakeReportStatisticSummaryParam);
 
+    WorkbenchReminderVo workbenchReminder(String dept);
+
 }

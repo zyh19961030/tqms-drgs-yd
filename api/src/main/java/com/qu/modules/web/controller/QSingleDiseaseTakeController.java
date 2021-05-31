@@ -9,6 +9,7 @@ import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.pojo.Deps;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
 import com.qu.modules.web.vo.*;
+import com.qu.util.DeptUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -216,7 +217,7 @@ public class QSingleDiseaseTakeController {
     }
 
     /**
-     * 全院单病种上报统计查询中-科室列表筛选条件
+     * 全院单病种上报统计查询中-科室列表筛选条件---暂时废弃
      */
     @AutoLog(value = "全院单病种上报统计查询中-科室列表筛选条件")
     @ApiOperation(value = "全院单病种上报统计查询中-科室列表筛选条件", notes = "全院单病种上报统计查询中-科室列表筛选条件")
@@ -573,6 +574,27 @@ public class QSingleDiseaseTakeController {
         List<QSingleDiseaseTakeReportStatisticSummaryVo> list = qSingleDiseaseTakeService.allSingleDiseaseReportStatisticSummary(qSingleDiseaseTakeReportStatisticSummaryParam);
         result.setSuccess(true);
         result.setResult(list);
+        return result;
+    }
+
+    /**
+     * 工作台提醒
+     */
+    @AutoLog(value = "工作台提醒")
+    @ApiOperation(value = "工作台提醒", notes = "工作台提醒")
+    @GetMapping(value = "/workbenchReminder")
+    public Result<WorkbenchReminderVo> workbenchReminder(HttpServletRequest request) {
+        Result<WorkbenchReminderVo> result = new Result<>();
+        //todo  加科室过滤---
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String type = data.getDeps().get(0).getType();
+        String dept=null;
+        if(DeptUtil.isClinical(type)){
+            dept=data.getDeps().get(0).getId();
+        }
+        WorkbenchReminderVo workbenchReminderVo = qSingleDiseaseTakeService.workbenchReminder(dept);
+        result.setSuccess(true);
+        result.setResult(workbenchReminderVo);
         return result;
     }
 

@@ -14,7 +14,7 @@
     <sql id="reportStatisticCount">
         SELECT dynamic_table_name dynamicTableName,question_id questionId,
         <if test="deptShow !=null and deptShow==1 ">
-            department dept,
+            tqms_dept_name dept,
         </if>
         count(1) inHospitalCount
         FROM `q_single_disease_take`
@@ -27,7 +27,7 @@
                 and in_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
             </if>
             <if test="dept!=null and dept.length > 0">
-                and department_id in
+                and tqms_dept in
                 <foreach close=")" collection="dept" item="listItem" open="(" separator=",">
                     #{listItem}
                 </foreach>
@@ -35,7 +35,7 @@
         </where>
          group by icd_name
         <if test="deptShow !=null and deptShow==1 ">
-            ,department
+            ,tqms_dept_name
         </if>
     </sql>
 
@@ -58,7 +58,7 @@
                 and category_id =#{categoryId}
             </if>
             <if test="dept!=null and dept!=''">
-                and department_id =#{dept}
+                and tqms_dept =#{dept}
             </if>
             <if test="status!=null">
                 and status=#{status}
@@ -85,7 +85,7 @@
                 and category_id =#{categoryId}
             </if>
             <if test="dept!=null and dept!=''">
-                and department_id =#{dept}
+                and tqms_dept =#{dept}
             </if>
             <if test="dateType!=null  and dateType!=''">
                 and in_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
@@ -95,7 +95,7 @@
     </select>
 
     <select id="selectDept" parameterType="map" resultType="com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo">
-        select department_id departmentId,department from q_single_disease_take where department is not null and department is not null  group by department_id,department
+        select tqms_dept departmentId,tqms_dept_name department from q_single_disease_take where tqms_dept is not null and tqms_dept_name is not null  group by tqms_dept,tqms_dept_name
     </select>
 
     <select id="allSingleDiseaseReportStatisticOverviewLine"
@@ -127,7 +127,7 @@
                 and country_report_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
             </if>
             <if test="dept!=null and dept.length > 0">
-                and department_id in
+                and tqms_dept in
                 <foreach close=")" collection="dept" item="listItem" open="(" separator=",">
                     #{listItem}
                 </foreach>
@@ -169,7 +169,7 @@
                 and DATE_FORMAT(country_report_time,'%Y-%m-%d') =#{date}
             </if>
             <if test="dept!=null and dept.length > 0">
-                and department_id in
+                and tqms_dept in
                 <foreach close=")" collection="dept" item="listItem" open="(" separator=",">
                     #{listItem}
                 </foreach>
@@ -207,7 +207,7 @@
                 and country_report_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
             </if>
             <if test="dept!=null and dept.length > 0">
-                and department_id in
+                and tqms_dept in
                 <foreach close=")" collection="dept" item="listItem" open="(" separator=",">
                     #{listItem}
                 </foreach>
@@ -229,7 +229,7 @@
     <select id="allSingleDiseaseReportStatisticDeptPermutation"
             parameterType="map"
             resultType="com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptPermutationVo">
-        select department dept,
+        select tqms_dept_name dept,
         count(1) number from q_single_disease_take
         <where>
             <if test="categoryId!=null and categoryId.length > 0">
@@ -247,7 +247,7 @@
             </if>
         </where>
         group by
-        department
+        tqms_dept_name
         order by number desc
     </select>
 
@@ -265,11 +265,29 @@
                 and country_report_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
             </if>
             <if test="dept!=null and dept!=''">
-                and department_id =#{dept}
+                and tqms_dept =#{dept}
             </if>
         </where>
         group by
         disease
         order by number desc
+    </select>
+
+    <select id="workbenchReminderNotWriteCount"
+            parameterType="java.lang.String"
+            resultType="java.lang.Integer">
+        select count(1) from q_single_disease_take where out_time is not null and report_status!=0 and (status = 0 or status = 1)
+        <if test="dept!=null and dept!=''">
+            and tqms_dept =#{dept}
+        </if>
+    </select>
+
+    <select id="workbenchReminderRejectCount"
+            parameterType="java.lang.String"
+            resultType="java.lang.Integer">
+        select count(1) from q_single_disease_take where out_time is not null and report_status!=0 and (status = 3 or status = 7)
+        <if test="dept!=null and dept!=''">
+            and tqms_dept =#{dept}
+        </if>
     </select>
 </mapper>

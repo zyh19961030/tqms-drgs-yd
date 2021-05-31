@@ -1006,4 +1006,10 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         return overviewLineVoList;
     }
 
+    @Override
+    public WorkbenchReminderVo workbenchReminder(String dept) {
+        Integer notWriteCount = this.qSingleDiseaseTakeMapper.workbenchReminderNotWriteCount(dept);
+        Integer rejectCount = this.qSingleDiseaseTakeMapper.workbenchReminderRejectCount(dept);
+        return WorkbenchReminderVo.builder().notWriteCount(notWriteCount).rejectCount(rejectCount).build();
+    }
 }

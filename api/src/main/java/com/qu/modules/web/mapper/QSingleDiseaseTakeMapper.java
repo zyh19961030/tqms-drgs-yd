@@ -38,4 +38,8 @@ public interface QSingleDiseaseTakeMapper extends BaseMapper<QSingleDiseaseTake>
     List<QSingleDiseaseTakeReportStatisticDeptPermutationVo> allSingleDiseaseReportStatisticDeptPermutation(Map<String, Object> params);
 
     List<QSingleDiseaseTakeReportStatisticSummaryVo> allSingleDiseaseReportStatisticSummary(Map<String, Object> params);
+
+    Integer workbenchReminderNotWriteCount(String dept);
+
+    Integer workbenchReminderRejectCount(String dept);
 }

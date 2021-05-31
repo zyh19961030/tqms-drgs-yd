@@ -15,7 +15,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 /**
  * @Description: 单病种总表
  * @Author: jeecg-boot
- * @Date:   2021-05-10
+ * @Date:   2021-05-30
  * @Version: V1.0
  */
 @Data
@@ -57,9 +57,9 @@ public class QSingleDiseaseTake {
 	@Excel(name = "疾病名称", width = 15)
 	@ApiModelProperty(value = "疾病名称")
 	private java.lang.String icdName;
-	/**状态：0待填报 1填报中 2已填报待审核 3审核失败驳回 4通过上报上中 5已上报待国家审核 6已完成 7已被国家驳回 8无需填报*/
-	@Excel(name = "状态：0待填报 1填报中 2已填报待审核 3审核失败驳回 4通过上报上中 5已上报待国家审核 6已完成 7已被国家驳回 8无需填报", width = 15)
-	@ApiModelProperty(value = "状态：0待填报 1填报中 2已填报待审核 3审核失败驳回 4通过上报上中 5已上报待国家审核 6已完成 7已被国家驳回 8无需填报")
+	/**状态：0待填报 1填报中 2已填报待审核 3审核失败驳回 4通过上报上中 5已上报待国家审核 6已完成(上报国家成功并通过) 7已被国家驳回 8无需填报*/
+	@Excel(name = "状态：0待填报 1填报中 2已填报待审核 3审核失败驳回 4通过上报上中 5已上报待国家审核 6已完成(上报国家成功并通过) 7已被国家驳回 8无需填报", width = 15)
+    @ApiModelProperty(value = "状态：0待填报 1填报中 2已填报待审核 3审核失败驳回 4通过上报上中 5已上报待国家审核 6已完成(上报国家成功并通过) 7已被国家驳回 8无需填报")
 	private java.lang.Integer status;
 	/**住院时间*/
 	@ApiModelProperty(value = "住院时间")
@@ -207,8 +207,19 @@ public class QSingleDiseaseTake {
 	@Excel(name = "动态创建表的表名", width = 15)
 	@ApiModelProperty(value = "动态创建表的表名")
 	private java.lang.String dynamicTableName;
-    /**分类id*/
-    @Excel(name = "分类id", width = 15)
+	/**上报国家的时间*/
+    @ApiModelProperty(value = "上报国家的时间")
+	private java.util.Date countryReportTime;
+	/**分类id*/
+	@Excel(name = "分类id", width = 15)
     @ApiModelProperty(value = "分类id")
-    private java.lang.Integer categoryId;
+	private java.lang.Integer categoryId;
+	/**tqms的科室id*/
+	@Excel(name = "tqms的科室id", width = 15)
+    @ApiModelProperty(value = "tqms的科室id")
+	private java.lang.String tqmsDept;
+	/**tqms科室名字*/
+	@Excel(name = "tqms科室名字", width = 15)
+    @ApiModelProperty(value = "tqms科室名字")
+	private java.lang.String tqmsDeptName;
 }
