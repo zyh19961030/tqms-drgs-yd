@@ -1,5 +1,14 @@
 package com.qu.modules.web.service.impl;
 
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -17,10 +26,30 @@ import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.*;
+import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticDeptPermutationParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewLineParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewPieParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticSummaryParam;
+import com.qu.modules.web.param.SingleDiseaseAnswer;
+import com.qu.modules.web.param.SingleDiseaseAnswerParam;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
-import com.qu.modules.web.vo.*;
+import com.qu.modules.web.vo.QSingleDiseaseNameVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptPermutationVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewLineVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewPieVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticSummaryVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticTrendVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
+import com.qu.modules.web.vo.WorkbenchReminderVo;
 import com.qu.util.HttpClient;
 import com.qu.util.PriceUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -34,11 +63,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @Description: 单病种总表
