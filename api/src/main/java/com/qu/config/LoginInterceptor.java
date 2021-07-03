@@ -1,8 +1,5 @@
 package com.qu.config;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.alibaba.fastjson.JSON;
 import com.qu.constant.Constant;
 import com.qu.modules.web.pojo.Data;
@@ -15,6 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 登录拦截器
@@ -43,6 +43,7 @@ public class LoginInterceptor implements HandlerInterceptor {
      */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        log.info("-----preHandle");
         //放过登录接口
 //        String requestUrl = request.getRequestURL().toString();
 //        if (requestUrl.indexOf(URL_LOGIN) != -1) {
@@ -52,13 +53,10 @@ public class LoginInterceptor implements HandlerInterceptor {
 //        if (requestUrl.indexOf(URL_REGISTER) != -1) {
 //            return true;
 //        }
-        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        if (data != null) {
-            return true;
-        }
-        String token = request.getHeader("token");
 
+        String token = request.getHeader("token");
         if (StringUtil.isEmpty(token)) {
+            log.info("token is null-----{}", "preHandle");
             log.info("----------------token is empty...");
             Result result = new Result();
             result.setCode(Constant.ERROR_CODE_60001);
@@ -71,10 +69,17 @@ public class LoginInterceptor implements HandlerInterceptor {
             return false;
         }
 
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        if (data != null) {
+            log.info("getSession is null-----preHandle");
+            return true;
+        }
+
         String cookie = "JSESSIONID=" + token;
         String res = HttpClient.doPost(tokenUrl, cookie, null);
         JsonRootBean jsonRootBean = JSON.parseObject(res, JsonRootBean.class);
         if(jsonRootBean==null || jsonRootBean.getData()==null){
+            log.info("jsonRootBean is null-----preHandle");
             Result result = new Result();
             result.setCode(Constant.ERROR_CODE_60001);
             result.setMessage("token is error...");
@@ -85,6 +90,7 @@ public class LoginInterceptor implements HandlerInterceptor {
             response.getWriter().append(JSON.toJSONString(result));
             return false;
         }
+        log.info("request continue-----preHandle");
         request.getSession().setAttribute(Constant.SESSION_USER,jsonRootBean.getData());
         return true;
     }

@@ -1,59 +1,38 @@
 package com.qu.modules.web.service.impl;
 
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.qu.constant.QSingleDiseaseTakeConstant;
+import com.qu.constant.QsubjectConstant;
 import com.qu.constant.QuestionConstant;
+import com.qu.constant.TqmsQuotaCategoryConstant;
 import com.qu.modules.web.entity.QSingleDiseaseTake;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
-import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticDeptPermutationParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewLineParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewPieParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticSummaryParam;
-import com.qu.modules.web.param.SingleDiseaseAnswer;
-import com.qu.modules.web.param.SingleDiseaseAnswerParam;
+import com.qu.modules.web.entity.TqmsQuotaCategory;
+import com.qu.modules.web.mapper.*;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
-import com.qu.modules.web.vo.QSingleDiseaseNameVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptPermutationVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewLineVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewPieVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticSummaryVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticTrendVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
-import com.qu.modules.web.vo.WorkbenchReminderVo;
+import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.vo.*;
 import com.qu.util.HttpClient;
+import com.qu.util.HttpTools;
+import com.qu.util.HttpTools.HttpData;
+import com.qu.util.HttpTools.ResponseEntity;
 import com.qu.util.PriceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.entity.ByteArrayEntity;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Months;
@@ -62,7 +41,15 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 单病种总表
@@ -84,10 +71,19 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     private QuestionMapper questionMapper;
 
     @Autowired
+    private IQuestionService questionService;
+
+    @Autowired
     private DynamicTableMapper dynamicTableMapper;
+
+    @Autowired
+    private TqmsQuotaCategoryMapper tqmsQuotaCategoryMapper;
 
     @Value("${system.tokenUrl}")
     private String tokenUrl;
+
+    @Value("${system.singleDiseaseReportUrl}")
+    private String singleDiseaseReportUrl;
 
     @Override
     public List<QSingleDiseaseTakeVo> singleDiseaseList(String name, String deptId) {
@@ -523,7 +519,10 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         }
         SingleDiseaseAnswer[] answersArray = singleDiseaseAnswerParam.getAnswers();
 
-        QSingleDiseaseTake qSingleDiseaseTake = new QSingleDiseaseTake();
+        QSingleDiseaseTake qSingleDiseaseTake = this.getById(singleDiseaseAnswerParam.getId());
+        if(qSingleDiseaseTake==null){
+            qSingleDiseaseTake = new QSingleDiseaseTake();
+        }
 //        QSingleDiseaseTake qSingleDiseaseTake = this.getById(singleDiseaseAnswerParam.getId());
         qSingleDiseaseTake.setId(singleDiseaseAnswerParam.getId());
         qSingleDiseaseTake.setAnswerJson(JSON.toJSONString(answersArray));
@@ -661,7 +660,9 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
         Question question = questionMapper.selectById(singleDiseaseAnswerParam.getQuId());
         qSingleDiseaseTake.setDynamicTableName(question.getTableName());
-        qSingleDiseaseTake.setCategoryId(Integer.parseInt(question.getCategoryId()));
+        qSingleDiseaseTake.setCategoryId(Long.parseLong(question.getCategoryId()));
+        //todo   categoryId 从Int改为Long
+//        qSingleDiseaseTake.setCategoryId(Integer.parseInt(question.getCategoryId()));
         boolean insertOrUpdate = qSingleDiseaseTake.getId() != null && qSingleDiseaseTake.getId() != 0;
         if (insertOrUpdate) {
             this.qSingleDiseaseTakeMapper.updateById(qSingleDiseaseTake);

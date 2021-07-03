@@ -213,7 +213,7 @@ public class QSingleDiseaseTake {
 	/**分类id*/
 	@Excel(name = "分类id", width = 15)
     @ApiModelProperty(value = "分类id")
-	private java.lang.Integer categoryId;
+	private java.lang.Long categoryId;
 	/**tqms的科室id*/
 	@Excel(name = "tqms的科室id", width = 15)
     @ApiModelProperty(value = "tqms的科室id")
