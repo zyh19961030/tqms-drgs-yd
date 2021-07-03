@@ -228,6 +228,9 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             if(StringUtils.isNotBlank(dynamicTableName)){
                 QueryWrapper<Question> questionQueryWrapper = new QueryWrapper<>();
                 questionQueryWrapper.eq("table_name", dynamicTableName);
+                questionQueryWrapper.eq("qu_stop", QuestionConstant.QU_STOP_NORMAL);
+                questionQueryWrapper.eq("category_type", QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+                questionQueryWrapper.eq("del", QuestionConstant.DEL_NORMAL);
                 Question question = questionMapper.selectOne(questionQueryWrapper);
                 record.setQuestionId(question.getId());
                 record.setQuestionName(question.getQuName());
@@ -462,6 +465,9 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
             QueryWrapper<Question> questionQueryWrapper = new QueryWrapper<>();
             questionQueryWrapper.eq("table_name", qSingleDiseaseTakeReportStatisticVo.getDynamicTableName());
+            questionQueryWrapper.eq("qu_stop", QuestionConstant.QU_STOP_NORMAL);
+            questionQueryWrapper.eq("category_type", QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+            questionQueryWrapper.eq("del", QuestionConstant.DEL_NORMAL);
             Question question = questionMapper.selectOne(questionQueryWrapper);
 //            Question question = questionMapper.selectById(qSingleDiseaseTakeReportStatisticVo.getQuestionId());
             qSingleDiseaseTakeReportStatisticVo.setDisease(question.getQuName());
@@ -804,6 +810,9 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         String dynamicTableName = qSingleDiseaseTake.getDynamicTableName();
         QueryWrapper<Question> questionQueryWrapper = new QueryWrapper<>();
         questionQueryWrapper.eq("table_name", dynamicTableName);
+        questionQueryWrapper.eq("qu_stop", QuestionConstant.QU_STOP_NORMAL);
+        questionQueryWrapper.eq("category_type", QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+        questionQueryWrapper.eq("del", QuestionConstant.DEL_NORMAL);
         Question question = questionMapper.selectOne(questionQueryWrapper);
         StringBuffer sqlAns = new StringBuffer();
         if (question != null) {
