@@ -27,8 +27,7 @@ import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.*;
 import com.qu.util.HttpClient;
 import com.qu.util.HttpTools;
-import com.qu.util.HttpTools.HttpData;
-import com.qu.util.HttpTools.ResponseEntity;
+import com.qu.util.HttpTools.*;
 import com.qu.util.PriceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -88,6 +87,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     @Override
     public List<QSingleDiseaseTakeVo> singleDiseaseList(String name, String deptId) {
         QueryWrapper<Question> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("quName",name);
         queryWrapper.eq("qu_Status","1");
         queryWrapper.eq("category_type","1");
         queryWrapper.eq("del","0");
@@ -176,6 +176,9 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             if(StringUtils.isNotBlank(dynamicTableName)){
                 QueryWrapper<Question> questionQueryWrapper = new QueryWrapper<>();
                 questionQueryWrapper.eq("table_name", dynamicTableName);
+                questionQueryWrapper.eq("qu_stop", QuestionConstant.QU_STOP_NORMAL);
+                questionQueryWrapper.eq("category_type", QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+                questionQueryWrapper.eq("del", QuestionConstant.DEL_NORMAL);
                 Question question = questionMapper.selectOne(questionQueryWrapper);
                 record.setQuestionId(question.getId());
                 record.setQuestionName(question.getQuName());
