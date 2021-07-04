@@ -1,18 +1,24 @@
 package com.qu.modules.web.service.impl;
 
+import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.qu.constant.QSingleDiseaseTakeConstant;
+import com.qu.constant.QsubjectConstant;
 import com.qu.constant.QuestionConstant;
+import com.qu.constant.TqmsQuotaCategoryConstant;
 import com.qu.modules.web.entity.QSingleDiseaseTake;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.entity.TqmsQuotaCategory;
 import com.qu.modules.web.mapper.*;
 import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.JsonRootBean;
@@ -20,9 +26,13 @@ import com.qu.modules.web.service.IQSingleDiseaseTakeService;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.*;
 import com.qu.util.HttpClient;
+import com.qu.util.HttpTools;
+import com.qu.util.HttpTools.HttpData;
+import com.qu.util.HttpTools.ResponseEntity;
 import com.qu.util.PriceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.entity.ByteArrayEntity;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Months;
@@ -31,11 +41,14 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -71,6 +84,8 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
     @Value("${system.singleDiseaseReportUrl}")
     private String singleDiseaseReportUrl;
+
+    private static String[] parsePatterns = new String[] { "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'","yyyyMMdd","yyyy-MM-dd", "yyyy-MM-dd HH:mm", "yyyy-MM-dd HH:mm:ss", "yyyy/MM/dd", "yyyy/MM/dd HH:mm", "yyyy/MM/dd HH:mm:ss" };
 
     @Override
     public List<QSingleDiseaseTakeVo> singleDiseaseList(String name, String deptId) {
@@ -1036,5 +1051,97 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         Integer notWriteCount = this.qSingleDiseaseTakeMapper.workbenchReminderNotWriteCount(dept);
         Integer rejectCount = this.qSingleDiseaseTakeMapper.workbenchReminderRejectCount(dept);
         return WorkbenchReminderVo.builder().notWriteCount(notWriteCount).rejectCount(rejectCount).build();
+    }
+
+
+    @Override
+    public void runSingleDiseaseTakeReport() {
+        LambdaQueryWrapper<QSingleDiseaseTake> lambda = new QueryWrapper<QSingleDiseaseTake>().lambda();
+        lambda.eq(QSingleDiseaseTake::getStatus,QSingleDiseaseTakeConstant.STATUS_PASS_WAIT_UPLOAD);
+        List<QSingleDiseaseTake> qSingleDiseaseTakeList = this.list(lambda);
+        List<String> dynamicTableNameList = qSingleDiseaseTakeList.stream().map(QSingleDiseaseTake::getDynamicTableName).collect(Collectors.toList());
+
+        LambdaQueryWrapper<Question> questionQueryWrapper = new QueryWrapper<Question>().lambda();
+        questionQueryWrapper.in(Question::getTableName, dynamicTableNameList);
+        questionQueryWrapper.eq(Question::getQuStatus,"1");
+        questionQueryWrapper.eq(Question::getCategoryType,"1");
+        questionQueryWrapper.eq(Question::getDel,"0");
+        List<Question> questionList = questionMapper.selectList(questionQueryWrapper);
+        List<Integer> questionIds = questionList.stream().map(Question::getId).collect(Collectors.toList());
+//        Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
+
+        LambdaQueryWrapper<Qsubject> qsubjectQueryWrapper = new QueryWrapper<Qsubject>().lambda();
+        qsubjectQueryWrapper.in(Qsubject::getQuId, questionIds);
+        List<Qsubject> qsubjectList = qsubjectMapper.selectList(qsubjectQueryWrapper);
+
+        Map<String, Qsubject> qsubjectMap= Maps.newConcurrentMap();
+        qsubjectList.forEach(q->{
+            if(q.getColumnName()==null){
+                return;
+            }
+            String key = String.format("%s%s", q.getQuId(), q.getColumnName());
+            qsubjectMap.put(key,q);
+        });
+//        Map<String, List<Qsubject>> qsubjectMap = qsubjectList.stream().collect(Collectors.toMap(Qsubject::getColumnName, q->Lists.newArrayList(q),
+//                (List<Qsubject> n1, List<Qsubject> n2) -> {
+//            n1.addAll(n2);
+//            return n1;
+//        }));
+
+        LambdaQueryWrapper<TqmsQuotaCategory> queryWrapper = new QueryWrapper<TqmsQuotaCategory>().lambda();
+        queryWrapper.eq(TqmsQuotaCategory::getIsSingleDisease, TqmsQuotaCategoryConstant.IS_SINGLE_DISEASE);
+        List<TqmsQuotaCategory> quotaCategoryList = tqmsQuotaCategoryMapper.selectList(queryWrapper);
+        Map<Long, TqmsQuotaCategory> quotaCategoryMap = quotaCategoryList.stream().collect(Collectors.toMap(TqmsQuotaCategory::getCategoryId, Function.identity()));
+
+        qSingleDiseaseTakeList.stream().forEach(qSingleDiseaseTake->{
+            String answerJson = (String) qSingleDiseaseTake.getAnswerJson();
+            List<SingleDiseaseAnswer> singleDiseaseAnswerList = JSON.parseArray(answerJson, SingleDiseaseAnswer.class);
+            if (singleDiseaseAnswerList != null && !singleDiseaseAnswerList.isEmpty()) {
+                Map<String, Object> mapCache = new HashMap<>();
+                for (SingleDiseaseAnswer a : singleDiseaseAnswerList) {
+
+                    String key = String.format("%s%s", qSingleDiseaseTake.getQuestionId(), a.getSubColumnName());
+                    Qsubject qsubject = qsubjectMap.get(key);
+                    String subType = qsubject.getSubType();
+                    String subValue = a.getSubValue();
+                    if(QsubjectConstant.SUB_TYPE_MULTIPLE_CHOICE.equals(subType)){
+                        a.setSubValue(JSON.toJSONString(subValue.split("\\$")));
+                    }else if (QsubjectConstant.SUB_TYPE_DATE.equals(subType)){
+                        cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
+                        a.setSubValue(parse.toString(DatePattern.NORM_DATE_PATTERN));
+                    }else if (QsubjectConstant.SUB_TYPE_TIME.equals(subType)){
+                        cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
+                        a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_MINUTE_PATTERN));
+                    }
+                    mapCache.put(a.getSubColumnName(), a.getSubValue());
+                }
+                singleDiseaseReportUrl = String.format(singleDiseaseReportUrl,quotaCategoryMap.get(qSingleDiseaseTake.getCategoryId()).getDiseaseType());
+                HttpData data = HttpData.instance();
+                data.setPostEntity(new ByteArrayEntity(JSON.toJSONBytes(mapCache)));
+                // 接口调用并返回结果
+                ResponseEntity responseEntity = null;
+                try {
+                    responseEntity = HttpTools.post(singleDiseaseReportUrl, data);
+                    if (responseEntity.isOk()) {
+                        log.info("sync businessSync success.{}", responseEntity);
+                        JSONObject jsonObject = JSON.parseObject(responseEntity.getContent());
+                        Integer status = jsonObject.getInteger("status");
+                        if (Objects.equals(HttpStatus.OK.value(), status)) {
+                            JSONObject obj = jsonObject.getJSONObject("data");
+                            Integer objStatus = obj.getInteger("status");
+                            if (Objects.equals(objStatus, 20) && obj.containsKey("signed") && StringUtils.isNotBlank(obj.getString("signed"))) {
+                                String signed = obj.getString("signed");
+
+                            }
+                        }
+                    } else {
+                        log.info("sync businessSync fail.{}", responseEntity);
+                    }
+                } catch (IOException e) {
+                    log.error("国家上报定时器报错-->",e);
+                }
+                log.info("qSingleDiseaseTake上报id-->{},国家上报接口响应：{}",qSingleDiseaseTake.getId(),responseEntity);
+            }
+        });
     }
 }
