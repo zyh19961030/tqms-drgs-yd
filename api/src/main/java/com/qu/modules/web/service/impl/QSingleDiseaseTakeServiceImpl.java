@@ -1,24 +1,18 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.qu.constant.QSingleDiseaseTakeConstant;
-import com.qu.constant.QsubjectConstant;
 import com.qu.constant.QuestionConstant;
-import com.qu.constant.TqmsQuotaCategoryConstant;
 import com.qu.modules.web.entity.QSingleDiseaseTake;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.entity.TqmsQuotaCategory;
 import com.qu.modules.web.mapper.*;
 import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.JsonRootBean;
@@ -26,12 +20,9 @@ import com.qu.modules.web.service.IQSingleDiseaseTakeService;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.*;
 import com.qu.util.HttpClient;
-import com.qu.util.HttpTools;
-import com.qu.util.HttpTools.*;
 import com.qu.util.PriceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.entity.ByteArrayEntity;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Months;
@@ -40,14 +31,11 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -86,16 +74,16 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
     @Override
     public List<QSingleDiseaseTakeVo> singleDiseaseList(String name, String deptId) {
-        QueryWrapper<Question> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("quName",name);
-        queryWrapper.eq("qu_Status","1");
-        queryWrapper.eq("category_type","1");
-        queryWrapper.eq("del","0");
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        lambda.eq(Question::getQuName,name);
+        lambda.eq(Question::getQuStatus,"1");
+        lambda.eq(Question::getCategoryType,"1");
+        lambda.eq(Question::getDel,"0");
         //todo 科室匹配 按单病种填报 问卷设置科室权限---
         if(StringUtils.isNotBlank(deptId)){
-            queryWrapper.like("dept_ids",deptId);
+            lambda.like(Question::getDeptIds,deptId);
         }
-        List<Question> questions = questionMapper.selectList(queryWrapper);
+        List<Question> questions = questionMapper.selectList(lambda);
         List<QSingleDiseaseTakeVo> qSingleDiseaseTakeVoList = questions.stream().map(q -> {
             QSingleDiseaseTakeVo qSingleDiseaseTakeVo = new QSingleDiseaseTakeVo();
             qSingleDiseaseTakeVo.setIcon(q.getIcon());
