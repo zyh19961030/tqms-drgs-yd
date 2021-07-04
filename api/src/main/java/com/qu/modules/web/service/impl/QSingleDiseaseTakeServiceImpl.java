@@ -76,7 +76,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     public List<QSingleDiseaseTakeVo> singleDiseaseList(String name, String deptId) {
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
         if(StringUtils.isNotBlank(name)){
-            lambda.eq(Question::getQuName,name);
+            lambda.like(Question::getQuName,name);
         }
         lambda.eq(Question::getQuStatus,"1");
         lambda.eq(Question::getCategoryType,"1");
