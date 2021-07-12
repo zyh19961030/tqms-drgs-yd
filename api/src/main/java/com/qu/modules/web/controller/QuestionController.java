@@ -1,10 +1,7 @@
 package com.qu.modules.web.controller;
 
 import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.param.QuestionEditParam;
-import com.qu.modules.web.param.QuestionParam;
-import com.qu.modules.web.param.UpdateCategoryIdParam;
-import com.qu.modules.web.param.UpdateDeptIdsParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
 import com.qu.modules.web.vo.QuestionPageVo;
@@ -96,6 +93,23 @@ public class QuestionController {
         }
         result.setResult(question);
         result.success("修改成功!");
+        return result;
+    }
+
+    /**
+     * 再次发布
+     *
+     * @param questionAgainreleaseParam
+     * @return
+     */
+    @AutoLog(value = "问卷表-再次发布")
+    @ApiOperation(value = "问卷表-再次发布", notes = "问卷表-再次发布")
+    @PutMapping(value = "/againRelease")
+    public Result<Boolean> againRelease(@RequestBody QuestionAgainReleaseParam questionAgainreleaseParam) {
+        Result<Boolean> result = new Result<Boolean>();
+        Boolean flag = questionService.againRelease(questionAgainreleaseParam);
+        result.setResult(flag);
+        result.success("再次发布成功!");
         return result;
     }
 

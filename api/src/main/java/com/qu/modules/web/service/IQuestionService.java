@@ -2,10 +2,7 @@ package com.qu.modules.web.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.param.QuestionEditParam;
-import com.qu.modules.web.param.QuestionParam;
-import com.qu.modules.web.param.UpdateCategoryIdParam;
-import com.qu.modules.web.param.UpdateDeptIdsParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
 import com.qu.modules.web.vo.QuestionPageVo;
 import com.qu.modules.web.vo.QuestionVo;
@@ -35,4 +32,7 @@ public interface IQuestionService extends IService<Question> {
     QuestionVo queryPersonById(Integer id);
 
     void updateCategoryIdParam(UpdateCategoryIdParam updateCategoryIdParam);
+
+    Boolean againRelease(QuestionAgainReleaseParam questionAgainreleaseParam);
+
 }

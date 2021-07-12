@@ -8,10 +8,7 @@ import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.entity.TqmsQuotaCategory;
 import com.qu.modules.web.mapper.*;
-import com.qu.modules.web.param.QuestionEditParam;
-import com.qu.modules.web.param.QuestionParam;
-import com.qu.modules.web.param.UpdateCategoryIdParam;
-import com.qu.modules.web.param.UpdateDeptIdsParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.*;
 import com.qu.util.IntegerUtil;
@@ -370,4 +367,45 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             }
         }
     }
+
+    @Override
+    public Boolean againRelease(QuestionAgainReleaseParam questionAgainreleaseParam) {
+        try {
+            Question question = questionMapper.selectById(questionAgainreleaseParam.getId());
+            StringBuffer sql = new StringBuffer();
+            sql.append("ALTER TABLE `" + question.getTableName() + "` ");
+            List<Qsubject> subjectList = subjectMapper.selectBatchIds(questionAgainreleaseParam.getSubjectIds());
+             for (Qsubject qsubject : subjectList) {
+                sql.append(" ADD COLUMN ");
+
+                Integer limitWords = qsubject.getLimitWords();
+                if (limitWords == null || limitWords == 0) {
+                    limitWords = 50;
+                }
+                String subType = qsubject.getSubType();
+                Integer del = qsubject.getDel();
+                if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType) || QuestionConstant.DEL_DELETED.equals(del)) {
+                    continue;
+                }
+                sql.append("`")
+                        .append(qsubject.getColumnName())
+                        .append("` ")
+                        .append(qsubject.getColumnTypeDatabase())
+                        .append("(")
+                        .append(limitWords)
+                        .append(") NULL COMMENT '")
+                        .append(qsubject.getSubName())
+                        .append("',");
+            }
+            sql.delete(sql.length()-1,sql.length());
+            sql.append(" ; ");
+            dynamicTableMapper.createDynamicTable(sql.toString());
+            return true;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+
 }
