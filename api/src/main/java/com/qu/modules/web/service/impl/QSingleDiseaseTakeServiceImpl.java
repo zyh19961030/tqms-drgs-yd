@@ -90,7 +90,9 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     @Override
     public List<QSingleDiseaseTakeVo> singleDiseaseList(String name, String deptId) {
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
-        lambda.eq(Question::getQuName,name);
+        if(StringUtils.isNotBlank(name)){
+            lambda.like(Question::getQuName,name);
+        }
         lambda.eq(Question::getQuStatus,"1");
         lambda.eq(Question::getCategoryType,"1");
         lambda.eq(Question::getDel,"0");
