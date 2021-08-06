@@ -2,6 +2,7 @@ package com.qu.modules.web.controller;
 
 import com.qu.modules.web.param.InsertSubjectParam;
 import com.qu.modules.web.param.SubjectEditParam;
+import com.qu.modules.web.param.SubjectLogicParam;
 import com.qu.modules.web.param.SubjectParam;
 import com.qu.modules.web.param.UpdateOrderNumParam;
 import com.qu.modules.web.service.ISubjectService;
@@ -13,7 +14,13 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @Description: 题目表
@@ -145,6 +152,23 @@ public class SubjectController {
             log.error(e.getMessage(), e);
             result.error500("操作失败");
         }
+        return result;
+    }
+
+    /**
+     * 编辑逻辑
+     *
+     * @param subjectLogicParam
+     * @return
+     */
+    @AutoLog(value = "题目表-编辑逻辑")
+    @ApiOperation(value = "题目表-编辑逻辑", notes = "题目表-编辑逻辑")
+    @PostMapping(value = "/editLogic")
+    public Result<Boolean> editLogic(@RequestBody SubjectLogicParam subjectLogicParam) {
+        Result<Boolean> result = new Result<>();
+        subjectService.editLogic(subjectLogicParam);
+        result.setResult(true);
+        result.success("修改成功!");
         return result;
     }
 
