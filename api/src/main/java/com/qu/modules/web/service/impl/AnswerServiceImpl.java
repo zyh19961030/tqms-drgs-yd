@@ -1,5 +1,10 @@
 package com.qu.modules.web.service.impl;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qu.constant.QuestionConstant;
@@ -22,11 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -96,7 +96,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
             StringBuffer sqlAns = new StringBuffer();
             Question question = questionMapper.selectById(answerParam.getQuId());
             if (question != null) {
-                sqlAns.append("insert into " + question.getTableName() + " (");
+                sqlAns.append("insert into `" + question.getTableName() + "` (");
 
                 List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
                 for (int i = 0; i < subjectList.size(); i++) {

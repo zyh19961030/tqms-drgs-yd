@@ -293,14 +293,9 @@ public class QSingleDiseaseTakeController {
         String token = request.getHeader("token");
         String cookie = "JSESSIONID=" + token;
         log.info("-----------singleDiseaseAnswerParam={}", JSON.toJSONString(singleDiseaseAnswerParam));
-        Boolean flag = qSingleDiseaseTakeService.singleDiseaseStageAnswer(cookie,singleDiseaseAnswerParam);
-        if(flag){
-            result.setSuccess(true);
-            result.setResult(flag);
-        }else{
-            result.setSuccess(false);
-            result.setResult(flag);
-        }
+        qSingleDiseaseTakeService.singleDiseaseStageAnswer(cookie,singleDiseaseAnswerParam);
+        result.setSuccess(true);
+        result.setResult(true);
         return result;
     }
 
@@ -315,14 +310,9 @@ public class QSingleDiseaseTakeController {
         String token = request.getHeader("token");
         String cookie = "JSESSIONID=" + token;
         log.info("-----------singleDiseaseAnswerParam={}", JSON.toJSONString(singleDiseaseAnswerParam));
-        Boolean flag = qSingleDiseaseTakeService.singleDiseaseAnswer(cookie,singleDiseaseAnswerParam);
-        if(flag){
-            result.setSuccess(false);
-            result.setResult(flag);
-        }else{
-            result.setSuccess(false);
-            result.setResult(flag);
-        }
+        qSingleDiseaseTakeService.singleDiseaseAnswer(cookie,singleDiseaseAnswerParam);
+        result.setSuccess(true);
+        result.setResult(true);
         return result;
     }
 
