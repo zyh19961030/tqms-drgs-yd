@@ -12,8 +12,10 @@ import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.mapper.OptionMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.param.InsertSubjectParam;
+import com.qu.modules.web.param.LogicParam;
 import com.qu.modules.web.param.QoptionParam;
 import com.qu.modules.web.param.SubjectEditParam;
+import com.qu.modules.web.param.SubjectLogicParam;
 import com.qu.modules.web.param.SubjectParam;
 import com.qu.modules.web.param.UpdateOrderNumParam;
 import com.qu.modules.web.service.ISubjectService;
@@ -393,5 +395,28 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
         return flag;
     }
 
+    @Override
+    public void editLogic(SubjectLogicParam subjectLogicParam) {
+        List<LogicParam> subjectLogicList = subjectLogicParam.getSubjectLogicList();
+        subjectLogicList.forEach(s->{
+            Integer id = s.getId();
+            String jumpLogic = s.getJumpLogic();
+            Qsubject byId = this.getById(id);
+            if(byId!=null){
+                byId.setJumpLogic(jumpLogic);
+                this.updateById(byId);
+            }
+        });
 
+        List<LogicParam> optionLogicList = subjectLogicParam.getOptionLogicList();
+        optionLogicList.forEach(o->{
+            Integer id = o.getId();
+            String jumpLogic = o.getJumpLogic();
+            Qoption qoption = optionMapper.selectById(id);
+            if(qoption!=null){
+                qoption.setJumpLogic(jumpLogic);
+                optionMapper.updateById(qoption);
+            }
+        });
+    }
 }
