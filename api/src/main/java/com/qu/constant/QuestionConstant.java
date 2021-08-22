@@ -4,6 +4,9 @@ public class QuestionConstant {
 
 	public static final Integer DEL_NORMAL = 0;
 	public static final Integer DEL_DELETED = 1;
+	public static final Integer QU_STATUS_DRAFT = 0;
+	public static final Integer QU_STATUS_RELEASE = 1;
+
 	public static final Integer CATEGORY_TYPE_NORMAL = 0;
 	public static final Integer CATEGORY_TYPE_SINGLE_DISEASE = 1;
 	public static final Integer QU_STOP_NORMAL =0;

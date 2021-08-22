@@ -56,4 +56,5 @@ public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake>
 
     WorkbenchReminderVo workbenchReminder(String dept);
 
+    List<SingleDiseaseAnswerNavigationVo> singleDiseaseAnswerNavigation(Integer id);
 }

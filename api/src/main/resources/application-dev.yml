@@ -37,8 +37,14 @@ spring:
         connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
       datasource:
         master:
-          url: jdbc:mysql://39.103.166.135:13307/tqmsn?characterEncoding=UTF-8&useUnicode=true&useSSL=false
+          #          url: jdbc:mysql://47.97.123.235:3306/questiondb?characterEncoding=UTF-8&useUnicode=true&useSSL=false
+          #          username: question
+          #          password: question01
+#          url: jdbc:mysql://39.103.166.135:13307/tqmsn?characterEncoding=UTF-8&useUnicode=true&useSSL=false
+          url: jdbc:mysql://localhost:13307/tqmsn?characterEncoding=UTF-8&useUnicode=true&useSSL=false
           username: root
+          #          password: root
+          #          password: gzyjy123@
           password: tqms$2021@Shijiyunyi
           driver-class-name: com.mysql.jdbc.Driver
 
@@ -53,5 +59,6 @@ mybatis-plus:
 
 #token解析url
 system:
-  tokenUrl: http://tqmskszkservice.shijiyunyi.com/business/tbUser/currentInfo
+#  tokenUrl: http://tqmskszkservice.shijiyunyi.com/business/tbUser/currentInfo
+  tokenUrl: http://localhost:19101/business/tbUser/currentInfo
   singleDiseaseReportUrl: http://drgs.0060.cn:80/interface/010102/%s/1.2/put/

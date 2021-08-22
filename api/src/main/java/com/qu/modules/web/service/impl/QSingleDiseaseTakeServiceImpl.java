@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.qu.constant.QSingleDiseaseTakeConstant;
+import com.qu.constant.QsubjectConstant;
 import com.qu.constant.QuestionConstant;
 import com.qu.modules.web.entity.QSingleDiseaseTake;
 import com.qu.modules.web.entity.Qsubject;
@@ -36,6 +37,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -72,6 +74,8 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     @Value("${system.singleDiseaseReportUrl}")
     private String singleDiseaseReportUrl;
 
+    private static String[] parsePatterns = new String[] { "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'","yyyyMMdd","yyyy-MM-dd", "yyyy-MM-dd HH:mm", "yyyy-MM-dd HH:mm:ss", "yyyy/MM/dd", "yyyy/MM/dd HH:mm", "yyyy/MM/dd HH:mm:ss" };
+
     @Override
     public List<QSingleDiseaseTakeVo> singleDiseaseList(String name, String deptId) {
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
@@ -100,10 +104,9 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     @Override
     public List<QSingleDiseaseNameVo> singleDiseaseNameList(String deptId) {
         QueryWrapper<Question> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("qu_Status","1");
-        queryWrapper.eq("category_type","1");
-        queryWrapper.eq("qu_Status","1");
-        queryWrapper.eq("del","0");
+        queryWrapper.eq("category_type",QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+        queryWrapper.eq("qu_Status",QuestionConstant.QU_STATUS_RELEASE);
+        queryWrapper.eq("del",QuestionConstant.DEL_NORMAL);
         if(StringUtils.isNotBlank(deptId)){
             queryWrapper.like("dept_ids",deptId);
         }
@@ -164,11 +167,12 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         for (QSingleDiseaseTake record : qSingleDiseaseTakeIPage.getRecords()) {
             String dynamicTableName = record.getDynamicTableName();
             if(StringUtils.isNotBlank(dynamicTableName)){
-                QueryWrapper<Question> questionQueryWrapper = new QueryWrapper<>();
-                questionQueryWrapper.eq("table_name", dynamicTableName);
-                questionQueryWrapper.eq("qu_stop", QuestionConstant.QU_STOP_NORMAL);
-                questionQueryWrapper.eq("category_type", QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
-                questionQueryWrapper.eq("del", QuestionConstant.DEL_NORMAL);
+                LambdaQueryWrapper<Question> questionQueryWrapper = new QueryWrapper<Question>().lambda();
+                questionQueryWrapper.in(Question::getTableName, dynamicTableName);
+//                questionQueryWrapper.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+                questionQueryWrapper.eq(Question::getQuStop,QuestionConstant.QU_STOP_NORMAL);
+                questionQueryWrapper.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+                questionQueryWrapper.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
                 Question question = questionMapper.selectOne(questionQueryWrapper);
                 record.setQuestionId(question.getId());
                 record.setQuestionName(question.getQuName());
@@ -216,12 +220,14 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         for (QSingleDiseaseTake record : qSingleDiseaseTakeIPage.getRecords()) {
             String dynamicTableName = record.getDynamicTableName();
             if(StringUtils.isNotBlank(dynamicTableName)){
-                QueryWrapper<Question> questionQueryWrapper = new QueryWrapper<>();
-                questionQueryWrapper.eq("table_name", dynamicTableName);
-                questionQueryWrapper.eq("qu_stop", QuestionConstant.QU_STOP_NORMAL);
-                questionQueryWrapper.eq("category_type", QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
-                questionQueryWrapper.eq("del", QuestionConstant.DEL_NORMAL);
+                LambdaQueryWrapper<Question> questionQueryWrapper = new QueryWrapper<Question>().lambda();
+                questionQueryWrapper.in(Question::getTableName, dynamicTableName);
+//                questionQueryWrapper.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+                questionQueryWrapper.eq(Question::getQuStop,QuestionConstant.QU_STOP_NORMAL);
+                questionQueryWrapper.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+                questionQueryWrapper.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
                 Question question = questionMapper.selectOne(questionQueryWrapper);
+
                 record.setQuestionId(question.getId());
                 record.setQuestionName(question.getQuName());
             }
@@ -453,11 +459,12 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             qSingleDiseaseTakeReportStatisticVo.setAverageOperationFee(avgOperationTreatmentFee);
             qSingleDiseaseTakeReportStatisticVo.setAverageDisposableConsumableFee(avgDisposableConsumable);
 
-            QueryWrapper<Question> questionQueryWrapper = new QueryWrapper<>();
-            questionQueryWrapper.eq("table_name", qSingleDiseaseTakeReportStatisticVo.getDynamicTableName());
-            questionQueryWrapper.eq("qu_stop", QuestionConstant.QU_STOP_NORMAL);
-            questionQueryWrapper.eq("category_type", QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
-            questionQueryWrapper.eq("del", QuestionConstant.DEL_NORMAL);
+            LambdaQueryWrapper<Question> questionQueryWrapper = new QueryWrapper<Question>().lambda();
+            questionQueryWrapper.in(Question::getTableName, qSingleDiseaseTakeReportStatisticVo.getDynamicTableName());
+//            questionQueryWrapper.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+            questionQueryWrapper.eq(Question::getQuStop,QuestionConstant.QU_STOP_NORMAL);
+            questionQueryWrapper.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+            questionQueryWrapper.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
             Question question = questionMapper.selectOne(questionQueryWrapper);
 //            Question question = questionMapper.selectById(qSingleDiseaseTakeReportStatisticVo.getQuestionId());
             qSingleDiseaseTakeReportStatisticVo.setDisease(question.getQuName());
@@ -784,12 +791,10 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
     @Override
     public String singleDiseaseAnswerQueryById(Integer id) {
-//        String answer = "[{\"subId\":318,\"subValue\":\"test\"},{\"subId\":319,\"subValue\":\"Z37.0 单一活产\"},{\"subId\":320,\"subValue\":\"无\"},{\"subId\":321,\"subValue\":\"否\"},{\"subId\":324,\"subValue\":\"血、尿常规$凝血功能$特殊感染性疾病筛查\"},{\"subId\":327,\"subValue\":\"有默认值的多行文本2\"}]";
         String answer = null;
 
         QSingleDiseaseTake qSingleDiseaseTake = qSingleDiseaseTakeMapper.selectById(id);
         String answerJson = (String) qSingleDiseaseTake.getAnswerJson();
-//        answerJson = "[{\"subId\":318,\"subValue\":\"test\"},{\"subId\":319,\"subValue\":\"Z37.0 单一活产\"},{\"subId\":320,\"subValue\":\"无\"},{\"subId\":321,\"subValue\":\"否\"},{\"subId\":324,\"subValue\":\"血、尿常规$凝血功能$特殊感染性疾病筛查\"},{\"subId\":327,\"subValue\":\"有默认值的多行文本2\"}]";
         List<SingleDiseaseAnswer> singleDiseaseAnswerList = JSON.parseArray(answerJson, SingleDiseaseAnswer.class);
         Map<String, SingleDiseaseAnswer> mapCache = new HashMap<>();
         if(singleDiseaseAnswerList!=null && !singleDiseaseAnswerList.isEmpty()){
@@ -798,12 +803,15 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             }
         }
         String dynamicTableName = qSingleDiseaseTake.getDynamicTableName();
-        QueryWrapper<Question> questionQueryWrapper = new QueryWrapper<>();
-        questionQueryWrapper.eq("table_name", dynamicTableName);
-        questionQueryWrapper.eq("qu_stop", QuestionConstant.QU_STOP_NORMAL);
-        questionQueryWrapper.eq("category_type", QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
-        questionQueryWrapper.eq("del", QuestionConstant.DEL_NORMAL);
+        LambdaQueryWrapper<Question> questionQueryWrapper = new QueryWrapper<Question>().lambda();
+        questionQueryWrapper.in(Question::getTableName, dynamicTableName);
+//        questionQueryWrapper.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+        questionQueryWrapper.eq(Question::getQuStop,QuestionConstant.QU_STOP_NORMAL);
+        questionQueryWrapper.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+        questionQueryWrapper.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
         Question question = questionMapper.selectOne(questionQueryWrapper);
+
+
         StringBuffer sqlAns = new StringBuffer();
         if (question != null) {
             sqlAns.append("select * from ");
@@ -1038,5 +1046,74 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         Integer notWriteCount = this.qSingleDiseaseTakeMapper.workbenchReminderNotWriteCount(dept);
         Integer rejectCount = this.qSingleDiseaseTakeMapper.workbenchReminderRejectCount(dept);
         return WorkbenchReminderVo.builder().notWriteCount(notWriteCount).rejectCount(rejectCount).build();
+    }
+
+    @Override
+    public List<SingleDiseaseAnswerNavigationVo> singleDiseaseAnswerNavigation(Integer id) {
+        List<SingleDiseaseAnswerNavigationVo> res = new ArrayList<>();
+
+        QSingleDiseaseTake qSingleDiseaseTake = this.getById(id);
+        if(qSingleDiseaseTake==null){
+            log.info("qSingleDiseaseTake is null---id-->{}",id);
+            return null;
+        }
+        String dynamicTableName = qSingleDiseaseTake.getDynamicTableName();
+        LambdaQueryWrapper<Question> questionQueryWrapper = new QueryWrapper<Question>().lambda();
+        questionQueryWrapper.in(Question::getTableName, dynamicTableName);
+        questionQueryWrapper.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+        questionQueryWrapper.eq(Question::getQuStop,QuestionConstant.QU_STOP_NORMAL);
+        questionQueryWrapper.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+        questionQueryWrapper.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+        Question question = questionMapper.selectOne(questionQueryWrapper);
+        if(question==null){
+            log.info("question is null---id-->{}<---dynamicTableName-->{}",id,dynamicTableName);
+            return null;
+        }
+
+        LambdaQueryWrapper<Qsubject> qsubjectLambdaQueryWrapper = new QueryWrapper<Qsubject>().lambda();
+        qsubjectLambdaQueryWrapper.eq(Qsubject::getQuId, question.getId());
+        qsubjectLambdaQueryWrapper.eq(Qsubject::getSubType, QsubjectConstant.SUB_TYPE_GROUP);
+        List<Qsubject> qsubjectList = qsubjectMapper.selectList(qsubjectLambdaQueryWrapper);
+
+        String answerJson = (String) qSingleDiseaseTake.getAnswerJson();
+        List<SingleDiseaseAnswer> singleDiseaseAnswerList = JSON.parseArray(answerJson, SingleDiseaseAnswer.class);
+        Map<String, String> mapCache = new HashMap<>();
+        if(singleDiseaseAnswerList!=null && !singleDiseaseAnswerList.isEmpty()){
+            for (SingleDiseaseAnswer a : singleDiseaseAnswerList) {
+                if(StringUtils.isNotBlank(a.getBindValue())){
+                    mapCache.put(a.getSubColumnName(), a.getBindValue());
+                }else{
+                    mapCache.put(a.getSubColumnName(), a.getSubValue());
+                }
+            }
+        }
+
+
+
+        qsubjectList.forEach(qsubject -> {
+            String[] qsubjectIds = qsubject.getGroupIds().split(",");
+            LambdaQueryWrapper<Qsubject> lambda = new QueryWrapper<Qsubject>().lambda();
+            lambda.eq(Qsubject::getQuId, question.getId());
+            lambda.in(Qsubject::getId, qsubjectIds);
+            List<Qsubject> qsubjects = qsubjectMapper.selectList(lambda);
+            AtomicReference<Integer> alreadyAnswerCount = new AtomicReference<>(0);
+            AtomicReference<Integer> notAnswerCount = new AtomicReference<>(0);
+            qsubjects.forEach(q -> {
+                String value = mapCache.get(q.getColumnName());
+                if(StringUtils.isBlank(value) || "请选择".equals(value)){
+                    notAnswerCount.getAndSet(notAnswerCount.get() + 1);
+                }else{
+                    alreadyAnswerCount.getAndSet(alreadyAnswerCount.get() + 1);
+                }
+            });
+            SingleDiseaseAnswerNavigationVo build = SingleDiseaseAnswerNavigationVo.builder()
+                    .alreadyAnswerCount(alreadyAnswerCount.get())
+                    .notAnswerCount(notAnswerCount.get())
+                    .groupId(qsubject.getId())
+                    .groupName(qsubject.getSubName())
+                    .build();
+            res.add(build);
+        });
+        return res;
     }
 }
