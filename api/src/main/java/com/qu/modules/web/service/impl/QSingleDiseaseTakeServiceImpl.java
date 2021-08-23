@@ -38,6 +38,7 @@ import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewPiePara
 import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
 import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticSummaryParam;
 import com.qu.modules.web.param.SingleDiseaseAnswer;
+import com.qu.modules.web.param.SingleDiseaseAnswerNavigationParam;
 import com.qu.modules.web.param.SingleDiseaseAnswerParam;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
@@ -1087,24 +1088,21 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     }
 
     @Override
-    public List<SingleDiseaseAnswerNavigationVo> singleDiseaseAnswerNavigation(Integer id) {
+    public List<SingleDiseaseAnswerNavigationVo> singleDiseaseAnswerNavigation(SingleDiseaseAnswerNavigationParam singleDiseaseAnswerNavigationParam) {
         List<SingleDiseaseAnswerNavigationVo> res = new ArrayList<>();
 
-        QSingleDiseaseTake qSingleDiseaseTake = this.getById(id);
-        if(qSingleDiseaseTake==null){
-            log.info("qSingleDiseaseTake is null---id-->{}",id);
-            return null;
-        }
-        String dynamicTableName = qSingleDiseaseTake.getDynamicTableName();
+        Integer id = singleDiseaseAnswerNavigationParam.getId();
+        Integer questionId = singleDiseaseAnswerNavigationParam.getQuestionId();
+
         LambdaQueryWrapper<Question> questionQueryWrapper = new QueryWrapper<Question>().lambda();
-        questionQueryWrapper.in(Question::getTableName, dynamicTableName);
+        questionQueryWrapper.in(Question::getId, questionId);
         questionQueryWrapper.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
         questionQueryWrapper.eq(Question::getQuStop,QuestionConstant.QU_STOP_NORMAL);
         questionQueryWrapper.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
         questionQueryWrapper.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
         Question question = questionMapper.selectOne(questionQueryWrapper);
         if(question==null){
-            log.info("question is null---id-->{}<---dynamicTableName-->{}",id,dynamicTableName);
+            log.info("question is null---id-->{}<---questionId-->{}", id,questionId);
             return null;
         }
 
@@ -1114,20 +1112,21 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         qsubjectLambdaQueryWrapper.eq(Qsubject::getDel, QsubjectConstant.DEL_NORMAL);
         List<Qsubject> qsubjectList = qsubjectMapper.selectList(qsubjectLambdaQueryWrapper);
 
-        String answerJson = (String) qSingleDiseaseTake.getAnswerJson();
-        List<SingleDiseaseAnswer> singleDiseaseAnswerList = JSON.parseArray(answerJson, SingleDiseaseAnswer.class);
+        QSingleDiseaseTake qSingleDiseaseTake = this.getById(id);
         Map<String, String> mapCache = new HashMap<>();
-        if(singleDiseaseAnswerList!=null && !singleDiseaseAnswerList.isEmpty()){
-            for (SingleDiseaseAnswer a : singleDiseaseAnswerList) {
-                if(StringUtils.isNotBlank(a.getBindValue())){
-                    mapCache.put(a.getSubColumnName(), a.getBindValue());
-                }else{
-                    mapCache.put(a.getSubColumnName(), a.getSubValue());
+        if(qSingleDiseaseTake!=null){
+            String answerJson = (String) qSingleDiseaseTake.getAnswerJson();
+            List<SingleDiseaseAnswer> singleDiseaseAnswerList = JSON.parseArray(answerJson, SingleDiseaseAnswer.class);
+            if(singleDiseaseAnswerList!=null && !singleDiseaseAnswerList.isEmpty()){
+                for (SingleDiseaseAnswer a : singleDiseaseAnswerList) {
+                    if(StringUtils.isNotBlank(a.getBindValue())){
+                        mapCache.put(a.getSubColumnName(), a.getBindValue());
+                    }else{
+                        mapCache.put(a.getSubColumnName(), a.getSubValue());
+                    }
                 }
             }
         }
-
-
 
         qsubjectList.forEach(qsubject -> {
             String[] qsubjectIds = qsubject.getGroupIds().split(",");
