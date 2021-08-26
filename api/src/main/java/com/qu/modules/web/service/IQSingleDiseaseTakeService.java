@@ -14,6 +14,8 @@ import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
 import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticSummaryParam;
 import com.qu.modules.web.param.SingleDiseaseAnswerNavigationParam;
 import com.qu.modules.web.param.SingleDiseaseAnswerParam;
+import com.qu.modules.web.param.SingleDiseaseWaitUploadParam;
+import com.qu.modules.web.param.SingleDiseaseExamineRecordParam;
 import com.qu.modules.web.vo.QSingleDiseaseNameVo;
 import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
 import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptPermutationVo;
@@ -43,13 +45,15 @@ public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake>
 
     Boolean setSingleDiseaseNoNeed(QSingleDiseaseTakeNoNeedParam qSingleDiseaseTakeNoNeedParam);
 
-    QSingleDiseaseTakeByDoctorPageVo singleDiseaseWaitUploadList(Integer pageNo, Integer pageSize);
+    QSingleDiseaseTakeByDoctorPageVo singleDiseaseWaitUploadList(SingleDiseaseWaitUploadParam singleDiseaseWaitUploadParam, String deptId, Integer pageNo, Integer pageSize);
 
     String setSingleDiseaseStatus(String[] ids, Integer status, String examineReason);
 
     QSingleDiseaseTakeByDoctorPageVo singleDiseaseRejectList(Integer pageNo, Integer pageSize);
 
     QSingleDiseaseTakeByDoctorPageVo singleDiseaseByDeptList(QSingleDiseaseTakeByDeptParam qSingleDiseaseTakeByDeptParam, Integer pageNo, Integer pageSize, String deptId);
+
+    QSingleDiseaseTakeByDoctorPageVo singleDiseaseExamineRecordAllList(SingleDiseaseExamineRecordParam singleDiseaseExamineRecordParam, Integer pageNo, Integer pageSize);
 
     QSingleDiseaseTakeReportStatisticPageVo allSingleDiseaseReportStatistic(QSingleDiseaseTakeReportStatisticParam qSingleDiseaseTakeReportStatisticParam, Integer pageNo, Integer pageSize);
 

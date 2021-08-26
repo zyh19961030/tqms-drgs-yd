@@ -40,6 +40,8 @@ import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticSummaryParam;
 import com.qu.modules.web.param.SingleDiseaseAnswer;
 import com.qu.modules.web.param.SingleDiseaseAnswerNavigationParam;
 import com.qu.modules.web.param.SingleDiseaseAnswerParam;
+import com.qu.modules.web.param.SingleDiseaseWaitUploadParam;
+import com.qu.modules.web.param.SingleDiseaseExamineRecordParam;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
 import com.qu.modules.web.service.IQuestionService;
@@ -115,7 +117,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambda.eq(Question::getQuStatus,"1");
         lambda.eq(Question::getCategoryType,"1");
         lambda.eq(Question::getDel,"0");
-        //todo 科室匹配 按单病种填报 问卷设置科室权限---
+        //科室匹配 按单病种填报 问卷设置科室权限---
         if(StringUtils.isNotBlank(deptId)){
             lambda.like(Question::getDeptIds,deptId);
         }
@@ -140,7 +142,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         if(StringUtils.isNotBlank(deptId)){
             queryWrapper.like("dept_ids",deptId);
         }
-        //todo 科室匹配 按医生填报查询-本科室单病种上报记录-全院单病种上报统计-科室单病种上报统计-单病种指标统计-病种名称筛选条件
+        //科室匹配 按医生填报查询-本科室单病种上报记录-全院单病种上报统计-科室单病种上报统计-单病种指标统计-病种名称筛选条件
         List<Question> questions = questionMapper.selectList(queryWrapper);
         List<QSingleDiseaseNameVo> qSingleDiseaseTakeVoList = questions.stream().map(q -> {
             QSingleDiseaseNameVo qSingleDiseaseTakeVo = new QSingleDiseaseNameVo();
@@ -241,10 +243,41 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     }
 
     @Override
-    public QSingleDiseaseTakeByDoctorPageVo singleDiseaseWaitUploadList(Integer pageNo, Integer pageSize) {
+    public QSingleDiseaseTakeByDoctorPageVo singleDiseaseWaitUploadList(SingleDiseaseWaitUploadParam singleDiseaseWaitUploadParam, String deptId, Integer pageNo, Integer pageSize) {
         Page<QSingleDiseaseTake> page = new Page<>(pageNo, pageSize);
-        QueryWrapper<QSingleDiseaseTake> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("status", QSingleDiseaseTakeConstant.STATUS_WAIT_UPLOAD);
+        LambdaQueryWrapper<QSingleDiseaseTake> queryWrapper = new QueryWrapper<QSingleDiseaseTake>().lambda();
+        queryWrapper.eq(QSingleDiseaseTake::getStatus, QSingleDiseaseTakeConstant.STATUS_WAIT_UPLOAD);
+        if(StringUtils.isNotBlank(deptId)){
+            queryWrapper.eq(QSingleDiseaseTake::getAnswerDeptid, deptId);
+        }
+        if (StringUtils.isNotBlank(singleDiseaseWaitUploadParam.getCategoryId())) {
+            queryWrapper.eq(QSingleDiseaseTake::getCategoryId, singleDiseaseWaitUploadParam.getCategoryId());
+        }
+        if (StringUtils.isNotBlank(singleDiseaseWaitUploadParam.getDoctorName())) {
+            queryWrapper.like(QSingleDiseaseTake::getDoctorName, singleDiseaseWaitUploadParam.getDoctorName());
+        }
+        if (StringUtils.isNotBlank(singleDiseaseWaitUploadParam.getPatientName())) {
+            queryWrapper.like(QSingleDiseaseTake::getPatientName, singleDiseaseWaitUploadParam.getPatientName());
+        }
+        if (StringUtils.isNotBlank(singleDiseaseWaitUploadParam.getCategoryId())) {
+            queryWrapper.eq(QSingleDiseaseTake::getCategoryId, singleDiseaseWaitUploadParam.getCategoryId());
+        }
+        if (singleDiseaseWaitUploadParam.getInHospitalStartDate() != null) {
+            queryWrapper.ge(QSingleDiseaseTake::getInTime, singleDiseaseWaitUploadParam.getInHospitalStartDate());
+        }
+
+        if (singleDiseaseWaitUploadParam.getInHospitalEndDate() != null) {
+            queryWrapper.le(QSingleDiseaseTake::getInTime, singleDiseaseWaitUploadParam.getInHospitalEndDate());
+        }
+
+        if (singleDiseaseWaitUploadParam.getOutHospitalStartDate() != null) {
+            queryWrapper.ge(QSingleDiseaseTake::getOutTime, singleDiseaseWaitUploadParam.getOutHospitalStartDate());
+        }
+
+        if (singleDiseaseWaitUploadParam.getOutHospitalEndDate() != null) {
+            queryWrapper.le(QSingleDiseaseTake::getOutTime, singleDiseaseWaitUploadParam.getOutHospitalEndDate());
+        }
+        queryWrapper.eq(QSingleDiseaseTake::getStatus, QSingleDiseaseTakeConstant.STATUS_WAIT_UPLOAD);
         IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, queryWrapper);
 
         for (QSingleDiseaseTake record : qSingleDiseaseTakeIPage.getRecords()) {
@@ -358,6 +391,60 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         }
 
         IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, queryWrapper);
+        QSingleDiseaseTakeByDoctorPageVo qsubjectlibPageVo = new QSingleDiseaseTakeByDoctorPageVo();
+        qsubjectlibPageVo.setTotal(qSingleDiseaseTakeIPage.getTotal());
+        qsubjectlibPageVo.setQSingleDiseaseTakeList(qSingleDiseaseTakeIPage.getRecords());
+        return qsubjectlibPageVo;
+    }
+
+    @Override
+    public QSingleDiseaseTakeByDoctorPageVo singleDiseaseExamineRecordAllList(SingleDiseaseExamineRecordParam singleDiseaseExamineRecordParam, Integer pageNo, Integer pageSize) {
+        Page<QSingleDiseaseTake> page = new Page<>(pageNo, pageSize);
+        LambdaQueryWrapper<QSingleDiseaseTake> lambda = new QueryWrapper<QSingleDiseaseTake>().lambda();
+        if (StringUtils.isNotBlank(singleDiseaseExamineRecordParam.getCategoryId())) {
+            lambda.like(QSingleDiseaseTake::getCategoryId, singleDiseaseExamineRecordParam.getCategoryId());
+        }
+
+        if (StringUtils.isNotBlank(singleDiseaseExamineRecordParam.getPatientName())) {
+            lambda.like(QSingleDiseaseTake::getPatientName, singleDiseaseExamineRecordParam.getPatientName());
+        }
+
+        if (singleDiseaseExamineRecordParam.getOutHospitalStartDate() != null) {
+            lambda.ge(QSingleDiseaseTake::getOutTime, singleDiseaseExamineRecordParam.getOutHospitalStartDate());
+        }
+
+        if (singleDiseaseExamineRecordParam.getOutHospitalEndDate() != null) {
+            lambda.le(QSingleDiseaseTake::getOutTime, singleDiseaseExamineRecordParam.getOutHospitalEndDate());
+        }
+
+        if (StringUtils.isNotBlank(singleDiseaseExamineRecordParam.getDoctorName())) {
+            lambda.like(QSingleDiseaseTake::getDoctorName, singleDiseaseExamineRecordParam.getDoctorName());
+        }
+
+        if (StringUtils.isNotBlank(singleDiseaseExamineRecordParam.getMainDiagnosis())) {
+            lambda.like(QSingleDiseaseTake::getMainDiagnosis, singleDiseaseExamineRecordParam.getMainDiagnosis());
+        }
+
+        if (singleDiseaseExamineRecordParam.getWriteTimeStartDate() != null) {
+            lambda.ge(QSingleDiseaseTake::getWriteTime, singleDiseaseExamineRecordParam.getWriteTimeStartDate());
+        }
+
+        if (singleDiseaseExamineRecordParam.getWriteTimeEndDate() != null) {
+            lambda.le(QSingleDiseaseTake::getWriteTime, singleDiseaseExamineRecordParam.getWriteTimeEndDate());
+        }
+
+        if (singleDiseaseExamineRecordParam.getStatus() != null) {
+            lambda.in(QSingleDiseaseTake::getStatus, singleDiseaseExamineRecordParam.getStatus());
+        }
+
+        if (StringUtils.isNotBlank(singleDiseaseExamineRecordParam.getDeptId())) {
+            lambda.eq(QSingleDiseaseTake::getTqmsDept, singleDiseaseExamineRecordParam.getDeptId());
+        }
+
+        lambda.gt(QSingleDiseaseTake::getStatus, QSingleDiseaseTakeConstant.STATUS_WAIT_UPLOAD);
+        lambda.ne(QSingleDiseaseTake::getStatus, QSingleDiseaseTakeConstant.STATUS_NO_NEED);
+
+        IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, lambda);
         QSingleDiseaseTakeByDoctorPageVo qsubjectlibPageVo = new QSingleDiseaseTakeByDoctorPageVo();
         qsubjectlibPageVo.setTotal(qSingleDiseaseTakeIPage.getTotal());
         qsubjectlibPageVo.setQSingleDiseaseTakeList(qSingleDiseaseTakeIPage.getRecords());
@@ -557,7 +644,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         qSingleDiseaseTake.setAnswerName(answerName);
         qSingleDiseaseTake.setAnswerTime(new Date());
         qSingleDiseaseTake.setAnswerDeptid(answerDeptid);
-        qSingleDiseaseTake.setAnswerDeptid(answerDeptname);
+        qSingleDiseaseTake.setAnswerDeptname(answerDeptname);
         qSingleDiseaseTake.setQuestionId(singleDiseaseAnswerParam.getQuId());
         qSingleDiseaseTake.setWriteTime(new Date());
 
@@ -1096,9 +1183,9 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
         LambdaQueryWrapper<Question> questionQueryWrapper = new QueryWrapper<Question>().lambda();
         questionQueryWrapper.in(Question::getId, questionId);
-        questionQueryWrapper.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+//        questionQueryWrapper.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
         questionQueryWrapper.eq(Question::getQuStop,QuestionConstant.QU_STOP_NORMAL);
-        questionQueryWrapper.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+//        questionQueryWrapper.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
         questionQueryWrapper.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
         Question question = questionMapper.selectOne(questionQueryWrapper);
         if(question==null){
@@ -1110,6 +1197,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         qsubjectLambdaQueryWrapper.eq(Qsubject::getQuId, question.getId());
         qsubjectLambdaQueryWrapper.eq(Qsubject::getSubType, QsubjectConstant.SUB_TYPE_GROUP);
         qsubjectLambdaQueryWrapper.eq(Qsubject::getDel, QsubjectConstant.DEL_NORMAL);
+        qsubjectLambdaQueryWrapper.orderByAsc(Qsubject::getOrderNum);
         List<Qsubject> qsubjectList = qsubjectMapper.selectList(qsubjectLambdaQueryWrapper);
 
         QSingleDiseaseTake qSingleDiseaseTake = this.getById(id);
