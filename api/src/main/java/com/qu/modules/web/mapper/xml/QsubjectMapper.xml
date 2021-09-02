@@ -15,7 +15,7 @@
     </select>
 
     <select id="selectColumnNameCount" parameterType="java.util.Map" resultType="java.lang.Integer">
-        select count(1) from qsubject where qu_id = #{quId} and column_name = #{columnName}
+        select count(1) from qsubject where qu_id = #{quId} and column_name = #{columnName} and del = #{del}
     </select>
 
     <select id="selectGroupQsubjectByQuId" parameterType="java.util.Map" resultType="com.qu.modules.web.entity.Qsubject">
