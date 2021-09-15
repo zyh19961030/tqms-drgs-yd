@@ -1,5 +1,6 @@
 package com.qu.modules.web.controller;
 
+import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.param.InsertSubjectParam;
 import com.qu.modules.web.param.SubjectEditParam;
 import com.qu.modules.web.param.SubjectLogicParam;
@@ -14,13 +15,10 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Description: 题目表
@@ -170,6 +168,23 @@ public class SubjectController {
         result.setResult(true);
         result.success("修改成功!");
         return result;
+    }
+
+    /**
+     * 根据输入内容搜索问题
+     * @param name
+     * @return
+     */
+    @AutoLog(value = "问题表-根据输入内容搜索问题")
+    @ApiOperation(value = "问题表-根据输入内容搜索问题", notes = "问题表-根据输入内容搜索问题")
+    @GetMapping(value = "/querySubjectByInput")
+    public List<Qsubject> querySubjectByInput(@RequestParam(name = "name", required = true) String name) {
+        List<Qsubject> list = new ArrayList<>();
+        List<Qsubject> qsubjects = subjectService.querySubjectByInput(name);
+        qsubjects.forEach(qsubject -> {
+            list.add(qsubject);
+        });
+        return list;
     }
 
 //    /**

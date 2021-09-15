@@ -6,9 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qu.modules.web.entity.Qoption;
 import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.entity.Qsubjectlib;
 import com.qu.modules.web.mapper.OptionMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.param.InsertSubjectParam;
@@ -25,6 +28,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.naming.Name;
 
 /**
  * @Description: 题目表
@@ -418,5 +423,17 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
                 optionMapper.updateById(qoption);
             }
         });
+    }
+
+    @Override
+    public String querySubjectNmae(Integer subjectId) {
+        String name = qsubjectMapper.querySubjectNmae(subjectId);
+        return name;
+    }
+
+    @Override
+    public List<Qsubject> querySubjectByInput(String name) {
+        List<Qsubject> qsubjects = qsubjectMapper.querySubjectByInput(name);
+        return qsubjects;
     }
 }

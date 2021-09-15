@@ -23,4 +23,6 @@ public interface QuestionMapper extends BaseMapper<Question> {
 
     List<Question> questionFillInList(Map<String, Object> params);
 
+    List<Question> queryQuestionByInput(String name);
+
 }

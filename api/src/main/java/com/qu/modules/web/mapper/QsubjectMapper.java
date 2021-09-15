@@ -32,4 +32,8 @@ public interface QsubjectMapper extends BaseMapper<Qsubject> {
 
     Qsubject selectGroupQsubject(Map<String, Object> insParam);
 
+    String querySubjectNmae(Integer subjectId);
+
+    List<Qsubject> querySubjectByInput(String name);
+
 }

@@ -38,4 +38,12 @@
         select * from qsubject where  group_ids like  CONCAT('%',#{subId},'%')  and qu_id = #{quId}  and del = 0 limit 1
     </select>
 
+    <select id="querySubjectNmae" parameterType="java.lang.Integer" resultType="java.lang.String">
+        select sub_name from qsubject where id = #{subjectId} and del = 0
+    </select>
+
+    <select id="querySubjectByInput" resultType="com.qu.modules.web.entity.Qsubject">
+        select * from qsubject where sub_name like CONCAT('%',#{name},'%') and del = 0
+    </select>
+
 </mapper>

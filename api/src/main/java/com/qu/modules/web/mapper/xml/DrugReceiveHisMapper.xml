@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qu.modules.web.mapper.DrugReceiveHisMapper">
+
+    <select id="queryPurposeByInput" resultType="com.qu.modules.web.entity.DrugReceiveHis">
+        select * from drug_receive_his where medication_purpose_name like CONCAT('%',#{name},'%')
+    </select>
+
+    <select id="queryActionByInput" resultType="com.qu.modules.web.entity.DrugReceiveHis">
+        select * from drug_receive_his where drug_physical_action_name like CONCAT('%',#{name},'%')
+    </select>
+
+</mapper>

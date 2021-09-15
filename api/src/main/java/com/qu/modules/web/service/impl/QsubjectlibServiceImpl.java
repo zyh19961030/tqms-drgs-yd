@@ -1,7 +1,10 @@
 package com.qu.modules.web.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qu.modules.web.entity.Qoptionlib;
+import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.entity.Qsubjectlib;
 import com.qu.modules.web.mapper.QoptionlibMapper;
 import com.qu.modules.web.mapper.QsubjectlibMapper;
@@ -183,4 +186,6 @@ public class QsubjectlibServiceImpl extends ServiceImpl<QsubjectlibMapper, Qsubj
         }
         return qsubjectlibVo;
     }
+
+
 }

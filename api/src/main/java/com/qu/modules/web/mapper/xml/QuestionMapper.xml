@@ -49,4 +49,8 @@
         order by create_time desc
         limit #{startRow},#{pageSize}
     </select>
+
+    <select id="queryQuestionByInput" resultType="com.qu.modules.web.entity.Question">
+        select * from question where qu_name like CONCAT('%',#{name},'%') and del = 0 and qu_status = 1
+    </select>
 </mapper>

@@ -9,6 +9,8 @@ import com.qu.modules.web.param.SubjectParam;
 import com.qu.modules.web.param.UpdateOrderNumParam;
 import com.qu.modules.web.vo.SubjectVo;
 
+import java.util.List;
+
 /**
  * @Description: 题目表
  * @Author: jeecg-boot
@@ -28,5 +30,9 @@ public interface ISubjectService extends IService<Qsubject> {
     Boolean updateOrderNum(UpdateOrderNumParam updateOrderNumParam);
 
     void editLogic(SubjectLogicParam subjectLogicParams);
+
+    String querySubjectNmae(Integer subjectId);
+
+    List<Qsubject> querySubjectByInput(String name);
 
 }
