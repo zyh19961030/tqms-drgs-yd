@@ -12,6 +12,7 @@ import com.qu.modules.web.entity.DrugRulesSubject;
 import com.qu.modules.web.mapper.DrugRulesSubjectMapper;
 import com.qu.modules.web.service.IDrugRulesSubjectService;
 import com.qu.modules.web.vo.QuestionVo;
+import com.qu.modules.web.vo.inputVo;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -55,30 +56,9 @@ public class DrugRulesQuestionController {
 	private IDrugRulesSubjectService drugRulesSubjectService;
 	@Autowired
 	private DrugRulesSubjectController drugRulesSubjectController;
+    @Autowired
+	private inputVo inputVo;
 
-	public class input{
-		private DrugRulesQuestion drugRulesQuestion;
-
-		public DrugRulesQuestion getDrugRulesQuestion() {
-			return drugRulesQuestion;
-		}
-
-		public void setDrugRulesQuestion(DrugRulesQuestion drugRulesQuestion) {
-			this.drugRulesQuestion = drugRulesQuestion;
-		}
-
-		private DrugRulesSubject drugRulesSubject;
-
-		public DrugRulesSubject getDrugRulesSubject() {
-			return drugRulesSubject;
-		}
-
-		public void setDrugRulesSubject(DrugRulesSubject drugRulesSubject) {
-			this.drugRulesSubject = drugRulesSubject;
-		}
-
-	}
-	
 	/**
 	  * 分页列表查询
 	 * @param drugRulesQuestion
@@ -102,7 +82,7 @@ public class DrugRulesQuestionController {
 //		result.setResult(pageList);
 //		return result;
 //	}
-	
+
 	/**
 	  *   添加
 	 * @param questionoId
@@ -156,7 +136,7 @@ public class DrugRulesQuestionController {
 		}
 		return result;
 	}
-	
+
 //	/**
 //	  *  编辑
 //	 * @param drugRulesQuestion
@@ -180,7 +160,7 @@ public class DrugRulesQuestionController {
 //
 //		return result;
 //	}
-	
+
 	/**
 	  *   通过id删除
 	 * @param id
@@ -200,10 +180,10 @@ public class DrugRulesQuestionController {
 				result.success("删除成功!");
 			}
 		}
-		
+
 		return result;
 	}
-	
+
 	/**
 	  *  批量删除
 	 * @param ids
@@ -222,7 +202,7 @@ public class DrugRulesQuestionController {
 //		}
 //		return result;
 //	}
-	
+
 	/**
 	  * 通过id查询
 	 * @param id
@@ -267,22 +247,22 @@ public class DrugRulesQuestionController {
 	 @AutoLog(value = "药品规则问卷表-根据输入内容搜索药品规则问卷和问题")
 	 @ApiOperation(value="药品规则问卷表-根据输入内容搜索药品规则问卷和问题", notes="药品规则问卷表-根据输入内容搜索药品规则问卷和问题")
 	 @PutMapping(value = "/queryQuestionByInput")
-	 public List<input> queryQuestionByInput(@RequestParam(name="name",required=true) String name) {
-		 List<input> list = new ArrayList<>();
+	 public List<inputVo> queryQuestionByInput(@RequestParam(name="name",required=true) String name) {
+		 List<inputVo> list = new ArrayList<>();
 		 List<DrugRulesQuestion> drugRulesQuestions = drugRulesQuestionService.queryQuestionByInput(name);
 		 if (drugRulesQuestions.size() > 0){
 			 drugRulesQuestions.forEach(drugRulesQuestion -> {
-				 input input = new input();
-				 input.setDrugRulesQuestion(drugRulesQuestion);
-				 list.add(input);
+				 inputVo inputVo = new inputVo();
+				 inputVo.setDrugRulesQuestion(drugRulesQuestion);
+				 list.add(inputVo);
 			 });
 		 }
 		 List<DrugRulesSubject> drugRulesSubjects = drugRulesSubjectService.querySubjectByInput(name);
 		 if ((drugRulesSubjects.size() > 0)){
 			 drugRulesSubjects.forEach(drugRulesSubject -> {
-				 input input = new input();
-				 input.setDrugRulesSubject(drugRulesSubject);
-				 list.add(input);
+				 inputVo inputVo = new inputVo();
+				 inputVo.setDrugRulesSubject(drugRulesSubject);
+				 list.add(inputVo);
 			 });
 		 }
 		 return list;

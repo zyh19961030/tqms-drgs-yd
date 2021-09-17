@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.qu.modules.web.entity.DrugReceiveHis;
 import com.qu.modules.web.entity.Qoption;
 import com.qu.modules.web.service.IOptionService;
+import com.qu.modules.web.vo.optionVo;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -53,32 +54,8 @@ public class DrugRulesOptionController {
 	private IOptionService optionService;
 	@Autowired
 	private DrugReceiveHisController drugReceiveHisController;
-
-	public class option1{
-		private Integer id;
-		public Integer getId() {
-			return id;
-		}
-		public void setId(Integer id) {
-			this.id = id;
-		}
-
-		private String name;
-		public String getName() {
-			return name;
-		}
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		private List<String> his;
-		public List<String> getHis() {
-			return his;
-		}
-		public void setHis(List<String> his) {
-			this.his = his;
-		}
-	}
+	@Autowired
+	private optionVo optionVo;
 	
 	/**
 	  * 分页列表查询
@@ -219,12 +196,12 @@ public class DrugRulesOptionController {
 	 @AutoLog(value = "药品规则答案表-根据选择问题的id获取答案")
 	 @ApiOperation(value="药品规则答案表-根据选择问题的id获取答案", notes="药品规则答案表-根据选择问题的id获取答案")
 	 @GetMapping(value = "/queryOption")
-	 public List<option1> queryOption(@RequestParam(name="subjectId",required=true) Integer subjectId,
-									  @RequestParam(name = "matches", required = true) Integer matches) {
-		 List<option1> option1List = new ArrayList<>();
+	 public List<optionVo> queryOption(@RequestParam(name="subjectId",required=true) Integer subjectId,
+									   @RequestParam(name = "matches", required = true) Integer matches) {
+		 List<optionVo> optionVoList = new ArrayList<>();
 		 List<DrugRulesOption> drugRulesOptions = drugRulesOptionService.queryOption(subjectId);
 		 drugRulesOptions.forEach(drugRulesOption -> {
-		 	 option1 option1 = new option1();
+		 	 optionVo optionVo = new optionVo();
 			 List<String> his = new ArrayList<>();
 			 Integer id = drugRulesOption.getId();
 			 Integer optionId = drugRulesOption.getOptionId();
@@ -245,12 +222,12 @@ public class DrugRulesOptionController {
 			 } else {
 			 	his.add(null);
 			 }
-			 option1.setId(id);
-			 option1.setName(opName);
-			 option1.setHis(his);
-			 option1List.add(option1);
+			 optionVo.setId(id);
+			 optionVo.setName(opName);
+			 optionVo.setHis(his);
+			 optionVoList.add(optionVo);
 		 });
-		 return option1List;
+		 return optionVoList;
 	 }
 
   /**
