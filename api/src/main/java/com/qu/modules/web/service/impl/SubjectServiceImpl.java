@@ -9,6 +9,7 @@ import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.qu.constant.QsubjectConstant;
 import com.qu.modules.web.entity.Qoption;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.entity.Qsubjectlib;
@@ -61,6 +62,7 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
         Map<String, Object> param = new HashMap<>();
         param.put("quId", subjectParam.getQuId());
         param.put("columnName", subjectParam.getColumnName());
+        param.put("del", QsubjectConstant.DEL_NORMAL);
         int colCount = qsubjectMapper.selectColumnNameCount(param);
         if (colCount > 0) {//字段重复
             return null;
@@ -139,6 +141,7 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
         Map<String, Object> param = new HashMap<>();
         param.put("quId", insertSubjectParam.getQuId());
         param.put("columnName", insertSubjectParam.getColumnName());
+        param.put("del", QsubjectConstant.DEL_NORMAL);
         int colCount = qsubjectMapper.selectColumnNameCount(param);
         if (colCount > 0) {//字段重复
             return null;
