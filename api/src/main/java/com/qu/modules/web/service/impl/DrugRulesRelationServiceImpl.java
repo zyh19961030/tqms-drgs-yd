@@ -36,4 +36,12 @@ public class DrugRulesRelationServiceImpl extends ServiceImpl<DrugRulesRelationM
         int i = drugRulesRelationMapper.delete(optionId);
         return i;
     }
+
+    @Override
+    public List<DrugRulesRelation> queryByOptionId(Integer optionId) {
+        LambdaQueryWrapper<DrugRulesRelation> lambda = new QueryWrapper<DrugRulesRelation>().lambda();
+        lambda.eq(DrugRulesRelation::getDrugRulesOptionId, optionId);
+        List<DrugRulesRelation> list = this.list(lambda);
+        return list;
+    }
 }

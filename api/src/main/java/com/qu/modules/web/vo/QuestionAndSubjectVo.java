@@ -2,9 +2,14 @@ package com.qu.modules.web.vo;
 
 import com.qu.modules.web.entity.DrugRulesQuestion;
 import com.qu.modules.web.entity.DrugRulesSubject;
+import io.swagger.annotations.ApiModelProperty;
 
-public class inputVo {
+public class QuestionAndSubjectVo {
+    @ApiModelProperty(value = "问卷")
     private DrugRulesQuestion drugRulesQuestion;
+
+    @ApiModelProperty(value = "问题")
+    private DrugRulesSubject drugRulesSubject;
 
     public DrugRulesQuestion getDrugRulesQuestion() {
         return drugRulesQuestion;
@@ -13,8 +18,6 @@ public class inputVo {
     public void setDrugRulesQuestion(DrugRulesQuestion drugRulesQuestion) {
         this.drugRulesQuestion = drugRulesQuestion;
     }
-
-    private DrugRulesSubject drugRulesSubject;
 
     public DrugRulesSubject getDrugRulesSubject() {
         return drugRulesSubject;

@@ -1,5 +1,6 @@
 package com.qu.modules.web.service;
 
+import com.qu.modules.web.entity.DrugRulesQuestion;
 import com.qu.modules.web.entity.DrugRulesSubject;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.apache.ibatis.annotations.Param;
@@ -24,4 +25,7 @@ public interface IDrugRulesSubjectService extends IService<DrugRulesSubject> {
 
     //删除选中的问题
     int deleteSubject(@Param("id") Integer id, @Param("updateTime") Date updateTime);
+
+    //根据输入内容和问卷id搜索药品规则问题
+    List<DrugRulesSubject> querySubjectByInputAndId(@Param("name") String name, @Param("id") Integer id);
 }

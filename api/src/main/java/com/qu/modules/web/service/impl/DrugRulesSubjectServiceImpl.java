@@ -2,6 +2,7 @@ package com.qu.modules.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.qu.modules.web.entity.DrugRulesQuestion;
 import com.qu.modules.web.entity.DrugRulesSubject;
 import com.qu.modules.web.mapper.DrugRulesSubjectMapper;
 import com.qu.modules.web.service.IDrugRulesSubjectService;
@@ -28,8 +29,8 @@ public class DrugRulesSubjectServiceImpl extends ServiceImpl<DrugRulesSubjectMap
     @Override
     public List<DrugRulesSubject> querySubject(Integer id) {
         LambdaQueryWrapper<DrugRulesSubject> lambda = new QueryWrapper<DrugRulesSubject>().lambda();
-        lambda.in(DrugRulesSubject::getDrugRulesQuestionId, id);
-        lambda.in(DrugRulesSubject::getDel, 0);
+        lambda.eq(DrugRulesSubject::getDrugRulesQuestionId, id);
+        lambda.eq(DrugRulesSubject::getDel, 0);
         List<DrugRulesSubject> list = this.list(lambda);
         return list;
     }
@@ -44,6 +45,12 @@ public class DrugRulesSubjectServiceImpl extends ServiceImpl<DrugRulesSubjectMap
     public int deleteSubject(Integer id, Date updateTime) {
         int i = drugRulesSubjectMapper.deleteSubject(id, updateTime);
         return i;
+    }
+
+    @Override
+    public List<DrugRulesSubject> querySubjectByInputAndId(String name, Integer id) {
+        List<DrugRulesSubject> list = drugRulesSubjectMapper.querySubjectByInputAndId(name, id);
+        return list;
     }
 
 }

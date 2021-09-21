@@ -1,39 +1,22 @@
 package com.qu.modules.web.controller;
 
 import java.util.*;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.qu.modules.web.entity.DrugReceiveHis;
+import com.qu.modules.web.entity.DrugRulesRelation;
 import com.qu.modules.web.entity.Qoption;
+import com.qu.modules.web.service.IDrugReceiveHisService;
+import com.qu.modules.web.service.IDrugRulesRelationService;
 import com.qu.modules.web.service.IOptionService;
-import com.qu.modules.web.vo.optionVo;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.system.query.QueryGenerator;
+import com.qu.modules.web.vo.DrugRulesOptionListVo;
+import com.qu.modules.web.vo.SubjectIdAndMatchesVo;
 import org.jeecg.common.aspect.annotation.AutoLog;
-import org.jeecg.common.util.oConvertUtils;
 import com.qu.modules.web.entity.DrugRulesOption;
 import com.qu.modules.web.service.IDrugRulesOptionService;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
-
-import org.jeecgframework.poi.excel.ExcelImportUtil;
-import org.jeecgframework.poi.excel.def.NormalExcelConstants;
-import org.jeecgframework.poi.excel.entity.ExportParams;
-import org.jeecgframework.poi.excel.entity.ImportParams;
-import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.servlet.ModelAndView;
-import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -53,10 +36,69 @@ public class DrugRulesOptionController {
 	@Autowired
 	private IOptionService optionService;
 	@Autowired
-	private DrugReceiveHisController drugReceiveHisController;
+	private IDrugRulesRelationService drugRulesRelationService;
 	@Autowired
-	private optionVo optionVo;
-	
+	private IDrugReceiveHisService drugReceiveHisService;
+
+	 /**
+	  * 根据选择问题的id获取答案
+	  * @param subjectIdAndMatchesVo
+	  * @return
+	  */
+	 @AutoLog(value = "药品规则答案表-根据选择问题的id获取答案")
+	 @ApiOperation(value="药品规则答案表-根据选择问题的id获取答案", notes="药品规则答案表-根据选择问题的id获取答案")
+	 @GetMapping(value = "/queryOption")
+	 public List<DrugRulesOptionListVo> queryOption(SubjectIdAndMatchesVo subjectIdAndMatchesVo) {
+		 List<DrugRulesOptionListVo> drugRulesOptionListVoList = new ArrayList<>();
+		 List<DrugRulesOption> drugRulesOptions = drugRulesOptionService.queryOption(subjectIdAndMatchesVo.getSubjectId());
+		 drugRulesOptions.forEach(drugRulesOption -> {
+			 DrugRulesOptionListVo DrugRulesOptionListVo = new DrugRulesOptionListVo();
+			 List<String> his = new ArrayList<>();
+			 Integer id = drugRulesOption.getId();
+			 Integer optionId = drugRulesOption.getOptionId();
+			 Qoption qoption = optionService.getById(optionId);
+			 String opName = qoption.getOpName();
+			 List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.queryByOptionId(optionId);
+			 if (subjectIdAndMatchesVo.getMatches().equals(0)){
+				 System.out.println(drugRulesRelationList+"777777777777777777777777");
+				 drugRulesRelationList.forEach(drugRulesRelation -> {
+					 Integer type = drugRulesRelation.getType();
+					 if (type.equals(1)){
+						 Integer medicationPurposeId = drugRulesRelation.getMedicationPurposeId();
+						 List<DrugReceiveHis> drugReceiveHisList = drugReceiveHisService.queryById(medicationPurposeId);
+						 System.out.println(medicationPurposeId+"-------------------------------");
+						 System.out.println(drugReceiveHisList.size()+"==========================================");
+						 drugReceiveHisList.forEach(drugReceiveHis -> {
+							 Integer purposeOrActionId = drugReceiveHis.getPurposeOrActionId();
+							 String purposeOrActionName = drugReceiveHis.getPurposeOrActionName();
+							 String name = purposeOrActionId.toString() + purposeOrActionName;
+
+							 his.add(name);
+						 });
+					 } else {
+						 Integer drugPhysicalActionId = drugRulesRelation.getDrugPhysicalActionId();
+						 List<DrugReceiveHis> drugReceiveHisList = drugReceiveHisService.queryById(drugPhysicalActionId);
+						 System.out.println(drugPhysicalActionId+"11111111111111111111111111");
+						 System.out.println(drugReceiveHisList.size()+"333333333333333333333333333333333333");
+						 drugReceiveHisList.forEach(drugReceiveHis -> {
+							 Integer purposeOrActionId = drugReceiveHis.getPurposeOrActionId();
+							 String purposeOrActionName = drugReceiveHis.getPurposeOrActionName();
+							 String name = purposeOrActionId.toString() + purposeOrActionName;
+							 his.add(name);
+						 });
+					 }
+				 });
+			 } else {
+				 his.add(null);
+			 }
+			 DrugRulesOptionListVo.setId(id);
+			 DrugRulesOptionListVo.setName(opName);
+			 DrugRulesOptionListVo.setHis(his);
+			 drugRulesOptionListVoList.add(DrugRulesOptionListVo);
+		 });
+		 return drugRulesOptionListVoList;
+	 }
+
 	/**
 	  * 分页列表查询
 	 * @param drugRulesOption
@@ -186,49 +228,6 @@ public class DrugRulesOptionController {
 //		}
 //		return result;
 //	}
-
-	 /**
-	  * 根据选择问题的id获取答案
-	  * @param subjectId
-	  * @param subjectId
-	  * @return
-	  */
-	 @AutoLog(value = "药品规则答案表-根据选择问题的id获取答案")
-	 @ApiOperation(value="药品规则答案表-根据选择问题的id获取答案", notes="药品规则答案表-根据选择问题的id获取答案")
-	 @GetMapping(value = "/queryOption")
-	 public List<optionVo> queryOption(@RequestParam(name="subjectId",required=true) Integer subjectId,
-									   @RequestParam(name = "matches", required = true) Integer matches) {
-		 List<optionVo> optionVoList = new ArrayList<>();
-		 List<DrugRulesOption> drugRulesOptions = drugRulesOptionService.queryOption(subjectId);
-		 drugRulesOptions.forEach(drugRulesOption -> {
-		 	 optionVo optionVo = new optionVo();
-			 List<String> his = new ArrayList<>();
-			 Integer id = drugRulesOption.getId();
-			 Integer optionId = drugRulesOption.getOptionId();
-			 Qoption qoption = optionService.getById(optionId);
-			 String opName = qoption.getOpName();
-			 if (matches == 0){
-				 List<DrugReceiveHis> list = drugReceiveHisController.queryByPid(id);
-				 list.forEach(drugReceiveHis -> {
-					 Integer drugPhysicalActionId = drugReceiveHis.getDrugPhysicalActionId();
-					 if (drugPhysicalActionId != null && drugPhysicalActionId >= 0){
-						 String drugPhysicalActionName = drugReceiveHis.getDrugPhysicalActionName();
-						 his.add(drugPhysicalActionName);
-					 } else {
-						 String medicationPurposeName = drugReceiveHis.getMedicationPurposeName();
-						 his.add(medicationPurposeName);
-					 }
-				 });
-			 } else {
-			 	his.add(null);
-			 }
-			 optionVo.setId(id);
-			 optionVo.setName(opName);
-			 optionVo.setHis(his);
-			 optionVoList.add(optionVo);
-		 });
-		 return optionVoList;
-	 }
 
   /**
       * 导出excel

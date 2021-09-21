@@ -1,5 +1,6 @@
 package com.qu.modules.web.mapper;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
@@ -14,6 +15,13 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface DrugRulesQuestionMapper extends BaseMapper<DrugRulesQuestion> {
 
-    //根据输入内容搜索药品规则问卷
-    List<DrugRulesQuestion> queryQuestionByInput(String name);
+    //修改问卷删除状态
+    int updateQuestion(@Param("id") Integer id, @Param("del") int del, @Param("updateTime") Date updateTime);
+
+    //查询问题所属的问卷
+    DrugRulesQuestion queryQuestionById(Integer id);
+
+    //通过id查询问卷是否存在
+    DrugRulesQuestion queryQuestionIfExistById(Integer id);
+
 }

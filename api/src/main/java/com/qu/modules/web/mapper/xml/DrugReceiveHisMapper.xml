@@ -3,11 +3,11 @@
 <mapper namespace="com.qu.modules.web.mapper.DrugReceiveHisMapper">
 
     <select id="queryPurposeByInput" resultType="com.qu.modules.web.entity.DrugReceiveHis">
-        select * from drug_receive_his where medication_purpose_name like CONCAT('%',#{name},'%')
+        select * from drug_receive_his where purpose_or_action_name like CONCAT('%',#{name},'%') and pid = 0
     </select>
 
     <select id="queryActionByInput" resultType="com.qu.modules.web.entity.DrugReceiveHis">
-        select * from drug_receive_his where drug_physical_action_name like CONCAT('%',#{name},'%')
+        select * from drug_receive_his where purpose_or_action_name like CONCAT('%',#{name},'%') and pid != 0
     </select>
 
 </mapper>

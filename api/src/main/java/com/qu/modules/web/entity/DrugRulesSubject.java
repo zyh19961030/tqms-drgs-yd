@@ -29,7 +29,7 @@ import org.jeecgframework.poi.excel.annotation.Excel;
 public class DrugRulesSubject {
     
 	/**药品规则问题id*/
-	@TableId(type = IdType.UUID)
+	@TableId(type = IdType.AUTO)
     @ApiModelProperty(value = "药品规则问题id")
 	private Integer id;
 	/**问题id,关联qsubject表的id*/

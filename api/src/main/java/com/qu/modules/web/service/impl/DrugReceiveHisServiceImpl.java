@@ -25,9 +25,9 @@ public class DrugReceiveHisServiceImpl extends ServiceImpl<DrugReceiveHisMapper,
     DrugReceiveHisMapper drugReceiveHisMapper;
 
     @Override
-    public List<DrugReceiveHis> queryByPid(Integer pid) {
+    public List<DrugReceiveHis> queryById(Integer id) {
         LambdaQueryWrapper<DrugReceiveHis> lambda = new QueryWrapper<DrugReceiveHis>().lambda();
-        lambda.eq(DrugReceiveHis::getPid, pid);
+        lambda.eq(DrugReceiveHis::getPurposeOrActionId, id);
         List<DrugReceiveHis> list = this.list(lambda);
         return list;
     }

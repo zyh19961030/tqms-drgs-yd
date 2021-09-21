@@ -13,8 +13,8 @@ import java.util.List;
  */
 public interface IDrugReceiveHisService extends IService<DrugReceiveHis> {
 
-    //根据答案id获取用药目的或药品物理作用
-    List<DrugReceiveHis> queryByPid(Integer pid);
+    //根据用药目的id获取用药目的或药品物理作用
+    List<DrugReceiveHis> queryById(Integer id);
 
     //根据输入内容搜索用药目的
     List<DrugReceiveHis> queryPurposeByInput(String name);

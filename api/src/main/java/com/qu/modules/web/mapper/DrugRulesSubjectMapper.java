@@ -21,4 +21,7 @@ public interface DrugRulesSubjectMapper extends BaseMapper<DrugRulesSubject> {
 
     //删除选中的问题
     int deleteSubject(@Param("id") Integer id, @Param("updateTime") Date updateTime);
+
+    //根据输入内容和问卷id搜索药品规则问题
+    List<DrugRulesSubject> querySubjectByInputAndId(@Param("name") String name, @Param("id") Integer id);
 }

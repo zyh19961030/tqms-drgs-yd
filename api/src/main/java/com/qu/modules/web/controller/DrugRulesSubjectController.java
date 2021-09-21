@@ -1,37 +1,19 @@
 package com.qu.modules.web.controller;
 
 import java.util.*;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.qu.modules.web.entity.DrugRulesQuestion;
-import org.apache.ibatis.annotations.Param;
+import com.qu.modules.web.service.IDrugRulesQuestionService;
+import com.qu.modules.web.vo.QuestionAndSubjectVo;
+import com.qu.modules.web.vo.SearchResultVo;
 import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.aspect.annotation.AutoLog;
-import org.jeecg.common.util.oConvertUtils;
 import com.qu.modules.web.entity.DrugRulesSubject;
 import com.qu.modules.web.service.IDrugRulesSubjectService;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
-
-import org.jeecgframework.poi.excel.ExcelImportUtil;
-import org.jeecgframework.poi.excel.def.NormalExcelConstants;
-import org.jeecgframework.poi.excel.entity.ExportParams;
-import org.jeecgframework.poi.excel.entity.ImportParams;
-import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.servlet.ModelAndView;
-import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -48,7 +30,116 @@ import io.swagger.annotations.ApiOperation;
 public class DrugRulesSubjectController {
 	@Autowired
 	private IDrugRulesSubjectService drugRulesSubjectService;
-	
+	@Autowired
+	private IDrugRulesQuestionService drugRulesQuestionService;
+
+	 /**
+	  * 根据问卷id查询答案
+	  * @param drugRulesQuestionId
+	  * @return
+	  */
+	 @AutoLog(value = "药品规则问题表-根据问卷id查询答案")
+	 @ApiOperation(value="药品规则问题表-根据问卷id查询答案", notes="药品规则问题表-根据问卷id查询答案")
+	 @GetMapping(value = "/querySubject")
+	 public List<DrugRulesSubject> querySubject(@RequestParam(name="drugRulesQuestionId",required=true) Integer drugRulesQuestionId) {
+		 List<DrugRulesSubject> list = drugRulesSubjectService.querySubject(drugRulesQuestionId);
+		 return list;
+	 }
+
+	 /**
+	  *   添加
+	  * @param questionAndSubjectVo
+	  * @return
+	  */
+	 @AutoLog(value = "药品规则问题表-添加")
+	 @ApiOperation(value="药品规则问题表-添加", notes="药品规则问题表-添加")
+	 @PostMapping(value = "/add")
+	 public Result<DrugRulesSubject> add(QuestionAndSubjectVo questionAndSubjectVo) {
+		 Result<DrugRulesSubject> result = new Result<DrugRulesSubject>();
+		 DrugRulesQuestion drugRulesQuestion = questionAndSubjectVo.getDrugRulesQuestion();
+		 DrugRulesSubject drugRulesSubject = questionAndSubjectVo.getDrugRulesSubject();
+		 Integer drugRulesQuestionId = drugRulesSubject.getDrugRulesQuestionId();
+		 List<DrugRulesQuestion> drugRulesQuestions1 = drugRulesQuestionService.queryQuestionIfExistById(drugRulesQuestionId);
+		 List<DrugRulesQuestion> drugRulesQuestions2 = drugRulesQuestionService.queryQuestionIfDelById(drugRulesQuestionId);
+		 if (drugRulesQuestions1.isEmpty() && drugRulesQuestions2.isEmpty()){
+			 drugRulesQuestionService.save(drugRulesQuestion);
+		 } else {
+			 Date date = new Date();
+			 drugRulesQuestionService.updateQuestion(drugRulesQuestion.getQuestionId(), 0, date);
+		 }
+		 try {
+			 drugRulesSubjectService.save(drugRulesSubject);
+			 result.success("添加成功！");
+		 } catch (Exception e) {
+			 log.error(e.getMessage(),e);
+			 result.error500("操作失败");
+		 }
+		 return result;
+	 }
+
+	 /**
+	  *   通过id删除
+	  * @param id
+	  * @return
+	  */
+	 @AutoLog(value = "药品规则问题表-通过id删除")
+	 @ApiOperation(value="药品规则问题表-通过id删除", notes="药品规则问题表-通过id删除")
+	 @DeleteMapping(value = "/delete")
+	 public Result<DrugRulesSubject> delete(@RequestParam(name="id",required=true) Integer id) {
+		 Result<DrugRulesSubject> result = new Result<DrugRulesSubject>();
+		 Date date = new Date();
+		 int i = drugRulesSubjectService.deleteSubject(id, date);
+		 if (i == 1){
+			 result.success("删除成功！");
+		 } else {
+			 result.error500("删除失败");
+		 }
+		 return result;
+	 }
+
+	 /**
+	  * 根据输入内容搜索药品规则问题
+	  * @param name
+	  * @return
+	  */
+	 @AutoLog(value = "药品规则问题表-根据输入内容搜索药品规则问题")
+	 @ApiOperation(value="药品规则问题表-根据输入内容搜索药品规则问题", notes="药品规则问题表-根据输入内容搜索药品规则问题")
+	 @PutMapping(value = "/queryQuestionByInput")
+	 public List<SearchResultVo> queryQuestionByInput(@RequestParam(name="name",required=false) String name) {
+		 List<SearchResultVo> list = new ArrayList<>();
+		 if (name != null && name.length() > 0){
+			 List<Integer> list0 = new ArrayList<>();
+			 List<DrugRulesSubject> drugRulesSubjects = drugRulesSubjectService.querySubjectByInput(name);
+			 if (drugRulesSubjects != null && drugRulesSubjects.size() > 0){
+				 drugRulesSubjects.forEach(drugRulesSubject -> {
+					 SearchResultVo searchResultVo = new SearchResultVo();
+					 Integer drugRulesQuestionId = drugRulesSubject.getDrugRulesQuestionId();
+					 DrugRulesQuestion drugRulesQuestion = drugRulesQuestionService.queryQuestionsById(drugRulesQuestionId);
+					 list0.add(drugRulesQuestionId);
+				 });
+				 HashSet hashSet = new HashSet(list0);
+				 list0.clear();
+				 list0.addAll(hashSet);
+				 list0.forEach(drugRulesQuestionId -> {
+					 SearchResultVo searchResultVo = new SearchResultVo();
+					 DrugRulesQuestion drugRulesQuestion = drugRulesQuestionService.queryQuestionsById(drugRulesQuestionId);
+					 List<DrugRulesSubject> rulesSubjects = drugRulesSubjectService.querySubjectByInputAndId(name, drugRulesQuestionId);
+					 searchResultVo.setDrugRulesQuestion(drugRulesQuestion);
+					 searchResultVo.setDrugRulesSubjectList(rulesSubjects);
+					 list.add(searchResultVo);
+				 });
+			 }
+		 } else {
+			 List<DrugRulesQuestion> drugRulesQuestions = drugRulesQuestionService.queryQuestion();
+			 drugRulesQuestions.forEach(drugRulesQuestion -> {
+				 SearchResultVo searchResultVo = new SearchResultVo();
+				 searchResultVo.setDrugRulesQuestion(drugRulesQuestion);
+				 list.add(searchResultVo);
+			 });
+		 }
+		 return list;
+	 }
+
 	/**
 	  * 分页列表查询
 	 * @param drugRulesSubject
@@ -74,65 +165,6 @@ public class DrugRulesSubjectController {
 //	}
 	
 	/**
-	  *   添加
-	 * @param subjectId
-	 * @param subjectNmae
-	 * @param drugRulesQestionId
-	 * @param matches
-	 * @param timeLimit
-	 * @param startEvent
-	 * @param startAround
-	 * @param startTime
-	 * @param endEvent
-	 * @param endAround
-	 * @param endTime
-	 * @return
-	 */
-	@AutoLog(value = "药品规则问题表-添加")
-	@ApiOperation(value="药品规则问题表-添加", notes="药品规则问题表-添加")
-	@PostMapping(value = "/add")
-	public Result<DrugRulesSubject> add(@RequestParam(name = "subjectId", required = true) Integer subjectId,
-										@RequestParam(name = "subjectName", required = true) String subjectNmae,
-										@RequestParam(name = "drugRulesQestionId", required = true) Integer drugRulesQestionId,
-										@RequestParam(name = "matches", required = true) Integer matches,
-										@RequestParam(name = "timeLimit", required = true) Integer timeLimit,
-										@RequestParam(name = "startEvevt", required = false) String startEvent,
-										@RequestParam(name = "startAround", required = false) String startAround,
-										@RequestParam(name = "startTime", required = false) Integer startTime,
-										@RequestParam(name = "endEvevt", required = false) String endEvent,
-										@RequestParam(name = "endAround", required = false) String endAround,
-										@RequestParam(name = "endTime", required = false) Integer endTime) {
-		Result<DrugRulesSubject> result = new Result<DrugRulesSubject>();
-		DrugRulesSubject drugRulesSubject = new DrugRulesSubject();
-		drugRulesSubject.setId(subjectId);
-		drugRulesSubject.setSubjectId(subjectId);
-		drugRulesSubject.setSubjectName(subjectNmae);
-		drugRulesSubject.setDrugRulesQuestionId(drugRulesQestionId);
-		drugRulesSubject.setDel(0);
-		drugRulesSubject.setMatches(matches);
-		drugRulesSubject.setTimeLimit(timeLimit);
-		Date date = new Date();
-		drugRulesSubject.setCreateTime(date);
-		drugRulesSubject.setUpdateTime(date);
-		if (timeLimit == 1){
-			drugRulesSubject.setStartEvent(startEvent);
-			drugRulesSubject.setStartAround(startAround);
-			drugRulesSubject.setStartTime(startTime);
-			drugRulesSubject.setEndEvent(endEvent);
-			drugRulesSubject.setEndAround(endAround);
-			drugRulesSubject.setEndTime(endTime);
-		}
-		try {
-			drugRulesSubjectService.save(drugRulesSubject);
-			result.success("添加成功！");
-		} catch (Exception e) {
-			log.error(e.getMessage(),e);
-			result.error500("操作失败");
-		}
-		return result;
-	}
-	
-	/**
 	  *  编辑
 	 * @param drugRulesSubject
 	 * @return
@@ -155,26 +187,6 @@ public class DrugRulesSubjectController {
 //
 //		return result;
 //	}
-	
-	/**
-	  *   通过id删除
-	 * @param id
-	 * @return
-	 */
-	@AutoLog(value = "药品规则问题表-通过id删除")
-	@ApiOperation(value="药品规则问题表-通过id删除", notes="药品规则问题表-通过id删除")
-	@DeleteMapping(value = "/delete")
-	public Result<DrugRulesSubject> delete(@RequestParam(name="id",required=true) Integer id) {
-		Result<DrugRulesSubject> result = new Result<DrugRulesSubject>();
-		Date date = new Date();
-		int i = drugRulesSubjectService.deleteSubject(id, date);
-		if (i == 1){
-			result.success("删除成功！");
-		} else {
-			result.error500("删除失败");
-		}
-		return result;
-	}
 	
 	/**
 	  *  批量删除
@@ -214,23 +226,6 @@ public class DrugRulesSubjectController {
 //		}
 //		return result;
 //	}
-
-	 /**
-	  * 根据问卷id查询答案
-	  * @param drugRulesQuestionId
-	  * @return
-	  */
-	 @AutoLog(value = "药品规则问题表-根据问卷id查询答案")
-	 @ApiOperation(value="药品规则问题表-根据问卷id查询答案", notes="药品规则问题表-根据问卷id查询答案")
-	 @GetMapping(value = "/querySubject")
-	 public List<DrugRulesSubject> querySubject(@RequestParam(name="drugRulesQuestionId",required=true) Integer drugRulesQuestionId) {
-		 List<DrugRulesSubject> list = new ArrayList<>();
-		 List<DrugRulesSubject> drugRulesSubjects = drugRulesSubjectService.querySubject(drugRulesQuestionId);
-		 drugRulesSubjects.forEach(drugRulesSubject -> {
-			list.add(drugRulesSubject);
-		 });
-		 return list;
-	 }
 
   /**
       * 导出excel

@@ -2,8 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.qu.modules.web.mapper.DrugRulesQuestionMapper">
 
-    <select id="queryQuestionByInput" resultType="com.qu.modules.web.entity.DrugRulesQuestion">
-        select * from drug_rules_question where question_name like CONCAT('%',#{name},'%') and del = 0
+    <update id="updateQuestion" parameterType="com.qu.modules.web.entity.DrugRulesQuestion">
+        update drug_rules_question set del = #{del}, update_time = #{updateTime} where question_id = #{id}
+    </update>
+
+    <select id="queryQuestionById" resultType="com.qu.modules.web.entity.DrugRulesQuestion">
+        select * from drug_rules_question where question_id = #{id} and del = 0
     </select>
 
+    <select id="queryQuestionIfExistById" resultType="com.qu.modules.web.entity.DrugRulesQuestion">
+        select * from drug_rules_question where question_id = #{id}
+    </select>
 </mapper>

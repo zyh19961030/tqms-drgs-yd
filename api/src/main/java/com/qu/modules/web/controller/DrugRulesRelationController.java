@@ -1,39 +1,17 @@
 package com.qu.modules.web.controller;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import com.qu.modules.web.entity.DrugReceiveHis;
+import com.qu.modules.web.vo.DrugRulesRelationsListVo;
+import com.qu.modules.web.vo.PurposeAndActionVo;
 import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.aspect.annotation.AutoLog;
-import org.jeecg.common.util.oConvertUtils;
 import com.qu.modules.web.entity.DrugRulesRelation;
 import com.qu.modules.web.service.IDrugRulesRelationService;
-import java.util.Date;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
-
-import org.jeecgframework.poi.excel.ExcelImportUtil;
-import org.jeecgframework.poi.excel.def.NormalExcelConstants;
-import org.jeecgframework.poi.excel.entity.ExportParams;
-import org.jeecgframework.poi.excel.entity.ImportParams;
-import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.servlet.ModelAndView;
-import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -51,8 +29,43 @@ public class DrugRulesRelationController {
 	@Autowired
 	private IDrugRulesRelationService drugRulesRelationService;
 
-	private Integer id =1;
-	
+	 /**
+	  *  设置
+	  * @param drugRulesRelations
+	  * @return
+	  */
+	 @AutoLog(value = "药品规则关联表-设置")
+	 @ApiOperation(value="药品规则关联表-设置", notes="药品规则关联表-设置")
+	 @PutMapping(value = "/edit")
+	 public Result<DrugRulesRelation> edit(@RequestBody DrugRulesRelationsListVo drugRulesRelations) {
+		 Result<DrugRulesRelation> result = new Result<DrugRulesRelation>();
+		 Integer id = drugRulesRelations.getOptionId();
+		 List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.ifExist(id);
+		 if (drugRulesRelationList != null && drugRulesRelationList.size() > 0){
+			 drugRulesRelationService.delete(id);
+		 }
+		 DrugRulesRelation drugRulesRelation = new DrugRulesRelation();
+		 List<PurposeAndActionVo> purposeAndActionVos = drugRulesRelations.getPurposeAndActionVos();
+		 int type = drugRulesRelations.getType();
+		 purposeAndActionVos.forEach(purposeAndActionVo -> {
+			Integer medicationPurposeId = purposeAndActionVo.getMedicationPurposeId();
+			Integer drugPhysicalActionId = purposeAndActionVo.getDrugPhysicalActionId();
+			drugRulesRelation.setDrugRulesOptionId(id);
+			drugRulesRelation.setMedicationPurposeId(medicationPurposeId);
+		 	drugRulesRelation.setDrugPhysicalActionId(drugPhysicalActionId);
+		 	drugRulesRelation.setType(type);
+			 try {
+				 drugRulesRelationService.save(drugRulesRelation);
+				 result.success("设置成功！");
+			 } catch (Exception e) {
+				 log.error(e.getMessage(),e);
+				 result.error500("操作失败!");
+				 return;
+			 }
+		 });
+		 return result;
+	 }
+
 	/**
 	  * 分页列表查询
 	 * @param drugRulesRelation
@@ -96,41 +109,6 @@ public class DrugRulesRelationController {
 //		}
 //		return result;
 //	}
-	
-	/**
-	  *  设置
-	 * @param drugRulesRelations
-	 * @return
-	 */
-	@AutoLog(value = "药品规则关联表-设置")
-	@ApiOperation(value="药品规则关联表-设置", notes="药品规则关联表-设置")
-	@PutMapping(value = "/edit")
-	public Result<DrugRulesRelation> edit(@RequestBody List<DrugRulesRelation> drugRulesRelations) {
-		Result<DrugRulesRelation> result = new Result<DrugRulesRelation>();
-		drugRulesRelations.forEach(drugRulesRelation -> {
-			Integer optionId = drugRulesRelation.getDrugRulesOptionId();
-			if (id == 1){
-				id = optionId;
-			}
-			List<DrugRulesRelation> list = drugRulesRelationService.ifExist(id);
-			if (list != null && list.size() > 0){
-				int i = drugRulesRelationService.delete(id);
-				drugRulesRelationService.save(drugRulesRelation);
-				id = 0;
-			} else {
-				id = 0;
-				try {
-					drugRulesRelationService.save(drugRulesRelation);
-					result.success("设置成功！");
-				} catch (Exception e) {
-					log.error(e.getMessage(),e);
-					result.error500("操作失败!");
-				}
-			}
-		});
-		id = 1;
-		return result;
-	}
 	
 	/**
 	  *   通过id删除
