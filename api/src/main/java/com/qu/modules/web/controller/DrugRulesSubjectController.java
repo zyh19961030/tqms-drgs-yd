@@ -112,9 +112,7 @@ public class DrugRulesSubjectController {
 			 List<DrugRulesSubject> drugRulesSubjects = drugRulesSubjectService.querySubjectByInput(name);
 			 if (drugRulesSubjects != null && drugRulesSubjects.size() > 0){
 				 drugRulesSubjects.forEach(drugRulesSubject -> {
-					 SearchResultVo searchResultVo = new SearchResultVo();
 					 Integer drugRulesQuestionId = drugRulesSubject.getDrugRulesQuestionId();
-					 DrugRulesQuestion drugRulesQuestion = drugRulesQuestionService.queryQuestionsById(drugRulesQuestionId);
 					 list0.add(drugRulesQuestionId);
 				 });
 				 HashSet hashSet = new HashSet(list0);

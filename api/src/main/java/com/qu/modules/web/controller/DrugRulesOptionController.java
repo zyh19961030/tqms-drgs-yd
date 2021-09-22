@@ -60,14 +60,11 @@ public class DrugRulesOptionController {
 			 String opName = qoption.getOpName();
 			 List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.queryByOptionId(optionId);
 			 if (subjectIdAndMatchesVo.getMatches().equals(0)){
-				 System.out.println(drugRulesRelationList+"777777777777777777777777");
 				 drugRulesRelationList.forEach(drugRulesRelation -> {
 					 Integer type = drugRulesRelation.getType();
 					 if (type.equals(1)){
 						 Integer medicationPurposeId = drugRulesRelation.getMedicationPurposeId();
 						 List<DrugReceiveHis> drugReceiveHisList = drugReceiveHisService.queryById(medicationPurposeId);
-						 System.out.println(medicationPurposeId+"-------------------------------");
-						 System.out.println(drugReceiveHisList.size()+"==========================================");
 						 drugReceiveHisList.forEach(drugReceiveHis -> {
 							 Integer purposeOrActionId = drugReceiveHis.getPurposeOrActionId();
 							 String purposeOrActionName = drugReceiveHis.getPurposeOrActionName();
@@ -78,8 +75,6 @@ public class DrugRulesOptionController {
 					 } else {
 						 Integer drugPhysicalActionId = drugRulesRelation.getDrugPhysicalActionId();
 						 List<DrugReceiveHis> drugReceiveHisList = drugReceiveHisService.queryById(drugPhysicalActionId);
-						 System.out.println(drugPhysicalActionId+"11111111111111111111111111");
-						 System.out.println(drugReceiveHisList.size()+"333333333333333333333333333333333333");
 						 drugReceiveHisList.forEach(drugReceiveHis -> {
 							 Integer purposeOrActionId = drugReceiveHis.getPurposeOrActionId();
 							 String purposeOrActionName = drugReceiveHis.getPurposeOrActionName();
