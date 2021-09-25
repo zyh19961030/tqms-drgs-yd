@@ -3,8 +3,8 @@ package com.qu.modules.web.controller;
 import java.util.*;
 
 import com.qu.modules.web.entity.DrugRulesQuestion;
+import com.qu.modules.web.param.QuestionAndSubjectParam;
 import com.qu.modules.web.service.IDrugRulesQuestionService;
-import com.qu.modules.web.vo.QuestionAndSubjectVo;
 import com.qu.modules.web.vo.SearchResultVo;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -54,7 +54,7 @@ public class DrugRulesSubjectController {
 	 @AutoLog(value = "药品规则问题表-添加")
 	 @ApiOperation(value="药品规则问题表-添加", notes="药品规则问题表-添加")
 	 @PostMapping(value = "/add")
-	 public Result<DrugRulesSubject> add(QuestionAndSubjectVo questionAndSubjectVo) {
+	 public Result<DrugRulesSubject> add(QuestionAndSubjectParam questionAndSubjectVo) {
 		 Result<DrugRulesSubject> result = new Result<DrugRulesSubject>();
 		 DrugRulesQuestion drugRulesQuestion = questionAndSubjectVo.getDrugRulesQuestion();
 		 DrugRulesSubject drugRulesSubject = questionAndSubjectVo.getDrugRulesSubject();

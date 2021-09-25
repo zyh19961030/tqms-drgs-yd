@@ -2,7 +2,7 @@ package com.qu.modules.web.controller;
 
 import java.util.List;
 
-import com.qu.modules.web.vo.DrugRulesRelationsListVo;
+import com.qu.modules.web.param.DrugRulesRelationsListParam;
 import com.qu.modules.web.vo.PurposeAndActionVo;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -37,7 +37,7 @@ public class DrugRulesRelationController {
 	 @AutoLog(value = "药品规则关联表-设置")
 	 @ApiOperation(value="药品规则关联表-设置", notes="药品规则关联表-设置")
 	 @PutMapping(value = "/edit")
-	 public Result<DrugRulesRelation> edit(@RequestBody DrugRulesRelationsListVo drugRulesRelations) {
+	 public Result<DrugRulesRelation> edit(DrugRulesRelationsListParam drugRulesRelations) {
 		 Result<DrugRulesRelation> result = new Result<DrugRulesRelation>();
 		 Integer id = drugRulesRelations.getOptionId();
 		 List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.ifExist(id);

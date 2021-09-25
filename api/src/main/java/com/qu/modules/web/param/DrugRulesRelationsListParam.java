@@ -1,10 +1,11 @@
-package com.qu.modules.web.vo;
+package com.qu.modules.web.param;
 
+import com.qu.modules.web.vo.PurposeAndActionVo;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
 
-public class DrugRulesRelationsListVo {
+public class DrugRulesRelationsListParam {
     @ApiModelProperty(value = "答案id")
     private Integer optionId;
 

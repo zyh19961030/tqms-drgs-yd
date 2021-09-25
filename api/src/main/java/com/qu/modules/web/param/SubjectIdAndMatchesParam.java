@@ -1,8 +1,8 @@
-package com.qu.modules.web.vo;
+package com.qu.modules.web.param;
 
 import io.swagger.annotations.ApiModelProperty;
 
-public class SubjectIdAndMatchesVo {
+public class SubjectIdAndMatchesParam {
     @ApiModelProperty(value = "答案id")
     private Integer subjectId;
 

@@ -5,11 +5,11 @@ import java.util.*;
 import com.qu.modules.web.entity.DrugReceiveHis;
 import com.qu.modules.web.entity.DrugRulesRelation;
 import com.qu.modules.web.entity.Qoption;
+import com.qu.modules.web.param.SubjectIdAndMatchesParam;
 import com.qu.modules.web.service.IDrugReceiveHisService;
 import com.qu.modules.web.service.IDrugRulesRelationService;
 import com.qu.modules.web.service.IOptionService;
 import com.qu.modules.web.vo.DrugRulesOptionListVo;
-import com.qu.modules.web.vo.SubjectIdAndMatchesVo;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import com.qu.modules.web.entity.DrugRulesOption;
 import com.qu.modules.web.service.IDrugRulesOptionService;
@@ -42,15 +42,15 @@ public class DrugRulesOptionController {
 
 	 /**
 	  * 根据选择问题的id获取答案
-	  * @param subjectIdAndMatchesVo
+	  * @param subjectIdAndMatchesParam
 	  * @return
 	  */
 	 @AutoLog(value = "药品规则答案表-根据选择问题的id获取答案")
 	 @ApiOperation(value="药品规则答案表-根据选择问题的id获取答案", notes="药品规则答案表-根据选择问题的id获取答案")
 	 @GetMapping(value = "/queryOption")
-	 public List<DrugRulesOptionListVo> queryOption(SubjectIdAndMatchesVo subjectIdAndMatchesVo) {
+	 public List<DrugRulesOptionListVo> queryOption(SubjectIdAndMatchesParam subjectIdAndMatchesParam) {
 		 List<DrugRulesOptionListVo> drugRulesOptionListVoList = new ArrayList<>();
-		 List<DrugRulesOption> drugRulesOptions = drugRulesOptionService.queryOption(subjectIdAndMatchesVo.getSubjectId());
+		 List<DrugRulesOption> drugRulesOptions = drugRulesOptionService.queryOption(subjectIdAndMatchesParam.getSubjectId());
 		 drugRulesOptions.forEach(drugRulesOption -> {
 			 DrugRulesOptionListVo DrugRulesOptionListVo = new DrugRulesOptionListVo();
 			 List<String> his = new ArrayList<>();
@@ -58,8 +58,8 @@ public class DrugRulesOptionController {
 			 Integer optionId = drugRulesOption.getOptionId();
 			 Qoption qoption = optionService.getById(optionId);
 			 String opName = qoption.getOpName();
-			 List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.queryByOptionId(optionId);
-			 if (subjectIdAndMatchesVo.getMatches().equals(0)){
+			 if (subjectIdAndMatchesParam.getMatches().equals(0)){
+				 List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.queryByOptionId(optionId);
 				 drugRulesRelationList.forEach(drugRulesRelation -> {
 					 Integer type = drugRulesRelation.getType();
 					 if (type.equals(1)){

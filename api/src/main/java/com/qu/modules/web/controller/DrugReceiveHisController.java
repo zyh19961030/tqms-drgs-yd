@@ -2,7 +2,7 @@ package com.qu.modules.web.controller;
 
 import java.util.*;
 
-import com.qu.modules.web.vo.NameAndTypeVo;
+import com.qu.modules.web.param.NameAndTypeParam;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import com.qu.modules.web.entity.DrugReceiveHis;
 import com.qu.modules.web.service.IDrugReceiveHisService;
@@ -35,7 +35,7 @@ public class DrugReceiveHisController {
 	 @AutoLog(value = "药品规则接收his数据表-通过name搜索")
 	 @ApiOperation(value="药品规则接收his数据表-通过name搜索", notes="药品规则接收his数据表-通过name搜索")
 	 @GetMapping(value = "/queryHis")
-	 public List<DrugReceiveHis> queryHis(NameAndTypeVo nameAndTypeVo) {
+	 public List<DrugReceiveHis> queryHis(NameAndTypeParam nameAndTypeVo) {
 	 	List<DrugReceiveHis> list = new ArrayList<>();
 		 if (nameAndTypeVo.getType() == 1){
 			 list = drugReceiveHisService.queryPurposeByInput(nameAndTypeVo.getName());
