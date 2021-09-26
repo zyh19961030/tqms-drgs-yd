@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -26,10 +27,16 @@ public class DrugRulesQuestionServiceImpl extends ServiceImpl<DrugRulesQuestionM
     DrugRulesQuestionMapper drugRulesQuestionMapper;
 
     @Override
-    public List<DrugRulesQuestion> queryQuestion() {
-        LambdaQueryWrapper<DrugRulesQuestion> lambda = new QueryWrapper<DrugRulesQuestion>().lambda();
-        lambda.eq(DrugRulesQuestion::getDel, 0);
-        List<DrugRulesQuestion> list = this.list(lambda);
+    public List<DrugRulesQuestion> queryQuestion(String name) {
+        List<DrugRulesQuestion> list = new ArrayList<>();
+        if (name.equals(null)){
+            LambdaQueryWrapper<DrugRulesQuestion> lambda = new QueryWrapper<DrugRulesQuestion>().lambda();
+            lambda.eq(DrugRulesQuestion::getDel, 0);
+            list = this.list(lambda);
+        } else {
+            list = drugRulesQuestionMapper.queryQuestionByInput(name);
+        }
+
         return list;
     }
 
@@ -60,11 +67,5 @@ public class DrugRulesQuestionServiceImpl extends ServiceImpl<DrugRulesQuestionM
     public DrugRulesQuestion queryQuestionsById(Integer id) {
         DrugRulesQuestion drugRulesQuestion = drugRulesQuestionMapper.queryQuestionById(id);
         return drugRulesQuestion;
-    }
-
-    @Override
-    public List<DrugRulesQuestion> queryQuestionByInput(String name) {
-        List<DrugRulesQuestion> list = drugRulesQuestionMapper.queryQuestionByInput(name);
-        return list;
     }
 }

@@ -16,7 +16,7 @@ import java.util.List;
 public interface IDrugRulesQuestionService extends IService<DrugRulesQuestion> {
 
     //展示药品规则问卷
-    List<DrugRulesQuestion> queryQuestion();
+    List<DrugRulesQuestion> queryQuestion(String name);
 
     //通过id查询问卷是否删除
     List<DrugRulesQuestion> queryQuestionIfDelById(Integer id);
@@ -29,7 +29,4 @@ public interface IDrugRulesQuestionService extends IService<DrugRulesQuestion> {
 
     //查询问题所属的问卷
     DrugRulesQuestion queryQuestionsById(Integer id);
-
-    //根据输入内容搜索药品规则问卷
-    List<DrugRulesQuestion> queryQuestionByInput(String name);
 }
