@@ -54,7 +54,7 @@ public class DrugRulesQuestionController {
 	  */
 	 @AutoLog(value = "药品规则问卷表-添加界面根据输入内容搜索药品规则问卷")
 	 @ApiOperation(value="药品规则问卷表-添加界面根据输入内容搜索药品规则问卷", notes="药品规则问卷表-添加界面根据输入内容搜索药品规则问卷")
-	 @DeleteMapping(value = "/queryQuestionByInput")
+	 @GetMapping(value = "/queryQuestionByInput")
 	 public List<DrugRulesQuestion> queryQuestionByInput(@RequestParam(name="name",required=false) String name) {
 		 List<DrugRulesQuestion> list = drugRulesQuestionService.queryQuestion(name);
 		 return list;
