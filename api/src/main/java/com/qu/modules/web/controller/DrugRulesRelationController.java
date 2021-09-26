@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
- /**
+/**
  * @Description: 药品规则关联表
  * @Author: jeecg-boot
  * @Date:   2021-09-10
@@ -24,50 +24,50 @@ import io.swagger.annotations.ApiOperation;
 @Slf4j
 @Api(tags="药品规则关联表")
 @RestController
-@RequestMapping("/business/drugRulesRelation")
+@RequestMapping("/business/web/drugRulesRelation")
 public class DrugRulesRelationController {
 	@Autowired
 	private IDrugRulesRelationService drugRulesRelationService;
 
-	 /**
-	  *  设置
-	  * @param drugRulesRelations
-	  * @return
-	  */
-	 @AutoLog(value = "药品规则关联表-设置")
-	 @ApiOperation(value="药品规则关联表-设置", notes="药品规则关联表-设置")
-	 @PutMapping(value = "/edit")
-	 public Result<DrugRulesRelation> edit(DrugRulesRelationsListParam drugRulesRelations) {
-		 Result<DrugRulesRelation> result = new Result<DrugRulesRelation>();
-		 Integer id = drugRulesRelations.getOptionId();
-		 List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.ifExist(id);
-		 if (drugRulesRelationList != null && drugRulesRelationList.size() > 0){
-			 drugRulesRelationService.delete(id);
-		 }
-		 DrugRulesRelation drugRulesRelation = new DrugRulesRelation();
-		 List<PurposeAndActionVo> purposeAndActionVos = drugRulesRelations.getPurposeAndActionVos();
-		 int type = drugRulesRelations.getType();
-		 purposeAndActionVos.forEach(purposeAndActionVo -> {
+	/**
+	 *  设置
+	 * @param drugRulesRelations
+	 * @return
+	 */
+	@AutoLog(value = "药品规则关联表-设置")
+	@ApiOperation(value="药品规则关联表-设置", notes="药品规则关联表-设置")
+	@PutMapping(value = "/edit")
+	public Result<DrugRulesRelation> edit(DrugRulesRelationsListParam drugRulesRelations) {
+		Result<DrugRulesRelation> result = new Result<DrugRulesRelation>();
+		Integer id = drugRulesRelations.getOptionId();
+		List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.ifExist(id);
+		if (drugRulesRelationList != null && drugRulesRelationList.size() > 0){
+			drugRulesRelationService.delete(id);
+		}
+		DrugRulesRelation drugRulesRelation = new DrugRulesRelation();
+		List<PurposeAndActionVo> purposeAndActionVos = drugRulesRelations.getPurposeAndActionVos();
+		int type = drugRulesRelations.getType();
+		purposeAndActionVos.forEach(purposeAndActionVo -> {
 			Integer medicationPurposeId = purposeAndActionVo.getMedicationPurposeId();
 			Integer drugPhysicalActionId = purposeAndActionVo.getDrugPhysicalActionId();
 			drugRulesRelation.setDrugRulesOptionId(id);
 			drugRulesRelation.setMedicationPurposeId(medicationPurposeId);
-		 	drugRulesRelation.setDrugPhysicalActionId(drugPhysicalActionId);
-		 	drugRulesRelation.setType(type);
-			 try {
-				 drugRulesRelationService.save(drugRulesRelation);
-				 result.success("设置成功！");
-			 } catch (Exception e) {
-				 log.error(e.getMessage(),e);
-				 result.error500("操作失败!");
-				 return;
-			 }
-		 });
-		 return result;
-	 }
+			drugRulesRelation.setDrugPhysicalActionId(drugPhysicalActionId);
+			drugRulesRelation.setType(type);
+			try {
+				drugRulesRelationService.save(drugRulesRelation);
+				result.success("设置成功！");
+			} catch (Exception e) {
+				log.error(e.getMessage(),e);
+				result.error500("操作失败!");
+				return;
+			}
+		});
+		return result;
+	}
 
 	/**
-	  * 分页列表查询
+	 * 分页列表查询
 	 * @param drugRulesRelation
 	 * @param pageNo
 	 * @param pageSize
@@ -89,9 +89,9 @@ public class DrugRulesRelationController {
 //		result.setResult(pageList);
 //		return result;
 //	}
-	
+
 	/**
-	  *   添加
+	 *   添加
 	 * @param drugRulesRelation
 	 * @return
 	 */
@@ -109,9 +109,9 @@ public class DrugRulesRelationController {
 //		}
 //		return result;
 //	}
-	
+
 	/**
-	  *   通过id删除
+	 *   通过id删除
 	 * @param id
 	 * @return
 	 */
@@ -132,9 +132,9 @@ public class DrugRulesRelationController {
 //
 //		return result;
 //	}
-	
+
 	/**
-	  *  批量删除
+	 *  批量删除
 	 * @param ids
 	 * @return
 	 */
@@ -151,9 +151,9 @@ public class DrugRulesRelationController {
 //		}
 //		return result;
 //	}
-	
+
 	/**
-	  * 通过id查询
+	 * 通过id查询
 	 * @param id
 	 * @return
 	 */
@@ -172,12 +172,12 @@ public class DrugRulesRelationController {
 //		return result;
 //	}
 
-  /**
-      * 导出excel
-   *
-   * @param request
-   * @param response
-   */
+	/**
+	 * 导出excel
+	 *
+	 * @param request
+	 * @param response
+	 */
 //  @RequestMapping(value = "/exportXls")
 //  public ModelAndView exportXls(HttpServletRequest request, HttpServletResponse response) {
 //      // Step.1 组装查询条件
@@ -204,13 +204,13 @@ public class DrugRulesRelationController {
 //      return mv;
 //  }
 
-  /**
-      * 通过excel导入数据
-   *
-   * @param request
-   * @param response
-   * @return
-   */
+	/**
+	 * 通过excel导入数据
+	 *
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 //  @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
 //  public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
 //      MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;

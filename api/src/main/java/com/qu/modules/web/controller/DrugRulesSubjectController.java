@@ -26,7 +26,7 @@ import io.swagger.annotations.ApiOperation;
 @Slf4j
 @Api(tags="药品规则问题表")
 @RestController
-@RequestMapping("/business/drugRulesSubject")
+@RequestMapping("/business/web/drugRulesSubject")
 public class DrugRulesSubjectController {
 	@Autowired
 	private IDrugRulesSubjectService drugRulesSubjectService;
@@ -128,7 +128,7 @@ public class DrugRulesSubjectController {
 				 });
 			 }
 		 } else {
-			 List<DrugRulesQuestion> drugRulesQuestions = drugRulesQuestionService.queryQuestion();
+			 List<DrugRulesQuestion> drugRulesQuestions = drugRulesQuestionService.queryQuestion(name);
 			 drugRulesQuestions.forEach(drugRulesQuestion -> {
 				 SearchResultVo searchResultVo = new SearchResultVo();
 				 searchResultVo.setDrugRulesQuestion(drugRulesQuestion);

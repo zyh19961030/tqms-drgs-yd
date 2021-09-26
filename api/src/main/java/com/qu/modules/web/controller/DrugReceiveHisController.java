@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
- /**
+/**
  * @Description: 药品规则接收his数据表
  * @Author: jeecg-boot
  * @Date:   2021-09-10
@@ -22,34 +22,34 @@ import io.swagger.annotations.ApiOperation;
 @Slf4j
 @Api(tags="药品规则接收his数据表")
 @RestController
-@RequestMapping("/business/drugReceiveHis")
+@RequestMapping("/business/web/drugReceiveHis")
 public class DrugReceiveHisController {
 	@Autowired
 	private IDrugReceiveHisService drugReceiveHisService;
 
-	 /**
-	  * 通过name搜索
-	  * @param nameAndTypeVo
-	  * @return
-	  */
-	 @AutoLog(value = "药品规则接收his数据表-通过name搜索")
-	 @ApiOperation(value="药品规则接收his数据表-通过name搜索", notes="药品规则接收his数据表-通过name搜索")
-	 @GetMapping(value = "/queryHis")
-	 public List<DrugReceiveHis> queryHis(NameAndTypeParam nameAndTypeVo) {
-	 	List<DrugReceiveHis> list = new ArrayList<>();
-		 if (nameAndTypeVo.getType() == 1){
-			 list = drugReceiveHisService.queryPurposeByInput(nameAndTypeVo.getName());
-		 } else {
-			 list = drugReceiveHisService.queryActionByInput(nameAndTypeVo.getName());
-		 }
-		 return list;
-	 }
+	/**
+	 * 通过name搜索
+	 * @param nameAndTypeVo
+	 * @return
+	 */
+	@AutoLog(value = "药品规则接收his数据表-通过name搜索")
+	@ApiOperation(value="药品规则接收his数据表-通过name搜索", notes="药品规则接收his数据表-通过name搜索")
+	@GetMapping(value = "/queryHis")
+	public List<DrugReceiveHis> queryHis(NameAndTypeParam nameAndTypeVo) {
+		List<DrugReceiveHis> list = new ArrayList<>();
+		if (nameAndTypeVo.getType() == 1){
+			list = drugReceiveHisService.queryPurposeByInput(nameAndTypeVo.getName());
+		} else {
+			list = drugReceiveHisService.queryActionByInput(nameAndTypeVo.getName());
+		}
+		return list;
+	}
 
-	 /**
-	  //	  * 通过pid查询
-	  //	  * @param pid
-	  //	  * @return
-	  //	  */
+	/**
+	 //	  * 通过pid查询
+	 //	  * @param pid
+	 //	  * @return
+	 //	  */
 //	 @AutoLog(value = "药品规则接收his数据表-通过pid查询")
 //	 @ApiOperation(value="药品规则接收his数据表-通过pid查询", notes="药品规则接收his数据表-通过pid查询")
 //	 @GetMapping(value = "/queryByPid")
@@ -59,7 +59,7 @@ public class DrugReceiveHisController {
 //	 }
 
 	/**
-	  * 分页列表查询
+	 * 分页列表查询
 	 * @param drugReceiveHis
 	 * @param pageNo
 	 * @param pageSize
@@ -81,7 +81,7 @@ public class DrugReceiveHisController {
 //		result.setResult(pageList);
 //		return result;
 //	}
-	
+
 	/**
 	 * 添加
 	 * @param drugReceiveHis
@@ -101,9 +101,9 @@ public class DrugReceiveHisController {
 //		}
 //		return result;
 //	}
-	
+
 	/**
-	  *  编辑
+	 *  编辑
 	 * @param drugReceiveHis
 	 * @return
 	 */
@@ -125,9 +125,9 @@ public class DrugReceiveHisController {
 //
 //		return result;
 //	}
-	
+
 	/**
-	  *   通过id删除
+	 *   通过id删除
 	 * @param id
 	 * @return
 	 */
@@ -148,9 +148,9 @@ public class DrugReceiveHisController {
 //
 //		return result;
 //	}
-	
+
 	/**
-	  *  批量删除
+	 *  批量删除
 	 * @param ids
 	 * @return
 	 */
@@ -168,12 +168,12 @@ public class DrugReceiveHisController {
 //		return result;
 //	}
 
-  /**
-      * 导出excel
-   *
-   * @param request
-   * @param response
-   */
+	/**
+	 * 导出excel
+	 *
+	 * @param request
+	 * @param response
+	 */
 //  @RequestMapping(value = "/exportXls")
 //  public ModelAndView exportXls(HttpServletRequest request, HttpServletResponse response) {
 //      // Step.1 组装查询条件
@@ -200,13 +200,13 @@ public class DrugReceiveHisController {
 //      return mv;
 //  }
 
-  /**
-      * 通过excel导入数据
-   *
-   * @param request
-   * @param response
-   * @return
-   */
+	/**
+	 * 通过excel导入数据
+	 *
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 //  @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
 //  public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
 //      MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;

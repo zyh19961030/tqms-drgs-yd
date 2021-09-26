@@ -1,26 +1,29 @@
 package com.qu.modules.web.controller;
 
-import java.util.*;
-
 import com.qu.modules.web.entity.DrugReceiveHis;
+import com.qu.modules.web.entity.DrugRulesOption;
 import com.qu.modules.web.entity.DrugRulesRelation;
 import com.qu.modules.web.entity.Qoption;
 import com.qu.modules.web.param.SubjectIdAndMatchesParam;
 import com.qu.modules.web.service.IDrugReceiveHisService;
+import com.qu.modules.web.service.IDrugRulesOptionService;
 import com.qu.modules.web.service.IDrugRulesRelationService;
 import com.qu.modules.web.service.IOptionService;
 import com.qu.modules.web.vo.DrugRulesOptionListVo;
-import org.jeecg.common.aspect.annotation.AutoLog;
-import com.qu.modules.web.entity.DrugRulesOption;
-import com.qu.modules.web.service.IDrugRulesOptionService;
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.jeecg.common.aspect.annotation.AutoLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
- /**
+import java.util.*;
+
+
+
+/**
  * @Description: 药品规则答案表
  * @Author: jeecg-boot
  * @Date:   2021-09-12
@@ -29,7 +32,7 @@ import io.swagger.annotations.ApiOperation;
 @Slf4j
 @Api(tags="药品规则答案表")
 @RestController
-@RequestMapping("/business/drugRulesOption")
+@RequestMapping("/business/web/drugRulesOption")
 public class DrugRulesOptionController {
 	@Autowired
 	private IDrugRulesOptionService drugRulesOptionService;
@@ -40,62 +43,62 @@ public class DrugRulesOptionController {
 	@Autowired
 	private IDrugReceiveHisService drugReceiveHisService;
 
-	 /**
-	  * 根据选择问题的id获取答案
-	  * @param subjectIdAndMatchesParam
-	  * @return
-	  */
-	 @AutoLog(value = "药品规则答案表-根据选择问题的id获取答案")
-	 @ApiOperation(value="药品规则答案表-根据选择问题的id获取答案", notes="药品规则答案表-根据选择问题的id获取答案")
-	 @GetMapping(value = "/queryOption")
-	 public List<DrugRulesOptionListVo> queryOption(SubjectIdAndMatchesParam subjectIdAndMatchesParam) {
-		 List<DrugRulesOptionListVo> drugRulesOptionListVoList = new ArrayList<>();
-		 List<DrugRulesOption> drugRulesOptions = drugRulesOptionService.queryOption(subjectIdAndMatchesParam.getSubjectId());
-		 drugRulesOptions.forEach(drugRulesOption -> {
-			 DrugRulesOptionListVo DrugRulesOptionListVo = new DrugRulesOptionListVo();
-			 List<String> his = new ArrayList<>();
-			 Integer id = drugRulesOption.getId();
-			 Integer optionId = drugRulesOption.getOptionId();
-			 Qoption qoption = optionService.getById(optionId);
-			 String opName = qoption.getOpName();
-			 if (subjectIdAndMatchesParam.getMatches().equals(0)){
-				 List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.queryByOptionId(optionId);
-				 drugRulesRelationList.forEach(drugRulesRelation -> {
-					 Integer type = drugRulesRelation.getType();
-					 if (type.equals(1)){
-						 Integer medicationPurposeId = drugRulesRelation.getMedicationPurposeId();
-						 List<DrugReceiveHis> drugReceiveHisList = drugReceiveHisService.queryById(medicationPurposeId);
-						 drugReceiveHisList.forEach(drugReceiveHis -> {
-							 Integer purposeOrActionId = drugReceiveHis.getPurposeOrActionId();
-							 String purposeOrActionName = drugReceiveHis.getPurposeOrActionName();
-							 String name = purposeOrActionId.toString() + purposeOrActionName;
+	/**
+	 * 根据选择问题的id获取答案
+	 * @param subjectIdAndMatchesParam
+	 * @return
+	 */
+	@AutoLog(value = "药品规则答案表-根据选择问题的id获取答案")
+	@ApiOperation(value="药品规则答案表-根据选择问题的id获取答案", notes="药品规则答案表-根据选择问题的id获取答案")
+	@GetMapping(value = "/queryOption")
+	public List<DrugRulesOptionListVo> queryOption(SubjectIdAndMatchesParam subjectIdAndMatchesParam) {
+		List<DrugRulesOptionListVo> drugRulesOptionListVoList = new ArrayList<>();
+		List<DrugRulesOption> drugRulesOptions = drugRulesOptionService.queryOption(subjectIdAndMatchesParam.getSubjectId());
+		drugRulesOptions.forEach(drugRulesOption -> {
+			DrugRulesOptionListVo DrugRulesOptionListVo = new DrugRulesOptionListVo();
+			List<String> his = new ArrayList<>();
+			Integer id = drugRulesOption.getId();
+			Integer optionId = drugRulesOption.getOptionId();
+			Qoption qoption = optionService.getById(optionId);
+			String opName = qoption.getOpName();
+			if (subjectIdAndMatchesParam.getMatches().equals(0)){
+				List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.queryByOptionId(optionId);
+				drugRulesRelationList.forEach(drugRulesRelation -> {
+					Integer type = drugRulesRelation.getType();
+					if (type.equals(1)){
+						Integer medicationPurposeId = drugRulesRelation.getMedicationPurposeId();
+						List<DrugReceiveHis> drugReceiveHisList = drugReceiveHisService.queryById(medicationPurposeId);
+						drugReceiveHisList.forEach(drugReceiveHis -> {
+							Integer purposeOrActionId = drugReceiveHis.getPurposeOrActionId();
+							String purposeOrActionName = drugReceiveHis.getPurposeOrActionName();
+							String name = purposeOrActionId.toString() + purposeOrActionName;
 
-							 his.add(name);
-						 });
-					 } else {
-						 Integer drugPhysicalActionId = drugRulesRelation.getDrugPhysicalActionId();
-						 List<DrugReceiveHis> drugReceiveHisList = drugReceiveHisService.queryById(drugPhysicalActionId);
-						 drugReceiveHisList.forEach(drugReceiveHis -> {
-							 Integer purposeOrActionId = drugReceiveHis.getPurposeOrActionId();
-							 String purposeOrActionName = drugReceiveHis.getPurposeOrActionName();
-							 String name = purposeOrActionId.toString() + purposeOrActionName;
-							 his.add(name);
-						 });
-					 }
-				 });
-			 } else {
-				 his.add(null);
-			 }
-			 DrugRulesOptionListVo.setId(id);
-			 DrugRulesOptionListVo.setName(opName);
-			 DrugRulesOptionListVo.setHis(his);
-			 drugRulesOptionListVoList.add(DrugRulesOptionListVo);
-		 });
-		 return drugRulesOptionListVoList;
-	 }
+							his.add(name);
+						});
+					} else {
+						Integer drugPhysicalActionId = drugRulesRelation.getDrugPhysicalActionId();
+						List<DrugReceiveHis> drugReceiveHisList = drugReceiveHisService.queryById(drugPhysicalActionId);
+						drugReceiveHisList.forEach(drugReceiveHis -> {
+							Integer purposeOrActionId = drugReceiveHis.getPurposeOrActionId();
+							String purposeOrActionName = drugReceiveHis.getPurposeOrActionName();
+							String name = purposeOrActionId.toString() + purposeOrActionName;
+							his.add(name);
+						});
+					}
+				});
+			} else {
+				his.add(null);
+			}
+			DrugRulesOptionListVo.setId(id);
+			DrugRulesOptionListVo.setName(opName);
+			DrugRulesOptionListVo.setHis(his);
+			drugRulesOptionListVoList.add(DrugRulesOptionListVo);
+		});
+		return drugRulesOptionListVoList;
+	}
 
 	/**
-	  * 分页列表查询
+	 * 分页列表查询
 	 * @param drugRulesOption
 	 * @param pageNo
 	 * @param pageSize
@@ -117,9 +120,9 @@ public class DrugRulesOptionController {
 //		result.setResult(pageList);
 //		return result;
 //	}
-	
+
 	/**
-	  *   添加
+	 *   添加
 	 * @param drugRulesOption
 	 * @return
 	 */
@@ -137,9 +140,9 @@ public class DrugRulesOptionController {
 //		}
 //		return result;
 //	}
-	
+
 	/**
-	  *  编辑
+	 *  编辑
 	 * @param drugRulesOption
 	 * @return
 	 */
@@ -161,7 +164,7 @@ public class DrugRulesOptionController {
 //
 //		return result;
 //	}
-	
+
 //	/**
 //	  *   通过id删除
 //	 * @param id
@@ -184,9 +187,9 @@ public class DrugRulesOptionController {
 //
 //		return result;
 //	}
-	
+
 	/**
-	  *  批量删除
+	 *  批量删除
 	 * @param ids
 	 * @return
 	 */
@@ -203,9 +206,9 @@ public class DrugRulesOptionController {
 //		}
 //		return result;
 //	}
-	
+
 	/**
-	  * 通过id查询
+	 * 通过id查询
 	 * @param id
 	 * @return
 	 */
@@ -224,12 +227,12 @@ public class DrugRulesOptionController {
 //		return result;
 //	}
 
-  /**
-      * 导出excel
-   *
-   * @param request
-   * @param response
-   */
+	/**
+	 * 导出excel
+	 *
+	 * @param request
+	 * @param response
+	 */
 //  @RequestMapping(value = "/exportXls")
 //  public ModelAndView exportXls(HttpServletRequest request, HttpServletResponse response) {
 //      // Step.1 组装查询条件
@@ -256,13 +259,13 @@ public class DrugRulesOptionController {
 //      return mv;
 //  }
 
-  /**
-      * 通过excel导入数据
-   *
-   * @param request
-   * @param response
-   * @return
-   */
+	/**
+	 * 通过excel导入数据
+	 *
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 //  @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
 //  public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
 //      MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
