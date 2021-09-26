@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiOperation;
 @Slf4j
 @Api(tags="药品规则问卷表")
 @RestController
-@RequestMapping("/web/drugRulesQuestion")
+@RequestMapping("/business/drugRulesQuestion")
 public class DrugRulesQuestionController {
 	@Autowired
 	private IDrugRulesQuestionService drugRulesQuestionService;
@@ -45,6 +45,19 @@ public class DrugRulesQuestionController {
 		 	 result.success("删除成功!");
 			 }
 		 return result;
+	 }
+
+	 /**
+	  *   根据输入内容搜索药品规则问卷
+	  * @param name
+	  * @return
+	  */
+	 @AutoLog(value = "药品规则问卷表-添加界面根据输入内容搜索药品规则问卷")
+	 @ApiOperation(value="药品规则问卷表-添加界面根据输入内容搜索药品规则问卷", notes="药品规则问卷表-添加界面根据输入内容搜索药品规则问卷")
+	 @DeleteMapping(value = "/queryQuestionByInput")
+	 public List<DrugRulesQuestion> queryQuestionByInput(@RequestParam(name="name",required=true) String name) {
+		 List<DrugRulesQuestion> list = drugRulesQuestionService.queryQuestionByInput(name);
+		 return list;
 	 }
 
 	/**

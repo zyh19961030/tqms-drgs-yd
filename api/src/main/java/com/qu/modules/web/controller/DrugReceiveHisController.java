@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiOperation;
 @Slf4j
 @Api(tags="药品规则接收his数据表")
 @RestController
-@RequestMapping("/web/drugReceiveHis")
+@RequestMapping("/business/drugReceiveHis")
 public class DrugReceiveHisController {
 	@Autowired
 	private IDrugReceiveHisService drugReceiveHisService;

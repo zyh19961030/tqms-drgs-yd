@@ -61,4 +61,10 @@ public class DrugRulesQuestionServiceImpl extends ServiceImpl<DrugRulesQuestionM
         DrugRulesQuestion drugRulesQuestion = drugRulesQuestionMapper.queryQuestionById(id);
         return drugRulesQuestion;
     }
+
+    @Override
+    public List<DrugRulesQuestion> queryQuestionByInput(String name) {
+        List<DrugRulesQuestion> list = drugRulesQuestionMapper.queryQuestionByInput(name);
+        return list;
+    }
 }

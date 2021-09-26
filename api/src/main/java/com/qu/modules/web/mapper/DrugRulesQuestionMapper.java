@@ -24,4 +24,7 @@ public interface DrugRulesQuestionMapper extends BaseMapper<DrugRulesQuestion> {
     //通过id查询问卷是否存在
     DrugRulesQuestion queryQuestionIfExistById(Integer id);
 
+    //根据输入内容搜索药品规则问卷
+    List<DrugRulesQuestion> queryQuestionByInput(String name);
+
 }

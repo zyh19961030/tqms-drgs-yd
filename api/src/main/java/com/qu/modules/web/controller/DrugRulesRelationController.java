@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiOperation;
 @Slf4j
 @Api(tags="药品规则关联表")
 @RestController
-@RequestMapping("/web/drugRulesRelation")
+@RequestMapping("/business/drugRulesRelation")
 public class DrugRulesRelationController {
 	@Autowired
 	private IDrugRulesRelationService drugRulesRelationService;

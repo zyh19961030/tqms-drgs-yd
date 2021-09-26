@@ -26,7 +26,7 @@ import io.swagger.annotations.ApiOperation;
 @Slf4j
 @Api(tags="药品规则问题表")
 @RestController
-@RequestMapping("/web/drugRulesSubject")
+@RequestMapping("/business/drugRulesSubject")
 public class DrugRulesSubjectController {
 	@Autowired
 	private IDrugRulesSubjectService drugRulesSubjectService;
@@ -135,6 +135,19 @@ public class DrugRulesSubjectController {
 				 list.add(searchResultVo);
 			 });
 		 }
+		 return list;
+	 }
+
+	 /**
+	  *   添加界面根据输入内容搜索药品规则问题
+	  * @param name
+	  * @return
+	  */
+	 @AutoLog(value = "药品规则问题表-添加界面根据输入内容搜索药品规则问题")
+	 @ApiOperation(value="药品规则问题表-添加界面根据输入内容搜索药品规则问题", notes="药品规则问题表-添加界面根据输入内容搜索药品规则问题")
+	 @DeleteMapping(value = "/querySubjectByInput")
+	 public List<DrugRulesSubject> querySubjectByInput(@RequestParam(name="name",required=true) String name) {
+		 List<DrugRulesSubject> list = drugRulesSubjectService.querySubjectByInput(name);
 		 return list;
 	 }
 

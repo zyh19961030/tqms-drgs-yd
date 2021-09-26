@@ -29,7 +29,7 @@ import io.swagger.annotations.ApiOperation;
 @Slf4j
 @Api(tags="药品规则答案表")
 @RestController
-@RequestMapping("/web/drugRulesOption")
+@RequestMapping("/business/drugRulesOption")
 public class DrugRulesOptionController {
 	@Autowired
 	private IDrugRulesOptionService drugRulesOptionService;
