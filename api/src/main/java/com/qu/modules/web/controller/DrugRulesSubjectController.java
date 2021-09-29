@@ -53,7 +53,7 @@ public class DrugRulesSubjectController {
 	  */
 	 @AutoLog(value = "药品规则问题表-添加")
 	 @ApiOperation(value="药品规则问题表-添加", notes="药品规则问题表-添加")
-	 @GetMapping(value = "/add")
+	 @PostMapping(value = "/add")
 	 public Result<DrugRulesSubject> add(QuestionAndSubjectParam questionAndSubjectParam) {
 		 Result<DrugRulesSubject> result = new Result<DrugRulesSubject>();
 		 DrugRulesQuestion drugRulesQuestion = questionAndSubjectParam.getDrugRulesQuestion();
