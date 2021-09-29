@@ -3,8 +3,10 @@ package com.qu.modules.web.controller;
 import java.util.*;
 
 import com.qu.modules.web.entity.DrugRulesQuestion;
+import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.param.QuestionAndSubjectParam;
 import com.qu.modules.web.service.IDrugRulesQuestionService;
+import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.SearchResultVo;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -32,6 +34,8 @@ public class DrugRulesSubjectController {
 	private IDrugRulesSubjectService drugRulesSubjectService;
 	@Autowired
 	private IDrugRulesQuestionService drugRulesQuestionService;
+	@Autowired
+	private ISubjectService subjectService;
 
 	 /**
 	  * 根据问卷id查询答案
@@ -139,6 +143,19 @@ public class DrugRulesSubjectController {
 				 list.add(searchResultVo);
 			 });
 		 }
+		 return list;
+	 }
+
+	 /**
+	  * 根据问卷id查询答案
+	  * @param questionId
+	  * @return
+	  */
+	 @AutoLog(value = "药品规则问题表-添加界面根据问卷id查询答案")
+	 @ApiOperation(value="药品规则问题表-添加界面根据问卷id查询答案", notes="药品规则问题表-添加界面根据问卷id查询答案")
+	 @GetMapping(value = "/querySubjectByQuId")
+	 public List<Qsubject> querySubjectByQuId(@RequestParam(name="questionId",required=true) Integer questionId) {
+		 List<Qsubject> list = subjectService.querySubjectByQuId(questionId);
 		 return list;
 	 }
 

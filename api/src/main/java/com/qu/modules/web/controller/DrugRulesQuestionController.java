@@ -2,6 +2,8 @@ package com.qu.modules.web.controller;
 
 import java.util.*;
 
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.service.IQuestionService;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import com.qu.modules.web.entity.DrugRulesQuestion;
@@ -26,6 +28,8 @@ import io.swagger.annotations.ApiOperation;
 public class DrugRulesQuestionController {
 	@Autowired
 	private IDrugRulesQuestionService drugRulesQuestionService;
+	@Autowired
+	private IQuestionService questionService;
 
 	 /**
 	  *   通过id删除
@@ -52,11 +56,11 @@ public class DrugRulesQuestionController {
 	  * @param name
 	  * @return
 	  */
-	 @AutoLog(value = "药品规则问卷表-添加界面根据输入内容搜索药品规则问卷")
-	 @ApiOperation(value="药品规则问卷表-添加界面根据输入内容搜索药品规则问卷", notes="药品规则问卷表-添加界面根据输入内容搜索药品规则问卷")
+	 @AutoLog(value = "药品规则问卷表-添加界面根据输入内容搜索问卷")
+	 @ApiOperation(value="药品规则问卷表-添加界面根据输入内容搜索问卷", notes="药品规则问卷表-添加界面根据输入内容搜索问卷")
 	 @GetMapping(value = "/queryQuestionByInput")
-	 public List<DrugRulesQuestion> queryQuestionByInput(@RequestParam(name="name",required=false) String name) {
-		 List<DrugRulesQuestion> list = drugRulesQuestionService.queryQuestion(name);
+	 public List<Question> queryQuestionByInput(@RequestParam(name = "name", required = true) String name) {
+		 List<Question> list = questionService.queryQuestionByInput(name);
 		 return list;
 	 }
 
