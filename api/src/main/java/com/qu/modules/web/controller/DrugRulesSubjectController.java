@@ -48,23 +48,27 @@ public class DrugRulesSubjectController {
 
 	 /**
 	  *   添加
-	  * @param questionAndSubjectVo
+	  * @param questionAndSubjectParam
 	  * @return
 	  */
 	 @AutoLog(value = "药品规则问题表-添加")
 	 @ApiOperation(value="药品规则问题表-添加", notes="药品规则问题表-添加")
 	 @PostMapping(value = "/add")
-	 public Result<DrugRulesSubject> add(QuestionAndSubjectParam questionAndSubjectVo) {
+	 public Result<DrugRulesSubject> add(QuestionAndSubjectParam questionAndSubjectParam) {
 		 Result<DrugRulesSubject> result = new Result<DrugRulesSubject>();
-		 DrugRulesQuestion drugRulesQuestion = questionAndSubjectVo.getDrugRulesQuestion();
-		 DrugRulesSubject drugRulesSubject = questionAndSubjectVo.getDrugRulesSubject();
+		 DrugRulesQuestion drugRulesQuestion = questionAndSubjectParam.getDrugRulesQuestion();
+		 DrugRulesSubject drugRulesSubject = questionAndSubjectParam.getDrugRulesSubject();
+		 Date date = new Date();
+		 drugRulesSubject.setCreateTime(date);
+		 drugRulesSubject.setUpdateTime(date);
 		 Integer drugRulesQuestionId = drugRulesSubject.getDrugRulesQuestionId();
 		 List<DrugRulesQuestion> drugRulesQuestions1 = drugRulesQuestionService.queryQuestionIfExistById(drugRulesQuestionId);
 		 List<DrugRulesQuestion> drugRulesQuestions2 = drugRulesQuestionService.queryQuestionIfDelById(drugRulesQuestionId);
 		 if (drugRulesQuestions1.isEmpty() && drugRulesQuestions2.isEmpty()){
+		 	drugRulesQuestion.setCreateTime(date);
+		 	drugRulesQuestion.setUpdateTime(date);
 			 drugRulesQuestionService.save(drugRulesQuestion);
 		 } else {
-			 Date date = new Date();
 			 drugRulesQuestionService.updateQuestion(drugRulesQuestion.getQuestionId(), 0, date);
 		 }
 		 try {
@@ -135,19 +139,6 @@ public class DrugRulesSubjectController {
 				 list.add(searchResultVo);
 			 });
 		 }
-		 return list;
-	 }
-
-	 /**
-	  *   添加界面根据输入内容搜索药品规则问题
-	  * @param name
-	  * @return
-	  */
-	 @AutoLog(value = "药品规则问题表-添加界面根据输入内容搜索药品规则问题")
-	 @ApiOperation(value="药品规则问题表-添加界面根据输入内容搜索药品规则问题", notes="药品规则问题表-添加界面根据输入内容搜索药品规则问题")
-	 @DeleteMapping(value = "/querySubjectByInput")
-	 public List<DrugRulesSubject> querySubjectByInput(@RequestParam(name="name",required=true) String name) {
-		 List<DrugRulesSubject> list = drugRulesSubjectService.querySubjectByInput(name);
 		 return list;
 	 }
 
