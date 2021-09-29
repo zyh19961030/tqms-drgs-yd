@@ -53,7 +53,7 @@ public class DrugRulesSubjectController {
 	  */
 	 @AutoLog(value = "药品规则问题表-添加")
 	 @ApiOperation(value="药品规则问题表-添加", notes="药品规则问题表-添加")
-	 @PostMapping(value = "/add")
+	 @GetMapping(value = "/add")
 	 public Result<DrugRulesSubject> add(QuestionAndSubjectParam questionAndSubjectParam) {
 		 Result<DrugRulesSubject> result = new Result<DrugRulesSubject>();
 		 DrugRulesQuestion drugRulesQuestion = questionAndSubjectParam.getDrugRulesQuestion();
@@ -108,7 +108,7 @@ public class DrugRulesSubjectController {
 	  */
 	 @AutoLog(value = "药品规则问题表-根据输入内容搜索药品规则问题")
 	 @ApiOperation(value="药品规则问题表-根据输入内容搜索药品规则问题", notes="药品规则问题表-根据输入内容搜索药品规则问题")
-	 @PutMapping(value = "/queryQuestionByInput")
+	 @GetMapping(value = "/queryQuestionByInput")
 	 public List<SearchResultVo> queryQuestionByInput(@RequestParam(name="name",required=false) String name) {
 		 List<SearchResultVo> list = new ArrayList<>();
 		 if (name != null && name.length() > 0){
