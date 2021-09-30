@@ -42,8 +42,8 @@ public class DrugRulesSubjectController {
 	  * @param drugRulesQuestionId
 	  * @return
 	  */
-	 @AutoLog(value = "药品规则问题表-根据问卷id查询答案")
-	 @ApiOperation(value="药品规则问题表-根据问卷id查询答案", notes="药品规则问题表-根据问卷id查询答案")
+	 @AutoLog(value = "药品规则问题表-根据问卷id查询问题")
+	 @ApiOperation(value="药品规则问题表-根据问卷id查询问题", notes="药品规则问题表-根据问卷id查询问题")
 	 @GetMapping(value = "/querySubject")
 	 public List<DrugRulesSubject> querySubject(@RequestParam(name="drugRulesQuestionId",required=true) Integer drugRulesQuestionId) {
 		 List<DrugRulesSubject> list = drugRulesSubjectService.querySubject(drugRulesQuestionId);
@@ -150,6 +150,8 @@ public class DrugRulesSubjectController {
 				 searchResultVo.setQu_id(id);
 				 searchResultVo.setQuestionId(questionId);
 				 searchResultVo.setQuestionName(questionName);
+				 List<DrugRulesSubject> drugRulesSubjectList = drugRulesSubjectService.querySubject(questionId);
+				 searchResultVo.setDrugRulesSubjectList(drugRulesSubjectList);
 				 list.add(searchResultVo);
 			 });
 		 }
