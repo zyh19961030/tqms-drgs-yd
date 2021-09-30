@@ -29,14 +29,9 @@ public class DrugRulesQuestionServiceImpl extends ServiceImpl<DrugRulesQuestionM
     @Override
     public List<DrugRulesQuestion> queryQuestion(String name) {
         List<DrugRulesQuestion> list = new ArrayList<>();
-        if (name.equals(null)){
-            LambdaQueryWrapper<DrugRulesQuestion> lambda = new QueryWrapper<DrugRulesQuestion>().lambda();
-            lambda.eq(DrugRulesQuestion::getDel, 0);
-            list = this.list(lambda);
-        } else {
-            list = drugRulesQuestionMapper.queryQuestionByInput(name);
-        }
-
+        LambdaQueryWrapper<DrugRulesQuestion> lambda = new QueryWrapper<DrugRulesQuestion>().lambda();
+        lambda.eq(DrugRulesQuestion::getDel, 0);
+        list = this.list(lambda);
         return list;
     }
 
