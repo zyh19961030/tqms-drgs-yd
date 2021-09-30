@@ -130,7 +130,12 @@ public class DrugRulesSubjectController {
 					 SearchResultVo searchResultVo = new SearchResultVo();
 					 DrugRulesQuestion drugRulesQuestion = drugRulesQuestionService.queryQuestionsById(drugRulesQuestionId);
 					 List<DrugRulesSubject> rulesSubjects = drugRulesSubjectService.querySubjectByInputAndId(name, drugRulesQuestionId);
-					 searchResultVo.setDrugRulesQuestion(drugRulesQuestion);
+					 Integer id = drugRulesQuestion.getId();
+					 Integer questionId = drugRulesQuestion.getQuestionId();
+					 String questionName = drugRulesQuestion.getQuestionName();
+					 searchResultVo.setQu_id(id);
+					 searchResultVo.setQuestionId(questionId);
+					 searchResultVo.setQuestionName(questionName);
 					 searchResultVo.setDrugRulesSubjectList(rulesSubjects);
 					 list.add(searchResultVo);
 				 });
@@ -139,7 +144,12 @@ public class DrugRulesSubjectController {
 			 List<DrugRulesQuestion> drugRulesQuestions = drugRulesQuestionService.queryQuestion(name);
 			 drugRulesQuestions.forEach(drugRulesQuestion -> {
 				 SearchResultVo searchResultVo = new SearchResultVo();
-				 searchResultVo.setDrugRulesQuestion(drugRulesQuestion);
+				 Integer id = drugRulesQuestion.getId();
+				 Integer questionId = drugRulesQuestion.getQuestionId();
+				 String questionName = drugRulesQuestion.getQuestionName();
+				 searchResultVo.setQu_id(id);
+				 searchResultVo.setQuestionId(questionId);
+				 searchResultVo.setQuestionName(questionName);
 				 list.add(searchResultVo);
 			 });
 		 }
