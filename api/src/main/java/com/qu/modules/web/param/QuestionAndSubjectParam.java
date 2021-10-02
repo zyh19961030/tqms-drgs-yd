@@ -1,10 +1,10 @@
-package com.qu.modules.web.vo;
+package com.qu.modules.web.param;
 
 import com.qu.modules.web.entity.DrugRulesQuestion;
 import com.qu.modules.web.entity.DrugRulesSubject;
 import io.swagger.annotations.ApiModelProperty;
 
-public class QuestionAndSubjectVo {
+public class QuestionAndSubjectParam {
     @ApiModelProperty(value = "问卷")
     private DrugRulesQuestion drugRulesQuestion;
 

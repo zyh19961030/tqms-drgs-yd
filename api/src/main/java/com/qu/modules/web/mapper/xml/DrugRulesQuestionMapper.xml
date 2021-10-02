@@ -13,4 +13,8 @@
     <select id="queryQuestionIfExistById" resultType="com.qu.modules.web.entity.DrugRulesQuestion">
         select * from drug_rules_question where question_id = #{id}
     </select>
+
+    <select id="queryQuestionByInput" resultType="com.qu.modules.web.entity.DrugRulesQuestion">
+        select * from drug_rules_question where question_name like CONCAT('%',#{name},'%') and del = 0
+    </select>
 </mapper>

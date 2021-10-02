@@ -3,8 +3,10 @@ package com.qu.modules.web.controller;
 import java.util.*;
 
 import com.qu.modules.web.entity.DrugRulesQuestion;
+import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.param.QuestionAndSubjectParam;
 import com.qu.modules.web.service.IDrugRulesQuestionService;
-import com.qu.modules.web.vo.QuestionAndSubjectVo;
+import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.SearchResultVo;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -26,20 +28,22 @@ import io.swagger.annotations.ApiOperation;
 @Slf4j
 @Api(tags="药品规则问题表")
 @RestController
-@RequestMapping("/web/drugRulesSubject")
+@RequestMapping("/business/web/drugRulesSubject")
 public class DrugRulesSubjectController {
 	@Autowired
 	private IDrugRulesSubjectService drugRulesSubjectService;
 	@Autowired
 	private IDrugRulesQuestionService drugRulesQuestionService;
+	@Autowired
+	private ISubjectService subjectService;
 
 	 /**
 	  * 根据问卷id查询答案
 	  * @param drugRulesQuestionId
 	  * @return
 	  */
-	 @AutoLog(value = "药品规则问题表-根据问卷id查询答案")
-	 @ApiOperation(value="药品规则问题表-根据问卷id查询答案", notes="药品规则问题表-根据问卷id查询答案")
+	 @AutoLog(value = "药品规则问题表-根据问卷id查询问题")
+	 @ApiOperation(value="药品规则问题表-根据问卷id查询问题", notes="药品规则问题表-根据问卷id查询问题")
 	 @GetMapping(value = "/querySubject")
 	 public List<DrugRulesSubject> querySubject(@RequestParam(name="drugRulesQuestionId",required=true) Integer drugRulesQuestionId) {
 		 List<DrugRulesSubject> list = drugRulesSubjectService.querySubject(drugRulesQuestionId);
@@ -48,23 +52,27 @@ public class DrugRulesSubjectController {
 
 	 /**
 	  *   添加
-	  * @param questionAndSubjectVo
+	  * @param questionAndSubjectParam
 	  * @return
 	  */
 	 @AutoLog(value = "药品规则问题表-添加")
 	 @ApiOperation(value="药品规则问题表-添加", notes="药品规则问题表-添加")
 	 @PostMapping(value = "/add")
-	 public Result<DrugRulesSubject> add(QuestionAndSubjectVo questionAndSubjectVo) {
+	 public Result<DrugRulesSubject> add(@RequestBody QuestionAndSubjectParam questionAndSubjectParam) {
 		 Result<DrugRulesSubject> result = new Result<DrugRulesSubject>();
-		 DrugRulesQuestion drugRulesQuestion = questionAndSubjectVo.getDrugRulesQuestion();
-		 DrugRulesSubject drugRulesSubject = questionAndSubjectVo.getDrugRulesSubject();
+		 DrugRulesQuestion drugRulesQuestion = questionAndSubjectParam.getDrugRulesQuestion();
+		 DrugRulesSubject drugRulesSubject = questionAndSubjectParam.getDrugRulesSubject();
+		 Date date = new Date();
+		 drugRulesSubject.setCreateTime(date);
+		 drugRulesSubject.setUpdateTime(date);
 		 Integer drugRulesQuestionId = drugRulesSubject.getDrugRulesQuestionId();
 		 List<DrugRulesQuestion> drugRulesQuestions1 = drugRulesQuestionService.queryQuestionIfExistById(drugRulesQuestionId);
 		 List<DrugRulesQuestion> drugRulesQuestions2 = drugRulesQuestionService.queryQuestionIfDelById(drugRulesQuestionId);
 		 if (drugRulesQuestions1.isEmpty() && drugRulesQuestions2.isEmpty()){
+		 	drugRulesQuestion.setCreateTime(date);
+		 	drugRulesQuestion.setUpdateTime(date);
 			 drugRulesQuestionService.save(drugRulesQuestion);
 		 } else {
-			 Date date = new Date();
 			 drugRulesQuestionService.updateQuestion(drugRulesQuestion.getQuestionId(), 0, date);
 		 }
 		 try {
@@ -104,7 +112,7 @@ public class DrugRulesSubjectController {
 	  */
 	 @AutoLog(value = "药品规则问题表-根据输入内容搜索药品规则问题")
 	 @ApiOperation(value="药品规则问题表-根据输入内容搜索药品规则问题", notes="药品规则问题表-根据输入内容搜索药品规则问题")
-	 @PutMapping(value = "/queryQuestionByInput")
+	 @GetMapping(value = "/queryQuestionByInput")
 	 public List<SearchResultVo> queryQuestionByInput(@RequestParam(name="name",required=false) String name) {
 		 List<SearchResultVo> list = new ArrayList<>();
 		 if (name != null && name.length() > 0){
@@ -122,19 +130,44 @@ public class DrugRulesSubjectController {
 					 SearchResultVo searchResultVo = new SearchResultVo();
 					 DrugRulesQuestion drugRulesQuestion = drugRulesQuestionService.queryQuestionsById(drugRulesQuestionId);
 					 List<DrugRulesSubject> rulesSubjects = drugRulesSubjectService.querySubjectByInputAndId(name, drugRulesQuestionId);
-					 searchResultVo.setDrugRulesQuestion(drugRulesQuestion);
+					 Integer id = drugRulesQuestion.getId();
+					 Integer questionId = drugRulesQuestion.getQuestionId();
+					 String questionName = drugRulesQuestion.getQuestionName();
+					 searchResultVo.setQu_id(id);
+					 searchResultVo.setQuestionId(questionId);
+					 searchResultVo.setQuestionName(questionName);
 					 searchResultVo.setDrugRulesSubjectList(rulesSubjects);
 					 list.add(searchResultVo);
 				 });
 			 }
 		 } else {
-			 List<DrugRulesQuestion> drugRulesQuestions = drugRulesQuestionService.queryQuestion();
+			 List<DrugRulesQuestion> drugRulesQuestions = drugRulesQuestionService.queryQuestion(name);
 			 drugRulesQuestions.forEach(drugRulesQuestion -> {
 				 SearchResultVo searchResultVo = new SearchResultVo();
-				 searchResultVo.setDrugRulesQuestion(drugRulesQuestion);
+				 Integer id = drugRulesQuestion.getId();
+				 Integer questionId = drugRulesQuestion.getQuestionId();
+				 String questionName = drugRulesQuestion.getQuestionName();
+				 searchResultVo.setQu_id(id);
+				 searchResultVo.setQuestionId(questionId);
+				 searchResultVo.setQuestionName(questionName);
+				 List<DrugRulesSubject> drugRulesSubjectList = drugRulesSubjectService.querySubject(questionId);
+				 searchResultVo.setDrugRulesSubjectList(drugRulesSubjectList);
 				 list.add(searchResultVo);
 			 });
 		 }
+		 return list;
+	 }
+
+	 /**
+	  * 根据问卷id查询答案
+	  * @param questionId
+	  * @return
+	  */
+	 @AutoLog(value = "药品规则问题表-添加界面根据问卷id查询答案")
+	 @ApiOperation(value="药品规则问题表-添加界面根据问卷id查询答案", notes="药品规则问题表-添加界面根据问卷id查询答案")
+	 @GetMapping(value = "/querySubjectByQuId")
+	 public List<Qsubject> querySubjectByQuId(@RequestParam(name="questionId",required=true) Integer questionId) {
+		 List<Qsubject> list = subjectService.querySubjectByQuId(questionId);
 		 return list;
 	 }
 

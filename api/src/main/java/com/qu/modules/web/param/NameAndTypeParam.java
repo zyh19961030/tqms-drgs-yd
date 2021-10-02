@@ -1,8 +1,8 @@
-package com.qu.modules.web.vo;
+package com.qu.modules.web.param;
 
 import io.swagger.annotations.ApiModelProperty;
 
-public class NameAndTypeVo {
+public class NameAndTypeParam {
     @ApiModelProperty(value = "搜索栏输入的内容")
     private String name;
 

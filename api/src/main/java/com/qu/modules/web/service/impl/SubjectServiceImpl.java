@@ -439,4 +439,13 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
         List<Qsubject> qsubjects = qsubjectMapper.querySubjectByInput(name);
         return qsubjects;
     }
+
+    @Override
+    public List<Qsubject> querySubjectByQuId(Integer id) {
+        LambdaQueryWrapper<Qsubject> lambda = new QueryWrapper<Qsubject>().lambda();
+        lambda.eq(Qsubject::getQuId, id);
+        lambda.eq(Qsubject::getDel, 0);
+        List<Qsubject> list = this.list(lambda);
+        return list;
+    }
 }

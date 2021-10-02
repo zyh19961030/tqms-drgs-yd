@@ -27,21 +27,21 @@ import org.jeecgframework.poi.excel.annotation.Excel;
 @Accessors(chain = true)
 @ApiModel(value="drug_receive_his对象", description="接收his数据表")
 public class DrugReceiveHis {
-    
+
 	/**主键id*/
 	@TableId(type = IdType.AUTO)
-    @ApiModelProperty(value = "主键id")
+	@ApiModelProperty(value = "主键id")
 	private Integer id;
 	/**用药目的或物理作用id*/
 	@Excel(name = "用药目的或物理作用id", width = 15)
-    @ApiModelProperty(value = "用药目的或物理作用id")
+	@ApiModelProperty(value = "用药目的或物理作用id")
 	private Integer purposeOrActionId;
 	/**用药目的或物理作用名称*/
 	@Excel(name = "用药目的或物理作用名称", width = 15)
-    @ApiModelProperty(value = "用药目的或物理作用名称")
+	@ApiModelProperty(value = "用药目的或物理作用名称")
 	private String purposeOrActionName;
 	/**上级id*/
 	@Excel(name = "上级id", width = 15)
-    @ApiModelProperty(value = "上级id")
+	@ApiModelProperty(value = "上级id")
 	private Integer pid;
 }
