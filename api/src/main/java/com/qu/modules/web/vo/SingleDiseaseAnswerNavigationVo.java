@@ -19,6 +19,8 @@ public class SingleDiseaseAnswerNavigationVo {
     private Integer groupId;
     @ApiModelProperty(value = "已答题数")
     private Integer alreadyAnswerCount;
-    @ApiModelProperty(value = "未答题数")
-    private Integer notAnswerCount;
+//    @ApiModelProperty(value = "未答题数")
+//    private Integer notAnswerCount;
+    @ApiModelProperty(value = "总题数")
+    private Integer questionCount;
 }

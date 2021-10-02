@@ -10,7 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 @Data
 @ApiModel(value="本科室单病种上报记录查询-全院单病种上报记录查询共用", description="本科室单病种上报记录查询-全院单病种上报记录查询共用")
-public class QSingleDiseaseTakeByDeptParam {
+public class SingleDiseaseExamineRecordParam {
     @ApiModelProperty(value = "分类id")
     private String categoryId;
     @ApiModelProperty(value = "科室id")

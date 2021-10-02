@@ -7,6 +7,8 @@ import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
 import com.qu.modules.web.vo.QuestionPageVo;
 import com.qu.modules.web.vo.QuestionVo;
 
+import java.util.List;
+
 /**
  * @Description: 问卷表
  * @Author: jeecg-boot
@@ -34,5 +36,7 @@ public interface IQuestionService extends IService<Question> {
     void updateCategoryIdParam(UpdateCategoryIdParam updateCategoryIdParam);
 
     Boolean againRelease(QuestionAgainReleaseParam questionAgainreleaseParam);
+
+    List<Question> queryQuestionByInput(String name);
 
 }

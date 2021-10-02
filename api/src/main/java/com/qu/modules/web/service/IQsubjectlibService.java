@@ -1,12 +1,15 @@
 package com.qu.modules.web.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.entity.Qsubjectlib;
 import com.qu.modules.web.param.QsubjectlibAddParam;
 import com.qu.modules.web.param.QsubjectlibEditParam;
 import com.qu.modules.web.param.QsubjectlibParam;
 import com.qu.modules.web.vo.QsubjectlibPageVo;
 import com.qu.modules.web.vo.QsubjectlibVo;
+
+import java.util.List;
 
 /**
  * @Description: 题库题目表
@@ -25,5 +28,7 @@ public interface IQsubjectlibService extends IService<Qsubjectlib> {
     Boolean removeQsubjectlibById(Integer id);
 
     QsubjectlibVo getQsubjectlibById(Integer id);
+
+
 
 }

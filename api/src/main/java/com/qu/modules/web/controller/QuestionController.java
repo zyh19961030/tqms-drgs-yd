@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Description: 问卷表
@@ -218,6 +220,23 @@ public class QuestionController {
             result.error500("更新失败");
         }
         return result;
+    }
+
+    /**
+     * 根据输入内容搜索问卷
+     * @param name
+     * @return
+     */
+    @AutoLog(value = "问卷表-根据输入内容搜索问卷")
+    @ApiOperation(value = "问卷表-根据输入内容搜索问卷", notes = "问卷表-根据输入内容搜索问卷")
+    @GetMapping(value = "/queryQuestionByInput")
+    public List<Question> queryQuestionByInput(@RequestParam(name = "name", required = true) String name) {
+        List<Question> list = new ArrayList<>();
+        List<Question> questions = questionService.queryQuestionByInput(name);
+        questions.forEach(question -> {
+            list.add(question);
+        });
+        return list;
     }
 
 }

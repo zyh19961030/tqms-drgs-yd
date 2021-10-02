@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qu.modules.web.mapper.DrugRulesRelationMapper">
+
+<!--    <resultMap id="BaseResultMap" type="com.qu.modules.web.entity.DrugRulesRelation" >-->
+<!--        <id column="drug_rules_option_id" property="drugRulesOptionId" jdbcType="INTEGER" />-->
+<!--        <result column="medication_purpose_id" property="medicationPurposeId" jdbcType="INTEGER" />-->
+<!--        <result column="drug_physical_action_id" property="drugPhysicalActionId" jdbcType="INTEGER" />-->
+<!--        <result column="type" property="type" jdbcType="INTEGER" />-->
+<!--    </resultMap>-->
+
+    <select id="ifExist" resultType="com.qu.modules.web.entity.DrugRulesRelation">
+        select * from drug_rules_relation where drug_rules_option_id = #{optionId}
+    </select>
+
+<!--    <update id="update" parameterType="com.qu.modules.web.entity.DrugRulesRelation">-->
+<!--        update drug_rules_relation-->
+<!--        set medication_purpose_id = #{medicationPurposeId,jdbcType=INTEGER},-->
+<!--        drug_physical_action_id = #{drugPhysicalActionId,jdbcType=INTEGER},-->
+<!--        type = #{type,jdbcType=INTEGER}-->
+<!--        where drug_rules_option_id = #{drugRulesOptionId,jdbcType=INTEGER}-->
+<!--    </update>-->
+
+    <delete id="delete" parameterType="java.lang.Integer">
+        delete from drug_rules_relation where drug_rules_option_id = #{optionId}
+    </delete>
+
+</mapper>

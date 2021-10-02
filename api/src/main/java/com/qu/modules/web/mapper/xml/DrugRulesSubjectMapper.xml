@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qu.modules.web.mapper.DrugRulesSubjectMapper">
+
+    <select id="querySubjectByInput" resultType="com.qu.modules.web.entity.DrugRulesSubject">
+        select * from drug_rules_subject where subject_name like CONCAT('%',#{name},'%') and del = 0
+    </select>
+
+    <update id="deleteSubject" parameterType="map">
+        update drug_rules_subject set del = 1, update_time = #{updateTime} where id = #{id}
+    </update>
+
+    <select id="querySubjectByInputAndId" resultType="com.qu.modules.web.entity.DrugRulesSubject">
+        select * from drug_rules_subject where subject_name like CONCAT('%',#{name},'%') and del = 0 and drug_rules_question_id = #{id}
+    </select>
+
+</mapper>
