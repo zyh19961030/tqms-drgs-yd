@@ -36,4 +36,6 @@ public interface QsubjectMapper extends BaseMapper<Qsubject> {
 
     List<Qsubject> querySubjectByInput(String name);
 
+    List<Qsubject> querySubjectByQuestionId(Integer id);
+
 }
