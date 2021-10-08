@@ -36,7 +36,7 @@ public class DrugRulesRelationController {
 	 */
 	@AutoLog(value = "药品规则关联表-设置")
 	@ApiOperation(value="药品规则关联表-设置", notes="药品规则关联表-设置")
-	@GetMapping(value = "/edit")
+	@PostMapping(value = "/edit")
 	public Result<DrugRulesRelation> edit(DrugRulesRelationsListParam drugRulesRelations) {
 		Result<DrugRulesRelation> result = new Result<DrugRulesRelation>();
 		Integer id = drugRulesRelations.getOptionId();
