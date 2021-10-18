@@ -163,8 +163,8 @@ public class DrugRulesSubjectController {
 	  * @param questionId
 	  * @return
 	  */
-	 @AutoLog(value = "药品规则问题表-添加界面根据问卷id查询答案")
-	 @ApiOperation(value="药品规则问题表-添加界面根据问卷id查询答案", notes="药品规则问题表-添加界面根据问卷id查询答案")
+	 @AutoLog(value = "药品规则问题表-添加界面根据问卷id查询问题")
+	 @ApiOperation(value="药品规则问题表-添加界面根据问卷id查询问题", notes="药品规则问题表-添加界面根据问卷id查询问题")
 	 @GetMapping(value = "/querySubjectByQuId")
 	 public List<Qsubject> querySubjectByQuId(@RequestParam(name="questionId",required=true) Integer questionId) {
 		 List<Qsubject> list = subjectService.querySubjectByQuId(questionId);

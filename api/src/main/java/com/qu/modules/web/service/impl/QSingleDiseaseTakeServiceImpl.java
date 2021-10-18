@@ -31,41 +31,13 @@ import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.entity.TqmsQuotaCategory;
 import com.qu.modules.web.mapper.*;
 import com.qu.modules.web.param.*;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
-import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticDeptPermutationParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewLineParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewPieParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticSummaryParam;
-import com.qu.modules.web.param.SingleDiseaseAnswer;
-import com.qu.modules.web.param.SingleDiseaseAnswerNavigationParam;
-import com.qu.modules.web.param.SingleDiseaseAnswerParam;
-import com.qu.modules.web.param.SingleDiseaseWaitUploadParam;
-import com.qu.modules.web.param.SingleDiseaseExamineRecordParam;
+import com.qu.modules.web.mapper.*;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.*;
-import com.qu.modules.web.vo.QSingleDiseaseNameVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptPermutationVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewLineVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewPieVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticSummaryVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticTrendVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
-import com.qu.modules.web.vo.SingleDiseaseAnswerNavigationVo;
-import com.qu.modules.web.vo.WorkbenchReminderVo;
+import com.qu.modules.web.vo.*;
 import com.qu.util.HttpClient;
 import com.qu.util.HttpTools;
 import com.qu.util.HttpTools.HttpData;
@@ -87,6 +59,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -848,7 +826,8 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 String subType = qsubjectDynamicTable.getSubType();
                 Integer del = qsubjectDynamicTable.getDel();
                 if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
-                        || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null) {
+                        || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null
+                        || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
                     continue;
                 }
                 sqlAns.append("`");
@@ -874,7 +853,8 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 String subType = qsubjectDynamicTable.getSubType();
                 Integer del = qsubjectDynamicTable.getDel();
                 if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
-                        || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null) {
+                        || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null
+                        || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
                     continue;
                 }
                 sqlAns.append("`");
