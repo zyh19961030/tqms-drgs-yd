@@ -33,6 +33,9 @@ import com.qu.util.PriceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.protocol.HTTP;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Months;
@@ -45,6 +48,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.*;
@@ -1088,6 +1092,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
         LambdaQueryWrapper<Qsubject> qsubjectQueryWrapper = new QueryWrapper<Qsubject>().lambda();
         qsubjectQueryWrapper.in(Qsubject::getQuId, questionIds);
+        qsubjectQueryWrapper.eq(Qsubject::getDel, "0");
         List<Qsubject> qsubjectList = qsubjectMapper.selectList(qsubjectQueryWrapper);
 
         Map<String, Qsubject> qsubjectMap= Maps.newConcurrentMap();
@@ -1113,7 +1118,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             String answerJson = (String) qSingleDiseaseTake.getAnswerJson();
             List<SingleDiseaseAnswer> singleDiseaseAnswerList = JSON.parseArray(answerJson, SingleDiseaseAnswer.class);
             if (singleDiseaseAnswerList != null && !singleDiseaseAnswerList.isEmpty()) {
-                Map<String, Object> mapCache = new HashMap<>();
+                Map<String, String> mapCache = new HashMap<>();
                 for (SingleDiseaseAnswer a : singleDiseaseAnswerList) {
 
                     String key = String.format("%s%s", qSingleDiseaseTake.getQuestionId(), a.getSubColumnName());
@@ -1124,16 +1129,27 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                         a.setSubValue(JSON.toJSONString(subValue.split("\\$")));
                     }else if (QsubjectConstant.SUB_TYPE_DATE.equals(subType)){
                         cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
-                        a.setSubValue(parse.toString(DatePattern.NORM_DATE_PATTERN));
+                        if (a.getSubColumnName().equals("STK-1-4-3-2-1") || a.getSubColumnName().equals("STK-3-3-2-1-1")
+                        || a.getSubColumnName().equals("STK-1-5-2-1") || a.getSubColumnName().equals("STK-3-3-2-1-1")) {
+                            a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_MINUTE_PATTERN));
+                        } else {
+                            a.setSubValue(parse.toString(DatePattern.NORM_DATE_PATTERN));
+                        }
+
                     }else if (QsubjectConstant.SUB_TYPE_TIME.equals(subType)){
-                        cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
-                        a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_MINUTE_PATTERN));
+                        if (a.getSubColumnName().equals("Knee-5-1-4")) {
+                            cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
+                            a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_PATTERN));
+                        } else {
+                            cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
+                            a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_MINUTE_PATTERN));
+                        }
                     }
                     mapCache.put(a.getSubColumnName(), a.getSubValue());
                 }
                 singleDiseaseReportUrl = String.format(singleDiseaseReportUrl,quotaCategoryMap.get(qSingleDiseaseTake.getCategoryId()).getDiseaseType());
                 HttpData data = HttpData.instance();
-                data.setPostEntity(new ByteArrayEntity(JSON.toJSONBytes(mapCache)));
+                data.setPostEntity(new StringEntity(JSON.toJSONString(mapCache), ContentType.APPLICATION_JSON));
                 // 接口调用并返回结果
                 ResponseEntity responseEntity = null;
                 try {
