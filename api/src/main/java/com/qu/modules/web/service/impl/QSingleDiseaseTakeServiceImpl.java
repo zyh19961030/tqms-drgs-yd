@@ -33,6 +33,21 @@ import com.qu.modules.web.mapper.*;
 import com.qu.modules.web.param.*;
 import com.qu.modules.web.mapper.*;
 import com.qu.modules.web.param.*;
+import com.qu.modules.web.mapper.DynamicTableMapper;
+import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
+import com.qu.modules.web.mapper.QsubjectMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
+import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticDeptPermutationParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewLineParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewPieParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticSummaryParam;
+import com.qu.modules.web.param.SingleDiseaseAnswer;
+import com.qu.modules.web.param.SingleDiseaseAnswerParam;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
 import com.qu.modules.web.service.IQuestionService;
@@ -1236,7 +1251,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                     }else if (QsubjectConstant.SUB_TYPE_DATE.equals(subType)){
                         cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
                         if (a.getSubColumnName().equals("STK-1-4-3-2-1") || a.getSubColumnName().equals("STK-3-3-2-1-1")
-                        || a.getSubColumnName().equals("STK-1-5-2-1") || a.getSubColumnName().equals("STK-3-3-2-1-1")) {
+                        || a.getSubColumnName().equals("STK-1-5-2-1") || a.getSubColumnName().equals("STK-1-4-4-3")) {
                             a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_MINUTE_PATTERN));
                         } else {
                             a.setSubValue(parse.toString(DatePattern.NORM_DATE_PATTERN));
@@ -1249,6 +1264,13 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                         } else {
                             cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
                             a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_MINUTE_PATTERN));
+                        }
+                    }
+                    if (a.getSubColumnName().equals("STK-9-1-7")) {
+                        if (a.getSubValue().equals("a")) {
+                            a.setSubValue("y");
+                        } else  if (a.getSubValue().equals("b")){
+                            a.setSubValue("n");
                         }
                     }
                     mapCache.put(a.getSubColumnName(), a.getSubValue());
