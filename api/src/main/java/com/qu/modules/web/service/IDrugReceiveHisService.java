@@ -25,4 +25,7 @@ public interface IDrugReceiveHisService extends IService<DrugReceiveHis> {
     //根据输入内容搜索物理作用
     List<DrugReceiveHis> queryActionByInput(String name);
 
+    //根据id获取purposeOrActionId
+    Integer queryPurposeOrActionIdById(Integer id);
+
 }

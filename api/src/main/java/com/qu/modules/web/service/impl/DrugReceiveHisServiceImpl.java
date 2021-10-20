@@ -50,4 +50,10 @@ public class DrugReceiveHisServiceImpl extends ServiceImpl<DrugReceiveHisMapper,
         List<DrugReceiveHis> list = drugReceiveHisMapper.queryActionByInput(name);
         return list;
     }
+
+    @Override
+    public Integer queryPurposeOrActionIdById(Integer id) {
+        Integer purposeOrActionId = drugReceiveHisMapper.queryPurposeOrActionIdById(id);
+        return purposeOrActionId;
+    }
 }

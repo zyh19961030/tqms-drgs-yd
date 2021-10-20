@@ -14,4 +14,8 @@
         select * from drug_receive_his where purpose_or_action_id = #{id} and pid != 0
     </select>
 
+    <select id="queryPurposeOrActionIdById" resultType="java.lang.Integer">
+        select purpose_or_action_id from drug_receive_his where id = #{id}
+    </select>
+
 </mapper>

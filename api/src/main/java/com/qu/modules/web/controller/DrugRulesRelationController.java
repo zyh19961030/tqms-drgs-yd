@@ -3,6 +3,7 @@ package com.qu.modules.web.controller;
 import java.util.List;
 
 import com.qu.modules.web.param.DrugRulesRelationsListParam;
+import com.qu.modules.web.service.IDrugReceiveHisService;
 import com.qu.modules.web.service.IDrugRulesOptionService;
 import com.qu.modules.web.vo.PurposeAndActionVo;
 import org.jeecg.common.api.vo.Result;
@@ -31,6 +32,8 @@ public class DrugRulesRelationController {
 	private IDrugRulesRelationService drugRulesRelationService;
 	@Autowired
 	private IDrugRulesOptionService drugRulesOptionService;
+	@Autowired
+	private IDrugReceiveHisService drugReceiveHisService;
 
 	/**
 	 *  设置
@@ -51,22 +54,42 @@ public class DrugRulesRelationController {
 		DrugRulesRelation drugRulesRelation = new DrugRulesRelation();
 		List<PurposeAndActionVo> purposeAndActionVos = drugRulesRelations.getPurposeAndActionVos();
 		int type = drugRulesRelations.getType();
-		purposeAndActionVos.forEach(purposeAndActionVo -> {
-			Integer medicationPurposeId = purposeAndActionVo.getMedicationPurposeId();
-			Integer drugPhysicalActionId = purposeAndActionVo.getDrugPhysicalActionId();
-			drugRulesRelation.setDrugRulesOptionId(optionId);
-			drugRulesRelation.setMedicationPurposeId(medicationPurposeId);
-			drugRulesRelation.setDrugPhysicalActionId(drugPhysicalActionId);
-			drugRulesRelation.setType(type);
-			try {
-				drugRulesRelationService.save(drugRulesRelation);
-				result.success("设置成功！");
-			} catch (Exception e) {
-				log.error(e.getMessage(),e);
-				result.error500("操作失败!");
-				return;
-			}
-		});
+		if (type == 2) {
+			purposeAndActionVos.forEach(purposeAndActionVo -> {
+				Integer id1 = purposeAndActionVo.getMedicationPurposeId();
+				Integer medicationPurposeId = drugReceiveHisService.queryPurposeOrActionIdById(id1);
+				Integer drugPhysicalActionId = purposeAndActionVo.getDrugPhysicalActionId();
+				drugRulesRelation.setDrugRulesOptionId(optionId);
+				drugRulesRelation.setMedicationPurposeId(medicationPurposeId);
+				drugRulesRelation.setDrugPhysicalActionId(drugPhysicalActionId);
+				drugRulesRelation.setType(type);
+				try {
+					drugRulesRelationService.save(drugRulesRelation);
+					result.success("设置成功！");
+				} catch (Exception e) {
+					log.error(e.getMessage(),e);
+					result.error500("操作失败!");
+					return;
+				}
+			});
+		} else {
+			purposeAndActionVos.forEach(purposeAndActionVo -> {
+				Integer medicationPurposeId = purposeAndActionVo.getMedicationPurposeId();
+				Integer drugPhysicalActionId = purposeAndActionVo.getDrugPhysicalActionId();
+				drugRulesRelation.setDrugRulesOptionId(optionId);
+				drugRulesRelation.setMedicationPurposeId(medicationPurposeId);
+				drugRulesRelation.setDrugPhysicalActionId(drugPhysicalActionId);
+				drugRulesRelation.setType(type);
+				try {
+					drugRulesRelationService.save(drugRulesRelation);
+					result.success("设置成功！");
+				} catch (Exception e) {
+					log.error(e.getMessage(),e);
+					result.error500("操作失败!");
+					return;
+				}
+			});
+		}
 		return result;
 	}
 

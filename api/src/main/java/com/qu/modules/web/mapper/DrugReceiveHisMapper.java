@@ -23,4 +23,7 @@ public interface DrugReceiveHisMapper extends BaseMapper<DrugReceiveHis> {
     //根据用药目的id获取药品物理作用
     List<DrugReceiveHis> queryByPid(Integer id);
 
+    //根据id获取purposeOrActionId
+    Integer queryPurposeOrActionIdById(Integer id);
+
 }
