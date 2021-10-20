@@ -61,34 +61,31 @@ public class DrugRulesOptionController {
 			Integer optionId = drugRulesOption.getOptionId();
 			Qoption qoption = optionService.getById(optionId);
 			String opName = qoption.getOpName();
-			if (subjectIdAndMatchesParam.getMatches().equals(0)){
-				List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.queryByOptionId(optionId);
-				drugRulesRelationList.forEach(drugRulesRelation -> {
-					Integer type = drugRulesRelation.getType();
-					if (type.equals(1)){
-						Integer medicationPurposeId = drugRulesRelation.getMedicationPurposeId();
-						List<DrugReceiveHis> drugReceiveHisList = drugReceiveHisService.queryById(medicationPurposeId);
-						drugReceiveHisList.forEach(drugReceiveHis -> {
-							Integer purposeOrActionId = drugReceiveHis.getPurposeOrActionId();
-							String purposeOrActionName = drugReceiveHis.getPurposeOrActionName();
-							String name = purposeOrActionId.toString() + purposeOrActionName;
-
-							his.add(name);
-						});
-					} else {
-						Integer drugPhysicalActionId = drugRulesRelation.getDrugPhysicalActionId();
-						List<DrugReceiveHis> drugReceiveHisList = drugReceiveHisService.queryById(drugPhysicalActionId);
-						drugReceiveHisList.forEach(drugReceiveHis -> {
-							Integer purposeOrActionId = drugReceiveHis.getPurposeOrActionId();
-							String purposeOrActionName = drugReceiveHis.getPurposeOrActionName();
-							String name = purposeOrActionId.toString() + purposeOrActionName;
-							his.add(name);
-						});
-					}
-				});
-			} else {
-				his.add(null);
-			}
+			List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.queryByOptionId(optionId);
+			drugRulesRelationList.forEach(drugRulesRelation -> {
+				Integer type = drugRulesRelation.getType();
+				if (type.equals(1)){
+					Integer medicationPurposeId = drugRulesRelation.getMedicationPurposeId();
+					List<DrugReceiveHis> drugReceiveHisList = drugReceiveHisService.queryByMid(medicationPurposeId);
+					System.out.println(drugReceiveHisList.size()+"===============================================");
+					drugReceiveHisList.forEach(drugReceiveHis -> {
+						Integer purposeOrActionId = drugReceiveHis.getPurposeOrActionId();
+						String purposeOrActionName = drugReceiveHis.getPurposeOrActionName();
+						String name = purposeOrActionId.toString() + purposeOrActionName;
+						his.add(name);
+					});
+				} else {
+					Integer drugPhysicalActionId = drugRulesRelation.getDrugPhysicalActionId();
+					List<DrugReceiveHis> drugReceiveHisList = drugReceiveHisService.queryByPid(drugPhysicalActionId);
+					System.out.println(drugReceiveHisList.size()+"--------------------------------------------");
+					drugReceiveHisList.forEach(drugReceiveHis -> {
+						Integer purposeOrActionId = drugReceiveHis.getPurposeOrActionId();
+						String purposeOrActionName = drugReceiveHis.getPurposeOrActionName();
+						String name = purposeOrActionId.toString() + purposeOrActionName;
+						his.add(name);
+					});
+				}
+			});
 			DrugRulesOptionListVo.setId(id);
 			DrugRulesOptionListVo.setName(opName);
 			DrugRulesOptionListVo.setHis(his);

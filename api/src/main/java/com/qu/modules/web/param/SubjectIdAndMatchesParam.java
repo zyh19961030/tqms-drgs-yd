@@ -3,7 +3,7 @@ package com.qu.modules.web.param;
 import io.swagger.annotations.ApiModelProperty;
 
 public class SubjectIdAndMatchesParam {
-    @ApiModelProperty(value = "答案id")
+    @ApiModelProperty(value = "问题id")
     private Integer subjectId;
 
     @ApiModelProperty(value = "匹配规则标识")

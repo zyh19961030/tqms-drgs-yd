@@ -14,4 +14,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface DrugRulesOptionMapper extends BaseMapper<DrugRulesOption> {
 
+    //根据药品规则答案表id获取药品规则id
+    Integer queryOptionIdById(Integer id);
+
 }

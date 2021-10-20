@@ -15,4 +15,7 @@ public interface IDrugRulesOptionService extends IService<DrugRulesOption> {
 
     //根据选择问题的id获取答案
     List<DrugRulesOption> queryOption(Integer subjectId);
+
+    //根据药品规则答案表id获取药品规则id
+    Integer queryOptionIdById(Integer id);
 }

@@ -3,6 +3,7 @@ package com.qu.modules.web.controller;
 import java.util.List;
 
 import com.qu.modules.web.param.DrugRulesRelationsListParam;
+import com.qu.modules.web.service.IDrugRulesOptionService;
 import com.qu.modules.web.vo.PurposeAndActionVo;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -28,6 +29,8 @@ import io.swagger.annotations.ApiOperation;
 public class DrugRulesRelationController {
 	@Autowired
 	private IDrugRulesRelationService drugRulesRelationService;
+	@Autowired
+	private IDrugRulesOptionService drugRulesOptionService;
 
 	/**
 	 *  设置
@@ -40,9 +43,10 @@ public class DrugRulesRelationController {
 	public Result<DrugRulesRelation> edit(@RequestBody DrugRulesRelationsListParam drugRulesRelations) {
 		Result<DrugRulesRelation> result = new Result<DrugRulesRelation>();
 		Integer id = drugRulesRelations.getOptionId();
-		List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.ifExist(id);
+		Integer optionId = drugRulesOptionService.queryOptionIdById(id);
+		List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.ifExist(optionId);
 		if (drugRulesRelationList != null && drugRulesRelationList.size() > 0){
-			drugRulesRelationService.delete(id);
+			drugRulesRelationService.delete(optionId);
 		}
 		DrugRulesRelation drugRulesRelation = new DrugRulesRelation();
 		List<PurposeAndActionVo> purposeAndActionVos = drugRulesRelations.getPurposeAndActionVos();
@@ -50,7 +54,7 @@ public class DrugRulesRelationController {
 		purposeAndActionVos.forEach(purposeAndActionVo -> {
 			Integer medicationPurposeId = purposeAndActionVo.getMedicationPurposeId();
 			Integer drugPhysicalActionId = purposeAndActionVo.getDrugPhysicalActionId();
-			drugRulesRelation.setDrugRulesOptionId(id);
+			drugRulesRelation.setDrugRulesOptionId(optionId);
 			drugRulesRelation.setMedicationPurposeId(medicationPurposeId);
 			drugRulesRelation.setDrugPhysicalActionId(drugPhysicalActionId);
 			drugRulesRelation.setType(type);
