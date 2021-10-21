@@ -48,6 +48,10 @@ public class DrugRulesSubject {
 	@Excel(name = "删除标识：1为删除，0为正常", width = 15)
     @ApiModelProperty(value = "删除标识：1为删除，0为正常")
 	private Integer del;
+	/**是否已添加标识：1为已添加，0为未添加*/
+	@Excel(name = "是否已添加标识：1为已添加，0为未添加", width = 15)
+	@ApiModelProperty(value = "是否已添加标识：1为已添加，0为未添加")
+	private Integer exist;
 	/**匹配规则标识：1为药品名称，0为药品物理作用id*/
 	@Excel(name = "匹配规则标识：1为药品名称，0为药品物理作用id", width = 15)
     @ApiModelProperty(value = "匹配规则标识：1为药品名称，0为药品物理作用id")

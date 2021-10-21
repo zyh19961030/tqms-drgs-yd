@@ -7,7 +7,7 @@
     </select>
 
     <update id="deleteSubject" parameterType="map">
-        update drug_rules_subject set del = 1, update_time = #{updateTime} where id = #{id}
+        update drug_rules_subject set del = 1, exist = 0, update_time = #{updateTime} where id = #{id}
     </update>
 
     <select id="querySubjectByInputAndId" resultType="com.qu.modules.web.entity.DrugRulesSubject">
