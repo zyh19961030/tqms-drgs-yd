@@ -2,7 +2,9 @@ package com.qu.modules.web.controller;
 
 import java.util.*;
 
+import com.qu.modules.web.entity.DrugRulesSubject;
 import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.service.IDrugRulesSubjectService;
 import com.qu.modules.web.service.IQuestionService;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -30,6 +32,8 @@ public class DrugRulesQuestionController {
 	private IDrugRulesQuestionService drugRulesQuestionService;
 	@Autowired
 	private IQuestionService questionService;
+	@Autowired
+	private IDrugRulesSubjectService drugRulesSubjectService;
 
 	 /**
 	  *   通过id删除
@@ -42,6 +46,15 @@ public class DrugRulesQuestionController {
 	 public Result<DrugRulesQuestion> delete(@RequestParam(name="id",required=true) Integer id) {
 		 Result<DrugRulesQuestion> result = new Result<DrugRulesQuestion>();
 		 Date date = new Date();
+		 List<DrugRulesQuestion> drugRulesQuestions = drugRulesQuestionService.queryById(id);
+		 drugRulesQuestions.forEach(drugRulesQuestion -> {
+			 Integer questionId = drugRulesQuestion.getQuestionId();
+			 List<DrugRulesSubject> drugRulesSubjects = drugRulesSubjectService.querySubject(questionId);
+			 drugRulesSubjects.forEach(drugRulesSubject -> {
+				 Integer drugRulesSubjectId = drugRulesSubject.getId();
+				 drugRulesSubjectService.deleteSubject(drugRulesSubjectId, date);
+			 });
+		 });
 		 int i = drugRulesQuestionService.updateQuestion(id, 1, date);
 		 if(i != 1) {
 			 result.error500("删除失败");

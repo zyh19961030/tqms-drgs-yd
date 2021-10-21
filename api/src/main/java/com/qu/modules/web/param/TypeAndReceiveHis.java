@@ -1,5 +1,6 @@
 package com.qu.modules.web.param;
 
+import com.qu.modules.web.entity.DrugReceiveHis;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
@@ -9,7 +10,7 @@ public class TypeAndReceiveHis {
     private Integer type;
 
     @ApiModelProperty(value = "对应his物理作用")
-    private List<String> his;
+    private List<DrugReceiveHis> his;
 
     public Integer getType() {
         return type;
@@ -19,11 +20,11 @@ public class TypeAndReceiveHis {
         this.type = type;
     }
 
-    public List<String> getHis() {
+    public List<DrugReceiveHis> getHis() {
         return his;
     }
 
-    public void setHis(List<String> his) {
+    public void setHis(List<DrugReceiveHis> his) {
         this.his = his;
     }
 }

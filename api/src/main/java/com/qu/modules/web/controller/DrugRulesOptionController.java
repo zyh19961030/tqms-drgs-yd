@@ -95,15 +95,16 @@ public class DrugRulesOptionController {
 
 	/**
 	 * 设置时数据回显
-	 * @param optionId
+	 * @param id
 	 * @return
 	 */
 	@AutoLog(value = "药品规则答案表-设置时数据回显")
 	@ApiOperation(value="药品规则答案表-设置时数据回显", notes="药品规则答案表-设置时数据回显")
 	@GetMapping(value = "/queryHis")
-	public TypeAndReceiveHis queryHis(Integer optionId) {
+	public TypeAndReceiveHis queryHis(Integer id) {
+		Integer optionId = drugRulesOptionService.queryOptionIdById(id);
 		TypeAndReceiveHis typeAndReceiveHis = new TypeAndReceiveHis();
-		List<String> his = new ArrayList<>();
+		List<DrugReceiveHis> his = new ArrayList<>();
 		List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.queryByOptionId(optionId);
 		drugRulesRelationList.forEach(drugRulesRelation -> {
 			Integer type = drugRulesRelation.getType();
@@ -112,19 +113,13 @@ public class DrugRulesOptionController {
 				Integer medicationPurposeId = drugRulesRelation.getMedicationPurposeId();
 				List<DrugReceiveHis> drugReceiveHisList = drugReceiveHisService.queryByMid(medicationPurposeId);
 				drugReceiveHisList.forEach(drugReceiveHis -> {
-					Integer purposeOrActionId = drugReceiveHis.getPurposeOrActionId();
-					String purposeOrActionName = drugReceiveHis.getPurposeOrActionName();
-					String name = purposeOrActionId.toString() + purposeOrActionName;
-					his.add(name);
+					his.add(drugReceiveHis);
 				});
 			} else {
 				Integer drugPhysicalActionId = drugRulesRelation.getDrugPhysicalActionId();
 				List<DrugReceiveHis> drugReceiveHisList = drugReceiveHisService.queryByPid(drugPhysicalActionId);
 				drugReceiveHisList.forEach(drugReceiveHis -> {
-					Integer purposeOrActionId = drugReceiveHis.getPurposeOrActionId();
-					String purposeOrActionName = drugReceiveHis.getPurposeOrActionName();
-					String name = purposeOrActionId.toString() + purposeOrActionName;
-					his.add(name);
+					his.add(drugReceiveHis);
 				});
 			}
 		});

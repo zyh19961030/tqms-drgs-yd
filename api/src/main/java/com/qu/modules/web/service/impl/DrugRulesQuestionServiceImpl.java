@@ -63,4 +63,13 @@ public class DrugRulesQuestionServiceImpl extends ServiceImpl<DrugRulesQuestionM
         DrugRulesQuestion drugRulesQuestion = drugRulesQuestionMapper.queryQuestionById(id);
         return drugRulesQuestion;
     }
+
+    @Override
+    public List<DrugRulesQuestion> queryById(Integer id) {
+        LambdaQueryWrapper<DrugRulesQuestion> lambda = new QueryWrapper<DrugRulesQuestion>().lambda();
+        lambda.eq(DrugRulesQuestion::getId, id);
+        lambda.eq(DrugRulesQuestion::getDel, 0);
+        List<DrugRulesQuestion> list = this.list(lambda);
+        return list;
+    }
 }

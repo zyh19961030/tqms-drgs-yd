@@ -250,6 +250,32 @@ public class DrugRulesSubjectController {
 		 return drugRulesSubject;
 	 }
 
+	 /**
+	  *  编辑
+	  * @param drugRulesSubject
+	  * @return
+	  */
+	@AutoLog(value = "药品规则问题表-编辑")
+	@ApiOperation(value="药品规则问题表-编辑", notes="药品规则问题表-编辑")
+	@PutMapping(value = "/edit")
+	public Result<DrugRulesSubject> edit(@RequestBody DrugRulesSubject drugRulesSubject) {
+		Result<DrugRulesSubject> result = new Result<DrugRulesSubject>();
+		DrugRulesSubject drugRulesSubjectEntity = drugRulesSubjectService.getById(drugRulesSubject.getId());
+		if(drugRulesSubjectEntity==null) {
+			result.error500("未找到对应实体");
+		}else {
+			Date date = new Date();
+			drugRulesSubject.setUpdateTime(date);
+			boolean ok = drugRulesSubjectService.updateById(drugRulesSubject);
+			//TODO 返回false说明什么？
+			if(ok) {
+				result.success("修改成功!");
+			}
+		}
+
+		return result;
+	}
+
 	/**
 	  * 分页列表查询
 	 * @param drugRulesSubject
