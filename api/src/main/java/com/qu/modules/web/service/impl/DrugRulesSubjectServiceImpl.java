@@ -53,4 +53,10 @@ public class DrugRulesSubjectServiceImpl extends ServiceImpl<DrugRulesSubjectMap
         return list;
     }
 
+    @Override
+    public DrugRulesSubject queryById(Integer id) {
+        DrugRulesSubject drugRulesSubject = drugRulesSubjectMapper.queryById(id);
+        return drugRulesSubject;
+    }
+
 }

@@ -5,6 +5,7 @@ import com.qu.modules.web.entity.DrugRulesOption;
 import com.qu.modules.web.entity.DrugRulesRelation;
 import com.qu.modules.web.entity.Qoption;
 import com.qu.modules.web.param.SubjectIdAndMatchesParam;
+import com.qu.modules.web.param.TypeAndReceiveHis;
 import com.qu.modules.web.service.IDrugReceiveHisService;
 import com.qu.modules.web.service.IDrugRulesOptionService;
 import com.qu.modules.web.service.IDrugRulesRelationService;
@@ -67,7 +68,6 @@ public class DrugRulesOptionController {
 				if (type.equals(1)){
 					Integer medicationPurposeId = drugRulesRelation.getMedicationPurposeId();
 					List<DrugReceiveHis> drugReceiveHisList = drugReceiveHisService.queryByMid(medicationPurposeId);
-					System.out.println(drugReceiveHisList.size()+"===============================================");
 					drugReceiveHisList.forEach(drugReceiveHis -> {
 						Integer purposeOrActionId = drugReceiveHis.getPurposeOrActionId();
 						String purposeOrActionName = drugReceiveHis.getPurposeOrActionName();
@@ -77,7 +77,6 @@ public class DrugRulesOptionController {
 				} else {
 					Integer drugPhysicalActionId = drugRulesRelation.getDrugPhysicalActionId();
 					List<DrugReceiveHis> drugReceiveHisList = drugReceiveHisService.queryByPid(drugPhysicalActionId);
-					System.out.println(drugReceiveHisList.size()+"--------------------------------------------");
 					drugReceiveHisList.forEach(drugReceiveHis -> {
 						Integer purposeOrActionId = drugReceiveHis.getPurposeOrActionId();
 						String purposeOrActionName = drugReceiveHis.getPurposeOrActionName();
@@ -92,6 +91,45 @@ public class DrugRulesOptionController {
 			drugRulesOptionListVoList.add(DrugRulesOptionListVo);
 		});
 		return drugRulesOptionListVoList;
+	}
+
+	/**
+	 * 设置时数据回显
+	 * @param optionId
+	 * @return
+	 */
+	@AutoLog(value = "药品规则答案表-设置时数据回显")
+	@ApiOperation(value="药品规则答案表-设置时数据回显", notes="药品规则答案表-设置时数据回显")
+	@GetMapping(value = "/queryHis")
+	public TypeAndReceiveHis queryHis(Integer optionId) {
+		TypeAndReceiveHis typeAndReceiveHis = new TypeAndReceiveHis();
+		List<String> his = new ArrayList<>();
+		List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.queryByOptionId(optionId);
+		drugRulesRelationList.forEach(drugRulesRelation -> {
+			Integer type = drugRulesRelation.getType();
+			typeAndReceiveHis.setType(type);
+			if (type.equals(1)){
+				Integer medicationPurposeId = drugRulesRelation.getMedicationPurposeId();
+				List<DrugReceiveHis> drugReceiveHisList = drugReceiveHisService.queryByMid(medicationPurposeId);
+				drugReceiveHisList.forEach(drugReceiveHis -> {
+					Integer purposeOrActionId = drugReceiveHis.getPurposeOrActionId();
+					String purposeOrActionName = drugReceiveHis.getPurposeOrActionName();
+					String name = purposeOrActionId.toString() + purposeOrActionName;
+					his.add(name);
+				});
+			} else {
+				Integer drugPhysicalActionId = drugRulesRelation.getDrugPhysicalActionId();
+				List<DrugReceiveHis> drugReceiveHisList = drugReceiveHisService.queryByPid(drugPhysicalActionId);
+				drugReceiveHisList.forEach(drugReceiveHis -> {
+					Integer purposeOrActionId = drugReceiveHis.getPurposeOrActionId();
+					String purposeOrActionName = drugReceiveHis.getPurposeOrActionName();
+					String name = purposeOrActionId.toString() + purposeOrActionName;
+					his.add(name);
+				});
+			}
+		});
+		typeAndReceiveHis.setHis(his);
+		return typeAndReceiveHis;
 	}
 
 	/**

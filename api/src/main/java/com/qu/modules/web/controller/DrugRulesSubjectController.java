@@ -1,17 +1,17 @@
 package com.qu.modules.web.controller;
 
 import java.util.*;
+import java.util.zip.DeflaterOutputStream;
 
-import com.qu.modules.web.entity.DrugRulesQuestion;
-import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.entity.*;
+import com.qu.modules.web.param.DrugRulesRelationsListParam;
 import com.qu.modules.web.param.QuestionAndSubjectParam;
-import com.qu.modules.web.service.IDrugRulesQuestionService;
-import com.qu.modules.web.service.ISubjectService;
+import com.qu.modules.web.param.SubjectAndRelationsList;
+import com.qu.modules.web.service.*;
+import com.qu.modules.web.vo.PurposeAndActionVo;
 import com.qu.modules.web.vo.SearchResultVo;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
-import com.qu.modules.web.entity.DrugRulesSubject;
-import com.qu.modules.web.service.IDrugRulesSubjectService;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +36,12 @@ public class DrugRulesSubjectController {
 	private IDrugRulesQuestionService drugRulesQuestionService;
 	@Autowired
 	private ISubjectService subjectService;
+	@Autowired
+	private IDrugRulesOptionService drugRulesOptionService;
+	@Autowired
+	private IDrugRulesRelationService drugRulesRelationService;
+	@Autowired
+	private IDrugReceiveHisService drugReceiveHisService;
 
 	 /**
 	  * 根据问卷id查询答案
@@ -159,7 +165,7 @@ public class DrugRulesSubjectController {
 	 }
 
 	 /**
-	  * 根据问卷id查询答案
+	  * 根据问卷id查询问题
 	  * @param questionId
 	  * @return
 	  */
@@ -169,6 +175,79 @@ public class DrugRulesSubjectController {
 	 public List<Qsubject> querySubjectByQuId(@RequestParam(name="questionId",required=true) Integer questionId) {
 		 List<Qsubject> list = subjectService.querySubjectByQuId(questionId);
 		 return list;
+	 }
+
+	 /**
+	  * 应用于本题目所有答案
+	  * @param subjectAndRelationsList
+	  * @return
+	  */
+	 @AutoLog(value = "药品规则问题表-应用于本题目所有答案")
+	 @ApiOperation(value="药品规则问题表-应用于本题目所有答案", notes="药品规则问题表-应用于本题目所有答案")
+	 @PostMapping(value = "/applayAllOption")
+	 public Result<DrugRulesRelation> applayAllOption(@RequestBody SubjectAndRelationsList subjectAndRelationsList) {
+		 Result<DrugRulesRelation> result = new Result<DrugRulesRelation>();
+		 List<DrugRulesOption> drugRulesOptions = drugRulesOptionService.queryOption(subjectAndRelationsList.getSubjectId());
+		 drugRulesOptions.forEach(drugRulesOption -> {
+			 Integer optionId = drugRulesOption.getOptionId();
+			 List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.ifExist(optionId);
+			 if (drugRulesRelationList != null && drugRulesRelationList.size() > 0){
+				 int delete = drugRulesRelationService.delete(optionId);
+			 }
+			 DrugRulesRelation drugRulesRelation = new DrugRulesRelation();
+			 List<PurposeAndActionVo> purposeAndActionVos = subjectAndRelationsList.getPurposeAndActionVos();
+			 int type = subjectAndRelationsList.getType();
+			 if (type == 2) {
+				 purposeAndActionVos.forEach(purposeAndActionVo -> {
+					 Integer id1 = purposeAndActionVo.getMedicationPurposeId();
+					 Integer medicationPurposeId = drugReceiveHisService.queryPurposeOrActionIdById(id1);
+					 Integer drugPhysicalActionId = purposeAndActionVo.getDrugPhysicalActionId();
+					 drugRulesRelation.setDrugRulesOptionId(optionId);
+					 drugRulesRelation.setMedicationPurposeId(medicationPurposeId);
+					 drugRulesRelation.setDrugPhysicalActionId(drugPhysicalActionId);
+					 drugRulesRelation.setType(type);
+					 try {
+						 drugRulesRelationService.save(drugRulesRelation);
+						 result.success("设置成功！");
+					 } catch (Exception e) {
+						 log.error(e.getMessage(),e);
+						 result.error500("操作失败!");
+						 return;
+					 }
+				 });
+			 } else {
+				 purposeAndActionVos.forEach(purposeAndActionVo -> {
+					 Integer medicationPurposeId = purposeAndActionVo.getMedicationPurposeId();
+					 Integer drugPhysicalActionId = purposeAndActionVo.getDrugPhysicalActionId();
+					 drugRulesRelation.setDrugRulesOptionId(optionId);
+					 drugRulesRelation.setMedicationPurposeId(medicationPurposeId);
+					 drugRulesRelation.setDrugPhysicalActionId(drugPhysicalActionId);
+					 drugRulesRelation.setType(type);
+					 try {
+						 drugRulesRelationService.save(drugRulesRelation);
+						 result.success("设置成功！");
+					 } catch (Exception e) {
+						 log.error(e.getMessage(),e);
+						 result.error500("操作失败!");
+						 return;
+					 }
+				 });
+			 }
+		 });
+		 return result;
+	 }
+
+	 /**
+	  * 编辑时数据回显
+	  * @param id
+	  * @return
+	  */
+	 @AutoLog(value = "药品规则问题表-编辑时数据回显")
+	 @ApiOperation(value="药品规则问题表-编辑时数据回显", notes="药品规则问题表-编辑时数据回显")
+	 @GetMapping(value = "/querySubjectById")
+	 public DrugRulesSubject querySubjectById(@RequestParam(name="id",required=true) Integer id) {
+		 DrugRulesSubject drugRulesSubject = drugRulesSubjectService.queryById(id);
+		 return drugRulesSubject;
 	 }
 
 	/**

@@ -14,4 +14,8 @@
         select * from drug_rules_subject where subject_name like CONCAT('%',#{name},'%') and del = 0 and drug_rules_question_id = #{id}
     </select>
 
+    <select id="queryById" resultType="com.qu.modules.web.entity.DrugRulesSubject">
+        select * from drug_rules_subject where id = #{id} and del = 0
+    </select>
+
 </mapper>

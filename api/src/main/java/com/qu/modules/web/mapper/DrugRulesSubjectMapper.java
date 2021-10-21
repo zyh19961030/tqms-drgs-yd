@@ -24,4 +24,7 @@ public interface DrugRulesSubjectMapper extends BaseMapper<DrugRulesSubject> {
 
     //根据输入内容和问卷id搜索药品规则问题
     List<DrugRulesSubject> querySubjectByInputAndId(@Param("name") String name, @Param("id") Integer id);
+
+    //根据问题表id查询问题
+    DrugRulesSubject queryById(Integer id);
 }
