@@ -77,7 +77,7 @@ public class DrugRulesSubject {
 	/**开始时长*/
 	@Excel(name = "开始时长", width = 15)
     @ApiModelProperty(value = "开始时长")
-	private Integer startTime;
+	private String startTime;
 	/**结束时间项*/
 	@Excel(name = "结束时间项", width = 15)
     @ApiModelProperty(value = "结束时间项")
@@ -89,5 +89,5 @@ public class DrugRulesSubject {
 	/**结束时长*/
 	@Excel(name = "结束时长", width = 15)
     @ApiModelProperty(value = "结束时长")
-	private Integer endTime;
+	private String endTime;
 }

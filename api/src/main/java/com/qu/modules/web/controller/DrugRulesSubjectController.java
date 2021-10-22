@@ -9,6 +9,7 @@ import com.qu.modules.web.param.QuestionAndSubjectParam;
 import com.qu.modules.web.param.SubjectAndRelationsList;
 import com.qu.modules.web.service.*;
 import com.qu.modules.web.vo.PurposeAndActionVo;
+import com.qu.modules.web.vo.QuestionNameAndSubject;
 import com.qu.modules.web.vo.SearchResultVo;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -245,28 +246,35 @@ public class DrugRulesSubjectController {
 	 @AutoLog(value = "药品规则问题表-编辑时数据回显")
 	 @ApiOperation(value="药品规则问题表-编辑时数据回显", notes="药品规则问题表-编辑时数据回显")
 	 @GetMapping(value = "/querySubjectById")
-	 public DrugRulesSubject querySubjectById(@RequestParam(name="id",required=true) Integer id) {
+	 public QuestionNameAndSubject querySubjectById(@RequestParam(name="id",required=true) Integer id) {
 		 DrugRulesSubject drugRulesSubject = drugRulesSubjectService.queryById(id);
-		 return drugRulesSubject;
+		 Integer drugRulesQuestionId = drugRulesSubject.getDrugRulesQuestionId();
+		 DrugRulesQuestion drugRulesQuestion = drugRulesQuestionService.queryQuestionsById(drugRulesQuestionId);
+		 String questionName = drugRulesQuestion.getQuestionName();
+		 QuestionNameAndSubject questionNameAndSubject = new QuestionNameAndSubject();
+		 questionNameAndSubject.setQu_name(questionName);
+		 questionNameAndSubject.setDrugRulesSubject(drugRulesSubject);
+		 return questionNameAndSubject;
 	 }
 
 	 /**
 	  *  编辑
-	  * @param drugRulesSubject
+	  * @param questionAndSubjectParam
 	  * @return
 	  */
 	@AutoLog(value = "药品规则问题表-编辑")
 	@ApiOperation(value="药品规则问题表-编辑", notes="药品规则问题表-编辑")
 	@PutMapping(value = "/edit")
-	public Result<DrugRulesSubject> edit(@RequestBody DrugRulesSubject drugRulesSubject) {
+	public Result<DrugRulesSubject> edit(@RequestBody QuestionAndSubjectParam questionAndSubjectParam) {
 		Result<DrugRulesSubject> result = new Result<DrugRulesSubject>();
+		DrugRulesSubject drugRulesSubject = questionAndSubjectParam.getDrugRulesSubject();
 		DrugRulesSubject drugRulesSubjectEntity = drugRulesSubjectService.getById(drugRulesSubject.getId());
 		if(drugRulesSubjectEntity==null) {
 			result.error500("未找到对应实体");
 		}else {
 			Date date = new Date();
 			drugRulesSubject.setUpdateTime(date);
-			boolean ok = drugRulesSubjectService.updateById(drugRulesSubject);
+			boolean ok = drugRulesSubjectService.saveOrUpdate(drugRulesSubject);
 			//TODO 返回false说明什么？
 			if(ok) {
 				result.success("修改成功!");
