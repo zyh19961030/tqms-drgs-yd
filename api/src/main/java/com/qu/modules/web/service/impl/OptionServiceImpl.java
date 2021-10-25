@@ -3,9 +3,12 @@ package com.qu.modules.web.service.impl;
 import com.qu.modules.web.entity.Qoption;
 import com.qu.modules.web.mapper.OptionMapper;
 import com.qu.modules.web.service.IOptionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
+import java.util.List;
 
 /**
  * @Description: 选项表
@@ -16,4 +19,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 @Service
 public class OptionServiceImpl extends ServiceImpl<OptionMapper, Qoption> implements IOptionService {
 
+    @Autowired
+    OptionMapper optionMapper;
+
+    @Override
+    public List<Qoption> queryOptionBySubId(Integer subId) {
+        List<Qoption> qoptions = optionMapper.selectQoptionBySubId(subId);
+        return qoptions;
+    }
 }

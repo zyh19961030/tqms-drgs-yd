@@ -3,6 +3,8 @@ package com.qu.modules.web.service;
 import com.qu.modules.web.entity.Qoption;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * @Description: 选项表
  * @Author: jeecg-boot
@@ -10,5 +12,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @Version: V1.0
  */
 public interface IOptionService extends IService<Qoption> {
+
+    //根据问题id查询答案
+    List<Qoption> queryOptionBySubId(Integer subId);
 
 }
