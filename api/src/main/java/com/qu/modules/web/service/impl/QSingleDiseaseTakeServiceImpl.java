@@ -1204,7 +1204,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
         LambdaQueryWrapper<Question> questionQueryWrapper = new QueryWrapper<Question>().lambda();
         questionQueryWrapper.in(Question::getTableName, dynamicTableNameList);
-        questionQueryWrapper.eq(Question::getQuStatus,"1");
+//        questionQueryWrapper.eq(Question::getQuStatus,"1");
         questionQueryWrapper.eq(Question::getCategoryType,"1");
         questionQueryWrapper.eq(Question::getDel,"0");
         List<Question> questionList = questionMapper.selectList(questionQueryWrapper);
@@ -1251,17 +1251,27 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                     }else if (QsubjectConstant.SUB_TYPE_DATE.equals(subType)){
                         cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
                         if (a.getSubColumnName().equals("STK-1-4-3-2-1") || a.getSubColumnName().equals("STK-3-3-2-1-1")
-                        || a.getSubColumnName().equals("STK-1-5-2-1") || a.getSubColumnName().equals("STK-1-4-4-3")) {
+                        || a.getSubColumnName().equals("STK-1-5-2-1") || a.getSubColumnName().equals("STK-1-4-4-3")
+                        || a.getSubColumnName().equals("CM-0-2-4-1") || a.getSubColumnName().equals("CM-0-2-4-2")
+                        || a.getSubColumnName().equals("CM-0-2-5-2") || a.getSubColumnName().equals("CM-0-2-5-1")
+                        || a.getSubColumnName().equals("Cap-Adult-4-2-3") || a.getSubColumnName().equals("Cap-Adult-4-1-3")
+                        || a.getSubColumnName().equals("Cap-Adult-4-2-4") || a.getSubColumnName().equals("Cap-Adult-4-4")
+                        || a.getSubColumnName().equals("Cap-Adult-6-2-5-1") || a.getSubColumnName().equals("Cap-Adult-6-2-4-2")) {
                             a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_MINUTE_PATTERN));
                         } else {
                             a.setSubValue(parse.toString(DatePattern.NORM_DATE_PATTERN));
                         }
 
                     }else if (QsubjectConstant.SUB_TYPE_TIME.equals(subType)){
-                        if (a.getSubColumnName().equals("Knee-5-1-4")) {
+                        if (a.getSubColumnName().equals("Knee-5-1-4") || a.getSubColumnName().equals("Cap-3-2-4")) {
                             cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
                             a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_PATTERN));
                         } else {
+                            cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
+                            a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_MINUTE_PATTERN));
+                        }
+                    } else if (QsubjectConstant.SUB_TYPE_RESULT.equals(subType)) {
+                        if (a.getSubColumnName().equals("Cap-3-5-2")) {
                             cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
                             a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_MINUTE_PATTERN));
                         }
