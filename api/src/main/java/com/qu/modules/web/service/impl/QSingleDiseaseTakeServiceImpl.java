@@ -1256,7 +1256,8 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                         || a.getSubColumnName().equals("CM-0-2-5-2") || a.getSubColumnName().equals("CM-0-2-5-1")
                         || a.getSubColumnName().equals("Cap-Adult-4-2-3") || a.getSubColumnName().equals("Cap-Adult-4-1-3")
                         || a.getSubColumnName().equals("Cap-Adult-4-2-4") || a.getSubColumnName().equals("Cap-Adult-4-4")
-                        || a.getSubColumnName().equals("Cap-Adult-6-2-5-1") || a.getSubColumnName().equals("Cap-Adult-6-2-4-2")) {
+                        || a.getSubColumnName().equals("Cap-Adult-6-2-5-1") || a.getSubColumnName().equals("Cap-Adult-6-2-4-2")
+                        || a.getSubColumnName().equals("CM-0-2-3-2")) {
                             a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_MINUTE_PATTERN));
                         } else {
                             a.setSubValue(parse.toString(DatePattern.NORM_DATE_PATTERN));
@@ -1283,6 +1284,28 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                             a.setSubValue("n");
                         }
                     }
+                    if (qSingleDiseaseTake.getQuestionId().equals(138)) {
+                        if (a.getSubColumnName().equals("CM-0-1-4-2") || a.getSubColumnName().equals("CM-0-1-4-1")) {
+                            String value = a.getSubValue();
+                            String s = value.substring(2,3);
+                            a.setSubValue(s);
+                        }
+                    }
+                    if (qSingleDiseaseTake.getQuestionId().equals(80)) {
+                        if (a.getSubColumnName().equals("Cap-Adult-8-3-2")) {
+                            String value = a.getSubValue();
+                            String s = value.substring(2,3);
+                            a.setSubValue(s);
+                        }
+                    }
+//                    if (qSingleDiseaseTake.getQuestionId().equals(115)) {
+//                        if (a.getSubColumnName().equals("CM-0-2-2-1")) {
+//                            if (a.getSubValue().length() > 0 && !a.getSubValue().equals("")){
+//                                String s = a.getSubValue().substring(1, a.getSubValue().length());
+//                                a.setSubValue(s);
+//                            }
+//                        }
+//                    }
                     mapCache.put(a.getSubColumnName(), a.getSubValue());
                 }
                 singleDiseaseReportUrl = String.format(singleDiseaseReportUrl,quotaCategoryMap.get(qSingleDiseaseTake.getCategoryId()).getDiseaseType());
