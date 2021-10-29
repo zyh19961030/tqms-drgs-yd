@@ -81,7 +81,7 @@ public class DrugRulesSubjectController {
 			drugRulesQuestion.setUpdateTime(date);
 			drugRulesQuestionService.save(drugRulesQuestion);
 		} else {
-			drugRulesQuestionService.updateQuestion(drugRulesQuestion.getQuestionId(), 0, date);
+			int i = drugRulesQuestionService.updateQuestion(drugRulesQuestion.getQuestionId(), 0, date);
 		}
 		Integer subjectId = drugRulesSubject.getSubjectId();
 		List<Qoption> qoptions = optionService.queryOptionBySubId(subjectId);

@@ -3,7 +3,7 @@
 <mapper namespace="com.qu.modules.web.mapper.DrugRulesQuestionMapper">
 
     <update id="updateQuestion" parameterType="com.qu.modules.web.entity.DrugRulesQuestion">
-        update drug_rules_question set del = #{del}, update_time = #{updateTime} where id = #{id}
+        update drug_rules_question set del = #{del}, update_time = #{updateTime} where question_id = #{questionId}
     </update>
 
     <select id="queryQuestionById" resultType="com.qu.modules.web.entity.DrugRulesQuestion">

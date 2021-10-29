@@ -53,8 +53,8 @@ public class DrugRulesQuestionServiceImpl extends ServiceImpl<DrugRulesQuestionM
     }
 
     @Override
-    public int updateQuestion(Integer id, int del, Date updateTime) {
-        int i = drugRulesQuestionMapper.updateQuestion(id, del, updateTime);
+    public int updateQuestion(Integer questionId, int del, Date updateTime) {
+        int i = drugRulesQuestionMapper.updateQuestion(questionId, del, updateTime);
         return i;
     }
 
