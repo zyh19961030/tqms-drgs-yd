@@ -9,6 +9,7 @@ import com.qu.modules.web.param.QuestionAndSubjectParam;
 import com.qu.modules.web.param.SubjectAndRelationsList;
 import com.qu.modules.web.service.*;
 import com.qu.modules.web.vo.PurposeAndActionVo;
+import com.qu.modules.web.vo.QuestionNameAndSubject;
 import com.qu.modules.web.vo.SearchResultVo;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -259,9 +260,17 @@ public class DrugRulesSubjectController {
 	@AutoLog(value = "药品规则问题表-编辑时数据回显")
 	@ApiOperation(value="药品规则问题表-编辑时数据回显", notes="药品规则问题表-编辑时数据回显")
 	@GetMapping(value = "/querySubjectById")
-	public DrugRulesSubject querySubjectById(@RequestParam(name="id",required=true) Integer id) {
+	public QuestionNameAndSubject querySubjectById(@RequestParam(name="id",required=true) Integer id) {
+		QuestionNameAndSubject questionNameAndSubject = new QuestionNameAndSubject();
 		DrugRulesSubject drugRulesSubject = drugRulesSubjectService.queryById(id);
-		return drugRulesSubject;
+		Integer drugRulesQuestionId = drugRulesSubject.getDrugRulesQuestionId();
+		DrugRulesQuestion drugRulesQuestion = drugRulesQuestionService.queryQuestionsById(drugRulesQuestionId);
+		Integer id1 = drugRulesQuestion.getId();
+		String questionName = drugRulesQuestion.getQuestionName();
+		questionNameAndSubject.setId(id1);
+		questionNameAndSubject.setQu_name(questionName);
+		questionNameAndSubject.setDrugRulesSubject(drugRulesSubject);
+		return questionNameAndSubject;
 	}
 
 	/**
