@@ -275,14 +275,15 @@ public class DrugRulesSubjectController {
 
 	/**
 	 *  编辑
-	 * @param drugRulesSubject
+	 * @param questionAndSubjectParam
 	 * @return
 	 */
 	@AutoLog(value = "药品规则问题表-编辑")
 	@ApiOperation(value="药品规则问题表-编辑", notes="药品规则问题表-编辑")
 	@PutMapping(value = "/edit")
-	public Result<DrugRulesSubject> edit(@RequestBody DrugRulesSubject drugRulesSubject) {
-		Result<DrugRulesSubject> result = new Result<DrugRulesSubject>();
+	public Result<DrugRulesSubject> edit(@RequestBody QuestionAndSubjectParam questionAndSubjectParam) {
+        DrugRulesSubject drugRulesSubject = questionAndSubjectParam.getDrugRulesSubject();
+        Result<DrugRulesSubject> result = new Result<DrugRulesSubject>();
 		DrugRulesSubject drugRulesSubjectEntity = drugRulesSubjectService.getById(drugRulesSubject.getId());
 		if(drugRulesSubjectEntity==null) {
 			result.error500("未找到对应实体");
