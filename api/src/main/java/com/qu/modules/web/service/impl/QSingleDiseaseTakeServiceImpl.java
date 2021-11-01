@@ -1298,15 +1298,19 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                             a.setSubValue(s);
                         }
                     }
-//                    if (qSingleDiseaseTake.getQuestionId().equals(115)) {
-//                        if (a.getSubColumnName().equals("CM-0-2-2-1")) {
-//                            if (a.getSubValue().length() > 0 && !a.getSubValue().equals("")){
-//                                String s = a.getSubValue().substring(1, a.getSubValue().length());
-//                                a.setSubValue(s);
-//                            }
-//                        }
-//                    }
+                    if (qSingleDiseaseTake.getQuestionId().equals(115) || qSingleDiseaseTake.getQuestionId().equals(122)
+                    || qSingleDiseaseTake.getQuestionId().equals(100)) {
+                        if (a.getSubColumnName().equals("CM-0-2-2-1") || a.getSubColumnName().equals("CM-0-2-3-1")) {
+                            if (a.getSubValue().length() > 0 && !a.getSubValue().equals("")){
+                                String s = a.getSubValue().substring(5, 8);
+                                a.setSubValue(s);
+                            } else {
+
+                            }
+                        }
+                    }
                     mapCache.put(a.getSubColumnName(), a.getSubValue());
+
                 }
                 singleDiseaseReportUrl = String.format(singleDiseaseReportUrl,quotaCategoryMap.get(qSingleDiseaseTake.getCategoryId()).getDiseaseType());
                 HttpData data = HttpData.instance();
