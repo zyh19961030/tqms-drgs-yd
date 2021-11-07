@@ -1,5 +1,6 @@
 package com.qu.modules.web.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qu.constant.QuestionConstant;
@@ -416,5 +417,45 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         return questions;
     }
 
+    @Override
+    public void updateWriteFrequencyIdsParam(UpdateWriteFrequencyIdsParam updateWriteFrequencyIdsParam) {
+        Integer[] quIds = updateWriteFrequencyIdsParam.getQuId();
+        Integer writeFrequency = updateWriteFrequencyIdsParam.getWriteFrequency();
+        if (quIds != null && writeFrequency != null) {
+            //更新
+            for (Integer qid : quIds) {
+                Question question = new Question();
+                question.setId(qid);
+                question.setWriteFrequency(writeFrequency);
+                question.setUpdateTime(new Date());
+                questionMapper.updateById(question);
+            }
+        }
+    }
 
+    @Override
+    public List<QuestionPatientCreateListVo> patientCreateList(String name, String deptId) {
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        if(StringUtils.isNotBlank(name)){
+            lambda.like(Question::getQuName,name);
+        }
+        lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+        lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_NORMAL);
+        lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+        lambda.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_PATIENT_WRITE);
+        //科室匹配 问卷设置科室权限---
+        if(StringUtils.isNotBlank(deptId)){
+            lambda.like(Question::getDeptIds,deptId);
+        }
+        List<Question> questions = questionMapper.selectList(lambda);
+        List<QuestionPatientCreateListVo> patientCreateListVos = questions.stream().map(q -> {
+            QuestionPatientCreateListVo patientCreateListVo = new QuestionPatientCreateListVo();
+            patientCreateListVo.setIcon(q.getIcon());
+            patientCreateListVo.setQuName(q.getQuName());
+            patientCreateListVo.setIcon(q.getIcon());
+            patientCreateListVo.setId(q.getId());
+            return patientCreateListVo;
+        }).collect(Collectors.toList());
+        return patientCreateListVos;
+    }
 }

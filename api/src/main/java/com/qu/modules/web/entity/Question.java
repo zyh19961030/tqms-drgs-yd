@@ -90,4 +90,8 @@ public class Question {
 	@Excel(name = "图标", width = 15)
 	@ApiModelProperty(value = "图标")
 	private java.lang.String icon;
+	/**填报频次 0患者登记表 1月度汇总表 2季度汇总表 3年度汇总表*/
+	@Excel(name = "填报频次 0患者登记表 1月度汇总表 2季度汇总表 3年度汇总表", width = 15)
+    @ApiModelProperty(value = "填报频次 0患者登记表 1月度汇总表 2季度汇总表 3年度汇总表")
+	private java.lang.Integer writeFrequency;
 }

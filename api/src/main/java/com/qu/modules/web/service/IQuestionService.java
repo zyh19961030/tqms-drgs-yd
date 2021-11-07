@@ -5,6 +5,7 @@ import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.param.*;
 import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
 import com.qu.modules.web.vo.QuestionPageVo;
+import com.qu.modules.web.vo.QuestionPatientCreateListVo;
 import com.qu.modules.web.vo.QuestionVo;
 
 import java.util.List;
@@ -38,5 +39,9 @@ public interface IQuestionService extends IService<Question> {
     Boolean againRelease(QuestionAgainReleaseParam questionAgainreleaseParam);
 
     List<Question> queryQuestionByInput(String name);
+
+    void updateWriteFrequencyIdsParam(UpdateWriteFrequencyIdsParam updateWriteFrequencyIdsParam);
+
+    List<QuestionPatientCreateListVo> patientCreateList(String name, String deptId);
 
 }

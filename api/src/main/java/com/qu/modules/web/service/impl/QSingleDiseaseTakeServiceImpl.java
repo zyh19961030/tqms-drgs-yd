@@ -722,7 +722,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         if(qsubject!=null){
             String inHospitalFee = mapCache.get(qsubject.getColumnName());
             if(StringUtils.isNotBlank(inHospitalFee)){
-                qSingleDiseaseTake.setInHospitalFee(PriceUtil.toFenInt(new BigDecimal(inHospitalFee)));
+                qSingleDiseaseTake.setInHospitalFee(inHospitalFee);
             }
         }
 
@@ -733,7 +733,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         if(qsubject!=null){
             String operationTreatmentFeeString = mapCache.get(qsubject.getColumnName());
             if(StringUtils.isNotBlank(operationTreatmentFeeString)){
-                qSingleDiseaseTake.setOperationTreatmentFee(PriceUtil.toFenInt(new BigDecimal(operationTreatmentFeeString)));
+                qSingleDiseaseTake.setOperationTreatmentFee(operationTreatmentFeeString);
             }
         }
 
@@ -767,7 +767,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             treatmentDisposableMaterialFee = PriceUtil.toFenInt(new BigDecimal(treatmentDisposableMaterialFeeString));
         }
 
-        qSingleDiseaseTake.setDisposableConsumable(treatmentDisposableMaterialFee+examinationDisposableMaterialFee+operationDisposableMaterialFee);
+        qSingleDiseaseTake.setDisposableConsumable(PriceUtil.toYuanStr(treatmentDisposableMaterialFee+examinationDisposableMaterialFee+operationDisposableMaterialFee));
 
         Question question = questionMapper.selectById(singleDiseaseAnswerParam.getQuId());
         qSingleDiseaseTake.setDynamicTableName(question.getTableName());

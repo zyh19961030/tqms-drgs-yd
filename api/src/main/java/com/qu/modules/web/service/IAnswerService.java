@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.Answer;
 import com.qu.modules.web.param.AnswerParam;
 import com.qu.modules.web.vo.AnswerPageVo;
+import com.qu.modules.web.vo.AnswerPatientFillingInVo;
+
+import java.util.List;
 
 public interface IAnswerService extends IService<Answer> {
 
@@ -19,4 +22,5 @@ public interface IAnswerService extends IService<Answer> {
 
     String withdrawEdit(Integer id);
 
+    List<AnswerPatientFillingInVo> patientFillingInList(String deptId);
 }

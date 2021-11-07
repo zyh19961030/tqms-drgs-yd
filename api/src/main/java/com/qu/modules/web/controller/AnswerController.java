@@ -1,18 +1,23 @@
 package com.qu.modules.web.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.qu.constant.Constant;
 import com.qu.modules.web.entity.Answer;
 import com.qu.modules.web.param.AnswerParam;
+import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.IAnswerService;
 import com.qu.modules.web.vo.AnswerPageVo;
+import com.qu.modules.web.vo.AnswerPatientFillingInVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @Slf4j
 @Api(tags = "答案")
@@ -109,5 +114,40 @@ public class AnswerController {
         result.setResult(answer);
         return result;
     }
+
+    /**
+     * 患者登记表-填报中
+     */
+    @AutoLog(value = "患者登记表-填报中")
+    @ApiOperation(value = "患者登记表-填报中", notes = "患者登记表-填报中")
+    @GetMapping(value = "/patientFillingInList")
+    public Result<List<AnswerPatientFillingInVo>> patientFillingInList(HttpServletRequest request) {
+        Result<List<AnswerPatientFillingInVo>> result = new Result<>();
+        //加科室过滤---
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String deptId = data.getDeps().get(0).getId();
+        List<AnswerPatientFillingInVo> list = answerService.patientFillingInList(deptId);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+    /**
+     * 患者登记表-已提交
+     */
+    /*@AutoLog(value = "患者登记表-已提交")
+    @ApiOperation(value = "患者登记表-已提交", notes = "患者登记表-已提交")
+    @GetMapping(value = "/patientSubmitList")
+    public Result<List<AnswerPatientSubmitVo>> patientSubmitList(QuestionParam questionParam, HttpServletRequest request) {
+        Result<List<AnswerPatientSubmitVo>> result = new Result<>();
+        //加科室过滤---
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String deptId = data.getDeps().get(0).getId();
+        List<AnswerPatientSubmitVo> list = answerService.patientSubmitList(deptId);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }*/
+
 
 }

@@ -15,7 +15,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.util.Date;
 
 /**
- * @Description: 作答
+ * @Description: 答案表
  * @Author: jeecg-boot
  * @Date: 2021-03-28
  * @Version: V1.0
@@ -24,7 +24,7 @@ import java.util.Date;
 @TableName("answer")
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@ApiModel(value = "answer对象", description = "作答")
+@ApiModel(value = "answer对象", description = "答案表")
 public class Answer {
 
     /**
@@ -45,18 +45,25 @@ public class Answer {
      */
     @Excel(name = "答案json", width = 15)
     @ApiModelProperty(value = "答案json")
-    private Object answerJson;
-
+    private java.lang.Object answerJson;
+    /**
+     * 0:草稿1:已提交
+     */
+    @Excel(name = "0:草稿1:已提交", width = 15)
     @ApiModelProperty(value = "0:草稿1:已提交")
-    private Integer answerStatus;
-
-
+    private java.lang.Integer answerStatus;
+    /**
+     * 答题人
+     */
+    @Excel(name = "答题人", width = 15)
     @ApiModelProperty(value = "答题人")
-    private String creater;
-
+    private java.lang.String creater;
+    /**
+     * 答题人姓名
+     */
+    @Excel(name = "答题人姓名", width = 15)
     @ApiModelProperty(value = "答题人姓名")
-    private String createrName;
-
+    private java.lang.String createrName;
     /**
      * 答题时间
      */
@@ -65,9 +72,44 @@ public class Answer {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "答题时间")
     private Date createTime;
-
+    /**
+     * 答题人部门id
+     */
+    @Excel(name = "答题人部门id", width = 15)
     @ApiModelProperty(value = "答题人部门id")
     private String createrDeptid;
+    /**
+     * 答题人部门名称
+     */
+    @Excel(name = "答题人部门名称", width = 15)
     @ApiModelProperty(value = "答题人部门名称")
     private String createrDeptname;
+    /**
+     * 对应子表的id，可以当主键，(子表中同字段)
+     */
+    @Excel(name = "对应子表的id，可以当主键，(子表中同字段)", width = 15)
+    @ApiModelProperty(value = "对应子表的id，可以当主键，(子表中同字段)")
+	private java.lang.String summaryMappingTableId;
+	/**患者姓名*/
+	@Excel(name = "患者姓名", width = 15)
+    @ApiModelProperty(value = "患者姓名")
+	private java.lang.String patientName;
+	/**住院号*/
+	@Excel(name = "住院号", width = 15)
+    @ApiModelProperty(value = "住院号")
+	private java.lang.String hospitalInNo;
+	/**年龄*/
+	@Excel(name = "年龄", width = 15)
+    @ApiModelProperty(value = "年龄")
+	private java.lang.Integer age;
+	/**住院时间*/
+    @ApiModelProperty(value = "住院时间")
+	private java.util.Date inTime;
+	/**修改时间*/
+    @ApiModelProperty(value = "修改时间")
+	private java.util.Date updateTime;
+	/**提交时间*/
+	@Excel(name = "提交时间", width = 15)
+    @ApiModelProperty(value = "提交时间")
+	private java.lang.String submitTime;
 }

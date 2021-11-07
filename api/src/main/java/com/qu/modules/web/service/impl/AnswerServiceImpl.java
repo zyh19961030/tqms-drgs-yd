@@ -1,12 +1,10 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.qu.constant.AnswerConstant;
 import com.qu.constant.QuestionConstant;
 import com.qu.modules.web.entity.Answer;
 import com.qu.modules.web.entity.Qsubject;
@@ -20,13 +18,21 @@ import com.qu.modules.web.param.Answers;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IAnswerService;
 import com.qu.modules.web.vo.AnswerPageVo;
+import com.qu.modules.web.vo.AnswerPatientFillingInVo;
 import com.qu.modules.web.vo.AnswerVo;
 import com.qu.util.DateUtil;
 import com.qu.util.HttpClient;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -182,5 +188,23 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
             log.error(e.getMessage(), e);
         }
         return answer;
+    }
+
+    @Override
+    public List<AnswerPatientFillingInVo> patientFillingInList(String deptId) {
+        LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
+        lambda.like(Answer::getCreaterDeptid,deptId);
+        lambda.eq(Answer::getAnswerStatus,AnswerConstant.QU_STATUS_DRAFT);
+        List<Answer> questions = answerMapper.selectList(lambda);
+        List<Integer> questionIdList = questions.stream().map(Answer::getQuId).distinct().collect(Collectors.toList());
+        List<Question> questionList = questionMapper.selectBatchIds(questionIdList);
+        Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, q -> q));
+        List<AnswerPatientFillingInVo> answerPatientFillingInVos = questions.stream().map(answer -> {
+            AnswerPatientFillingInVo answerPatientFillingInVo = new AnswerPatientFillingInVo();
+            BeanUtils.copyProperties(answer,answerPatientFillingInVo);
+            answerPatientFillingInVo.setQuName(questionMap.get(answer.getQuId()).getQuName());
+            return answerPatientFillingInVo;
+        }).collect(Collectors.toList());
+        return answerPatientFillingInVos;
     }
 }

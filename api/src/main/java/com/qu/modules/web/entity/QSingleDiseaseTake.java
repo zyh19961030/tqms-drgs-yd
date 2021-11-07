@@ -153,22 +153,22 @@ public class QSingleDiseaseTake {
 	@Excel(name = "住院天数", width = 15)
 	@ApiModelProperty(value = "住院天数")
 	private java.lang.Integer inHospitalDay;
-	/**住院费用 单位分*/
-	@Excel(name = "住院费用 单位分", width = 15)
-	@ApiModelProperty(value = "住院费用 单位分")
-	private java.lang.Integer inHospitalFee;
-	/**药品费用 单位分*/
-	@Excel(name = "药品费用 单位分", width = 15)
-	@ApiModelProperty(value = "药品费用 单位分")
-	private java.lang.Integer drugFee;
-	/**手术治疗费用 单位分*/
-	@Excel(name = "手术治疗费用 单位分", width = 15)
-	@ApiModelProperty(value = "手术治疗费用 单位分")
-	private java.lang.Integer operationTreatmentFee;
-	/**一次性耗材费用 单位分*/
-	@Excel(name = "一次性耗材费用 单位分", width = 15)
-	@ApiModelProperty(value = "一次性耗材费用 单位分")
-	private java.lang.Integer disposableConsumable;
+	/**住院费用 字符串 可以带小数*/
+	@Excel(name = "住院费用 字符串 可以带小数", width = 15)
+    @ApiModelProperty(value = "住院费用 字符串 可以带小数")
+	private java.lang.String inHospitalFee;
+	/**药品费用 字符串 可以带小数*/
+	@Excel(name = "药品费用 字符串 可以带小数", width = 15)
+    @ApiModelProperty(value = "药品费用 字符串 可以带小数")
+	private java.lang.String drugFee;
+	/**手术治疗费用 字符串 可以带小数*/
+	@Excel(name = "手术治疗费用 字符串 可以带小数", width = 15)
+    @ApiModelProperty(value = "手术治疗费用 字符串 可以带小数")
+	private java.lang.String operationTreatmentFee;
+	/**一次性耗材费用 字符串 可以带小数*/
+	@Excel(name = "一次性耗材费用 字符串 可以带小数", width = 15)
+    @ApiModelProperty(value = "一次性耗材费用 字符串 可以带小数")
+	private java.lang.String disposableConsumable;
 	/**答案json*/
 	@Excel(name = "答案json", width = 15)
 	@ApiModelProperty(value = "答案json")
@@ -199,9 +199,9 @@ public class QSingleDiseaseTake {
 	@Excel(name = "答题人部门名称", width = 15)
 	@ApiModelProperty(value = "答题人部门名称")
 	private java.lang.String answerDeptname;
-	/**动态创建表的id*/
-	@Excel(name = "动态创建表的id", width = 15)
-	@ApiModelProperty(value = "动态创建表的id")
+	/**动态创建表的id-废弃,被summary_mapping_table_id替代*/
+	@Excel(name = "动态创建表的id-废弃,被summary_mapping_table_id替代", width = 15)
+    @ApiModelProperty(value = "动态创建表的id-废弃,被summary_mapping_table_id替代")
 	private java.lang.String tableId;
 	/**动态创建表的表名*/
 	@Excel(name = "动态创建表的表名", width = 15)
@@ -222,4 +222,16 @@ public class QSingleDiseaseTake {
 	@Excel(name = "tqms科室名字", width = 15)
     @ApiModelProperty(value = "tqms科室名字")
 	private java.lang.String tqmsDeptName;
+	/**nlp解析结果的id*/
+	@Excel(name = "nlp解析结果的id", width = 15)
+    @ApiModelProperty(value = "nlp解析结果的id")
+	private java.lang.String nlpAnalysisId;
+	/**nlp解析结果表*/
+	@Excel(name = "nlp解析结果表", width = 15)
+    @ApiModelProperty(value = "nlp解析结果表")
+	private java.lang.String nlpAnalysisTable;
+	/**对应子表的id，可以当主键，(子表中同字段)*/
+	@Excel(name = "对应子表的id，可以当主键，(子表中同字段)", width = 15)
+    @ApiModelProperty(value = "对应子表的id，可以当主键，(子表中同字段)")
+	private java.lang.String summaryMappingTableId;
 }

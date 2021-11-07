@@ -2,6 +2,8 @@ package com.qu.constant;
 
 public class QuestionConstant {
 
+	public static final Integer WRITE_FREQUENCY_PATIENT_WRITE = 0;
+
 	public static final Integer DEL_NORMAL = 0;
 	public static final Integer DEL_DELETED = 1;
 	public static final Integer QU_STATUS_DRAFT = 0;
