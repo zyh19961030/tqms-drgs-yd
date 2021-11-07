@@ -1284,6 +1284,17 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                             a.setSubValue("n");
                         }
                     }
+//                    if (a.getSubColumnName().equals("CM-0-1-4-1")) {
+//                        if (a.getSubValue().equals("a")) {
+//                            a.setSubValue("c");
+//                        } else  if (a.getSubValue().equals("b")){
+//                            a.setSubValue("d");
+//                        } if (a.getSubValue().equals("c")) {
+//                            a.setSubValue("e");
+//                        } else if(a.getSubValue().equals("d")) {
+//                            a.setSubValue("h");
+//                        }
+//                    }
                     if (qSingleDiseaseTake.getQuestionId().equals(138)) {
                         if (a.getSubColumnName().equals("CM-0-1-4-2") || a.getSubColumnName().equals("CM-0-1-4-1")) {
                             String value = a.getSubValue();
