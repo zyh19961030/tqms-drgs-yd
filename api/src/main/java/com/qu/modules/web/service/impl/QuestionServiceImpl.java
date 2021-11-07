@@ -173,6 +173,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                             .append("',");
                 }
                 sql.append(" `answer_datetime` timestamp(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '填报时间',");
+                sql.append(" `tbksmc` varchar(255) NULL COMMENT '填报科室名称',");
+                sql.append(" `tbksdm` varchar(255) NULL COMMENT '填报科室代码',");
+                sql.append(" `summary_mapping_table_id` varchar(32) NULL COMMENT '对应总表的id，可以当主键',");
                 sql.append(" PRIMARY KEY (`id`)");
                 if(subjectList.size()>=50){
                     sql.append(") ENGINE=MyISAM DEFAULT CHARSET=utf8;");

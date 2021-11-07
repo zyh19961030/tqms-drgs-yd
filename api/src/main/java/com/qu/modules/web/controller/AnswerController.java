@@ -64,7 +64,7 @@ public class AnswerController {
         return result;
     }
 
-    @ApiOperation(value = "答题回显", notes = "答题回显")
+    @ApiOperation(value = "答题回显-废弃", notes = "答题回显-废弃")
     @GetMapping(value = "/queryByQuId")
     public Result<String> queryByQuId(@RequestParam Integer quId) {
         Result<String> result = new Result<String>();
