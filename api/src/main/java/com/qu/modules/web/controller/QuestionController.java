@@ -5,12 +5,10 @@ import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
-import com.qu.modules.web.vo.QuestionPageVo;
-import com.qu.modules.web.vo.QuestionPatientCreateListVo;
-import com.qu.modules.web.vo.QuestionVo;
+import com.qu.modules.web.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -235,6 +233,24 @@ public class QuestionController {
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
         String deptId = data.getDeps().get(0).getId();
         List<QuestionPatientCreateListVo> list = questionService.patientCreateList(name,deptId);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+    /**
+     * 月度,季度,年汇总-新建查询
+     */
+    @AutoLog(value = "月度,季度,年汇总-新建查询")
+    @ApiOperation(value = "月度,季度,年汇总-新建查询", notes = "月度,季度,年汇总-新建查询")
+    @GetMapping(value = "/monthQuarterYearCreateList")
+    public Result<List<QuestionMonthQuarterYearCreateListVo>> monthQuarterYearCreateList(@RequestParam(name = "type")@ApiParam("类型必填,月度传0,季度传1,年传2") String type,
+                                                                                HttpServletRequest request) {
+        Result<List<QuestionMonthQuarterYearCreateListVo>> result = new Result<>();
+        //加科室过滤---
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String deptId = data.getDeps().get(0).getId();
+        List<QuestionMonthQuarterYearCreateListVo> list = questionService.monthQuarterYearCreateList(type,deptId);
         result.setSuccess(true);
         result.setResult(list);
         return result;

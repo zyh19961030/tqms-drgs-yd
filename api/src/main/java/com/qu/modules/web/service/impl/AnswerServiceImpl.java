@@ -3,6 +3,8 @@ package com.qu.modules.web.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qu.constant.AnswerConstant;
 import com.qu.constant.QuestionConstant;
@@ -14,15 +16,18 @@ import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
 import com.qu.modules.web.param.AnswerParam;
+import com.qu.modules.web.param.AnswerPatientSubmitParam;
 import com.qu.modules.web.param.Answers;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IAnswerService;
 import com.qu.modules.web.vo.AnswerPageVo;
-import com.qu.modules.web.vo.AnswerPatientFillingInVo;
+import com.qu.modules.web.vo.AnswerPatientFillingInAndSubmitPageVo;
+import com.qu.modules.web.vo.AnswerPatientFillingInAndSubmitVo;
 import com.qu.modules.web.vo.AnswerVo;
 import com.qu.util.DateUtil;
 import com.qu.util.HttpClient;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -191,20 +196,105 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
     }
 
     @Override
-    public List<AnswerPatientFillingInVo> patientFillingInList(String deptId) {
+    public AnswerPatientFillingInAndSubmitPageVo patientFillingInList(String deptId, Integer pageNo, Integer pageSize) {
+        Page<Answer> page = new Page<>(pageNo, pageSize);
         LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
         lambda.like(Answer::getCreaterDeptid,deptId);
         lambda.eq(Answer::getAnswerStatus,AnswerConstant.QU_STATUS_DRAFT);
-        List<Answer> questions = answerMapper.selectList(lambda);
+
+        LambdaQueryWrapper<Question> questionLambdaQueryWrapper = getQuestionLambda();
+        questionLambdaQueryWrapper.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_PATIENT_WRITE);
+        List<Question> questions = questionMapper.selectList(questionLambdaQueryWrapper);
+        List<Integer> questionIdList = questions.stream().map(Question::getId).distinct().collect(Collectors.toList());
+        lambda.in(Answer::getQuId,questionIdList);
+        return getAnswerPatientFillingInAndSubmitPageVo(page, lambda);
+    }
+
+    private LambdaQueryWrapper<Question> getQuestionLambda() {
+        LambdaQueryWrapper<Question> questionLambdaQueryWrapper = new QueryWrapper<Question>().lambda();
+        questionLambdaQueryWrapper.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_NORMAL);
+        questionLambdaQueryWrapper.eq(Question::getQuStop,QuestionConstant.QU_STATUS_RELEASE);
+        questionLambdaQueryWrapper.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+        return questionLambdaQueryWrapper;
+    }
+
+    @Override
+    public AnswerPatientFillingInAndSubmitPageVo patientSubmitList(String deptId, AnswerPatientSubmitParam answerPatientSubmitParam, Integer pageNo, Integer pageSize) {
+        Page<Answer> page = new Page<>(pageNo, pageSize);
+        LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
+        lambda.like(Answer::getCreaterDeptid,deptId);
+        lambda.eq(Answer::getAnswerStatus,AnswerConstant.QU_STATUS_RELEASE);
+        if(StringUtils.isNotBlank(answerPatientSubmitParam.getPatientName())){
+            lambda.like(Answer::getPatientName,answerPatientSubmitParam.getPatientName());
+        }
+        if(StringUtils.isNotBlank(answerPatientSubmitParam.getQuName())){
+            LambdaQueryWrapper<Question> questionLambdaQueryWrapper = getQuestionLambda();
+            questionLambdaQueryWrapper.like(Question::getQuName,answerPatientSubmitParam.getQuName());
+            List<Question> questions = questionMapper.selectList(questionLambdaQueryWrapper);
+            List<Integer> questionIdList = questions.stream().map(Question::getId).distinct().collect(Collectors.toList());
+
+            lambda.in(Answer::getQuId,questionIdList);
+        }
+        if (answerPatientSubmitParam.getInHospitalStartDate() != null) {
+            lambda.ge(Answer::getInTime, answerPatientSubmitParam.getInHospitalStartDate());
+        }
+        if (answerPatientSubmitParam.getInHospitalEndDate() != null) {
+            lambda.le(Answer::getInTime, answerPatientSubmitParam.getInHospitalEndDate());
+        }
+        if (answerPatientSubmitParam.getSubmitStartDate() != null) {
+            lambda.ge(Answer::getSubmitTime, answerPatientSubmitParam.getSubmitStartDate());
+        }
+        if (answerPatientSubmitParam.getSubmitEndDate() != null) {
+            lambda.le(Answer::getSubmitTime, answerPatientSubmitParam.getSubmitEndDate());
+        }
+        if (StringUtils.isNotBlank(answerPatientSubmitParam.getCreater())) {
+            lambda.like(Answer::getCreater, answerPatientSubmitParam.getCreater());
+        }
+        if (StringUtils.isNotBlank(answerPatientSubmitParam.getHospitalInNo())) {
+            lambda.like(Answer::getHospitalInNo, answerPatientSubmitParam.getHospitalInNo());
+        }
+        return getAnswerPatientFillingInAndSubmitPageVo(page, lambda);
+    }
+
+    private AnswerPatientFillingInAndSubmitPageVo getAnswerPatientFillingInAndSubmitPageVo(Page<Answer> page, LambdaQueryWrapper<Answer> lambda) {
+        AnswerPatientFillingInAndSubmitPageVo res = new AnswerPatientFillingInAndSubmitPageVo();
+        IPage<Answer> answerIPage = this.page(page, lambda);
+        List<Answer> questions = answerIPage.getRecords();
+        if(questions.isEmpty()){
+            res.setTotal(answerIPage.getTotal());
+            return res;
+        }
         List<Integer> questionIdList = questions.stream().map(Answer::getQuId).distinct().collect(Collectors.toList());
         List<Question> questionList = questionMapper.selectBatchIds(questionIdList);
         Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, q -> q));
-        List<AnswerPatientFillingInVo> answerPatientFillingInVos = questions.stream().map(answer -> {
-            AnswerPatientFillingInVo answerPatientFillingInVo = new AnswerPatientFillingInVo();
+        List<AnswerPatientFillingInAndSubmitVo> answerPatientFillingInVos = questions.stream().map(answer -> {
+            AnswerPatientFillingInAndSubmitVo answerPatientFillingInVo = new AnswerPatientFillingInAndSubmitVo();
             BeanUtils.copyProperties(answer,answerPatientFillingInVo);
             answerPatientFillingInVo.setQuName(questionMap.get(answer.getQuId()).getQuName());
             return answerPatientFillingInVo;
         }).collect(Collectors.toList());
-        return answerPatientFillingInVos;
+        res.setTotal(answerIPage.getTotal());
+        res.setAnswerPatientFillingInVos(answerPatientFillingInVos);
+        return res;
+    }
+
+    @Override
+    public AnswerPatientFillingInAndSubmitPageVo monthQuarterYearList(String deptId, String type, Integer pageNo, Integer pageSize) {
+        Page<Answer> page = new Page<>(pageNo, pageSize);
+        LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
+        lambda.like(Answer::getCreaterDeptid,deptId);
+        lambda.eq(Answer::getAnswerStatus,AnswerConstant.QU_STATUS_DRAFT);
+
+        LambdaQueryWrapper<Question> questionLambdaQueryWrapper = getQuestionLambda();
+        if(type.equals("0")){
+            questionLambdaQueryWrapper.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_MONTH);
+        }else{
+            questionLambdaQueryWrapper.in(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_MONTH_QUARTER_YEAR);
+        }
+        List<Question> questions = questionMapper.selectList(questionLambdaQueryWrapper);
+        List<Integer> questionIdList = questions.stream().map(Question::getId).distinct().collect(Collectors.toList());
+        lambda.in(Answer::getQuId,questionIdList);
+
+        return getAnswerPatientFillingInAndSubmitPageVo(page, lambda);
     }
 }

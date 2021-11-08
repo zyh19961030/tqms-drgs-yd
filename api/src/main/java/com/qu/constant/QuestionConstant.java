@@ -1,8 +1,16 @@
 package com.qu.constant;
 
+import com.google.common.collect.Lists;
+
+import java.util.List;
+
 public class QuestionConstant {
 
 	public static final Integer WRITE_FREQUENCY_PATIENT_WRITE = 0;
+	public static final Integer WRITE_FREQUENCY_MONTH = 1;
+	public static final Integer WRITE_FREQUENCY_QUARTER = 2;
+	public static final Integer WRITE_FREQUENCY_YEAR = 3;
+	public static final List<Integer> WRITE_FREQUENCY_MONTH_QUARTER_YEAR = Lists.newArrayList(1,2,3);
 
 	public static final Integer DEL_NORMAL = 0;
 	public static final Integer DEL_DELETED = 1;

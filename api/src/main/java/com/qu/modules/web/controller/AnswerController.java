@@ -4,12 +4,14 @@ import com.alibaba.fastjson.JSON;
 import com.qu.constant.Constant;
 import com.qu.modules.web.entity.Answer;
 import com.qu.modules.web.param.AnswerParam;
+import com.qu.modules.web.param.AnswerPatientSubmitParam;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.IAnswerService;
 import com.qu.modules.web.vo.AnswerPageVo;
-import com.qu.modules.web.vo.AnswerPatientFillingInVo;
+import com.qu.modules.web.vo.AnswerPatientFillingInAndSubmitPageVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -17,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 @Slf4j
 @Api(tags = "答案")
@@ -121,12 +122,14 @@ public class AnswerController {
     @AutoLog(value = "患者登记表-填报中")
     @ApiOperation(value = "患者登记表-填报中", notes = "患者登记表-填报中")
     @GetMapping(value = "/patientFillingInList")
-    public Result<List<AnswerPatientFillingInVo>> patientFillingInList(HttpServletRequest request) {
-        Result<List<AnswerPatientFillingInVo>> result = new Result<>();
+    public Result<AnswerPatientFillingInAndSubmitPageVo> patientFillingInList(HttpServletRequest request,
+                                                                              @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                              @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+        Result<AnswerPatientFillingInAndSubmitPageVo> result = new Result<>();
         //加科室过滤---
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
         String deptId = data.getDeps().get(0).getId();
-        List<AnswerPatientFillingInVo> list = answerService.patientFillingInList(deptId);
+        AnswerPatientFillingInAndSubmitPageVo list = answerService.patientFillingInList(deptId, pageNo,pageSize );
         result.setSuccess(true);
         result.setResult(list);
         return result;
@@ -135,19 +138,41 @@ public class AnswerController {
     /**
      * 患者登记表-已提交
      */
-    /*@AutoLog(value = "患者登记表-已提交")
+    @AutoLog(value = "患者登记表-已提交")
     @ApiOperation(value = "患者登记表-已提交", notes = "患者登记表-已提交")
     @GetMapping(value = "/patientSubmitList")
-    public Result<List<AnswerPatientSubmitVo>> patientSubmitList(QuestionParam questionParam, HttpServletRequest request) {
-        Result<List<AnswerPatientSubmitVo>> result = new Result<>();
+    public Result<AnswerPatientFillingInAndSubmitPageVo> patientSubmitList(AnswerPatientSubmitParam answerPatientSubmitParam, HttpServletRequest request,
+                                                                           @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                           @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+        Result<AnswerPatientFillingInAndSubmitPageVo> result = new Result<>();
         //加科室过滤---
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
         String deptId = data.getDeps().get(0).getId();
-        List<AnswerPatientSubmitVo> list = answerService.patientSubmitList(deptId);
+        AnswerPatientFillingInAndSubmitPageVo list = answerService.patientSubmitList(deptId,answerPatientSubmitParam,pageNo,pageSize);
         result.setSuccess(true);
         result.setResult(list);
         return result;
-    }*/
+    }
+
+    /**
+     * 菜单月度汇总传，定期汇总传-填报中
+     */
+    @AutoLog(value = "菜单月度汇总传，定期汇总传-填报中")
+    @ApiOperation(value = "菜单月度汇总传，定期汇总传-填报中", notes = "菜单月度汇总传，定期汇总传-填报中")
+    @GetMapping(value = "/monthQuarterYearList")
+    public Result<AnswerPatientFillingInAndSubmitPageVo> monthQuarterYearList(HttpServletRequest request,
+                                                                              @RequestParam(name = "type")@ApiParam("菜单月度汇总传0，定期汇总传1") String type,
+                                                                              @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                              @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+        Result<AnswerPatientFillingInAndSubmitPageVo> result = new Result<>();
+        //加科室过滤---
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String deptId = data.getDeps().get(0).getId();
+        AnswerPatientFillingInAndSubmitPageVo list = answerService.monthQuarterYearList(deptId,type, pageNo,pageSize );
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
 
 
 }

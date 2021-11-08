@@ -3,10 +3,9 @@ package com.qu.modules.web.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.Answer;
 import com.qu.modules.web.param.AnswerParam;
+import com.qu.modules.web.param.AnswerPatientSubmitParam;
 import com.qu.modules.web.vo.AnswerPageVo;
-import com.qu.modules.web.vo.AnswerPatientFillingInVo;
-
-import java.util.List;
+import com.qu.modules.web.vo.AnswerPatientFillingInAndSubmitPageVo;
 
 public interface IAnswerService extends IService<Answer> {
 
@@ -22,5 +21,9 @@ public interface IAnswerService extends IService<Answer> {
 
     String withdrawEdit(Integer id);
 
-    List<AnswerPatientFillingInVo> patientFillingInList(String deptId);
+    AnswerPatientFillingInAndSubmitPageVo patientFillingInList(String deptId, Integer pageNo, Integer pageSize);
+
+    AnswerPatientFillingInAndSubmitPageVo patientSubmitList(String deptId, AnswerPatientSubmitParam answerPatientSubmitParam, Integer pageNo, Integer pageSize);
+
+    AnswerPatientFillingInAndSubmitPageVo monthQuarterYearList(String deptId, String type,Integer pageNo, Integer pageSize);
 }

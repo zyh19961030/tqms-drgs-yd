@@ -3,10 +3,7 @@ package com.qu.modules.web.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.param.*;
-import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
-import com.qu.modules.web.vo.QuestionPageVo;
-import com.qu.modules.web.vo.QuestionPatientCreateListVo;
-import com.qu.modules.web.vo.QuestionVo;
+import com.qu.modules.web.vo.*;
 
 import java.util.List;
 
@@ -44,4 +41,5 @@ public interface IQuestionService extends IService<Question> {
 
     List<QuestionPatientCreateListVo> patientCreateList(String name, String deptId);
 
+    List<QuestionMonthQuarterYearCreateListVo> monthQuarterYearCreateList(String type, String deptId);
 }
