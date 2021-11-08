@@ -64,6 +64,7 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HTTP;
+import org.apache.ibatis.binding.MapperMethod;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Months;
@@ -1264,7 +1265,8 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                         }
 
                     }else if (QsubjectConstant.SUB_TYPE_TIME.equals(subType)){
-                        if (a.getSubColumnName().equals("Knee-5-1-4") || a.getSubColumnName().equals("Cap-3-2-4")) {
+                        if (a.getSubColumnName().equals("Knee-5-1-4") || a.getSubColumnName().equals("Cap-3-2-4")
+                        || a.getSubColumnName().equals("TN-2-2-2") || a.getSubColumnName().equals("TN-2-2-3")) {
                             cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
                             a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_PATTERN));
                         } else {
@@ -1312,16 +1314,23 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                     if (qSingleDiseaseTake.getQuestionId().equals(115) || qSingleDiseaseTake.getQuestionId().equals(122)
                     || qSingleDiseaseTake.getQuestionId().equals(100)) {
                         if (a.getSubColumnName().equals("CM-0-2-2-1") || a.getSubColumnName().equals("CM-0-2-3-1")) {
-                            if (a.getSubValue().length() > 0 && !a.getSubValue().equals("")){
+                            if (a.getSubValue().length() >= 8 && !a.getSubValue().equals("[\"\"]")){
                                 String s = a.getSubValue().substring(5, 8);
                                 a.setSubValue(s);
-                            } else {
-
                             }
                         }
                     }
                     mapCache.put(a.getSubColumnName(), a.getSubValue());
-
+                    if (qSingleDiseaseTake.getQuestionId().equals(115) || qSingleDiseaseTake.getQuestionId().equals(122)
+                            || qSingleDiseaseTake.getQuestionId().equals(100) || qSingleDiseaseTake.getQuestionId().equals(150)) {
+                        if (a.getSubColumnName().equals("CM-0-2-2-1") || a.getSubColumnName().equals("CM-0-2-3-1")) {
+                            if (a.getSubValue().length() < 8 && !a.getSubValue().equals("UTD")){
+                                mapCache.remove(a.getSubColumnName());
+                            }
+                        } else if (a.getSubColumnName().equals("TN-1-4-2-1") || a.getSubColumnName().equals("TN-3-2-2-1")) {
+                            mapCache.remove(a.getSubColumnName());
+                        }
+                    }
                 }
                 singleDiseaseReportUrl = String.format(singleDiseaseReportUrl,quotaCategoryMap.get(qSingleDiseaseTake.getCategoryId()).getDiseaseType());
                 HttpData data = HttpData.instance();
