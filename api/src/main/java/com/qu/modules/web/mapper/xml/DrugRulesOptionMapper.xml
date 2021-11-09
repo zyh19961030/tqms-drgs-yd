@@ -6,4 +6,8 @@
         select option_id from drug_rules_option where id = #{id}
     </select>
 
+    <update id="updateOptionBySubjectId" parameterType="map">
+        update drug_rules_option set del = 1, update_time = #{date} where drug_rules_subject_id = #{subjectId}
+    </update>
+
 </mapper>

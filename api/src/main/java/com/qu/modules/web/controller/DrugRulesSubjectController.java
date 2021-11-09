@@ -117,6 +117,9 @@ public class DrugRulesSubjectController {
 	public Result<DrugRulesSubject> delete(@RequestParam(name="id",required=true) Integer id) {
 		Result<DrugRulesSubject> result = new Result<DrugRulesSubject>();
 		Date date = new Date();
+		DrugRulesSubject drugRulesSubject = drugRulesSubjectService.queryById(id);
+		Integer subjectId = drugRulesSubject.getSubjectId();
+		int i1 = drugRulesOptionService.updateOptionBySubjectId(subjectId, date);
 		int i = drugRulesSubjectService.deleteSubject(id, date);
 		if (i == 1){
 			result.success("删除成功！");

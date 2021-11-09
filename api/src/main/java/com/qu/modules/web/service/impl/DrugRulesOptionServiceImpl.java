@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,5 +38,10 @@ public class DrugRulesOptionServiceImpl extends ServiceImpl<DrugRulesOptionMappe
     public Integer queryOptionIdById(Integer id) {
         Integer optionId = drugRulesOptionMapper.queryOptionIdById(id);
         return optionId;
+    }
+
+    @Override
+    public int updateOptionBySubjectId(Integer subjectId, Date date) {
+        return drugRulesOptionMapper.updateOptionBySubjectId(subjectId, date);
     }
 }

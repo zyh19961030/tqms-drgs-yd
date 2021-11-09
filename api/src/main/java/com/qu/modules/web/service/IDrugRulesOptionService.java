@@ -3,6 +3,7 @@ package com.qu.modules.web.service;
 import com.qu.modules.web.entity.DrugRulesOption;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,4 +19,7 @@ public interface IDrugRulesOptionService extends IService<DrugRulesOption> {
 
     //根据药品规则答案表id获取药品规则id
     Integer queryOptionIdById(Integer id);
+
+    //根据药品规则问题id删除药品规则答案
+    int updateOptionBySubjectId(Integer subjectId, Date date);
 }
