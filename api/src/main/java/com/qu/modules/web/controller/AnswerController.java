@@ -65,8 +65,13 @@ public class AnswerController {
         String cookie = "JSESSIONID=" + token;
         log.info("-----------answerParam={}", JSON.toJSONString(answerParam));
         Boolean flag = answerService.answer(cookie, answerParam);
-        result.setSuccess(true);
-        result.setResult(flag);
+        if(flag){
+            result.setSuccess(true);
+            result.setResult(flag);
+        }else{
+            result.setSuccess(false);
+            result.setResult(flag);
+        }
         return result;
     }
 

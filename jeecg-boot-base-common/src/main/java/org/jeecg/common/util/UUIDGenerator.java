@@ -2,13 +2,16 @@ package org.jeecg.common.util;
 
 
 import java.net.InetAddress;
+import java.util.UUID;
 
 /**
- * 
- * @Author  张代浩
  *
  */
 public class UUIDGenerator {
+
+	public static String generateRandomUUID() {
+		return UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();
+	}
 
 	
 	/**

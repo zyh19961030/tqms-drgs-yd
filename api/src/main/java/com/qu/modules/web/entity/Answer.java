@@ -111,5 +111,5 @@ public class Answer {
 	/**提交时间*/
 	@Excel(name = "提交时间", width = 15)
     @ApiModelProperty(value = "提交时间")
-	private java.lang.String submitTime;
+	private java.util.Date submitTime;
 }

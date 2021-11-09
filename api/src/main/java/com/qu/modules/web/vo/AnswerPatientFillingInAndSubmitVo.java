@@ -38,7 +38,7 @@ public class AnswerPatientFillingInAndSubmitVo {
     @ApiModelProperty(value = "提交时间")
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private java.lang.String submitTime;
+    private java.util.Date submitTime;
     @ApiModelProperty(value = "答题人")
     private String creater;
 }

@@ -24,10 +24,10 @@ import com.qu.modules.web.vo.AnswerPageVo;
 import com.qu.modules.web.vo.AnswerPatientFillingInAndSubmitPageVo;
 import com.qu.modules.web.vo.AnswerPatientFillingInAndSubmitVo;
 import com.qu.modules.web.vo.AnswerVo;
-import com.qu.util.DateUtil;
 import com.qu.util.HttpClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.util.UUIDGenerator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -88,17 +88,39 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
                     creater_deptname = jsonRootBean.getData().getDeps().get(0).getDepName();
                 }
             }
-            StringBuffer sql = new StringBuffer();
-            sql.append("insert into answer (qu_id,answer_json,answer_status,creater,creater_name,create_time,creater_deptid,creater_deptname) values (");
-            sql.append("'" + answerParam.getQuId() + "',");
-            sql.append("'" + JSON.toJSONString(answerParam.getAnswers()) + "',1,");
-            sql.append("'" + creater + "','" + creater_name + "',");
-            sql.append("'" + DateUtil.date2String(new Date(), DateUtil.YYYY_MM_DD_HH_MM_SS) + "',");
-            sql.append("'" + creater_deptid + "','" + creater_deptname + "'");
-            sql.append(")");
-            log.info("-----insert sql:{}", sql.toString());
-            dynamicTableMapper.insertDynamicTable(sql.toString());
-            //插入答案表
+            Answer answer = this.getById(answerParam.getId());
+            if(answer==null){
+                answer = new Answer();
+            }else{
+                if(answer.getAnswerStatus().equals(1)){
+                    return false;
+                }
+            }
+            //插入总表
+            answer.setQuId(answerParam.getQuId());
+            answer.setAnswerJson( JSON.toJSONString(answerParam.getAnswers()));
+            Integer status = answerParam.getStatus();
+            answer.setAnswerStatus(status);
+            Date date = new Date();
+            if(status.equals(1)){
+                answer.setSubmitTime(date);
+            }
+            answer.setCreater(creater);
+            answer.setCreaterName(creater_name);
+            answer.setCreateTime(date);
+            answer.setCreaterDeptid(creater_deptid);
+            answer.setCreaterDeptname(creater_deptname);
+
+
+            boolean insertOrUpdate = answer.getId() != null && answer.getId() != 0;
+            if (insertOrUpdate) {
+                answerMapper.updateById(answer);
+            }else{
+                String summaryMappingTableId = UUIDGenerator.generateRandomUUID();
+                answer.setSummaryMappingTableId(summaryMappingTableId);
+                answerMapper.insert(answer);
+            }
+            //插入子表
             Answers[] answers = answerParam.getAnswers();
             Map<String, String> mapCache = new HashMap<>();
             for (Answers a : answers) {
@@ -107,44 +129,94 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
             StringBuffer sqlAns = new StringBuffer();
             Question question = questionMapper.selectById(answerParam.getQuId());
             if (question != null) {
-                sqlAns.append("insert into `" + question.getTableName() + "` (");
-
-                List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
-                for (int i = 0; i < subjectList.size(); i++) {
-                    Qsubject qsubjectDynamicTable = subjectList.get(i);
-                    String subType = qsubjectDynamicTable.getSubType();
-                    Integer del = qsubjectDynamicTable.getDel();
-                    if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
-                            || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null) {
-                        continue;
+                if (insertOrUpdate) {
+                    sqlAns.append("update `" + question.getTableName() + "` set ");
+                    List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
+                    for (int i = 0; i < subjectList.size(); i++) {
+                        Qsubject qsubjectDynamicTable = subjectList.get(i);
+                        String subType = qsubjectDynamicTable.getSubType();
+                        Integer del = qsubjectDynamicTable.getDel();
+                        if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                                || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null
+                                || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
+                            continue;
+                        }
+                        sqlAns.append("`");
+                        sqlAns.append(qsubjectDynamicTable.getColumnName());
+                        sqlAns.append("`");
+                        sqlAns.append("=");
+                        sqlAns.append("'");
+                        sqlAns.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
+                        sqlAns.append("'");
+                        sqlAns.append(",");
                     }
+                    sqlAns.append("`tbksmc`='");
+                    sqlAns.append(creater_deptname);
+                    sqlAns.append("',");
+                    sqlAns.append("`tbksdm`='");
+                    sqlAns.append(creater_deptid);
+                    sqlAns.append("'");
+//                    sqlAns.delete(sqlAns.length()-1,sqlAns.length());
+                    sqlAns.append(" where summary_mapping_table_id = '");
+                    sqlAns.append(answer.getSummaryMappingTableId());
+                    sqlAns.append("'");
+                    log.info("-----update sqlAns:{}", sqlAns.toString());
+                    dynamicTableMapper.updateDynamicTable(sqlAns.toString());
+                }else{
+                    sqlAns.append("insert into `" + question.getTableName() + "` (");
 
-                    Qsubject qsubject = subjectList.get(i);
-                    sqlAns.append("`");
-                    sqlAns.append(qsubject.getColumnName());
-                    sqlAns.append("`");
-                    sqlAns.append(",");
-                }
-                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
-                sqlAns.append(") values (");
-                for (int i = 0; i < subjectList.size(); i++) {
-                    Qsubject qsubjectDynamicTable = subjectList.get(i);
-                    String subType = qsubjectDynamicTable.getSubType();
-                    Integer del = qsubjectDynamicTable.getDel();
-                    if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
-                            || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null) {
-                        continue;
+                    List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
+                    for (int i = 0; i < subjectList.size(); i++) {
+                        Qsubject qsubjectDynamicTable = subjectList.get(i);
+                        String subType = qsubjectDynamicTable.getSubType();
+                        Integer del = qsubjectDynamicTable.getDel();
+                        if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                                || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null
+                                || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
+                            continue;
+                        }
+
+                        Qsubject qsubject = subjectList.get(i);
+                        sqlAns.append("`");
+                        sqlAns.append(qsubject.getColumnName());
+                        sqlAns.append("`");
+                        sqlAns.append(",");
+                    }
+                    sqlAns.append("`tbksmc`,");
+                    sqlAns.append("`tbksdm`,");
+                    sqlAns.append("`summary_mapping_table_id`");
+//                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
+                    sqlAns.append(") values (");
+                    for (int i = 0; i < subjectList.size(); i++) {
+                        Qsubject qsubjectDynamicTable = subjectList.get(i);
+                        String subType = qsubjectDynamicTable.getSubType();
+                        Integer del = qsubjectDynamicTable.getDel();
+                        if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                                || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null
+                                || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
+                            continue;
+                        }
+                        sqlAns.append("'");
+                        sqlAns.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
+                        sqlAns.append("',");
                     }
                     sqlAns.append("'");
-                    sqlAns.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
-                    sqlAns.append("'");
-                    sqlAns.append(",");
-                }
-                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
+                    sqlAns.append(creater_deptname);
+                    sqlAns.append("',");
 
-                sqlAns.append(")");
-                log.info("-----insert sqlAns:{}", sqlAns.toString());
-                dynamicTableMapper.insertDynamicTable(sqlAns.toString());
+                    sqlAns.append("'");
+                    sqlAns.append(creater_deptid);
+                    sqlAns.append("',");
+
+                    sqlAns.append("'");
+                    sqlAns.append(answer.getSummaryMappingTableId());
+                    sqlAns.append("'");
+//                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
+
+                    sqlAns.append(")");
+                    log.info("-----insert sqlAns:{}", sqlAns.toString());
+                    dynamicTableMapper.insertDynamicTable(sqlAns.toString());
+                }
             }
         } catch (Exception e) {
             falg = false;
