@@ -1,13 +1,13 @@
 package com.qu.modules.web.param;
 
+import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.jeecgframework.poi.excel.annotation.Excel;
 import org.springframework.format.annotation.DateTimeFormat;
-
-import java.util.Date;
 
 @Data
 @ApiModel(value="问卷添加入参", description="问卷添加入参")
@@ -34,8 +34,8 @@ public class AnswerPatientSubmitParam {
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "提交时间结束时间 格式：yyyy-MM-dd HH:mm:ss")
     private Date submitEndDate;
-    @ApiModelProperty(value = "答题人")
-    private String creater;
+    @ApiModelProperty(value = "答题人姓名")
+    private String createrName;
     /**住院号*/
     @Excel(name = "住院号", width = 15)
     @ApiModelProperty(value = "住院号")

@@ -240,31 +240,51 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
     }
 
     @Override
-    public AnswerPageVo questionFillInList(Integer pageNo, Integer pageSize) {
-        AnswerPageVo answerPageVo = new AnswerPageVo();
-        try {
-            Map<String, Object> params = new HashMap<>();
-            params.put("startRow", (pageNo - 1) * pageSize);
-            params.put("pageSize", pageSize);
-            int total = answerMapper.questionFillInListCount(params);
-            List<AnswerVo> answerVoList = answerMapper.questionFillInList(params);
-            answerPageVo.setTotal(total);
-            answerPageVo.setAnswerVoList(answerVoList);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
+    public AnswerPageVo questionFillInList(String quName, Integer pageNo, Integer pageSize) {
+        Page<Answer> page = new Page<>(pageNo, pageSize);
+
+        LambdaQueryWrapper<Question> questionLambdaQueryWrapper = getQuestionLambda();
+        questionLambdaQueryWrapper.like(Question::getQuName, quName);
+        List<Question> questionList = questionMapper.selectList(questionLambdaQueryWrapper);
+        List<Integer> questionSearchIdList = questionList.stream().map(Question::getId).distinct().collect(Collectors.toList());
+
+        LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
+        if(!questionSearchIdList.isEmpty()){
+            lambda.in(Answer::getQuId,questionSearchIdList);
         }
-        return answerPageVo;
+
+        AnswerPageVo res = new AnswerPageVo();
+        IPage<Answer> answerIPage = this.page(page, lambda);
+        List<Answer> answerList = answerIPage.getRecords();
+        if(answerList.isEmpty()){
+            res.setTotal(answerIPage.getTotal());
+            return res;
+        }
+
+        List<Integer> questionIdList = answerList.stream().map(Answer::getQuId).distinct().collect(Collectors.toList());
+        List<Question> answerQuestionList = questionMapper.selectBatchIds(questionIdList);
+        Map<Integer, Question> questionMap = answerQuestionList.stream().collect(Collectors.toMap(Question::getId, q -> q));
+        List<AnswerVo> answerVoList = answerList.stream().map(answer -> {
+            AnswerVo answerVo = new AnswerVo();
+            BeanUtils.copyProperties(answer,answerVo);
+            answerVo.setQuName(questionMap.get(answer.getQuId()).getQuName());
+            return answerVo;
+        }).collect(Collectors.toList());
+
+        res.setTotal(answerIPage.getTotal());
+        res.setAnswerVoList(answerVoList);
+        return res;
     }
 
     @Override
-    public String withdrawEdit(Integer id) {
-        String answer = "";
-        try {
-            int row = answerMapper.updateWithdrawEdit(id);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
+    public boolean withdrawEdit(Integer id) {
+        Answer answer = answerMapper.selectById(id);
+        if (answer == null || AnswerConstant.DEL_DELETED.equals(answer.getDel())) {
+            return false;
         }
-        return answer;
+        answer.setAnswerStatus(AnswerConstant.ANSWER_STATUS_DRAFT);
+        answerMapper.updateById(answer);
+        return true;
     }
 
     @Override
@@ -272,7 +292,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         Page<Answer> page = new Page<>(pageNo, pageSize);
         LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
         lambda.like(Answer::getCreaterDeptid,deptId);
-        lambda.eq(Answer::getAnswerStatus,AnswerConstant.QU_STATUS_DRAFT);
+        lambda.eq(Answer::getAnswerStatus,AnswerConstant.ANSWER_STATUS_DRAFT);
 
         LambdaQueryWrapper<Question> questionLambdaQueryWrapper = getQuestionLambda();
         questionLambdaQueryWrapper.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_PATIENT_WRITE);
@@ -295,7 +315,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         Page<Answer> page = new Page<>(pageNo, pageSize);
         LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
         lambda.like(Answer::getCreaterDeptid,deptId);
-        lambda.eq(Answer::getAnswerStatus,AnswerConstant.QU_STATUS_RELEASE);
+        lambda.eq(Answer::getAnswerStatus,AnswerConstant.ANSWER_STATUS_RELEASE);
         if(StringUtils.isNotBlank(answerPatientSubmitParam.getPatientName())){
             lambda.like(Answer::getPatientName,answerPatientSubmitParam.getPatientName());
         }
@@ -319,8 +339,8 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         if (answerPatientSubmitParam.getSubmitEndDate() != null) {
             lambda.le(Answer::getSubmitTime, answerPatientSubmitParam.getSubmitEndDate());
         }
-        if (StringUtils.isNotBlank(answerPatientSubmitParam.getCreater())) {
-            lambda.like(Answer::getCreater, answerPatientSubmitParam.getCreater());
+        if (StringUtils.isNotBlank(answerPatientSubmitParam.getCreaterName())) {
+            lambda.like(Answer::getCreaterName, answerPatientSubmitParam.getCreaterName());
         }
         if (StringUtils.isNotBlank(answerPatientSubmitParam.getHospitalInNo())) {
             lambda.like(Answer::getHospitalInNo, answerPatientSubmitParam.getHospitalInNo());
@@ -355,7 +375,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         Page<Answer> page = new Page<>(pageNo, pageSize);
         LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
         lambda.like(Answer::getCreaterDeptid,deptId);
-        lambda.eq(Answer::getAnswerStatus,AnswerConstant.QU_STATUS_DRAFT);
+        lambda.eq(Answer::getAnswerStatus,AnswerConstant.ANSWER_STATUS_DRAFT);
 
         LambdaQueryWrapper<Question> questionLambdaQueryWrapper = getQuestionLambda();
         if(type.equals("0")){

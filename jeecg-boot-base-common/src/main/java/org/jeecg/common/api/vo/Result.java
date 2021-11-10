@@ -41,13 +41,25 @@ public class Result<T> implements Serializable {
 	 * 返回数据对象 data
 	 */
 	@ApiModelProperty(value = "返回数据对象")
-	private T result;
+	private Object result;
 
 	public Result() {
 		
 	}
-	
-	/**
+
+    public Result(Integer ret, String retmsg) {
+        this.code = ret;
+        this.message = retmsg;
+    }
+
+    public Result(Integer ret, String retmsg,Object data,boolean success) {
+        this.code = ret;
+        this.message = retmsg;
+        this.result = data;
+        this.success=success;
+    }
+
+    /**
 	 * 时间戳
 	 */
 	@ApiModelProperty(value = "时间戳")

@@ -1,29 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.qu.modules.web.mapper.AnswerMapper">
-    <select id="questionFillInListCount" parameterType="java.util.Map" resultType="java.lang.Integer">
-        select count(1) from  answer
-    </select>
-
-    <select id="questionFillInList" parameterType="java.util.Map" resultType="com.qu.modules.web.vo.AnswerVo">
-        select
-        a.id,
-        a.qu_id quId,
-        q.qu_name quName,
-        q.qu_desc quDesc,
-        a.answer_status answerStatus,
-        a.creater,
-        a.creater_name createrName,
-        a.create_time createTime,
-        a.creater_deptid createrDeptid,
-        a.creater_deptname createrDeptname
-        from  answer a
-        left join question q on q.id=a.qu_id
-        order by a.create_time desc
-        limit #{startRow},#{pageSize}
-    </select>
-
-    <update id="updateWithdrawEdit" parameterType="java.lang.Integer">
-        update answer set answer_status = 0 where id = #{id}
-    </update>
 </mapper>

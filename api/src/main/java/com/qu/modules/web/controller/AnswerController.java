@@ -16,6 +16,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -94,11 +95,12 @@ public class AnswerController {
 
     @ApiOperation(value = "问卷填报记录分页列表", notes = "问卷填报记录分页列表")
     @GetMapping(value = "/questionFillInList")
-    public Result<AnswerPageVo> questionFillInList(@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+    public Result<AnswerPageVo> questionFillInList(@RequestParam(name = "quName", required = false) String quName,
+                                                   @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                    @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                    HttpServletRequest req) {
         Result<AnswerPageVo> result = new Result<AnswerPageVo>();
-        AnswerPageVo answerPageVo = answerService.questionFillInList(pageNo, pageSize);
+        AnswerPageVo answerPageVo = answerService.questionFillInList(quName,pageNo, pageSize);
         result.setSuccess(true);
         result.setResult(answerPageVo);
         return result;
@@ -120,12 +122,13 @@ public class AnswerController {
 
     @ApiOperation(value = "撤回编辑", notes = "撤回编辑")
     @GetMapping(value = "/withdrawEdit")
-    public Result<String> withdrawEdit(@RequestParam Integer id) {
-        Result<String> result = new Result<String>();
-        String answer = answerService.withdrawEdit(id);
-        result.setSuccess(true);
-        result.setResult(answer);
-        return result;
+    public Result withdrawEdit(@RequestParam Integer id) {
+        boolean b = answerService.withdrawEdit(id);
+        if(b){
+            return ResultFactory.success();
+        }else{
+            return ResultFactory.fail("操作失败！");
+        }
     }
 
     /**

@@ -17,9 +17,9 @@ public interface IAnswerService extends IService<Answer> {
 
     String queryByQuId(Integer quId);
 
-    AnswerPageVo questionFillInList(Integer pageNo, Integer pageSize);
+    AnswerPageVo questionFillInList(String quName, Integer pageNo, Integer pageSize);
 
-    String withdrawEdit(Integer id);
+    boolean withdrawEdit(Integer id);
 
     AnswerPatientFillingInAndSubmitPageVo patientFillingInList(String deptId, Integer pageNo, Integer pageSize);
 
