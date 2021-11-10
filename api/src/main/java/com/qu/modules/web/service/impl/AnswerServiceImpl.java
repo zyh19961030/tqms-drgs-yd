@@ -1,5 +1,11 @@
 package com.qu.modules.web.service.impl;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -32,12 +38,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -116,7 +116,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
             if (insertOrUpdate) {
                 answerMapper.updateById(answer);
             }else{
-                String summaryMappingTableId = UUIDGenerator.generateRandomUUID();
+                String summaryMappingTableId = UUIDGenerator.generateRandomUUIDAndCurrentTimeMillis();
                 answer.setSummaryMappingTableId(summaryMappingTableId);
                 answerMapper.insert(answer);
             }

@@ -372,7 +372,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         if (quIds != null && categoryIds != null) {
             StringBuffer categoryId = new StringBuffer();
             if (categoryIds.length == 1) {
-                categoryId.append(categoryIds[0]);
+                categoryId.append(categoryIds[0]==null?"":categoryIds[0]);
             } else {
                 for (Integer cid : categoryIds) {
                     categoryId.append(cid);

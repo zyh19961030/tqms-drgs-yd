@@ -9,8 +9,9 @@ import java.util.UUID;
  */
 public class UUIDGenerator {
 
-	public static String generateRandomUUID() {
-		return UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();
+	public static String generateRandomUUIDAndCurrentTimeMillis() {
+//		return String.format("%s_%s",System.currentTimeMillis(),UUID.randomUUID().toString().replaceAll("-", "").toUpperCase());
+		return String.format("%s_%s",System.currentTimeMillis(),UUID.randomUUID().toString().toUpperCase());
 	}
 
 	
