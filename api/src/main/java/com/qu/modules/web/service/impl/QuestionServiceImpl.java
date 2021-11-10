@@ -1,5 +1,12 @@
 package com.qu.modules.web.service.impl;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -8,10 +15,25 @@ import com.qu.modules.web.entity.Qoption;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.entity.TqmsQuotaCategory;
-import com.qu.modules.web.mapper.*;
-import com.qu.modules.web.param.*;
+import com.qu.modules.web.mapper.DynamicTableMapper;
+import com.qu.modules.web.mapper.OptionMapper;
+import com.qu.modules.web.mapper.QsubjectMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
+import com.qu.modules.web.param.QuestionAgainReleaseParam;
+import com.qu.modules.web.param.QuestionEditParam;
+import com.qu.modules.web.param.QuestionParam;
+import com.qu.modules.web.param.UpdateCategoryIdParam;
+import com.qu.modules.web.param.UpdateDeptIdsParam;
+import com.qu.modules.web.param.UpdateWriteFrequencyIdsParam;
 import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.vo.*;
+import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
+import com.qu.modules.web.vo.QuestionAndCategoryVo;
+import com.qu.modules.web.vo.QuestionMonthQuarterYearCreateListVo;
+import com.qu.modules.web.vo.QuestionPageVo;
+import com.qu.modules.web.vo.QuestionPatientCreateListVo;
+import com.qu.modules.web.vo.QuestionVo;
+import com.qu.modules.web.vo.SubjectVo;
 import com.qu.util.IntegerUtil;
 import com.qu.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -19,9 +41,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @Description: 问卷表
@@ -176,7 +195,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                 sql.append(" `answer_datetime` timestamp(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '填报时间',");
                 sql.append(" `tbksmc` varchar(255) NULL COMMENT '填报科室名称',");
                 sql.append(" `tbksdm` varchar(255) NULL COMMENT '填报科室代码',");
-                sql.append(" `summary_mapping_table_id` varchar(32) NULL COMMENT '对应总表的id，可以当主键',");
+                sql.append(" `summary_mapping_table_id` varchar(255) NULL COMMENT '对应总表的id，可以当主键',");
                 sql.append(" PRIMARY KEY (`id`)");
                 if(subjectList.size()>=50){
                     sql.append(") ENGINE=MyISAM DEFAULT CHARSET=utf8;");
