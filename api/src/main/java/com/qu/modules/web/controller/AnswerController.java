@@ -65,22 +65,11 @@ public class AnswerController {
 
     @ApiOperation(value = "答题", notes = "答题")
     @PostMapping(value = "/answer")
-    public Result<Boolean> answer(@RequestBody AnswerParam answerParam, HttpServletRequest request) {
-        Result<Boolean> result = new Result<Boolean>();
+    public Result answer(@RequestBody AnswerParam answerParam, HttpServletRequest request) {
         String token = request.getHeader("token");
         String cookie = "JSESSIONID=" + token;
         log.info("-----------answerParam={}", JSON.toJSONString(answerParam));
-        Boolean flag = answerService.answer(cookie, answerParam);
-        if(flag){
-            result.setSuccess(true);
-            result.setResult(flag);
-        }else{
-            result.setCode(1);
-            result.setSuccess(false);
-            result.setResult(flag);
-            result.setMessage("操作失败！");
-        }
-        return result;
+        return answerService.answer(cookie, answerParam);
     }
 
     @ApiOperation(value = "答题回显-废弃", notes = "答题回显-废弃")

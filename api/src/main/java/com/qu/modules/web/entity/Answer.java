@@ -116,4 +116,8 @@ public class Answer {
     @Excel(name = "0:正常1:已删除", width = 15)
     @ApiModelProperty(value = "0:正常1:已删除")
     private java.lang.Integer del;
+    /**答题时间-填报时间*/
+    @Excel(name = "答题时间-填报时间", width = 20, format = "yyyy-MM-dd HH:mm:ss")
+    @ApiModelProperty(value = "答题时间-填报时间")
+    private java.util.Date answerTime;
 }

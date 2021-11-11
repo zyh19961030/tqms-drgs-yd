@@ -12,8 +12,10 @@ public class ResultFactory {
 
     private final static String SUCCESS_MSG = "success";
 
+    private final static String SUCCESS_MSG_TWO = "操作成功！";
+
     public static Result success() {
-        return new Result(SUCCESS, SUCCESS_MSG);
+        return new Result(SUCCESS, SUCCESS_MSG_TWO);
     }
 
     public static Result success(Object data) {

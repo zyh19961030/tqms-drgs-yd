@@ -33,6 +33,8 @@ import com.qu.modules.web.vo.AnswerVo;
 import com.qu.util.HttpClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
 import org.jeecg.common.util.UUIDGenerator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,8 +72,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
     }
 
     @Override
-    public Boolean answer(String cookie, AnswerParam answerParam) {
-        Boolean falg = true;
+    public Result answer(String cookie, AnswerParam answerParam) {
         try {
             //解析token
             String res = HttpClient.doPost(tokenUrl, cookie, null);
@@ -93,7 +94,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
                 answer = new Answer();
             }else{
                 if(answer.getAnswerStatus().equals(1)){
-                    return false;
+                    return ResultFactory.error("该记录已提交,无法更改。");
                 }
             }
             //插入总表
@@ -107,15 +108,19 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
             }
             answer.setCreater(creater);
             answer.setCreaterName(creater_name);
-            answer.setCreateTime(date);
             answer.setCreaterDeptid(creater_deptid);
             answer.setCreaterDeptname(creater_deptname);
-
+            answer.setAnswerTime(date);
 
             boolean insertOrUpdate = answer.getId() != null && answer.getId() != 0;
             if (insertOrUpdate) {
+                answer.setUpdateTime(date);
                 answerMapper.updateById(answer);
             }else{
+                answer.setCreateTime(date);
+                answer.setUpdateTime(date);
+                answer.setDel(AnswerConstant.DEL_NORMAL);
+
                 String summaryMappingTableId = UUIDGenerator.generateRandomUUIDAndCurrentTimeMillis();
                 answer.setSummaryMappingTableId(summaryMappingTableId);
                 answerMapper.insert(answer);
@@ -219,10 +224,10 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
                 }
             }
         } catch (Exception e) {
-            falg = false;
             log.error(e.getMessage(), e);
+            return ResultFactory.error("操作失败！");
         }
-        return falg;
+        return ResultFactory.success();
     }
 
     @Override
@@ -252,8 +257,12 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         if(!questionSearchIdList.isEmpty()){
             lambda.in(Answer::getQuId,questionSearchIdList);
         }
-
         AnswerPageVo res = new AnswerPageVo();
+        if(StringUtils.isNotBlank(quName) && questionSearchIdList.isEmpty()){
+            res.setTotal(0);
+            return res;
+        }
+        lambda.orderByAsc(Answer::getAnswerTime);
         IPage<Answer> answerIPage = this.page(page, lambda);
         List<Answer> answerList = answerIPage.getRecords();
         if(answerList.isEmpty()){

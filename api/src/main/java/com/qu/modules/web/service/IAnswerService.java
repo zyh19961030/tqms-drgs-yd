@@ -6,6 +6,7 @@ import com.qu.modules.web.param.AnswerParam;
 import com.qu.modules.web.param.AnswerPatientSubmitParam;
 import com.qu.modules.web.vo.AnswerPageVo;
 import com.qu.modules.web.vo.AnswerPatientFillingInAndSubmitPageVo;
+import org.jeecg.common.api.vo.Result;
 
 public interface IAnswerService extends IService<Answer> {
 
@@ -13,7 +14,7 @@ public interface IAnswerService extends IService<Answer> {
 
     int insertDynamicTable(String sql);
 
-    Boolean answer(String cookie, AnswerParam answerParam);
+    Result answer(String cookie, AnswerParam answerParam);
 
     String queryByQuId(Integer quId);
 

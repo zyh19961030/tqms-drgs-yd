@@ -260,19 +260,15 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     @Override
     public QuestionPageVo questionFillInList(QuestionParam questionParam, Integer pageNo, Integer pageSize) {
         QuestionPageVo questionPageVo = new QuestionPageVo();
-        try {
-            Map<String, Object> params = new HashMap<>();
-            params.put("quName", questionParam.getQuName());
-            params.put("quDesc", questionParam.getQuDesc());
-            params.put("startRow", (pageNo - 1) * pageSize);
-            params.put("pageSize", pageSize);
-            int total = questionMapper.questionFillInListCount(params);
-            List<Question> questionList = questionMapper.questionFillInList(params);
-            questionPageVo.setTotal(total);
-            questionPageVo.setQuestionList(questionList);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
+        Map<String, Object> params = new HashMap<>();
+        params.put("quName", questionParam.getQuName());
+        params.put("quDesc", questionParam.getQuDesc());
+        params.put("startRow", (pageNo - 1) * pageSize);
+        params.put("pageSize", pageSize);
+        int total = questionMapper.questionFillInListCount(params);
+        List<Question> questionList = questionMapper.questionFillInList(params);
+        questionPageVo.setTotal(total);
+        questionPageVo.setQuestionList(questionList);
         return questionPageVo;
     }
 
