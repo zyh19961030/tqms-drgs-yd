@@ -313,9 +313,9 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
 
     private LambdaQueryWrapper<Question> getQuestionLambda() {
         LambdaQueryWrapper<Question> questionLambdaQueryWrapper = new QueryWrapper<Question>().lambda();
-        questionLambdaQueryWrapper.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_NORMAL);
-        questionLambdaQueryWrapper.eq(Question::getQuStop,QuestionConstant.QU_STATUS_RELEASE);
+        questionLambdaQueryWrapper.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
         questionLambdaQueryWrapper.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+        questionLambdaQueryWrapper.and(wrapper->wrapper.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_NORMAL).or().isNull(Question::getCategoryType));
         return questionLambdaQueryWrapper;
     }
 
