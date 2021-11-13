@@ -217,8 +217,8 @@ public class DrugRulesSubjectController {
 			int type = subjectAndRelationsList.getType();
 			if (type == 2) {
 				purposeAndActionVos.forEach(purposeAndActionVo -> {
-					Integer id1 = purposeAndActionVo.getMedicationPurposeId();
-					Integer medicationPurposeId = drugReceiveHisService.queryPurposeOrActionIdById(id1);
+					Integer medicationPurposeId = purposeAndActionVo.getMedicationPurposeId();
+//					Integer medicationPurposeId = drugReceiveHisService.queryPurposeOrActionIdById(id1);
 					Integer drugPhysicalActionId = purposeAndActionVo.getDrugPhysicalActionId();
 					drugRulesRelation.setDrugRulesOptionId(optionId);
 					drugRulesRelation.setMedicationPurposeId(medicationPurposeId);
