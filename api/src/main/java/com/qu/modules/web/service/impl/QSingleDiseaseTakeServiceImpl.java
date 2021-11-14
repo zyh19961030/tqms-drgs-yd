@@ -1197,7 +1197,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
 
     @Override
-    public void runSingleDiseaseTakeReport() {
+    public void  runSingleDiseaseTakeReport() {
         LambdaQueryWrapper<QSingleDiseaseTake> lambda = new QueryWrapper<QSingleDiseaseTake>().lambda();
         lambda.eq(QSingleDiseaseTake::getStatus,QSingleDiseaseTakeConstant.STATUS_PASS_WAIT_UPLOAD);
         List<QSingleDiseaseTake> qSingleDiseaseTakeList = this.list(lambda);
@@ -1262,7 +1262,8 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                         || a.getSubColumnName().equals("STK-1-4-5-9") || a.getSubColumnName().equals("STK-1-4-1-1-1")
                         || a.getSubColumnName().equals("STK-1-3-3-1") || a.getSubColumnName().equals("STK-1-2-1-2-1")
                         || a.getSubColumnName().equals("CM-0-2-6-1") || a.getSubColumnName().equals("CM-1-4-1")
-                        || a.getSubColumnName().equals("CM-1-6-1") || a.getSubColumnName().equals("CM-0-2-6-2")) {
+                        || a.getSubColumnName().equals("CM-1-6-1") || a.getSubColumnName().equals("CM-0-2-6-2")
+                        || a.getSubColumnName().equals("STK-1-1-1-2")) {
                             a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_MINUTE_PATTERN));
                         } else {
                             a.setSubValue(parse.toString(DatePattern.NORM_DATE_PATTERN));
@@ -1290,17 +1291,19 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                             a.setSubValue("n");
                         }
                     }
-//                    if (a.getSubColumnName().equals("CM-0-1-4-1")) {
-//                        if (a.getSubValue().equals("a")) {
-//                            a.setSubValue("c");
-//                        } else  if (a.getSubValue().equals("b")){
-//                            a.setSubValue("d");
-//                        } if (a.getSubValue().equals("c")) {
-//                            a.setSubValue("e");
-//                        } else if(a.getSubValue().equals("d")) {
-//                            a.setSubValue("h");
-//                        }
-//                    }
+                    if (qSingleDiseaseTake.getQuestionId().equals(100)){
+                        if (a.getSubColumnName().equals("CM-0-1-4-1")) {
+                            if (a.getSubValue().equals("a")) {
+                                a.setSubValue("c");
+                            } else  if (a.getSubValue().equals("b")){
+                                a.setSubValue("d");
+                            } if (a.getSubValue().equals("c")) {
+                                a.setSubValue("e");
+                            } else if(a.getSubValue().equals("d")) {
+                                a.setSubValue("h");
+                            }
+                        }
+                    }
                     if (qSingleDiseaseTake.getQuestionId().equals(138)) {
                         if (a.getSubColumnName().equals("CM-0-1-4-2") || a.getSubColumnName().equals("CM-0-1-4-1")) {
                             String value = a.getSubValue();
