@@ -1,7 +1,5 @@
 package com.qu.modules.web.param;
 
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -9,8 +7,10 @@ import lombok.Data;
 import org.jeecgframework.poi.excel.annotation.Excel;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.util.Date;
+
 @Data
-@ApiModel(value="问卷添加入参", description="问卷添加入参")
+@ApiModel(value="患者登记表已提交查询参数", description="患者登记表已提交查询参数")
 public class AnswerPatientSubmitParam {
     /**患者姓名*/
     @ApiModelProperty(value = "患者姓名")

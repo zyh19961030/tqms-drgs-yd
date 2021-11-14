@@ -1,7 +1,5 @@
 package com.qu.modules.web.entity;
 
-import java.util.Date;
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -13,6 +11,8 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.jeecgframework.poi.excel.annotation.Excel;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 /**
  * @Description: 答案表
@@ -120,4 +120,8 @@ public class Answer {
     @Excel(name = "答题时间-填报时间", width = 20, format = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "答题时间-填报时间")
     private java.util.Date answerTime;
+    /**填报的月/季度/年*/
+    @Excel(name = "填报的月/季度/年", width = 15)
+    @ApiModelProperty(value = "填报的月/季度/年")
+    private java.lang.String questionAnswerTime;
 }

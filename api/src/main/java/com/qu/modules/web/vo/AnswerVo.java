@@ -1,12 +1,12 @@
 package com.qu.modules.web.vo;
 
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 @Data
 @ApiModel(value = "作答Vo", description = "作答Vo")
@@ -42,5 +42,8 @@ public class AnswerVo {
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "答题时间-填报时间")
     private java.util.Date answerTime;
+    /**填报的月/季度/年*/
+    @ApiModelProperty(value = "填报的月/季度/年")
+    private java.lang.String questionAnswerTime;
 
 }

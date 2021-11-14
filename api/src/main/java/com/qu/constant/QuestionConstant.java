@@ -7,6 +7,7 @@ import java.util.List;
 public class QuestionConstant {
 
 	public static final Integer WRITE_FREQUENCY_PATIENT_WRITE = 0;
+	public static final Integer WRITE_FREQUENCY_ALL = -1;
 	public static final Integer WRITE_FREQUENCY_MONTH = 1;
 	public static final Integer WRITE_FREQUENCY_QUARTER = 2;
 	public static final Integer WRITE_FREQUENCY_YEAR = 3;

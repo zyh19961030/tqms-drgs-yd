@@ -1,14 +1,14 @@
 package com.qu.modules.web.controller;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.alibaba.fastjson.JSON;
 import com.qu.constant.Constant;
 import com.qu.modules.web.entity.Answer;
+import com.qu.modules.web.param.AnswerMonthQuarterYearSubmitParam;
 import com.qu.modules.web.param.AnswerParam;
 import com.qu.modules.web.param.AnswerPatientSubmitParam;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.IAnswerService;
+import com.qu.modules.web.vo.AnswerMonthQuarterYearFillingInAndSubmitPageVo;
 import com.qu.modules.web.vo.AnswerPageVo;
 import com.qu.modules.web.vo.AnswerPatientFillingInAndSubmitPageVo;
 import io.swagger.annotations.Api;
@@ -19,12 +19,10 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultFactory;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Slf4j
 @Api(tags = "答案")
@@ -35,33 +33,6 @@ public class AnswerController {
     @Autowired
     private IAnswerService answerService;
 
-//    @ApiOperation(value = "创建动态表", notes = "创建动态表")
-//    @GetMapping(value = "/createDynamicTable")
-//    public Result<Integer> createDynamicTable() {
-//        Result<Integer> result = new Result<Integer>();
-//        StringBuffer sql = new StringBuffer();
-//        sql.append("CREATE TABLE `abc` (");
-//        sql.append("`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',");
-//        sql.append("`aaa` varchar(200),");
-//        sql.append(" PRIMARY KEY (`id`)");
-//        sql.append(") ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='aaa';");
-//        answerService.createDynamicTable(sql.toString());
-//        result.setSuccess(true);
-//        result.setResult(1);
-//        return result;
-//    }
-//
-//    @ApiOperation(value = "insert table", notes = "insert table")
-//    @GetMapping(value = "/insertDynamicTable")
-//    public Result<Integer> insertDynamicTable() {
-//        Result<Integer> result = new Result<Integer>();
-//        StringBuffer sql = new StringBuffer();
-//        sql.append("insert into abc (aaa) values  ('123654');");
-//        answerService.insertDynamicTable(sql.toString());
-//        result.setSuccess(true);
-//        result.setResult(1);
-//        return result;
-//    }
 
     @ApiOperation(value = "答题", notes = "答题")
     @PostMapping(value = "/answer")
@@ -159,24 +130,93 @@ public class AnswerController {
     }
 
     /**
-     * 菜单月度汇总传，定期汇总传-填报中
+     * 菜单月度汇总，定期汇总-填报中
      */
-    @AutoLog(value = "菜单月度汇总传，定期汇总传-填报中")
-    @ApiOperation(value = "菜单月度汇总传，定期汇总传-填报中", notes = "菜单月度汇总传，定期汇总传-填报中")
-    @GetMapping(value = "/monthQuarterYearList")
-    public Result<AnswerPatientFillingInAndSubmitPageVo> monthQuarterYearList(HttpServletRequest request,
-                                                                              @RequestParam(name = "type")@ApiParam("菜单月度汇总传0，定期汇总传1") String type,
-                                                                              @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
-                                                                              @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
-        Result<AnswerPatientFillingInAndSubmitPageVo> result = new Result<>();
+    @AutoLog(value = "菜单月度汇总，定期汇总-填报中")
+    @ApiOperation(value = "菜单月度汇总，定期汇总-填报中", notes = "菜单月度汇总，定期汇总-填报中")
+    @GetMapping(value = "/monthQuarterYearFillingInList")
+    public Result<AnswerMonthQuarterYearFillingInAndSubmitPageVo> monthQuarterYearFillingInList(HttpServletRequest request,
+                                                                                       @RequestParam(name = "type")@ApiParam("菜单月度汇总传0，定期汇总传1") String type,
+                                                                                       @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                                       @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+        Result<AnswerMonthQuarterYearFillingInAndSubmitPageVo> result = new Result<>();
         //加科室过滤---
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
         String deptId = data.getDeps().get(0).getId();
-        AnswerPatientFillingInAndSubmitPageVo list = answerService.monthQuarterYearList(deptId,type, pageNo,pageSize );
+        AnswerMonthQuarterYearFillingInAndSubmitPageVo list = answerService.monthQuarterYearFillingInList(deptId,type, pageNo,pageSize );
         result.setSuccess(true);
         result.setResult(list);
         return result;
     }
+
+    /**
+     * 菜单月度汇总，定期汇总-已提交
+     */
+    @AutoLog(value = "菜单月度汇总，定期汇总-已提交")
+    @ApiOperation(value = "菜单月度汇总，定期汇总-已提交", notes = "菜单月度汇总，定期汇总-已提交")
+    @GetMapping(value = "/monthQuarterYearSubmitList")
+    public Result<AnswerMonthQuarterYearFillingInAndSubmitPageVo> monthQuarterYearSubmitList(@Validated AnswerMonthQuarterYearSubmitParam answerMonthQuarterYearSubmitParam, HttpServletRequest request,
+                                                                                             @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                                             @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+        Result<AnswerMonthQuarterYearFillingInAndSubmitPageVo> result = new Result<>();
+        //加科室过滤---
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String deptId = data.getDeps().get(0).getId();
+        AnswerMonthQuarterYearFillingInAndSubmitPageVo list = answerService.monthQuarterYearSubmitList(deptId,answerMonthQuarterYearSubmitParam,pageNo,pageSize );
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+    /**
+     * 患者登记表，菜单月度汇总，定期汇总-填报中-删除功能
+     */
+    @AutoLog(value = "患者登记表，菜单月度汇总，定期汇总-填报中-删除功能")
+    @ApiOperation(value = "患者登记表，菜单月度汇总，定期汇总-填报中-删除功能", notes = "患者登记表，菜单月度汇总，定期汇总-填报中-删除功能")
+    @DeleteMapping(value = "/patientMonthQuarterYearFillingInDelete")
+    public Result patientMonthQuarterYearFillingInDelete(@RequestParam(name="id",required=true)@ApiParam("从列表中获取的主键id") Integer id) {
+        boolean flag = answerService.patientMonthQuarterYearFillingInDelete(id);
+        if(flag){
+            return ResultFactory.success();
+        }else{
+            return ResultFactory.fail("删除失败");
+        }
+    }
+
+
+
+
+
+
+
+
+//    @ApiOperation(value = "创建动态表", notes = "创建动态表")
+//    @GetMapping(value = "/createDynamicTable")
+//    public Result<Integer> createDynamicTable() {
+//        Result<Integer> result = new Result<Integer>();
+//        StringBuffer sql = new StringBuffer();
+//        sql.append("CREATE TABLE `abc` (");
+//        sql.append("`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',");
+//        sql.append("`aaa` varchar(200),");
+//        sql.append(" PRIMARY KEY (`id`)");
+//        sql.append(") ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='aaa';");
+//        answerService.createDynamicTable(sql.toString());
+//        result.setSuccess(true);
+//        result.setResult(1);
+//        return result;
+//    }
+//
+//    @ApiOperation(value = "insert table", notes = "insert table")
+//    @GetMapping(value = "/insertDynamicTable")
+//    public Result<Integer> insertDynamicTable() {
+//        Result<Integer> result = new Result<Integer>();
+//        StringBuffer sql = new StringBuffer();
+//        sql.append("insert into abc (aaa) values  ('123654');");
+//        answerService.insertDynamicTable(sql.toString());
+//        result.setSuccess(true);
+//        result.setResult(1);
+//        return result;
+//    }
 
 
 }

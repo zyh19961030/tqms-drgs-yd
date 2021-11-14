@@ -1,11 +1,5 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -21,15 +15,13 @@ import com.qu.modules.web.mapper.AnswerMapper;
 import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.param.AnswerMonthQuarterYearSubmitParam;
 import com.qu.modules.web.param.AnswerParam;
 import com.qu.modules.web.param.AnswerPatientSubmitParam;
 import com.qu.modules.web.param.Answers;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IAnswerService;
-import com.qu.modules.web.vo.AnswerPageVo;
-import com.qu.modules.web.vo.AnswerPatientFillingInAndSubmitPageVo;
-import com.qu.modules.web.vo.AnswerPatientFillingInAndSubmitVo;
-import com.qu.modules.web.vo.AnswerVo;
+import com.qu.modules.web.vo.*;
 import com.qu.util.HttpClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -40,6 +32,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -302,10 +300,16 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
         lambda.like(Answer::getCreaterDeptid,deptId);
         lambda.eq(Answer::getAnswerStatus,AnswerConstant.ANSWER_STATUS_DRAFT);
+        lambda.eq(Answer::getDel,AnswerConstant.DEL_NORMAL);
 
         LambdaQueryWrapper<Question> questionLambdaQueryWrapper = getQuestionLambda();
         questionLambdaQueryWrapper.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_PATIENT_WRITE);
         List<Question> questions = questionMapper.selectList(questionLambdaQueryWrapper);
+        if(questions.isEmpty()){
+            AnswerPatientFillingInAndSubmitPageVo res = new AnswerPatientFillingInAndSubmitPageVo();
+            res.setTotal(0);
+            return res;
+        }
         List<Integer> questionIdList = questions.stream().map(Question::getId).distinct().collect(Collectors.toList());
         lambda.in(Answer::getQuId,questionIdList);
         return getAnswerPatientFillingInAndSubmitPageVo(page, lambda);
@@ -325,17 +329,25 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
         lambda.like(Answer::getCreaterDeptid,deptId);
         lambda.eq(Answer::getAnswerStatus,AnswerConstant.ANSWER_STATUS_RELEASE);
+        lambda.eq(Answer::getDel,AnswerConstant.DEL_NORMAL);
+
         if(StringUtils.isNotBlank(answerPatientSubmitParam.getPatientName())){
             lambda.like(Answer::getPatientName,answerPatientSubmitParam.getPatientName());
         }
+        LambdaQueryWrapper<Question> questionLambdaQueryWrapper = getQuestionLambda();
+        questionLambdaQueryWrapper.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_PATIENT_WRITE);
         if(StringUtils.isNotBlank(answerPatientSubmitParam.getQuName())){
-            LambdaQueryWrapper<Question> questionLambdaQueryWrapper = getQuestionLambda();
             questionLambdaQueryWrapper.like(Question::getQuName,answerPatientSubmitParam.getQuName());
-            List<Question> questions = questionMapper.selectList(questionLambdaQueryWrapper);
-            List<Integer> questionIdList = questions.stream().map(Question::getId).distinct().collect(Collectors.toList());
-
-            lambda.in(Answer::getQuId,questionIdList);
         }
+        List<Question> questions = questionMapper.selectList(questionLambdaQueryWrapper);
+        if(questions.isEmpty()){
+            AnswerPatientFillingInAndSubmitPageVo res = new AnswerPatientFillingInAndSubmitPageVo();
+            res.setTotal(0);
+            return res;
+        }
+        List<Integer> questionIdList = questions.stream().map(Question::getId).distinct().collect(Collectors.toList());
+        lambda.in(Answer::getQuId,questionIdList);
+
         if (answerPatientSubmitParam.getInHospitalStartDate() != null) {
             lambda.ge(Answer::getInTime, answerPatientSubmitParam.getInHospitalStartDate());
         }
@@ -380,11 +392,12 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
     }
 
     @Override
-    public AnswerPatientFillingInAndSubmitPageVo monthQuarterYearList(String deptId, String type, Integer pageNo, Integer pageSize) {
+    public AnswerMonthQuarterYearFillingInAndSubmitPageVo monthQuarterYearFillingInList(String deptId, String type, Integer pageNo, Integer pageSize) {
         Page<Answer> page = new Page<>(pageNo, pageSize);
         LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
         lambda.like(Answer::getCreaterDeptid,deptId);
         lambda.eq(Answer::getAnswerStatus,AnswerConstant.ANSWER_STATUS_DRAFT);
+        lambda.eq(Answer::getDel,AnswerConstant.DEL_NORMAL);
 
         LambdaQueryWrapper<Question> questionLambdaQueryWrapper = getQuestionLambda();
         if(type.equals("0")){
@@ -393,9 +406,95 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
             questionLambdaQueryWrapper.in(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_MONTH_QUARTER_YEAR);
         }
         List<Question> questions = questionMapper.selectList(questionLambdaQueryWrapper);
+        if(questions.isEmpty()){
+            AnswerMonthQuarterYearFillingInAndSubmitPageVo res = new AnswerMonthQuarterYearFillingInAndSubmitPageVo();
+            res.setTotal(0);
+            return res;
+        }
         List<Integer> questionIdList = questions.stream().map(Question::getId).distinct().collect(Collectors.toList());
         lambda.in(Answer::getQuId,questionIdList);
 
-        return getAnswerPatientFillingInAndSubmitPageVo(page, lambda);
+        return getAnswerMonthQuarterYearFillingInAndSubmitPageVo(page, lambda);
+    }
+
+
+
+    @Override
+    public AnswerMonthQuarterYearFillingInAndSubmitPageVo monthQuarterYearSubmitList(String deptId, AnswerMonthQuarterYearSubmitParam answerMonthQuarterYearSubmitParam,
+                                                                                     Integer pageNo, Integer pageSize) {
+        Page<Answer> page = new Page<>(pageNo, pageSize);
+        LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
+        lambda.like(Answer::getCreaterDeptid,deptId);
+        lambda.eq(Answer::getAnswerStatus,AnswerConstant.ANSWER_STATUS_RELEASE);
+        lambda.eq(Answer::getDel,AnswerConstant.DEL_NORMAL);
+
+        LambdaQueryWrapper<Question> questionLambdaQueryWrapper = getQuestionLambda();
+        if(answerMonthQuarterYearSubmitParam.getWriteFrequency().equals(QuestionConstant.WRITE_FREQUENCY_ALL)){
+            questionLambdaQueryWrapper.in(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_MONTH_QUARTER_YEAR);
+        }else if(answerMonthQuarterYearSubmitParam.getWriteFrequency().equals(QuestionConstant.WRITE_FREQUENCY_MONTH)){
+            questionLambdaQueryWrapper.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_MONTH);
+        }else if(answerMonthQuarterYearSubmitParam.getWriteFrequency().equals(QuestionConstant.WRITE_FREQUENCY_QUARTER)){
+            questionLambdaQueryWrapper.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_QUARTER);
+        }else if(answerMonthQuarterYearSubmitParam.getWriteFrequency().equals(QuestionConstant.WRITE_FREQUENCY_YEAR)){
+            questionLambdaQueryWrapper.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_YEAR);
+        }
+
+        if(StringUtils.isNotBlank(answerMonthQuarterYearSubmitParam.getQuName())){
+            questionLambdaQueryWrapper.like(Question::getQuName,answerMonthQuarterYearSubmitParam.getQuName());
+        }
+        List<Question> questions = questionMapper.selectList(questionLambdaQueryWrapper);
+        if(questions.isEmpty()){
+            AnswerMonthQuarterYearFillingInAndSubmitPageVo res = new AnswerMonthQuarterYearFillingInAndSubmitPageVo();
+            res.setTotal(0);
+            return res;
+        }
+        List<Integer> questionIdList = questions.stream().map(Question::getId).distinct().collect(Collectors.toList());
+        lambda.in(Answer::getQuId,questionIdList);
+        if (answerMonthQuarterYearSubmitParam.getSubmitStartDate() != null) {
+            lambda.ge(Answer::getSubmitTime, answerMonthQuarterYearSubmitParam.getSubmitStartDate());
+        }
+        if (answerMonthQuarterYearSubmitParam.getSubmitEndDate() != null) {
+            lambda.le(Answer::getSubmitTime, answerMonthQuarterYearSubmitParam.getSubmitEndDate());
+        }
+        if (StringUtils.isNotBlank(answerMonthQuarterYearSubmitParam.getQuestionAnswerTime())) {
+            lambda.eq(Answer::getQuestionAnswerTime, answerMonthQuarterYearSubmitParam.getQuestionAnswerTime());
+        }
+        if (StringUtils.isNotBlank(answerMonthQuarterYearSubmitParam.getCreaterName())) {
+            lambda.like(Answer::getCreaterName, answerMonthQuarterYearSubmitParam.getCreaterName());
+        }
+        return getAnswerMonthQuarterYearFillingInAndSubmitPageVo(page, lambda);
+    }
+
+    private AnswerMonthQuarterYearFillingInAndSubmitPageVo getAnswerMonthQuarterYearFillingInAndSubmitPageVo(Page<Answer> page, LambdaQueryWrapper<Answer> lambda) {
+        AnswerMonthQuarterYearFillingInAndSubmitPageVo res = new AnswerMonthQuarterYearFillingInAndSubmitPageVo();
+        IPage<Answer> answerIPage = this.page(page, lambda);
+        List<Answer> questions = answerIPage.getRecords();
+        if(questions.isEmpty()){
+            res.setTotal(answerIPage.getTotal());
+            return res;
+        }
+        List<Integer> questionIdList = questions.stream().map(Answer::getQuId).distinct().collect(Collectors.toList());
+        List<Question> questionList = questionMapper.selectBatchIds(questionIdList);
+        Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, q -> q));
+        List<AnswerMonthQuarterYearFillingInAndSubmitVo> answerMonthQuarterYearFillingInVos = questions.stream().map(answer -> {
+            AnswerMonthQuarterYearFillingInAndSubmitVo answerMonthQuarterYearFillingInVo = new AnswerMonthQuarterYearFillingInAndSubmitVo();
+            BeanUtils.copyProperties(answer,answerMonthQuarterYearFillingInVo);
+            answerMonthQuarterYearFillingInVo.setQuName(questionMap.get(answer.getQuId()).getQuName());
+            return answerMonthQuarterYearFillingInVo;
+        }).collect(Collectors.toList());
+        res.setTotal(answerIPage.getTotal());
+        res.setAnswerPatientFillingInVos(answerMonthQuarterYearFillingInVos);
+        return res;
+    }
+
+    @Override
+    public boolean patientMonthQuarterYearFillingInDelete(Integer id) {
+        Answer answer = this.answerMapper.selectById(id);
+        if (answer == null || AnswerConstant.DEL_DELETED.equals(answer.getDel())) {
+            return false;
+        }
+        answer.setDel(AnswerConstant.DEL_DELETED);
+        answerMapper.updateById(answer);
+        return true;
     }
 }
