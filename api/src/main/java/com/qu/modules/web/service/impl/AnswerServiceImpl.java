@@ -1,5 +1,6 @@
 package com.qu.modules.web.service.impl;
 
+import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -110,6 +111,49 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
             answer.setCreaterDeptname(creater_deptname);
             answer.setAnswerTime(date);
 
+            Answers[] answers = answerParam.getAnswers();
+            Map<String, String> mapCache = new HashMap<>();
+            for (Answers a : answers) {
+                mapCache.put(a.getSubColumnName(), a.getSubValue());
+            }
+
+            if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_TH_MONTH)
+                    && mapCache.get(AnswerConstant.COLUMN_NAME_TH_MONTH)!=null){
+                answer.setQuestionAnswerTime(mapCache.get(AnswerConstant.COLUMN_NAME_TH_MONTH));
+            }
+
+            if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_CASE_ID)
+                    && mapCache.get(AnswerConstant.COLUMN_NAME_CASE_ID)!=null){
+                answer.setHospitalInNo(mapCache.get(AnswerConstant.COLUMN_NAME_CASE_ID));
+            }
+
+            if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_PATIENT_NAME)
+                    && mapCache.get(AnswerConstant.COLUMN_NAME_PATIENT_NAME)!=null){
+                answer.setPatientName(mapCache.get(AnswerConstant.COLUMN_NAME_PATIENT_NAME));
+            }
+
+            if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_PATIENT_NAME_LOWER_CASE)
+                    && mapCache.get(AnswerConstant.COLUMN_NAME_PATIENT_NAME_LOWER_CASE)!=null){
+                answer.setPatientName(mapCache.get(AnswerConstant.COLUMN_NAME_PATIENT_NAME_LOWER_CASE));
+            }
+
+            if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_AGE)
+                    && mapCache.get(AnswerConstant.COLUMN_NAME_AGE)!=null){
+                answer.setAge(Integer.parseInt(mapCache.get(AnswerConstant.COLUMN_NAME_AGE)));
+            }
+
+            if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_AGE_LOWER_CASE)
+                    && mapCache.get(AnswerConstant.COLUMN_NAME_AGE_LOWER_CASE)!=null){
+                answer.setAge(Integer.parseInt(mapCache.get(AnswerConstant.COLUMN_NAME_AGE_LOWER_CASE)));
+            }
+
+            if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_IN_TIME)
+                    && mapCache.get(AnswerConstant.COLUMN_NAME_IN_TIME)!=null){
+                String dateInTimeString = mapCache.get(AnswerConstant.COLUMN_NAME_IN_TIME);
+                Date dateInTime = DateUtil.parse(dateInTimeString).toJdkDate();
+                answer.setInTime(dateInTime);
+            }
+
             boolean insertOrUpdate = answer.getId() != null && answer.getId() != 0;
             if (insertOrUpdate) {
                 answer.setUpdateTime(date);
@@ -124,11 +168,6 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
                 answerMapper.insert(answer);
             }
             //插入子表
-            Answers[] answers = answerParam.getAnswers();
-            Map<String, String> mapCache = new HashMap<>();
-            for (Answers a : answers) {
-                mapCache.put(a.getSubColumnName(), a.getSubValue());
-            }
             StringBuffer sqlAns = new StringBuffer();
             Question question = questionMapper.selectById(answerParam.getQuId());
             if (question != null) {

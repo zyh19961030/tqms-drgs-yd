@@ -26,8 +26,8 @@ public class AnswerMonthQuarterYearSubmitParam {
     @ApiModelProperty(value = "提交时间结束时间 格式：yyyy-MM-dd HH:mm:ss")
     private Date submitEndDate;
 
-    /**填报的月/季度/年*/
-    @ApiModelProperty(value = "填报的月/季度/年(该参数可能会修改)")
+    /**所属年份，季度，月份-填报的月/季度/年*/
+    @ApiModelProperty(value = "所属年份，季度，月份-填报的月/季度/年")
     private java.lang.String questionAnswerTime;
 
     @ApiModelProperty(value = "答题人姓名")
