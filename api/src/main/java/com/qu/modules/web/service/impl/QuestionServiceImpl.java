@@ -454,10 +454,11 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         if(StringUtils.isNotBlank(name)){
             lambda.like(Question::getQuName,name);
         }
-        lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_NORMAL);
         lambda.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_PATIENT_WRITE);
         lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
         lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+        lambda.and(wrapper->wrapper.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_NORMAL).or().isNull(Question::getCategoryType));
+
         //科室匹配 问卷设置科室权限---
         if(StringUtils.isNotBlank(deptId)){
             lambda.like(Question::getDeptIds,deptId);
@@ -477,16 +478,19 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     @Override
     public List<QuestionMonthQuarterYearCreateListVo> monthQuarterYearCreateList(String type, String deptId) {
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
-        lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_NORMAL);
-        if(type.equals("0")){
+        if("0".equals(type)){
             lambda.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_MONTH);
-        }else if(type.equals("1")){
+        }else if("1".equals(type)){
             lambda.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_QUARTER);
-        }else if(type.equals("2")){
+        }else if("2".equals(type)){
             lambda.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_YEAR);
+        }else{
+            lambda.in(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_MONTH_QUARTER_YEAR);
         }
         lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
         lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+        lambda.and(wrapper->wrapper.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_NORMAL).or().isNull(Question::getCategoryType));
+
         //科室匹配 问卷设置科室权限---
         if(StringUtils.isNotBlank(deptId)){
             lambda.like(Question::getDeptIds,deptId);
