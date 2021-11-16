@@ -1205,7 +1205,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
         LambdaQueryWrapper<Question> questionQueryWrapper = new QueryWrapper<Question>().lambda();
         questionQueryWrapper.in(Question::getTableName, dynamicTableNameList);
-//        questionQueryWrapper.eq(Question::getQuStatus,"1");
+        questionQueryWrapper.eq(Question::getQuStatus,"1");
         questionQueryWrapper.eq(Question::getCategoryType,"1");
         questionQueryWrapper.eq(Question::getDel,"0");
         List<Question> questionList = questionMapper.selectList(questionQueryWrapper);
@@ -1263,7 +1263,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                         || a.getSubColumnName().equals("STK-1-3-3-1") || a.getSubColumnName().equals("STK-1-2-1-2-1")
                         || a.getSubColumnName().equals("CM-0-2-6-1") || a.getSubColumnName().equals("CM-1-4-1")
                         || a.getSubColumnName().equals("CM-1-6-1") || a.getSubColumnName().equals("CM-0-2-6-2")
-                        || a.getSubColumnName().equals("STK-1-1-1-2")) {
+                        || a.getSubColumnName().equals("STK-1-1-1-2") || a.getSubColumnName().equals("CM-0-2-2-2")) {
                             a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_MINUTE_PATTERN));
                         } else {
                             a.setSubValue(parse.toString(DatePattern.NORM_DATE_PATTERN));
@@ -1318,6 +1318,13 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                             a.setSubValue(s);
                         }
                     }
+                    if (qSingleDiseaseTake.getQuestionId().equals(103)) {
+                        if (a.getSubColumnName().equals("CM-2-2")) {
+                            String value = a.getSubValue();
+                            String s = value.substring(2,3);
+                            a.setSubValue(s);
+                        }
+                    }
                     if (qSingleDiseaseTake.getQuestionId().equals(115) || qSingleDiseaseTake.getQuestionId().equals(122)
                     || qSingleDiseaseTake.getQuestionId().equals(100)) {
                         if (a.getSubColumnName().equals("CM-0-2-2-1") || a.getSubColumnName().equals("CM-0-2-3-1")) {
@@ -1338,10 +1345,25 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                             mapCache.remove(a.getSubColumnName());
                         }
                     }
+                    if (qSingleDiseaseTake.getQuestionId().equals(99)) {
+                        if (a.getSubColumnName().equals("CM-0-2-2-1") || a.getSubColumnName().equals("ALL-0-2-3-1")) {
+                            if (a.getSubValue().length() < 5 && !a.getSubValue().equals("UTD")) {
+                                mapCache.remove(a.getSubColumnName());
+                            }
+                        }
+                    }
+                    if (qSingleDiseaseTake.getQuestionId().equals(106)) {
+                        if (a.getSubColumnName().equals("CM-0-2-2-1") || a.getSubColumnName().equals("APL-0-2-3-1")) {
+                            if (a.getSubValue().length() < 5 && !a.getSubValue().equals("UTD")) {
+                                mapCache.remove(a.getSubColumnName());
+                            }
+                        }
+                    }
                 }
                 singleDiseaseReportUrl = String.format(singleDiseaseReportUrl,quotaCategoryMap.get(qSingleDiseaseTake.getCategoryId()).getDiseaseType());
                 HttpData data = HttpData.instance();
                 data.setPostEntity(new StringEntity(JSON.toJSONString(mapCache), ContentType.APPLICATION_JSON));
+                mapCache.clear();
                 // 接口调用并返回结果
                 ResponseEntity responseEntity = null;
                 try {
@@ -1355,7 +1377,6 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                             Integer objStatus = obj.getInteger("status");
                             if (Objects.equals(objStatus, 20) && obj.containsKey("signed") && StringUtils.isNotBlank(obj.getString("signed"))) {
                                 String signed = obj.getString("signed");
-
                             }
                         }
                     } else {
