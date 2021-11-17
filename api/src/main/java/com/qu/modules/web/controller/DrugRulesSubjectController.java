@@ -88,7 +88,6 @@ public class DrugRulesSubjectController {
 		Integer subjectId = drugRulesSubject.getSubjectId();
 		Qsubject qsubject = subjectService.querySubjectById(subjectId);
 		String subType = qsubject.getSubType();
-		System.out.println(subType+"-----------------------------------------");
 		//添加单选和多选题时，添加药品规则答案表
 		if (subType.equals("1") || subType.equals("2") || subType.equals("5")) {
 			List<Qoption> qoptions = optionService.queryOptionBySubId(subjectId);
@@ -106,7 +105,6 @@ public class DrugRulesSubjectController {
 		//添加时间类型和单行输入文本类型题时，将问题id赋值为答案id，添加药品规则答案表
 		if (subType.equals("4") || subType.equals("6")) {
 			DrugRulesOption drugRulesOption = new DrugRulesOption();
-			System.out.println(subjectId+"==================================");
 			drugRulesOption.setOptionId(subjectId);
 			drugRulesOption.setDrugRulesSubjectId(subjectId);
 			drugRulesOption.setDel(0);

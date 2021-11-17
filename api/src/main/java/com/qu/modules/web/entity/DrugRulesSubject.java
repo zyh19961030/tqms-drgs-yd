@@ -74,6 +74,10 @@ public class DrugRulesSubject {
 	@Excel(name = "医嘱执行类型：1、长期，2、临时，3、其他", width = 15)
 	@ApiModelProperty(value = "医嘱执行类型：1、长期，2、临时，3、其他")
 	private Integer orderExecuteType;
+	/**题目类型 1.单选   2.多选   3.日期   4.时间  5.下拉框    6.单行文本   7.多行文本  8.分组框  9.提示标题 10.日期选择器-月 11.日期选择器-季度 12.日期选择器-年*/
+	@Excel(name = "题目类型 1.单选   2.多选   3.日期   4.时间  5.下拉框    6.单行文本   7.多行文本  8.分组框  9.提示标题 10.日期选择器-月 11.日期选择器-季度 12.日期选择器-年", width = 15)
+	@ApiModelProperty(value = "题目类型 1.单选   2.多选   3.日期   4.时间  5.下拉框    6.单行文本   7.多行文本  8.分组框  9.提示标题 10.日期选择器-月 11.日期选择器-季度 12.日期选择器-年")
+	private String subType;
 	/**开始时间项*/
 	@Excel(name = "开始时间项", width = 15)
     @ApiModelProperty(value = "开始时间项")

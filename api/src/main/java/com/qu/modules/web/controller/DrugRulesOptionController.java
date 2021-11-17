@@ -66,7 +66,6 @@ public class DrugRulesOptionController {
 			Integer id = drugRulesOption.getId();
 			Integer optionId = drugRulesOption.getOptionId();
 			Qoption qoption = optionService.getById(optionId);
-			String opName = qoption.getOpName();
 			List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.queryByOptionId(optionId, finalSubject_type);
 			drugRulesRelationList.forEach(drugRulesRelation -> {
 				Integer type = drugRulesRelation.getType();
@@ -91,7 +90,12 @@ public class DrugRulesOptionController {
 				}
 			});
 			DrugRulesOptionListVo.setId(id);
-			DrugRulesOptionListVo.setName(opName);
+			if (finalSubject_type.equals(1)) {
+				String opName = qoption.getOpName();
+				DrugRulesOptionListVo.setName(opName);
+			} else if (finalSubject_type.equals(2)) {
+				DrugRulesOptionListVo.setName("");
+			}
 			DrugRulesOptionListVo.setHis(his);
 			drugRulesOptionListVoList.add(DrugRulesOptionListVo);
 		});
