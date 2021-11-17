@@ -1,8 +1,10 @@
 package com.qu.config;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.alibaba.fastjson.JSON;
 import com.qu.constant.Constant;
-import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.util.HttpClient;
 import com.qu.util.StringUtil;
@@ -12,9 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * 登录拦截器
@@ -69,11 +68,11 @@ public class LoginInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        if (data != null) {
-            log.info("getSession is null-----preHandle");
-            return true;
-        }
+//        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+//        if (data != null) {
+//            log.info("getSession is null-----preHandle");
+//            return true;
+//        }
 
         String cookie = "JSESSIONID=" + token;
         String res = HttpClient.doPost(tokenUrl, cookie, null);
