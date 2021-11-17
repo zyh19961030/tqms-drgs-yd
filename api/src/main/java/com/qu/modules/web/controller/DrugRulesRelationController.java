@@ -2,9 +2,11 @@ package com.qu.modules.web.controller;
 
 import java.util.List;
 
+import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.param.DrugRulesRelationsListParam;
 import com.qu.modules.web.service.IDrugReceiveHisService;
 import com.qu.modules.web.service.IDrugRulesOptionService;
+import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.PurposeAndActionVo;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -34,6 +36,8 @@ public class DrugRulesRelationController {
 	private IDrugRulesOptionService drugRulesOptionService;
 	@Autowired
 	private IDrugReceiveHisService drugReceiveHisService;
+	@Autowired
+	private ISubjectService subjectService;
 
 	/**
 	 *  设置
@@ -54,7 +58,17 @@ public class DrugRulesRelationController {
 		DrugRulesRelation drugRulesRelation = new DrugRulesRelation();
 		List<PurposeAndActionVo> purposeAndActionVos = drugRulesRelations.getPurposeAndActionVos();
 		int type = drugRulesRelations.getType();
+		Integer subjectId = drugRulesOptionService.querySubjectIdById(id);
+		Qsubject qsubject = subjectService.querySubjectById(subjectId);
+		String subType = qsubject.getSubType();
+		Integer subject_type = null;
+		if (subType.equals("1") || subType.equals("2") || subType.equals("5")) {
+			subject_type = 1;
+		} else if (subType.equals("4") || subType.equals("6")){
+			subject_type = 2;
+		}
 		if (type == 2) {
+			Integer finalSubject_type = subject_type;
 			purposeAndActionVos.forEach(purposeAndActionVo -> {
 				Integer id1 = purposeAndActionVo.getMedicationPurposeId();
 				Integer medicationPurposeId = drugReceiveHisService.queryPurposeOrActionIdById(id1);
@@ -63,6 +77,7 @@ public class DrugRulesRelationController {
 				drugRulesRelation.setMedicationPurposeId(medicationPurposeId);
 				drugRulesRelation.setDrugPhysicalActionId(drugPhysicalActionId);
 				drugRulesRelation.setType(type);
+				drugRulesRelation.setSubject_type(finalSubject_type);
 				try {
 					drugRulesRelationService.save(drugRulesRelation);
 					result.success("设置成功！");
@@ -73,6 +88,7 @@ public class DrugRulesRelationController {
 				}
 			});
 		} else {
+			Integer finalSubject_type1 = subject_type;
 			purposeAndActionVos.forEach(purposeAndActionVo -> {
 				Integer medicationPurposeId = purposeAndActionVo.getMedicationPurposeId();
 				Integer drugPhysicalActionId = purposeAndActionVo.getDrugPhysicalActionId();
@@ -80,6 +96,7 @@ public class DrugRulesRelationController {
 				drugRulesRelation.setMedicationPurposeId(medicationPurposeId);
 				drugRulesRelation.setDrugPhysicalActionId(drugPhysicalActionId);
 				drugRulesRelation.setType(type);
+				drugRulesRelation.setSubject_type(finalSubject_type1);
 				try {
 					drugRulesRelationService.save(drugRulesRelation);
 					result.success("设置成功！");

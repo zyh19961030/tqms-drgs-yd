@@ -44,4 +44,8 @@ public class DrugRulesRelation {
 	@Excel(name = "区分根据一级或二级关联：1为一级，2为二级", width = 15)
     @ApiModelProperty(value = "区分根据一级或二级关联：1为一级，2为二级")
 	private Integer type;
+	/**区分题目类型：1为单选和多选类型，2为时间类型和单行输入文本类型*/
+	@Excel(name = "区分题目类型：1为单选和多选类型，2为时间类型和单行输入文本类型", width = 15)
+	@ApiModelProperty(value = "区分题目类型：1为单选和多选类型，2为时间类型和单行输入文本类型")
+	private Integer subject_type;
 }

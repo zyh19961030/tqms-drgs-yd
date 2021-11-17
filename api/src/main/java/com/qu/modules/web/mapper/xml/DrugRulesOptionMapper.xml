@@ -10,4 +10,8 @@
         update drug_rules_option set del = 1, update_time = #{date} where drug_rules_subject_id = #{subjectId}
     </update>
 
+    <select id="querySubjectIdById" resultType="java.lang.Integer">
+        select drug_rules_subject_id from drug_rules_option where id = #{id}
+    </select>
+
 </mapper>

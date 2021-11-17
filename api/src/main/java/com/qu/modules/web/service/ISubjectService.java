@@ -37,4 +37,6 @@ public interface ISubjectService extends IService<Qsubject> {
 
     List<Qsubject> querySubjectByQuId(Integer id);
 
+    Qsubject querySubjectById(Integer id);
+
 }

@@ -47,7 +47,11 @@
     </select>
 
     <select id="querySubjectByQuestionId" resultType="com.qu.modules.web.entity.Qsubject">
-        select * from qsubject where qu_id = #{id} and del = 0 and sub_type in ("1", "2", "5") and id not in (select subject_id from drug_rules_subject where del = 0)
+        select * from qsubject where qu_id = #{id} and del = 0 and sub_type in ("1", "2", "4", "5", "6") and id not in (select subject_id from drug_rules_subject where del = 0)
+    </select>
+
+    <select id="querySubjectById" resultType="com.qu.modules.web.entity.Qsubject">
+        select * from qsubject where id = #{id} and del = 0
     </select>
 
 </mapper>

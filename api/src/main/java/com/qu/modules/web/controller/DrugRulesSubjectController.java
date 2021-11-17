@@ -84,18 +84,36 @@ public class DrugRulesSubjectController {
 		} else {
 			int i = drugRulesQuestionService.updateQuestion(drugRulesQuestion.getQuestionId(), 0, date);
 		}
+		//查看问题类型
 		Integer subjectId = drugRulesSubject.getSubjectId();
-		List<Qoption> qoptions = optionService.queryOptionBySubId(subjectId);
-		qoptions.forEach(qoption -> {
-			Integer qoptionId = qoption.getId();
+		Qsubject qsubject = subjectService.querySubjectById(subjectId);
+		String subType = qsubject.getSubType();
+		System.out.println(subType+"-----------------------------------------");
+		//添加单选和多选题时，添加药品规则答案表
+		if (subType.equals("1") || subType.equals("2") || subType.equals("5")) {
+			List<Qoption> qoptions = optionService.queryOptionBySubId(subjectId);
+			qoptions.forEach(qoption -> {
+				Integer qoptionId = qoption.getId();
+				DrugRulesOption drugRulesOption = new DrugRulesOption();
+				drugRulesOption.setOptionId(qoptionId);
+				drugRulesOption.setDrugRulesSubjectId(subjectId);
+				drugRulesOption.setDel(0);
+				drugRulesOption.setCreateTime(date);
+				drugRulesOption.setUpdateTime(date);
+				boolean save = drugRulesOptionService.save(drugRulesOption);
+			});
+		}
+		//添加时间类型和单行输入文本类型题时，将问题id赋值为答案id，添加药品规则答案表
+		if (subType.equals("4") || subType.equals("6")) {
 			DrugRulesOption drugRulesOption = new DrugRulesOption();
-			drugRulesOption.setOptionId(qoptionId);
+			System.out.println(subjectId+"==================================");
+			drugRulesOption.setOptionId(subjectId);
 			drugRulesOption.setDrugRulesSubjectId(subjectId);
 			drugRulesOption.setDel(0);
 			drugRulesOption.setCreateTime(date);
 			drugRulesOption.setUpdateTime(date);
 			boolean save = drugRulesOptionService.save(drugRulesOption);
-		});
+		}
 		try {
 			drugRulesSubjectService.save(drugRulesSubject);
 			result.success("添加成功！");
@@ -215,7 +233,16 @@ public class DrugRulesSubjectController {
 			DrugRulesRelation drugRulesRelation = new DrugRulesRelation();
 			List<PurposeAndActionVo> purposeAndActionVos = subjectAndRelationsList.getPurposeAndActionVos();
 			int type = subjectAndRelationsList.getType();
+			Qsubject qsubject = subjectService.querySubjectById(subjectAndRelationsList.getSubjectId());
+			String subType = qsubject.getSubType();
+			Integer subject_type = null;
+			if (subType.equals("1") || subType.equals("2") || subType.equals("5")) {
+				subject_type = 1;
+			} else if (subType.equals("4") || subType.equals("6")){
+				subject_type = 2;
+			}
 			if (type == 2) {
+				Integer finalSubject_type = subject_type;
 				purposeAndActionVos.forEach(purposeAndActionVo -> {
 					Integer medicationPurposeId = purposeAndActionVo.getMedicationPurposeId();
 //					Integer medicationPurposeId = drugReceiveHisService.queryPurposeOrActionIdById(id1);
@@ -224,6 +251,7 @@ public class DrugRulesSubjectController {
 					drugRulesRelation.setMedicationPurposeId(medicationPurposeId);
 					drugRulesRelation.setDrugPhysicalActionId(drugPhysicalActionId);
 					drugRulesRelation.setType(type);
+					drugRulesRelation.setSubject_type(finalSubject_type);
 					try {
 						drugRulesRelationService.save(drugRulesRelation);
 						result.success("设置成功！");

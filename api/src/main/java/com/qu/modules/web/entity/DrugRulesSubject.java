@@ -66,6 +66,14 @@ public class DrugRulesSubject {
 	/**更新时间*/
     @ApiModelProperty(value = "更新时间")
 	private Date updateTime;
+	/**时间类型：1、起始，2、终止，3、天数，4、其他*/
+	@Excel(name = "时间类型：1、起始，2、终止，3、天数，4、其他", width = 15)
+	@ApiModelProperty(value = "时间类型：1、起始，2、终止，3、天数，4、其他")
+	private Integer timeType;
+	/**医嘱执行类型：1、长期，2、临时，3、其他*/
+	@Excel(name = "医嘱执行类型：1、长期，2、临时，3、其他", width = 15)
+	@ApiModelProperty(value = "医嘱执行类型：1、长期，2、临时，3、其他")
+	private Integer orderExecuteType;
 	/**开始时间项*/
 	@Excel(name = "开始时间项", width = 15)
     @ApiModelProperty(value = "开始时间项")

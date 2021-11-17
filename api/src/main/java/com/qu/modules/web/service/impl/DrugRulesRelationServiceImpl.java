@@ -38,9 +38,10 @@ public class DrugRulesRelationServiceImpl extends ServiceImpl<DrugRulesRelationM
     }
 
     @Override
-    public List<DrugRulesRelation> queryByOptionId(Integer optionId) {
+    public List<DrugRulesRelation> queryByOptionId(Integer optionId, Integer subject_type) {
         LambdaQueryWrapper<DrugRulesRelation> lambda = new QueryWrapper<DrugRulesRelation>().lambda();
         lambda.eq(DrugRulesRelation::getDrugRulesOptionId, optionId);
+        lambda.eq(DrugRulesRelation::getSubject_type, subject_type);
         List<DrugRulesRelation> list = this.list(lambda);
         return list;
     }

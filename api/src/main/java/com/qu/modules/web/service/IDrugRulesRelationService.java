@@ -22,6 +22,6 @@ public interface IDrugRulesRelationService extends IService<DrugRulesRelation> {
     int delete(Integer optionId);
 
     //根据答案id获取关联关系
-    List<DrugRulesRelation> queryByOptionId(Integer optionId);
+    List<DrugRulesRelation> queryByOptionId(Integer optionId, Integer subject_type);
 
 }

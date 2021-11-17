@@ -21,4 +21,7 @@ public interface DrugRulesOptionMapper extends BaseMapper<DrugRulesOption> {
     //根据药品规则问题id删除药品规则答案
     int updateOptionBySubjectId(Integer subjectId, Date date);
 
+    //根据药品规则答案表id获取问题id
+    Integer querySubjectIdById(Integer id);
+
 }

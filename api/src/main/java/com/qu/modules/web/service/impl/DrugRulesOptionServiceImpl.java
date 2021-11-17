@@ -44,4 +44,10 @@ public class DrugRulesOptionServiceImpl extends ServiceImpl<DrugRulesOptionMappe
     public int updateOptionBySubjectId(Integer subjectId, Date date) {
         return drugRulesOptionMapper.updateOptionBySubjectId(subjectId, date);
     }
+
+    @Override
+    public Integer querySubjectIdById(Integer id) {
+        Integer subjectId = drugRulesOptionMapper.querySubjectIdById(id);
+        return subjectId;
+    }
 }

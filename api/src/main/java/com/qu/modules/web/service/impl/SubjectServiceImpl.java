@@ -445,4 +445,10 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
         List<Qsubject> list = qsubjectMapper.querySubjectByQuestionId(id);
         return list;
     }
+
+    @Override
+    public Qsubject querySubjectById(Integer id) {
+        Qsubject qsubject = qsubjectMapper.querySubjectById(id);
+        return qsubject;
+    }
 }

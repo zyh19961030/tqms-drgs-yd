@@ -1,15 +1,9 @@
 package com.qu.modules.web.controller;
 
-import com.qu.modules.web.entity.DrugReceiveHis;
-import com.qu.modules.web.entity.DrugRulesOption;
-import com.qu.modules.web.entity.DrugRulesRelation;
-import com.qu.modules.web.entity.Qoption;
+import com.qu.modules.web.entity.*;
 import com.qu.modules.web.param.SubjectIdAndMatchesParam;
 import com.qu.modules.web.param.TypeAndReceiveHis;
-import com.qu.modules.web.service.IDrugReceiveHisService;
-import com.qu.modules.web.service.IDrugRulesOptionService;
-import com.qu.modules.web.service.IDrugRulesRelationService;
-import com.qu.modules.web.service.IOptionService;
+import com.qu.modules.web.service.*;
 import com.qu.modules.web.vo.DrugRulesOptionListVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -43,6 +37,8 @@ public class DrugRulesOptionController {
 	private IDrugRulesRelationService drugRulesRelationService;
 	@Autowired
 	private IDrugReceiveHisService drugReceiveHisService;
+	@Autowired
+	private ISubjectService subjectService;
 
 	/**
 	 * 根据选择问题的id获取答案
@@ -54,7 +50,16 @@ public class DrugRulesOptionController {
 	@GetMapping(value = "/queryOption")
 	public List<DrugRulesOptionListVo> queryOption(SubjectIdAndMatchesParam subjectIdAndMatchesParam) {
 		List<DrugRulesOptionListVo> drugRulesOptionListVoList = new ArrayList<>();
+		Qsubject qsubject = subjectService.querySubjectById(subjectIdAndMatchesParam.getSubjectId());
+		String subType = qsubject.getSubType();
+		Integer subject_type = null;
+		if (subType.equals("1") || subType.equals("2") || subType.equals("5")) {
+			subject_type = 1;
+		} else if (subType.equals("4") || subType.equals("6")){
+			subject_type = 2;
+		}
 		List<DrugRulesOption> drugRulesOptions = drugRulesOptionService.queryOption(subjectIdAndMatchesParam.getSubjectId());
+		Integer finalSubject_type = subject_type;
 		drugRulesOptions.forEach(drugRulesOption -> {
 			DrugRulesOptionListVo DrugRulesOptionListVo = new DrugRulesOptionListVo();
 			List<String> his = new ArrayList<>();
@@ -62,7 +67,7 @@ public class DrugRulesOptionController {
 			Integer optionId = drugRulesOption.getOptionId();
 			Qoption qoption = optionService.getById(optionId);
 			String opName = qoption.getOpName();
-			List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.queryByOptionId(optionId);
+			List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.queryByOptionId(optionId, finalSubject_type);
 			drugRulesRelationList.forEach(drugRulesRelation -> {
 				Integer type = drugRulesRelation.getType();
 				if (type.equals(1)){
@@ -102,10 +107,19 @@ public class DrugRulesOptionController {
 	@ApiOperation(value="药品规则答案表-设置时数据回显", notes="药品规则答案表-设置时数据回显")
 	@GetMapping(value = "/queryHis")
 	public TypeAndReceiveHis queryHis(Integer id) {
+		Integer subjectId = drugRulesOptionService.querySubjectIdById(id);
+		Qsubject qsubject = subjectService.querySubjectById(subjectId);
+		String subType = qsubject.getSubType();
+		Integer subject_type = null;
+		if (subType.equals("1") || subType.equals("2") || subType.equals("5")) {
+			subject_type = 1;
+		} else if (subType.equals("4") || subType.equals("6")){
+			subject_type = 2;
+		}
 		Integer optionId = drugRulesOptionService.queryOptionIdById(id);
 		TypeAndReceiveHis typeAndReceiveHis = new TypeAndReceiveHis();
 		List<DrugReceiveHis> his = new ArrayList<>();
-		List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.queryByOptionId(optionId);
+		List<DrugRulesRelation> drugRulesRelationList = drugRulesRelationService.queryByOptionId(optionId, subject_type);
 		drugRulesRelationList.forEach(drugRulesRelation -> {
 			Integer type = drugRulesRelation.getType();
 			typeAndReceiveHis.setType(type);
