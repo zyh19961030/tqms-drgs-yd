@@ -1334,10 +1334,13 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                     }
                     if (qSingleDiseaseTake.getQuestionId().equals(115) || qSingleDiseaseTake.getQuestionId().equals(122)
                     || qSingleDiseaseTake.getQuestionId().equals(100) || qSingleDiseaseTake.getQuestionId().equals(106)
-                    || qSingleDiseaseTake.getQuestionId().equals(113) || qSingleDiseaseTake.getQuestionId().equals(99)) {
+                    || qSingleDiseaseTake.getQuestionId().equals(113) || qSingleDiseaseTake.getQuestionId().equals(99)
+                    || qSingleDiseaseTake.getQuestionId().equals(114) || qSingleDiseaseTake.getQuestionId().equals(119)) {
                         if (a.getSubColumnName().equals("CM-0-2-2-1") || a.getSubColumnName().equals("CM-0-2-3-1")
                          || a.getSubColumnName().equals("APL-0-2-3-1") || a.getSubColumnName().equals("GLI-13-1-2-5-3")
-                         || a.getSubColumnName().equals("ALL-0-2-3-1")) {
+                         || a.getSubColumnName().equals("ALL-0-2-3-1") || a.getSubColumnName().equals("aSAH-1-2-1-1")
+                         || a.getSubColumnName().equals("aSAH-1-1-1-1") || a.getSubColumnName().equals("aSAH-13-1-2-5-3")
+                         ||a.getSubColumnName().equals("HBV-0-2-2-1")) {
                             if (a.getSubValue().length() >= 8 && !a.getSubValue().equals("[\"\"]")){
                                 String s = a.getSubValue().substring(5, 8);
                                 a.setSubValue(s);
@@ -1362,12 +1365,10 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                             mapCache.remove(a.getSubColumnName());
                         }
                     }
-                    if (qSingleDiseaseTake.getQuestionId().equals(99) || qSingleDiseaseTake.getQuestionId().equals(114)
-                        || qSingleDiseaseTake.getQuestionId().equals(119)) {
+                    if (qSingleDiseaseTake.getQuestionId().equals(99) || qSingleDiseaseTake.getQuestionId().equals(114)) {
                         if (a.getSubColumnName().equals("CM-0-2-2-1") || a.getSubColumnName().equals("CM-0-2-3-1")
                             || a.getSubColumnName().equals("ALL-0-2-3-1") || a.getSubColumnName().equals("aSAH-1-2-1-1")
-                            || a.getSubColumnName().equals("aSAH-1-1-1-1") || a.getSubColumnName().equals("aSAH-13-1-2-5-3")
-                            || a.getSubColumnName().equals("HBV-0-2-2-1")) {
+                            || a.getSubColumnName().equals("aSAH-1-1-1-1") || a.getSubColumnName().equals("aSAH-13-1-2-5-3")) {
                             if (a.getSubValue().length() < 5 && !a.getSubValue().equals("UTD")) {
                                 mapCache.remove(a.getSubColumnName());
                             }
