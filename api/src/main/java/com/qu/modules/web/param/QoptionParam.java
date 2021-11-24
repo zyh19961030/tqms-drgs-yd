@@ -26,4 +26,8 @@ public class QoptionParam {
     @Excel(name = "选项值", width = 15)
     @ApiModelProperty(value = "选项值")
     private java.lang.String opValue;
+    /**特殊跳题逻辑,前端使用*/
+    @Excel(name = "特殊跳题逻辑,前端使用", width = 15)
+    @ApiModelProperty(value = "特殊跳题逻辑,前端使用")
+    private java.lang.String specialJumpLogic;
 }

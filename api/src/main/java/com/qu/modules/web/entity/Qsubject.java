@@ -138,4 +138,8 @@ public class Qsubject {
 	@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	@ApiModelProperty(value = "更新时间")
 	private java.util.Date updateTime;
+	/**特殊跳题逻辑,前端使用*/
+	@Excel(name = "特殊跳题逻辑,前端使用", width = 15)
+    @ApiModelProperty(value = "特殊跳题逻辑,前端使用")
+	private java.lang.String specialJumpLogic;
 }

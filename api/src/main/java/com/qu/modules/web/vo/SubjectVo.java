@@ -119,6 +119,11 @@ public class SubjectVo {
     @ApiModelProperty(value = "更新时间")
     private java.util.Date updateTime;
 
+    /**特殊跳题逻辑,前端使用*/
+    @Excel(name = "特殊跳题逻辑,前端使用", width = 15)
+    @ApiModelProperty(value = "特殊跳题逻辑,前端使用")
+    private java.lang.String specialJumpLogic;
+
     @ApiModelProperty(value = "分组题包含的题")
     private List<SubjectVo> subjectVoList;
 

@@ -1,14 +1,13 @@
 package com.qu.modules.web.param;
 
-import java.util.List;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.jeecgframework.poi.excel.annotation.Excel;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 @ApiModel(value="题目新增入参", description="题目新增入参")
@@ -91,4 +90,8 @@ public class SubjectParam {
 
     @ApiModelProperty(value = "选项")
     private List<QoptionParam>  optionParamList;
+    /**特殊跳题逻辑,前端使用*/
+    @Excel(name = "特殊跳题逻辑,前端使用", width = 15)
+    @ApiModelProperty(value = "特殊跳题逻辑,前端使用")
+    private java.lang.String specialJumpLogic;
 }

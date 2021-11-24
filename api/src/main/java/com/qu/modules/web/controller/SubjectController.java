@@ -1,11 +1,7 @@
 package com.qu.modules.web.controller;
 
 import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.param.InsertSubjectParam;
-import com.qu.modules.web.param.SubjectEditParam;
-import com.qu.modules.web.param.SubjectLogicParam;
-import com.qu.modules.web.param.SubjectParam;
-import com.qu.modules.web.param.UpdateOrderNumParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.SubjectVo;
 import io.swagger.annotations.Api;
@@ -33,31 +29,6 @@ import java.util.List;
 public class SubjectController {
     @Autowired
     private ISubjectService subjectService;
-
-//    /**
-//     * 分页列表查询
-//     *
-//     * @param subject
-//     * @param pageNo
-//     * @param pageSize
-//     * @param req
-//     * @return
-//     */
-//    @AutoLog(value = "题目表-分页列表查询")
-//    @ApiOperation(value = "题目表-分页列表查询", notes = "题目表-分页列表查询")
-//    @GetMapping(value = "/list")
-//    public Result<IPage<Subject>> queryPageList(Subject subject,
-//                                                @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
-//                                                @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
-//                                                HttpServletRequest req) {
-//        Result<IPage<Subject>> result = new Result<IPage<Subject>>();
-//        QueryWrapper<Subject> queryWrapper = QueryGenerator.initQueryWrapper(subject, req.getParameterMap());
-//        Page<Subject> page = new Page<Subject>(pageNo, pageSize);
-//        IPage<Subject> pageList = subjectService.page(page, queryWrapper);
-//        result.setSuccess(true);
-//        result.setResult(pageList);
-//        return result;
-//    }
 
     /**
      * 添加
@@ -170,6 +141,24 @@ public class SubjectController {
         return result;
     }
 
+
+    /**
+     * 编辑特殊逻辑
+     *
+     * @param subjectSpecialLogicParam
+     * @return
+     */
+    @AutoLog(value = "题目表-编辑特殊逻辑")
+    @ApiOperation(value = "题目表-编辑特殊逻辑", notes = "题目表-编辑特殊逻辑")
+    @PostMapping(value = "/editSpecialLogic")
+    public Result<Boolean> editSpecialLogic(@RequestBody SubjectSpecialLogicParam subjectSpecialLogicParam) {
+        Result<Boolean> result = new Result<>();
+        subjectService.editSpecialLogic(subjectSpecialLogicParam);
+        result.setResult(true);
+        result.success("修改成功!");
+        return result;
+    }
+
     /**
      * 根据输入内容搜索问题
      * @param name
@@ -186,6 +175,33 @@ public class SubjectController {
         });
         return list;
     }
+
+
+//    /**
+//     * 分页列表查询
+//     *
+//     * @param subject
+//     * @param pageNo
+//     * @param pageSize
+//     * @param req
+//     * @return
+//     */
+//    @AutoLog(value = "题目表-分页列表查询")
+//    @ApiOperation(value = "题目表-分页列表查询", notes = "题目表-分页列表查询")
+//    @GetMapping(value = "/list")
+//    public Result<IPage<Subject>> queryPageList(Subject subject,
+//                                                @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+//                                                @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+//                                                HttpServletRequest req) {
+//        Result<IPage<Subject>> result = new Result<IPage<Subject>>();
+//        QueryWrapper<Subject> queryWrapper = QueryGenerator.initQueryWrapper(subject, req.getParameterMap());
+//        Page<Subject> page = new Page<Subject>(pageNo, pageSize);
+//        IPage<Subject> pageList = subjectService.page(page, queryWrapper);
+//        result.setSuccess(true);
+//        result.setResult(pageList);
+//        return result;
+//    }
+
 
 //    /**
 //     * 批量删除

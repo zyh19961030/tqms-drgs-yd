@@ -1,27 +1,12 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qu.constant.QsubjectConstant;
 import com.qu.modules.web.entity.Qoption;
 import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.Qsubjectlib;
 import com.qu.modules.web.mapper.OptionMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.param.InsertSubjectParam;
-import com.qu.modules.web.param.LogicParam;
-import com.qu.modules.web.param.QoptionParam;
-import com.qu.modules.web.param.SubjectEditParam;
-import com.qu.modules.web.param.SubjectLogicParam;
-import com.qu.modules.web.param.SubjectParam;
-import com.qu.modules.web.param.UpdateOrderNumParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.SubjectVo;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +15,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.naming.Name;
+import java.util.*;
 
 /**
  * @Description: 题目表
@@ -423,6 +408,31 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
             Qoption qoption = optionMapper.selectById(id);
             if(qoption!=null){
                 qoption.setJumpLogic(jumpLogic);
+                optionMapper.updateById(qoption);
+            }
+        });
+    }
+
+    @Override
+    public void editSpecialLogic(SubjectSpecialLogicParam subjectSpecialLogicParam){
+        List<SpecialLogicParam> subjectSpecialLogicList = subjectSpecialLogicParam.getSubjectSpecialLogicList();
+        subjectSpecialLogicList.forEach(s->{
+            Integer id = s.getId();
+            String specialJumpLogic = s.getSpecialJumpLogic();
+            Qsubject byId = this.getById(id);
+            if(byId!=null){
+                byId.setSpecialJumpLogic(specialJumpLogic);
+                this.updateById(byId);
+            }
+        });
+
+        List<SpecialLogicParam> optionSpecialLogicList = subjectSpecialLogicParam.getOptionSpecialLogicList();
+        optionSpecialLogicList.forEach(o->{
+            Integer id = o.getId();
+            String specialJumpLogic = o.getSpecialJumpLogic();
+            Qoption qoption = optionMapper.selectById(id);
+            if(qoption!=null){
+                qoption.setSpecialJumpLogic(specialJumpLogic);
                 optionMapper.updateById(qoption);
             }
         });
