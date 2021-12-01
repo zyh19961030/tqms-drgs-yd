@@ -1271,7 +1271,9 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
                     }else if (QsubjectConstant.SUB_TYPE_TIME.equals(subType)){
                         if (a.getSubColumnName().equals("Knee-5-1-4") || a.getSubColumnName().equals("Cap-3-2-4")
-                        || a.getSubColumnName().equals("TN-2-2-2") || a.getSubColumnName().equals("TN-2-2-3")) {
+                        || a.getSubColumnName().equals("TN-2-2-2") || a.getSubColumnName().equals("TN-2-2-3")
+                        || a.getSubColumnName().equals("MVR-3-5-3") || a.getSubColumnName().equals("MVR-3-5-2")
+                        || a.getSubColumnName().equals("MVR-3-2-3") || a.getSubColumnName().equals("MVR-3-2-2")) {
                             cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
                             a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_PATTERN));
                         } else {
