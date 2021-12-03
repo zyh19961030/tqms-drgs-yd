@@ -1276,6 +1276,9 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                         || a.getSubColumnName().equals("MVR-3-2-3") || a.getSubColumnName().equals("MVR-3-2-2")) {
                             cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
                             a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_PATTERN));
+                        } else if (a.getSubColumnName().equals("TIA-4-4-1-1")){
+                            cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
+                            a.setSubValue(parse.toString(DatePattern.NORM_DATE_PATTERN));
                         } else {
                             cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
                             a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_MINUTE_PATTERN));
@@ -1339,13 +1342,17 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                         || qSingleDiseaseTake.getQuestionId().equals(113) || qSingleDiseaseTake.getQuestionId().equals(99)
                         || qSingleDiseaseTake.getQuestionId().equals(114) || qSingleDiseaseTake.getQuestionId().equals(119)
                         || qSingleDiseaseTake.getQuestionId().equals(125) || qSingleDiseaseTake.getQuestionId().equals(150)
-                        || qSingleDiseaseTake.getQuestionId().equals(130) || qSingleDiseaseTake.getQuestionId().equals(141)) {
+                        || qSingleDiseaseTake.getQuestionId().equals(130) || qSingleDiseaseTake.getQuestionId().equals(141)
+                        || qSingleDiseaseTake.getQuestionId().equals(144) || qSingleDiseaseTake.getQuestionId().equals(147)
+                        || qSingleDiseaseTake.getQuestionId().equals(149)) {
                         if (a.getSubColumnName().equals("CM-0-2-2-1") || a.getSubColumnName().equals("CM-0-2-3-1")
                             || a.getSubColumnName().equals("APL-0-2-3-1") || a.getSubColumnName().equals("GLI-13-1-2-5-3")
                             || a.getSubColumnName().equals("ALL-0-2-3-1") || a.getSubColumnName().equals("aSAH-1-2-1-1")
                             || a.getSubColumnName().equals("aSAH-1-1-1-1") || a.getSubColumnName().equals("aSAH-13-1-2-5-3")
-                            ||a.getSubColumnName().equals("HBV-0-2-2-1") || a.getSubColumnName().equals("CoC-4-1-4-1")
-                            || a.getSubColumnName().equals("CoC-3-2-6-2") || a.getSubColumnName().equals("CSE-7-1-5-0")) {
+                            || a.getSubColumnName().equals("HBV-0-2-2-1") || a.getSubColumnName().equals("CoC-4-1-4-1")
+                            || a.getSubColumnName().equals("CoC-3-2-6-2") || a.getSubColumnName().equals("CSE-7-1-5-0")
+                            || a.getSubColumnName().equals("PA-9-1-2") || a.getSubColumnName().equals("PA-11-1-11-3")
+                            || a.getSubColumnName().equals("PA-9-3-2") || a.getSubColumnName().equals("PA-7-2-1")) {
                             if (a.getSubValue().length() >= 8 && !a.getSubValue().equals("[\"\"]")){
                                 String s = a.getSubValue().substring(5, 8);
                                 a.setSubValue(s);
@@ -1358,13 +1365,17 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                         || qSingleDiseaseTake.getQuestionId().equals(113) || qSingleDiseaseTake.getQuestionId().equals(99)
                         || qSingleDiseaseTake.getQuestionId().equals(114) || qSingleDiseaseTake.getQuestionId().equals(119)
                         || qSingleDiseaseTake.getQuestionId().equals(125) || qSingleDiseaseTake.getQuestionId().equals(150)
-                        || qSingleDiseaseTake.getQuestionId().equals(130) || qSingleDiseaseTake.getQuestionId().equals(141)) {
+                        || qSingleDiseaseTake.getQuestionId().equals(130) || qSingleDiseaseTake.getQuestionId().equals(141)
+                        || qSingleDiseaseTake.getQuestionId().equals(144) || qSingleDiseaseTake.getQuestionId().equals(147)
+                        || qSingleDiseaseTake.getQuestionId().equals(149)) {
                         if (a.getSubColumnName().equals("CM-0-2-2-1") || a.getSubColumnName().equals("CM-0-2-3-1")
                             || a.getSubColumnName().equals("APL-0-2-3-1") || a.getSubColumnName().equals("ALL-0-2-3-1")
                             || a.getSubColumnName().equals("GLI-13-1-2-5-3") || a.getSubColumnName().equals("aSAH-1-2-1-1")
                             || a.getSubColumnName().equals("aSAH-1-1-1-1") || a.getSubColumnName().equals("aSAH-13-1-2-5-3")
                             || a.getSubColumnName().equals("HBV-0-2-2-1") || a.getSubColumnName().equals("CoC-4-1-4-1")
-                            || a.getSubColumnName().equals("CoC-3-2-6-2") || a.getSubColumnName().equals("CSE-7-1-5-0")) {
+                            || a.getSubColumnName().equals("CoC-3-2-6-2") || a.getSubColumnName().equals("CSE-7-1-5-0")
+                            || a.getSubColumnName().equals("PA-9-1-2") || a.getSubColumnName().equals("PA-11-1-11-3")
+                            || a.getSubColumnName().equals("PA-9-3-2") || a.getSubColumnName().equals("PA-7-2-1")) {
                             if (a.getSubValue().length() < 8 && !a.getSubValue().equals("UTD")){
                                 mapCache.remove(a.getSubColumnName());
                             }
