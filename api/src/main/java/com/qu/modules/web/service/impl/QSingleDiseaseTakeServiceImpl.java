@@ -1,15 +1,5 @@
 package com.qu.modules.web.service.impl;
 
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -24,40 +14,12 @@ import com.qu.constant.QuestionConstant;
 import com.qu.modules.web.entity.QSingleDiseaseTake;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
-import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticDeptPermutationParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewLineParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewPieParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticSummaryParam;
-import com.qu.modules.web.param.SingleDiseaseAnswer;
-import com.qu.modules.web.param.SingleDiseaseAnswerNavigationParam;
-import com.qu.modules.web.param.SingleDiseaseAnswerParam;
-import com.qu.modules.web.param.SingleDiseaseExamineRecordParam;
-import com.qu.modules.web.param.SingleDiseaseWaitUploadParam;
+import com.qu.modules.web.mapper.*;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
 import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.vo.QSingleDiseaseNameVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptPermutationVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewLineVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewPieVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticSummaryVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticTrendVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
-import com.qu.modules.web.vo.SingleDiseaseAnswerNavigationVo;
-import com.qu.modules.web.vo.WorkbenchReminderVo;
+import com.qu.modules.web.vo.*;
 import com.qu.util.HttpClient;
 import com.qu.util.PriceUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -72,6 +34,12 @@ import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 单病种总表
@@ -157,8 +125,30 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
     @Override
     public QSingleDiseaseTakeByDoctorPageVo singleDiseaseByDoctorList(QSingleDiseaseTakeByDoctorParam qSingleDiseaseTakeByDoctorParam, Integer pageNo, Integer pageSize,String deptId) {
+        QSingleDiseaseTakeByDoctorPageVo qsubjectlibPageVo = new QSingleDiseaseTakeByDoctorPageVo();
+        List<String> categoryIdList= Lists.newArrayList();
+        if(StringUtils.isNotBlank(deptId)){
+            LambdaQueryWrapper<Question> questionQueryWrapper = new QueryWrapper<Question>().lambda();
+            questionQueryWrapper.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+            questionQueryWrapper.eq(Question::getQuStop,QuestionConstant.QU_STOP_NORMAL);
+            questionQueryWrapper.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+            questionQueryWrapper.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+            questionQueryWrapper.like(Question::getDeptIds,deptId);
+            List<Question> questions = questionMapper.selectList(questionQueryWrapper);
+            if(questions.isEmpty()){
+                qsubjectlibPageVo.setTotal(0L);
+                qsubjectlibPageVo.setQSingleDiseaseTakeList(Lists.newArrayList());
+                return qsubjectlibPageVo;
+            }else{
+                categoryIdList = questions.stream().map(Question::getCategoryId).distinct().collect(Collectors.toList());
+            }
+        }
         Page<QSingleDiseaseTake> page = new Page<>(pageNo, pageSize);
         QueryWrapper<QSingleDiseaseTake> queryWrapper = new QueryWrapper<>();
+        if (!categoryIdList.isEmpty()) {
+            queryWrapper.in("category_id", categoryIdList);
+        }
+
         if (StringUtils.isNotBlank(qSingleDiseaseTakeByDoctorParam.getPatientName())) {
             queryWrapper.like("patient_name", qSingleDiseaseTakeByDoctorParam.getPatientName());
         }
@@ -168,7 +158,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         }
 
         if (StringUtils.isNotBlank(qSingleDiseaseTakeByDoctorParam.getCategoryId())) {
-            queryWrapper.like("category_id", qSingleDiseaseTakeByDoctorParam.getCategoryId());
+            queryWrapper.eq("category_id", qSingleDiseaseTakeByDoctorParam.getCategoryId());
         }
 
         if (qSingleDiseaseTakeByDoctorParam.getInHospitalStartDate() != null) {
@@ -211,7 +201,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 record.setQuestionName(question.getQuName());
             }
         }
-        QSingleDiseaseTakeByDoctorPageVo qsubjectlibPageVo = new QSingleDiseaseTakeByDoctorPageVo();
+
         qsubjectlibPageVo.setTotal(qSingleDiseaseTakeIPage.getTotal());
         qsubjectlibPageVo.setQSingleDiseaseTakeList(qSingleDiseaseTakeIPage.getRecords());
         return qsubjectlibPageVo;
