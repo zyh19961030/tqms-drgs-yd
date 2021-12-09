@@ -1396,14 +1396,14 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                         }
                     }
                 }
-                singleDiseaseReportUrl = String.format(singleDiseaseReportUrl,quotaCategoryMap.get(qSingleDiseaseTake.getCategoryId()).getDiseaseType());
+                String singleDiseaseReportUrl1 = String.format(singleDiseaseReportUrl,quotaCategoryMap.get(qSingleDiseaseTake.getCategoryId()).getDiseaseType());
                 HttpData data = HttpData.instance();
                 data.setPostEntity(new StringEntity(JSON.toJSONString(mapCache), ContentType.APPLICATION_JSON));
                 mapCache.clear();
                 // 接口调用并返回结果
                 ResponseEntity responseEntity = null;
                 try {
-                    responseEntity = HttpTools.post(singleDiseaseReportUrl, data);
+                    responseEntity = HttpTools.post(singleDiseaseReportUrl1, data);
                     if (responseEntity.isOk()) {
                         log.info("sync businessSync success.{}", responseEntity);
                         JSONObject jsonObject = JSON.parseObject(responseEntity.getContent());
