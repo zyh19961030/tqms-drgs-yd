@@ -3,9 +3,9 @@ package com.qu.task;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.Date;
 
 /**
@@ -23,6 +23,8 @@ public class ScheduleTask {
 
     // 每天凌晨1点执行
 //    @Scheduled(cron = "0 0 1 * * ?")
+    // 每半小时执行一次
+    @Scheduled(cron = "0 30 * * * ?")
 //    @PostConstruct
     public void task() {
         qSingleDiseaseTakeService.runSingleDiseaseTakeReport();
