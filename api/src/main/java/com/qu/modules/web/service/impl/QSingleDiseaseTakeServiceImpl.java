@@ -1,30 +1,71 @@
 package com.qu.modules.web.service.impl;
 
+import cn.hutool.core.date.DatePattern;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.qu.constant.QSingleDiseaseTakeConstant;
 import com.qu.constant.QsubjectConstant;
 import com.qu.constant.QuestionConstant;
+import com.qu.constant.TqmsQuotaCategoryConstant;
 import com.qu.modules.web.entity.QSingleDiseaseTake;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.entity.TqmsQuotaCategory;
 import com.qu.modules.web.mapper.*;
 import com.qu.modules.web.param.*;
+import com.qu.modules.web.mapper.*;
+import com.qu.modules.web.param.*;
+import com.qu.modules.web.mapper.DynamicTableMapper;
+import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
+import com.qu.modules.web.mapper.QsubjectMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
+import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticDeptPermutationParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewLineParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewPieParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticSummaryParam;
+import com.qu.modules.web.param.SingleDiseaseAnswer;
+import com.qu.modules.web.param.SingleDiseaseAnswerParam;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.*;
+import com.qu.modules.web.vo.*;
 import com.qu.util.HttpClient;
+import com.qu.util.HttpTools;
+import com.qu.util.HttpTools.HttpData;
+import com.qu.util.HttpTools.ResponseEntity;
 import com.qu.util.PriceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.util.UUIDGenerator;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.protocol.HTTP;
+import org.apache.ibatis.binding.MapperMethod;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Months;
@@ -33,12 +74,22 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -1163,6 +1214,237 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         Integer notWriteCount = this.qSingleDiseaseTakeMapper.workbenchReminderNotWriteCount(dept);
         Integer rejectCount = this.qSingleDiseaseTakeMapper.workbenchReminderRejectCount(dept);
         return WorkbenchReminderVo.builder().notWriteCount(notWriteCount).rejectCount(rejectCount).build();
+    }
+
+
+    @Override
+    public void  runSingleDiseaseTakeReport() {
+        LambdaQueryWrapper<QSingleDiseaseTake> lambda = new QueryWrapper<QSingleDiseaseTake>().lambda();
+        lambda.eq(QSingleDiseaseTake::getStatus,QSingleDiseaseTakeConstant.STATUS_PASS_WAIT_UPLOAD);
+        List<QSingleDiseaseTake> qSingleDiseaseTakeList = this.list(lambda);
+        List<String> dynamicTableNameList = qSingleDiseaseTakeList.stream().map(QSingleDiseaseTake::getDynamicTableName).collect(Collectors.toList());
+
+        LambdaQueryWrapper<Question> questionQueryWrapper = new QueryWrapper<Question>().lambda();
+        questionQueryWrapper.in(Question::getTableName, dynamicTableNameList);
+        questionQueryWrapper.eq(Question::getQuStatus,"1");
+        questionQueryWrapper.eq(Question::getCategoryType,"1");
+        questionQueryWrapper.eq(Question::getDel,"0");
+        List<Question> questionList = questionMapper.selectList(questionQueryWrapper);
+        List<Integer> questionIds = questionList.stream().map(Question::getId).collect(Collectors.toList());
+//        Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
+
+        LambdaQueryWrapper<Qsubject> qsubjectQueryWrapper = new QueryWrapper<Qsubject>().lambda();
+        qsubjectQueryWrapper.in(Qsubject::getQuId, questionIds);
+        qsubjectQueryWrapper.eq(Qsubject::getDel, "0");
+        List<Qsubject> qsubjectList = qsubjectMapper.selectList(qsubjectQueryWrapper);
+
+        Map<String, Qsubject> qsubjectMap= Maps.newConcurrentMap();
+        qsubjectList.forEach(q->{
+            if(q.getColumnName()==null){
+                return;
+            }
+            String key = String.format("%s%s", q.getQuId(), q.getColumnName());
+            qsubjectMap.put(key,q);
+        });
+//        Map<String, List<Qsubject>> qsubjectMap = qsubjectList.stream().collect(Collectors.toMap(Qsubject::getColumnName, q->Lists.newArrayList(q),
+//                (List<Qsubject> n1, List<Qsubject> n2) -> {
+//            n1.addAll(n2);
+//            return n1;
+//        }));
+
+        LambdaQueryWrapper<TqmsQuotaCategory> queryWrapper = new QueryWrapper<TqmsQuotaCategory>().lambda();
+        queryWrapper.eq(TqmsQuotaCategory::getIsSingleDisease, TqmsQuotaCategoryConstant.IS_SINGLE_DISEASE);
+        List<TqmsQuotaCategory> quotaCategoryList = tqmsQuotaCategoryMapper.selectList(queryWrapper);
+        Map<Long, TqmsQuotaCategory> quotaCategoryMap = quotaCategoryList.stream().collect(Collectors.toMap(TqmsQuotaCategory::getCategoryId, Function.identity()));
+
+        qSingleDiseaseTakeList.stream().forEach(qSingleDiseaseTake->{
+            String answerJson = (String) qSingleDiseaseTake.getAnswerJson();
+            List<SingleDiseaseAnswer> singleDiseaseAnswerList = JSON.parseArray(answerJson, SingleDiseaseAnswer.class);
+            if (singleDiseaseAnswerList != null && !singleDiseaseAnswerList.isEmpty()) {
+                Map<String, String> mapCache = new HashMap<>();
+                for (SingleDiseaseAnswer a : singleDiseaseAnswerList) {
+
+                    String key = String.format("%s%s", qSingleDiseaseTake.getQuestionId(), a.getSubColumnName());
+                    Qsubject qsubject = qsubjectMap.get(key);
+                    String subType = qsubject.getSubType();
+                    String subValue = a.getSubValue();
+                    if(QsubjectConstant.SUB_TYPE_MULTIPLE_CHOICE.equals(subType)){
+                        a.setSubValue(JSON.toJSONString(subValue.split("\\$")));
+                    }else if (QsubjectConstant.SUB_TYPE_DATE.equals(subType)){
+                        cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
+                        if (a.getSubColumnName().equals("STK-1-4-3-2-1") || a.getSubColumnName().equals("STK-3-3-2-1-1")
+                        || a.getSubColumnName().equals("STK-1-5-2-1") || a.getSubColumnName().equals("STK-1-4-4-3")
+                        || a.getSubColumnName().equals("CM-0-2-4-1") || a.getSubColumnName().equals("CM-0-2-4-2")
+                        || a.getSubColumnName().equals("CM-0-2-5-2") || a.getSubColumnName().equals("CM-0-2-5-1")
+                        || a.getSubColumnName().equals("Cap-Adult-4-2-3") || a.getSubColumnName().equals("Cap-Adult-4-1-3")
+                        || a.getSubColumnName().equals("Cap-Adult-4-2-4") || a.getSubColumnName().equals("Cap-Adult-4-4")
+                        || a.getSubColumnName().equals("Cap-Adult-6-2-5-1") || a.getSubColumnName().equals("Cap-Adult-6-2-4-2")
+                        || a.getSubColumnName().equals("CM-0-2-3-2") || a.getSubColumnName().equals("STK-1-4-2-2-1")
+                        || a.getSubColumnName().equals("STK-1-4-5-9") || a.getSubColumnName().equals("STK-1-4-1-1-1")
+                        || a.getSubColumnName().equals("STK-1-3-3-1") || a.getSubColumnName().equals("STK-1-2-1-2-1")
+                        || a.getSubColumnName().equals("CM-0-2-6-1") || a.getSubColumnName().equals("CM-1-4-1")
+                        || a.getSubColumnName().equals("CM-1-6-1") || a.getSubColumnName().equals("CM-0-2-6-2")
+                        || a.getSubColumnName().equals("STK-1-1-1-2") || a.getSubColumnName().equals("CM-0-2-2-2")) {
+                            if (qSingleDiseaseTake.getQuestionId().equals(80) && a.getSubColumnName().equals("CM-0-2-2-2")) {
+                                a.setSubValue(parse.toString(DatePattern.NORM_DATE_PATTERN));
+                            } else {
+                                a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_MINUTE_PATTERN));
+                            }
+                        } else {
+                            a.setSubValue(parse.toString(DatePattern.NORM_DATE_PATTERN));
+                        }
+                    }else if (QsubjectConstant.SUB_TYPE_TIME.equals(subType)){
+                        if (a.getSubColumnName().equals("Knee-5-1-4") || a.getSubColumnName().equals("Cap-3-2-4")
+                        || a.getSubColumnName().equals("TN-2-2-2") || a.getSubColumnName().equals("TN-2-2-3")
+                        || a.getSubColumnName().equals("MVR-3-5-3") || a.getSubColumnName().equals("MVR-3-5-2")
+                        || a.getSubColumnName().equals("MVR-3-2-3") || a.getSubColumnName().equals("MVR-3-2-2")) {
+                            cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
+                            a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_PATTERN));
+                        } else if (a.getSubColumnName().equals("TIA-4-4-1-1")){
+                            cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
+                            a.setSubValue(parse.toString(DatePattern.NORM_DATE_PATTERN));
+                        } else {
+                            cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
+                            a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_MINUTE_PATTERN));
+                        }
+                    } else if (QsubjectConstant.SUB_TYPE_RESULT.equals(subType)) {
+                        if (a.getSubColumnName().equals("Cap-3-5-2")) {
+                            cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
+                            a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_MINUTE_PATTERN));
+                        }
+                    }
+                    if (a.getSubColumnName().equals("STK-9-1-7")) {
+                        if (a.getSubValue().equals("a")) {
+                            a.setSubValue("y");
+                        } else  if (a.getSubValue().equals("b")){
+                            a.setSubValue("n");
+                        }
+                    }
+                    if (qSingleDiseaseTake.getQuestionId().equals(100)){
+                        if (a.getSubColumnName().equals("CM-0-1-4-1")) {
+                            if (a.getSubValue().equals("a")) {
+                                a.setSubValue("c");
+                            } else  if (a.getSubValue().equals("b")){
+                                a.setSubValue("d");
+                            } if (a.getSubValue().equals("c")) {
+                                a.setSubValue("e");
+                            } else if(a.getSubValue().equals("d")) {
+                                a.setSubValue("h");
+                            }
+                        }
+                    }
+                    if (qSingleDiseaseTake.getQuestionId().equals(108)){
+                        if (a.getSubColumnName().equals("CM-0-1-3-2")) {
+                            if (a.getSubValue().equals("2")) {
+                                a.setSubValue("a");
+                            }
+                        }
+                    }
+                    if (qSingleDiseaseTake.getQuestionId().equals(138)) {
+                        if (a.getSubColumnName().equals("CM-0-1-4-2") || a.getSubColumnName().equals("CM-0-1-4-1")) {
+                            String value = a.getSubValue();
+                            String s = value.substring(2,3);
+                            a.setSubValue(s);
+                        }
+                    }
+                    if (qSingleDiseaseTake.getQuestionId().equals(80)) {
+                        if (a.getSubColumnName().equals("Cap-Adult-8-3-2")) {
+                            String value = a.getSubValue();
+                            String s = value.substring(2,3);
+                            a.setSubValue(s);
+                        }
+                    }
+                    if (qSingleDiseaseTake.getQuestionId().equals(103)) {
+                        if (a.getSubColumnName().equals("CM-2-2")) {
+                            String value = a.getSubValue();
+                            String s = value.substring(2,3);
+                            a.setSubValue(s);
+                        }
+                    }
+                    if (qSingleDiseaseTake.getQuestionId().equals(115) || qSingleDiseaseTake.getQuestionId().equals(122)
+                        || qSingleDiseaseTake.getQuestionId().equals(100) || qSingleDiseaseTake.getQuestionId().equals(106)
+                        || qSingleDiseaseTake.getQuestionId().equals(113) || qSingleDiseaseTake.getQuestionId().equals(99)
+                        || qSingleDiseaseTake.getQuestionId().equals(114) || qSingleDiseaseTake.getQuestionId().equals(119)
+                        || qSingleDiseaseTake.getQuestionId().equals(125) || qSingleDiseaseTake.getQuestionId().equals(150)
+                        || qSingleDiseaseTake.getQuestionId().equals(130) || qSingleDiseaseTake.getQuestionId().equals(141)
+                        || qSingleDiseaseTake.getQuestionId().equals(144) || qSingleDiseaseTake.getQuestionId().equals(147)
+                        || qSingleDiseaseTake.getQuestionId().equals(149)) {
+                        if (a.getSubColumnName().equals("CM-0-2-2-1") || a.getSubColumnName().equals("CM-0-2-3-1")
+                            || a.getSubColumnName().equals("APL-0-2-3-1") || a.getSubColumnName().equals("GLI-13-1-2-5-3")
+                            || a.getSubColumnName().equals("ALL-0-2-3-1") || a.getSubColumnName().equals("aSAH-1-2-1-1")
+                            || a.getSubColumnName().equals("aSAH-1-1-1-1") || a.getSubColumnName().equals("aSAH-13-1-2-5-3")
+                            || a.getSubColumnName().equals("HBV-0-2-2-1") || a.getSubColumnName().equals("CoC-4-1-4-1")
+                            || a.getSubColumnName().equals("CoC-3-2-6-2") || a.getSubColumnName().equals("CSE-7-1-5-0")
+                            || a.getSubColumnName().equals("PA-9-1-2") || a.getSubColumnName().equals("PA-11-1-11-3")
+                            || a.getSubColumnName().equals("PA-9-3-2") || a.getSubColumnName().equals("PA-7-2-1")) {
+                            if (a.getSubValue().length() >= 8 && !a.getSubValue().equals("[\"\"]")){
+                                String s = a.getSubValue().substring(5, 8);
+                                a.setSubValue(s);
+                            }
+                        }
+                    }
+                    mapCache.put(a.getSubColumnName(), a.getSubValue());
+                    if (qSingleDiseaseTake.getQuestionId().equals(115) || qSingleDiseaseTake.getQuestionId().equals(122)
+                        || qSingleDiseaseTake.getQuestionId().equals(100) || qSingleDiseaseTake.getQuestionId().equals(106)
+                        || qSingleDiseaseTake.getQuestionId().equals(113) || qSingleDiseaseTake.getQuestionId().equals(99)
+                        || qSingleDiseaseTake.getQuestionId().equals(114) || qSingleDiseaseTake.getQuestionId().equals(119)
+                        || qSingleDiseaseTake.getQuestionId().equals(125) || qSingleDiseaseTake.getQuestionId().equals(150)
+                        || qSingleDiseaseTake.getQuestionId().equals(130) || qSingleDiseaseTake.getQuestionId().equals(141)
+                        || qSingleDiseaseTake.getQuestionId().equals(144) || qSingleDiseaseTake.getQuestionId().equals(147)
+                        || qSingleDiseaseTake.getQuestionId().equals(149)) {
+                        if (a.getSubColumnName().equals("CM-0-2-2-1") || a.getSubColumnName().equals("CM-0-2-3-1")
+                            || a.getSubColumnName().equals("APL-0-2-3-1") || a.getSubColumnName().equals("ALL-0-2-3-1")
+                            || a.getSubColumnName().equals("GLI-13-1-2-5-3") || a.getSubColumnName().equals("aSAH-1-2-1-1")
+                            || a.getSubColumnName().equals("aSAH-1-1-1-1") || a.getSubColumnName().equals("aSAH-13-1-2-5-3")
+                            || a.getSubColumnName().equals("HBV-0-2-2-1") || a.getSubColumnName().equals("CoC-4-1-4-1")
+                            || a.getSubColumnName().equals("CoC-3-2-6-2") || a.getSubColumnName().equals("CSE-7-1-5-0")
+                            || a.getSubColumnName().equals("PA-9-1-2") || a.getSubColumnName().equals("PA-11-1-11-3")
+                            || a.getSubColumnName().equals("PA-9-3-2") || a.getSubColumnName().equals("PA-7-2-1")) {
+                            if (a.getSubValue().length() < 8 && !a.getSubValue().equals("UTD")){
+                                mapCache.remove(a.getSubColumnName());
+                            }
+                        } else if (a.getSubColumnName().equals("TN-1-4-2-1") || a.getSubColumnName().equals("TN-3-2-2-1")) {
+                            mapCache.remove(a.getSubColumnName());
+                        }
+                    }
+                    if (qSingleDiseaseTake.getQuestionId().equals(99) || qSingleDiseaseTake.getQuestionId().equals(114)) {
+                        if (a.getSubColumnName().equals("CM-0-2-2-1") || a.getSubColumnName().equals("CM-0-2-3-1")
+                            || a.getSubColumnName().equals("ALL-0-2-3-1") || a.getSubColumnName().equals("aSAH-1-2-1-1")
+                            || a.getSubColumnName().equals("aSAH-1-1-1-1") || a.getSubColumnName().equals("aSAH-13-1-2-5-3")) {
+                            if (a.getSubValue().length() < 5 && !a.getSubValue().equals("UTD")) {
+                                mapCache.remove(a.getSubColumnName());
+                            }
+                        }
+                    }
+                }
+                String singleDiseaseReportUrl1 = String.format(singleDiseaseReportUrl,quotaCategoryMap.get(qSingleDiseaseTake.getCategoryId()).getDiseaseType());
+                HttpData data = HttpData.instance();
+                data.setPostEntity(new StringEntity(JSON.toJSONString(mapCache), ContentType.APPLICATION_JSON));
+                mapCache.clear();
+                // 接口调用并返回结果
+                ResponseEntity responseEntity = null;
+                try {
+                    responseEntity = HttpTools.post(singleDiseaseReportUrl1, data);
+                    if (responseEntity.isOk()) {
+                        log.info("sync businessSync success.{}", responseEntity);
+                        JSONObject jsonObject = JSON.parseObject(responseEntity.getContent());
+                        Integer status = jsonObject.getInteger("status");
+                        if (Objects.equals(HttpStatus.OK.value(), status)) {
+                            JSONObject obj = jsonObject.getJSONObject("data");
+                            Integer objStatus = obj.getInteger("status");
+                            if (Objects.equals(objStatus, 20) && obj.containsKey("signed") && StringUtils.isNotBlank(obj.getString("signed"))) {
+                                String signed = obj.getString("signed");
+                            }
+                        }
+                    } else {
+                        log.info("sync businessSync fail.{}", responseEntity);
+                    }
+                } catch (IOException e) {
+                    log.error("国家上报定时器报错-->",e);
+                }
+                log.info("qSingleDiseaseTake上报id-->{},国家上报接口响应：{}",qSingleDiseaseTake.getId(),responseEntity);
+            }
+        });
     }
 
     @Override
