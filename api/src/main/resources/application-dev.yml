@@ -41,8 +41,9 @@ spring:
           #          username: question
           #          password: question01
           url: jdbc:mysql://39.103.166.135:13307/tqmsn?characterEncoding=UTF-8&useUnicode=true&useSSL=false
-#          url: jdbc:mysql://localhost:3306/sys?characterEncoding=UTF-8&useUnicode=true&useSSL=false
-          username: root
+#          url: jdbc:mysql://localhost:13307/tqmsn?characterEncoding=UTF-8&useUnicode=true&useSSL=false
+          username: zyh
+#          username: root
           #          password: root
           #          password: gzyjy123@
 #          password: 123456
