@@ -67,11 +67,12 @@ public class DrugRulesRelationController {
 		} else if (subType.equals("4") || subType.equals("6")){
 			subject_type = 2;
 		}
-		if (type == 2) {
+//		if (type == 2) {
 			Integer finalSubject_type = subject_type;
 			purposeAndActionVos.forEach(purposeAndActionVo -> {
-				Integer id1 = purposeAndActionVo.getMedicationPurposeId();
-				Integer medicationPurposeId = drugReceiveHisService.queryPurposeOrActionIdById(id1);
+//				Integer id1 = purposeAndActionVo.getMedicationPurposeId();
+//				Integer medicationPurposeId = drugReceiveHisService.queryPurposeOrActionIdById(id1);
+				Integer medicationPurposeId = purposeAndActionVo.getMedicationPurposeId();
 				Integer drugPhysicalActionId = purposeAndActionVo.getDrugPhysicalActionId();
 				drugRulesRelation.setDrugRulesOptionId(optionId);
 				drugRulesRelation.setMedicationPurposeId(medicationPurposeId);
@@ -80,33 +81,33 @@ public class DrugRulesRelationController {
 				drugRulesRelation.setSubject_type(finalSubject_type);
 				try {
 					drugRulesRelationService.save(drugRulesRelation);
-					result.success("设置成功！");
+					result.success("设置成功!");
 				} catch (Exception e) {
 					log.error(e.getMessage(),e);
 					result.error500("操作失败!");
 					return;
 				}
 			});
-		} else {
-			Integer finalSubject_type1 = subject_type;
-			purposeAndActionVos.forEach(purposeAndActionVo -> {
-				Integer medicationPurposeId = purposeAndActionVo.getMedicationPurposeId();
-				Integer drugPhysicalActionId = purposeAndActionVo.getDrugPhysicalActionId();
-				drugRulesRelation.setDrugRulesOptionId(optionId);
-				drugRulesRelation.setMedicationPurposeId(medicationPurposeId);
-				drugRulesRelation.setDrugPhysicalActionId(drugPhysicalActionId);
-				drugRulesRelation.setType(type);
-				drugRulesRelation.setSubject_type(finalSubject_type1);
-				try {
-					drugRulesRelationService.save(drugRulesRelation);
-					result.success("设置成功！");
-				} catch (Exception e) {
-					log.error(e.getMessage(),e);
-					result.error500("操作失败!");
-					return;
-				}
-			});
-		}
+//		} else {
+//			Integer finalSubject_type1 = subject_type;
+//			purposeAndActionVos.forEach(purposeAndActionVo -> {
+//				Integer medicationPurposeId = purposeAndActionVo.getMedicationPurposeId();
+//				Integer drugPhysicalActionId = purposeAndActionVo.getDrugPhysicalActionId();
+//				drugRulesRelation.setDrugRulesOptionId(optionId);
+//				drugRulesRelation.setMedicationPurposeId(medicationPurposeId);
+//				drugRulesRelation.setDrugPhysicalActionId(drugPhysicalActionId);
+//				drugRulesRelation.setType(type);
+//				drugRulesRelation.setSubject_type(finalSubject_type1);
+//				try {
+//					drugRulesRelationService.save(drugRulesRelation);
+//					result.success("设置成功！");
+//				} catch (Exception e) {
+//					log.error(e.getMessage(),e);
+//					result.error500("操作失败!");
+//					return;
+//				}
+//			});
+//		}
 		return result;
 	}
 
