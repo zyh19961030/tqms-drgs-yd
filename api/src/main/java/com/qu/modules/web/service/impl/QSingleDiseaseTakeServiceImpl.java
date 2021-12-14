@@ -1297,7 +1297,11 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                         if (a.getSubColumnName().equals("Knee-5-1-4") || a.getSubColumnName().equals("Cap-3-2-4")
                         || a.getSubColumnName().equals("TN-2-2-2") || a.getSubColumnName().equals("TN-2-2-3")
                         || a.getSubColumnName().equals("MVR-3-5-3") || a.getSubColumnName().equals("MVR-3-5-2")
-                        || a.getSubColumnName().equals("MVR-3-2-3") || a.getSubColumnName().equals("MVR-3-2-2")) {
+                        || a.getSubColumnName().equals("MVR-3-2-3") || a.getSubColumnName().equals("MVR-3-2-2")
+                        || a.getSubColumnName().equals("PD-6-5-7") || a.getSubColumnName().equals("PD-6-4-3")
+                        || a.getSubColumnName().equals("PD-3-6-1") || a.getSubColumnName().equals("PD-7-1-4")
+                        || a.getSubColumnName().equals("PD-6-2-6") || a.getSubColumnName().equals("PD-5-1-7")
+                        || a.getSubColumnName().equals("PD-4-1-4") || a.getSubColumnName().equals("PD-6-3-3")) {
                             cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
                             a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_PATTERN));
                         } else if (a.getSubColumnName().equals("TIA-4-4-1-1")){
@@ -1407,10 +1411,12 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                             mapCache.remove(a.getSubColumnName());
                         }
                     }
-                    if (qSingleDiseaseTake.getQuestionId().equals(99) || qSingleDiseaseTake.getQuestionId().equals(114)) {
+                    if (qSingleDiseaseTake.getQuestionId().equals(99) || qSingleDiseaseTake.getQuestionId().equals(114)
+                     || qSingleDiseaseTake.getQuestionId().equals(148)) {
                         if (a.getSubColumnName().equals("CM-0-2-2-1") || a.getSubColumnName().equals("CM-0-2-3-1")
                             || a.getSubColumnName().equals("ALL-0-2-3-1") || a.getSubColumnName().equals("aSAH-1-2-1-1")
-                            || a.getSubColumnName().equals("aSAH-1-1-1-1") || a.getSubColumnName().equals("aSAH-13-1-2-5-3")) {
+                            || a.getSubColumnName().equals("aSAH-1-1-1-1") || a.getSubColumnName().equals("aSAH-13-1-2-5-3")
+                            || a.getSubColumnName().equals("PD-8-1-3-1")) {
                             if (a.getSubValue().length() < 5 && !a.getSubValue().equals("UTD")) {
                                 mapCache.remove(a.getSubColumnName());
                             }
