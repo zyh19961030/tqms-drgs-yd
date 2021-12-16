@@ -42,4 +42,6 @@ public interface QSingleDiseaseTakeMapper extends BaseMapper<QSingleDiseaseTake>
     Integer workbenchReminderNotWriteCount(String dept);
 
     Integer workbenchReminderRejectCount(String dept);
+
+    Integer updateStatusById(Integer id, Integer ststus, String countryExamineReason);
 }

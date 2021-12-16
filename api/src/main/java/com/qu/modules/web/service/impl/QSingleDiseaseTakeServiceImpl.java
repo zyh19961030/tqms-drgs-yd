@@ -1429,6 +1429,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 mapCache.clear();
                 // 接口调用并返回结果
                 ResponseEntity responseEntity = null;
+                Integer id = qSingleDiseaseTake.getId();
                 try {
                     responseEntity = HttpTools.post(singleDiseaseReportUrl1, data);
                     if (responseEntity.isOk()) {
@@ -1437,22 +1438,27 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                         Integer status = jsonObject.getInteger("status");
                         if (Objects.equals(1, status)) {
                            //status数据改成6，并更新
-                            qSingleDiseaseTake.setStatus(6);
+                            qSingleDiseaseTakeMapper.updateStatusById(id, 6, null);
                         } else {
                             //status数据改成7，并更新
                             String message = jsonObject.getString("message");
-                            qSingleDiseaseTake.setCountryExamineReason(message);
-                            qSingleDiseaseTake.setStatus(7);
+//                            qSingleDiseaseTake.setCountryExamineReason(message);
+//                            qSingleDiseaseTake.setStatus(7);
+                            qSingleDiseaseTakeMapper.updateStatusById(id, 7, message);
                         }
                     } else {
                         log.info("sync businessSync fail.{}", responseEntity);
                         //status数据改成9，并更新,原因写HTTP通信错误
-                        qSingleDiseaseTake.setStatus(9);
+//                        qSingleDiseaseTake.setCountryExamineReason("HTTP通信错误");
+//                        qSingleDiseaseTake.setStatus(9);
+                        qSingleDiseaseTakeMapper.updateStatusById(id, 9, "HTTP通信错误");
                     }
                 } catch (IOException e) {
                     log.error("国家上报定时器报错-->",e);
                     //status数据改成9，并更新,原因写上报出错
-                    qSingleDiseaseTake.setStatus(9);
+//                    qSingleDiseaseTake.setCountryExamineReason("上报出错");
+//                    qSingleDiseaseTake.setStatus(9);
+                    qSingleDiseaseTakeMapper.updateStatusById(id, 9, "上报出错");
                 }
                 log.info("qSingleDiseaseTake上报id-->{},国家上报接口响应：{}",qSingleDiseaseTake.getId(),responseEntity);
             }

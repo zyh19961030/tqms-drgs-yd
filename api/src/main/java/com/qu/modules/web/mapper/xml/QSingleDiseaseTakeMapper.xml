@@ -294,4 +294,8 @@
             and tqms_dept =#{dept}
         </if>
     </select>
+
+    <update id="updateStatusById" parameterType="com.qu.modules.web.entity.QSingleDiseaseTake">
+        update q_single_disease_take set status = #{status}, country_examine_reason = #{countryExamineReason} where id = #{id}
+    </update>
 </mapper>
