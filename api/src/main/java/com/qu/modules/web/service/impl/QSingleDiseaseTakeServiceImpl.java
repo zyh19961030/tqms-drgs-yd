@@ -1,16 +1,6 @@
 package com.qu.modules.web.service.impl;
 
 import cn.hutool.core.date.DatePattern;
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -31,27 +21,9 @@ import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.entity.TqmsQuotaCategory;
 import com.qu.modules.web.mapper.*;
 import com.qu.modules.web.param.*;
-import com.qu.modules.web.mapper.*;
-import com.qu.modules.web.param.*;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
-import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticDeptPermutationParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewLineParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewPieParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticSummaryParam;
-import com.qu.modules.web.param.SingleDiseaseAnswer;
-import com.qu.modules.web.param.SingleDiseaseAnswerParam;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
 import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.vo.*;
 import com.qu.modules.web.vo.*;
 import com.qu.util.HttpClient;
 import com.qu.util.HttpTools;
@@ -60,12 +32,9 @@ import com.qu.util.HttpTools.ResponseEntity;
 import com.qu.util.PriceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jeecg.common.util.UUIDGenerator;
-import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.protocol.HTTP;
-import org.apache.ibatis.binding.MapperMethod;
+import org.jeecg.common.util.UUIDGenerator;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Months;
@@ -74,17 +43,9 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.*;
@@ -198,6 +159,10 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         QueryWrapper<QSingleDiseaseTake> queryWrapper = new QueryWrapper<>();
         if (!categoryIdList.isEmpty()) {
             queryWrapper.in("category_id", categoryIdList);
+        }
+
+        if(StringUtils.isNotBlank(deptId)){
+            queryWrapper.in("tqms_dept", deptId);
         }
 
         if (StringUtils.isNotBlank(qSingleDiseaseTakeByDoctorParam.getPatientName())) {
