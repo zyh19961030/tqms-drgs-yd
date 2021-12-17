@@ -43,5 +43,5 @@ public interface QSingleDiseaseTakeMapper extends BaseMapper<QSingleDiseaseTake>
 
     Integer workbenchReminderRejectCount(String dept);
 
-    Integer updateStatusById(Integer id, Integer ststus, String countryExamineReason);
+    Integer updateStatusById(Integer id, Integer status, String countryExamineReason);
 }
