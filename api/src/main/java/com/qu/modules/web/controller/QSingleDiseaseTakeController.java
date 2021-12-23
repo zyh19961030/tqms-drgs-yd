@@ -507,8 +507,8 @@ public class QSingleDiseaseTakeController {
     public Result<String> reportFailureRecordPage() {
         Result<String> result = new Result<>();
         List<ReportFailureRecordVo> reportFailureRecordVoList = qSingleDiseaseTakeService.reportFailureRecordPage();
-        result.setSuccess(true);
-        result.setResult(reportFailureRecordVoList);
+//        result.setSuccess(true);
+//        result.setResult(reportFailureRecordVoList);
         return result;
     }
 

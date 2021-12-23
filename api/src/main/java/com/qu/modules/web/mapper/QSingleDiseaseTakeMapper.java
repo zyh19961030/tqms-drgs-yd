@@ -47,4 +47,6 @@ public interface QSingleDiseaseTakeMapper extends BaseMapper<QSingleDiseaseTake>
     Integer updateStatusById(Integer id, Integer status, String countryExamineReason, Date time);
 
     List<ReportFailureRecordVo> reportFailureRecordPage();
+
+    QSingleDiseaseTake queryAnswerJsonByStatus(Integer id);
 }

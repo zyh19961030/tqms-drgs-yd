@@ -304,4 +304,8 @@
         from q_single_disease_take where status in (7, 9)
     </select>
 
+    <select id="queryAnswerJsonByStatus" resultType="com.qu.modules.web.entity.QSingleDiseaseTake">
+        select * from q_single_disease_take where status in (7, 9) and id = #{id}
+    </select>
+
 </mapper>
