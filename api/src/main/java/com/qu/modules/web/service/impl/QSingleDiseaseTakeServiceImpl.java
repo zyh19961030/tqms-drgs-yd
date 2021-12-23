@@ -49,7 +49,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -1429,7 +1428,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     public List<SingleDiseaseAnswerNavigationVo> singleDiseaseAnswerNavigation(SingleDiseaseAnswerNavigationParam singleDiseaseAnswerNavigationParam) {
         List<SingleDiseaseAnswerNavigationVo> res = new ArrayList<>();
 
-        Integer id = singleDiseaseAnswerNavigationParam.getId();
+//        Integer id = singleDiseaseAnswerNavigationParam.getId();
         Integer questionId = singleDiseaseAnswerNavigationParam.getQuestionId();
 
         LambdaQueryWrapper<Question> questionQueryWrapper = new QueryWrapper<Question>().lambda();
@@ -1440,7 +1439,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         questionQueryWrapper.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
         Question question = questionMapper.selectOne(questionQueryWrapper);
         if(question==null){
-            log.info("question is null---id-->{}<---questionId-->{}", id,questionId);
+//            log.info("question is null---id-->{}<---questionId-->{}", id,questionId);
             return null;
         }
 
@@ -1451,44 +1450,44 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         qsubjectLambdaQueryWrapper.orderByAsc(Qsubject::getOrderNum);
         List<Qsubject> qsubjectList = qsubjectMapper.selectList(qsubjectLambdaQueryWrapper);
 
-        QSingleDiseaseTake qSingleDiseaseTake = this.getById(id);
-        Map<String, String> mapCache = new HashMap<>();
-        if(qSingleDiseaseTake!=null){
-            String answerJson = (String) qSingleDiseaseTake.getAnswerJson();
-            List<SingleDiseaseAnswer> singleDiseaseAnswerList = JSON.parseArray(answerJson, SingleDiseaseAnswer.class);
-            if(singleDiseaseAnswerList!=null && !singleDiseaseAnswerList.isEmpty()){
-                for (SingleDiseaseAnswer a : singleDiseaseAnswerList) {
-                    if(StringUtils.isNotBlank(a.getBindValue())){
-                        mapCache.put(a.getSubColumnName(), a.getBindValue());
-                    }else{
-                        mapCache.put(a.getSubColumnName(), a.getSubValue());
-                    }
-                }
-            }
-        }
+//        QSingleDiseaseTake qSingleDiseaseTake = this.getById(id);
+//        Map<String, String> mapCache = new HashMap<>();
+//        if(qSingleDiseaseTake!=null){
+//            String answerJson = (String) qSingleDiseaseTake.getAnswerJson();
+//            List<SingleDiseaseAnswer> singleDiseaseAnswerList = JSON.parseArray(answerJson, SingleDiseaseAnswer.class);
+//            if(singleDiseaseAnswerList!=null && !singleDiseaseAnswerList.isEmpty()){
+//                for (SingleDiseaseAnswer a : singleDiseaseAnswerList) {
+//                    if(StringUtils.isNotBlank(a.getBindValue())){
+//                        mapCache.put(a.getSubColumnName(), a.getBindValue());
+//                    }else{
+//                        mapCache.put(a.getSubColumnName(), a.getSubValue());
+//                    }
+//                }
+//            }
+//        }
 
         qsubjectList.forEach(qsubject -> {
-            String[] qsubjectIds = qsubject.getGroupIds().split(",");
-            LambdaQueryWrapper<Qsubject> lambda = new QueryWrapper<Qsubject>().lambda();
-            lambda.eq(Qsubject::getQuId, question.getId());
-            lambda.in(Qsubject::getId, qsubjectIds);
-            lambda.eq(Qsubject::getDel, QsubjectConstant.DEL_NORMAL);
-            lambda.ne(Qsubject::getSubType, QsubjectConstant.SUB_TYPE_TITLE);
-            List<Qsubject> qsubjects = qsubjectMapper.selectList(lambda);
-            AtomicReference<Integer> alreadyAnswerCount = new AtomicReference<>(0);
-            AtomicReference<Integer> notAnswerCount = new AtomicReference<>(0);
-            qsubjects.forEach(q -> {
-                String value = mapCache.get(q.getColumnName());
-                if(StringUtils.isBlank(value) || "请选择".equals(value)){
-                    notAnswerCount.getAndSet(notAnswerCount.get() + 1);
-                }else{
-                    alreadyAnswerCount.getAndSet(alreadyAnswerCount.get() + 1);
-                }
-            });
+//            String[] qsubjectIds = qsubject.getGroupIds().split(",");
+//            LambdaQueryWrapper<Qsubject> lambda = new QueryWrapper<Qsubject>().lambda();
+//            lambda.eq(Qsubject::getQuId, question.getId());
+//            lambda.in(Qsubject::getId, qsubjectIds);
+//            lambda.eq(Qsubject::getDel, QsubjectConstant.DEL_NORMAL);
+//            lambda.ne(Qsubject::getSubType, QsubjectConstant.SUB_TYPE_TITLE);
+//            List<Qsubject> qsubjects = qsubjectMapper.selectList(lambda);
+//            AtomicReference<Integer> alreadyAnswerCount = new AtomicReference<>(0);
+//            AtomicReference<Integer> notAnswerCount = new AtomicReference<>(0);
+//            qsubjects.forEach(q -> {
+//                String value = mapCache.get(q.getColumnName());
+//                if(StringUtils.isBlank(value) || "请选择".equals(value)){
+//                    notAnswerCount.getAndSet(notAnswerCount.get() + 1);
+//                }else{
+//                    alreadyAnswerCount.getAndSet(alreadyAnswerCount.get() + 1);
+//                }
+//            });
             SingleDiseaseAnswerNavigationVo build = SingleDiseaseAnswerNavigationVo.builder()
-                    .alreadyAnswerCount(alreadyAnswerCount.get())
+//                    .alreadyAnswerCount(alreadyAnswerCount.get())
 //                    .notAnswerCount(notAnswerCount.get())
-                    .questionCount(notAnswerCount.get()+alreadyAnswerCount.get())
+//                    .questionCount(notAnswerCount.get()+alreadyAnswerCount.get())
                     .groupId(qsubject.getId())
                     .groupName(qsubject.getSubName())
                     .build();
