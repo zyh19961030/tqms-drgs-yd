@@ -1439,6 +1439,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         questionQueryWrapper.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
         Question question = questionMapper.selectOne(questionQueryWrapper);
         if(question==null){
+            log.info("question is null------questionId-->{}", questionId);
 //            log.info("question is null---id-->{}<---questionId-->{}", id,questionId);
             return null;
         }
