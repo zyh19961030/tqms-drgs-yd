@@ -1395,6 +1395,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 // 接口调用并返回结果
                 ResponseEntity responseEntity = null;
                 Integer id = qSingleDiseaseTake.getId();
+                Date date = new Date();
                 try {
                     responseEntity = HttpTools.post(singleDiseaseReportUrl1, data);
                     if (responseEntity.isOk()) {
@@ -1403,21 +1404,21 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                         Integer code = jsonObject.getInteger("code");
                         if (Objects.equals(1, code)) {
                            //status数据改成6，并更新
-                            qSingleDiseaseTakeMapper.updateStatusById(id, 6, null);
+                            qSingleDiseaseTakeMapper.updateStatusById(id, 6, null, date);
                         } else {
                             //status数据改成7，并更新
                             String message = jsonObject.getString("message");
-                            qSingleDiseaseTakeMapper.updateStatusById(id, 7, message);
+                            qSingleDiseaseTakeMapper.updateStatusById(id, 7, message, date);
                         }
                     } else {
                         log.info("sync businessSync fail.{}", responseEntity);
                         //status数据改成9，并更新,原因写HTTP通信错误
-                        qSingleDiseaseTakeMapper.updateStatusById(id, 9, "HTTP通信错误");
+                        qSingleDiseaseTakeMapper.updateStatusById(id, 9, "HTTP通信错误", date);
                     }
                 } catch (IOException e) {
                     log.error("国家上报定时器报错-->",e);
                     //status数据改成9，并更新,原因写上报出错
-                    qSingleDiseaseTakeMapper.updateStatusById(id, 9, "上报出错");
+                    qSingleDiseaseTakeMapper.updateStatusById(id, 9, "上报出错", date);
                 }
                 log.info("qSingleDiseaseTake上报id-->{},国家上报接口响应：{}",qSingleDiseaseTake.getId(),responseEntity);
             }
@@ -1494,5 +1495,56 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             res.add(build);
         });
         return res;
+    }
+
+    @Override
+    public List<ReportFailureRecordVo> reportFailureRecordPage() {
+        List<ReportFailureRecordVo> reportFailureRecordVoList = qSingleDiseaseTakeMapper.reportFailureRecordPage();
+        reportFailureRecordVoList.forEach(reportFailureRecordVo -> {
+            Integer status = reportFailureRecordVo.getStatus();
+            if (status == 7) {
+                String countryExamineReason = reportFailureRecordVo.getCountryExamineReason();
+                JSONObject jsonObject = JSON.parseObject(countryExamineReason);
+                String errorMessage = jsonObject.getString("errorMessage");
+                String[] split = errorMessage.split(",");
+                for (int i = 0; i < split.length; i++) {
+                    String[] split1 = split[i].split(":");
+                    for (int i1 = 0; i1 < split1.length - 1; i1++) {
+                        String columnName;
+                        if (i == 0) {
+                            columnName = split1[0].substring(2, split1[0].length() - 1);
+
+                        } else {
+                            columnName = split1[0].substring(1, split1[0].length() - 1);
+                        }
+                        String examineReason = split1[1].substring(1,split1[1].length() - 1);
+                        Integer questionId = reportFailureRecordVo.getQuestionId();
+                        String subjectName = qsubjectMapper.querySubNameByQuidAndColumnName(questionId, columnName);
+                        LambdaQueryWrapper<QSingleDiseaseTake> lambda = new QueryWrapper<QSingleDiseaseTake>().lambda();
+                        lambda.eq(QSingleDiseaseTake::getStatus, 7);
+                        lambda.eq(QSingleDiseaseTake::getStatus, 9);
+                        List<QSingleDiseaseTake> qSingleDiseaseTakeList = this.list(lambda);
+                        qSingleDiseaseTakeList.forEach(qSingleDiseaseTake -> {
+                            String answerJson = (String) qSingleDiseaseTake.getAnswerJson();
+                            List<SingleDiseaseAnswer> singleDiseaseAnswerList = JSON.parseArray(answerJson, SingleDiseaseAnswer.class);
+//                            if (singleDiseaseAnswerList != null && !singleDiseaseAnswerList.isEmpty()) {
+                                for (SingleDiseaseAnswer a : singleDiseaseAnswerList) {
+                                    System.out.println(1+"------------------------------------------------");
+                                    if (a.getSubColumnName().equals(columnName)) {
+                                        String value = a.getSubValue();
+                                        String s = "题目："+ subjectName + ", " + "答案：" + value + ", " + "原因：" + examineReason + "。";
+                                        reportFailureRecordVo.setCountryExamineReason(s);
+                                    }
+                                }
+//                            }
+
+                         });
+                    }
+                }
+
+            }
+
+        });
+        return reportFailureRecordVoList;
     }
 }

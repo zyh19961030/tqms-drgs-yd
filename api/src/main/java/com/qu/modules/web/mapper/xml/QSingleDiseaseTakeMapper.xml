@@ -296,6 +296,12 @@
     </select>
 
     <update id="updateStatusById" parameterType="com.qu.modules.web.entity.QSingleDiseaseTake">
-        update q_single_disease_take set status = #{status}, country_examine_reason = #{countryExamineReason} where id = #{id}
+        update q_single_disease_take set status = #{status}, country_examine_reason = #{countryExamineReason}, country_report_time = #{time} where id = #{id}
     </update>
+
+    <select id="reportFailureRecordPage" resultType="com.qu.modules.web.vo.ReportFailureRecordVo" >
+        select id, hospital_in_no, patient_name, question_id, question_name, department, country_examine_reason, status, country_report_time, write_time
+        from q_single_disease_take where status in (7, 9)
+    </select>
+
 </mapper>

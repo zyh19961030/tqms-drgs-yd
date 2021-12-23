@@ -5,6 +5,7 @@ import com.qu.modules.web.entity.QSingleDiseaseTake;
 import com.qu.modules.web.vo.*;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -43,5 +44,7 @@ public interface QSingleDiseaseTakeMapper extends BaseMapper<QSingleDiseaseTake>
 
     Integer workbenchReminderRejectCount(String dept);
 
-    Integer updateStatusById(Integer id, Integer status, String countryExamineReason);
+    Integer updateStatusById(Integer id, Integer status, String countryExamineReason, Date time);
+
+    List<ReportFailureRecordVo> reportFailureRecordPage();
 }

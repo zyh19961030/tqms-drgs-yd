@@ -54,4 +54,8 @@
         select * from qsubject where id = #{id} and del = 0
     </select>
 
+    <select id="querySubNameByQuidAndColumnName" resultType="java.lang.String">
+        select sub_name from qsubject where qu_id = #{quid} and column_name = #{columnName} and del = 0
+    </select>
+
 </mapper>

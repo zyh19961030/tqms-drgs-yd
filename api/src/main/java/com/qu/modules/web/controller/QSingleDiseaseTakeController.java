@@ -25,18 +25,7 @@ import com.qu.modules.web.param.SingleDiseaseWaitUploadParam;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.pojo.Deps;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
-import com.qu.modules.web.vo.QSingleDiseaseNameVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptPermutationVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewLineVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewPieVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticSummaryVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticTrendVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
-import com.qu.modules.web.vo.SingleDiseaseAnswerNavigationVo;
-import com.qu.modules.web.vo.WorkbenchReminderVo;
+import com.qu.modules.web.vo.*;
 import com.qu.util.DeptUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -506,6 +495,20 @@ public class QSingleDiseaseTakeController {
         List<QSingleDiseaseTakeReportStatisticSummaryVo> list = qSingleDiseaseTakeService.allSingleDiseaseReportStatisticSummary(qSingleDiseaseTakeReportStatisticSummaryParam);
         result.setSuccess(true);
         result.setResult(list);
+        return result;
+    }
+
+    /**
+     * 单病种回显
+     */
+    @AutoLog(value = "上报失败记录")
+    @ApiOperation(value = "上报失败记录", notes = "上报失败记录")
+    @GetMapping(value = "/reportFailureRecordPage")
+    public Result<String> reportFailureRecordPage() {
+        Result<String> result = new Result<>();
+        List<ReportFailureRecordVo> reportFailureRecordVoList = qSingleDiseaseTakeService.reportFailureRecordPage();
+        result.setSuccess(true);
+        result.setResult(reportFailureRecordVoList);
         return result;
     }
 
