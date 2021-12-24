@@ -1498,48 +1498,66 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     }
 
     @Override
-    public List<ReportFailureRecordVo> reportFailureRecordPage() {
+    public List<ReportFailureRecordParameterVo> reportFailureRecordPage() {
+        List<ReportFailureRecordParameterVo> ReportFailureRecordParameterVoList = new ArrayList<>();
+        ReportFailureRecordParameterVo reportFailureRecordParameterVo = new ReportFailureRecordParameterVo();
+        List<CountryExamineReasonVo> countryExamineReasons = new ArrayList<>();
+        CountryExamineReasonVo countryExamineReasonVo = new CountryExamineReasonVo();
         List<ReportFailureRecordVo> reportFailureRecordVoList = qSingleDiseaseTakeMapper.reportFailureRecordPage();
         reportFailureRecordVoList.forEach(reportFailureRecordVo -> {
             Integer status = reportFailureRecordVo.getStatus();
             Integer id = reportFailureRecordVo.getId();
             if (status == 7) {
-                String s = null;
                 String countryExamineReason = reportFailureRecordVo.getCountryExamineReason();
                 JSONObject jsonObject = JSON.parseObject(countryExamineReason);
                 String errorMessage = jsonObject.getString("errorMessage");
                 String[] split = errorMessage.split(",");
                 for (int i = 0; i < split.length; i++) {
                     String[] split1 = split[i].split(":");
-                    for (int i1 = 0; i1 < split1.length - 1; i1++) {
-                        String columnName;
-                        if (i == 0) {
-                            columnName = split1[0].substring(2, split1[0].length() - 1);
-                        } else {
-                            columnName = split1[0].substring(1, split1[0].length() - 1);
-                        }
-                        String examineReason = split1[1].substring(1,split1[1].length() - 1);
-                        String answer = null;
-                        String subjectName = null;
-                        if (examineReason.equals(("该项为必填项，请进行填写"))) {
-                            answer = "";
-                        } else {
-                            Integer questionId = reportFailureRecordVo.getQuestionId();
-                            subjectName = qsubjectMapper.querySubNameByQuidAndColumnName(questionId, columnName);
-                            QSingleDiseaseTake qSingleDiseaseTake = qSingleDiseaseTakeMapper.queryAnswerJsonByStatus(id);
-                            String answerJson = (String)qSingleDiseaseTake.getAnswerJson();
-                            JSONObject jsonObject1 = JSON.parseObject(answerJson);
-                            answer = jsonObject1.getString(columnName);
-                        }
-                        System.out.println(subjectName + answer + examineReason);
-
-                            s = subjectName + answer + examineReason;
-
+                    String columnName;
+                    if (i == 0) {
+                        columnName = split1[0].substring(2, split1[0].length() - 1);
+                    } else {
+                        columnName = split1[0].substring(1, split1[0].length() - 1);
                     }
+                    String examineReason = split1[1].substring(1,split1[1].length() - 1);
+                    String answer = null;
+                    String subjectName = null;
+                    Integer questionId = reportFailureRecordVo.getQuestionId();
+                    subjectName = qsubjectMapper.querySubNameByQuidAndColumnName(questionId, columnName);
+                    if (examineReason.equals(("该项为必填项，请进行填写"))) {
+                        countryExamineReasonVo.setSubjectName(subjectName);
+                        countryExamineReasonVo.setAnswer(answer);
+                        countryExamineReasonVo.setExamineReason(examineReason);
+                    } else {
+                        QSingleDiseaseTake qSingleDiseaseTake = qSingleDiseaseTakeMapper.queryAnswerJsonByStatus(id);
+                        String answerJson = (String)qSingleDiseaseTake.getAnswerJson();
+                        List<SingleDiseaseAnswer> singleDiseaseAnswerList = JSON.parseArray(answerJson, SingleDiseaseAnswer.class);
+                        if (singleDiseaseAnswerList != null && !singleDiseaseAnswerList.isEmpty()) {
+                            for (SingleDiseaseAnswer a : singleDiseaseAnswerList) {
+                                String subColumnName = a.getSubColumnName();
+                                if (columnName.equals(subColumnName)) {
+                                    answer = a.getSubValue();
+                                }
+                            }
+                        }
+                        countryExamineReasonVo.setSubjectName(subjectName);
+                        countryExamineReasonVo.setAnswer(answer);
+                        countryExamineReasonVo.setExamineReason(examineReason);
+                    }
+                    countryExamineReasons.add(countryExamineReasonVo);
                 }
-                reportFailureRecordVo.setCountryExamineReason(s);
+                reportFailureRecordParameterVo.setId(reportFailureRecordVo.getId());
+                reportFailureRecordParameterVo.setHospitalInNo(reportFailureRecordVo.getHospitalInNo());
+                reportFailureRecordParameterVo.setPatientName(reportFailureRecordVo.getPatientName());
+                reportFailureRecordParameterVo.setQuestionName(reportFailureRecordVo.getQuestionName());
+                reportFailureRecordParameterVo.setDepartmentName(reportFailureRecordVo.getDepartmentName());
+                reportFailureRecordParameterVo.setCountryExamineReason(countryExamineReasons);
+                reportFailureRecordParameterVo.setCountryReportTime(reportFailureRecordVo.getCountryReportTime());
+                reportFailureRecordParameterVo.setWriteTime(reportFailureRecordVo.getWriteTime());
+                ReportFailureRecordParameterVoList.add(reportFailureRecordParameterVo);
             }
         });
-        return reportFailureRecordVoList;
+        return ReportFailureRecordParameterVoList;
     }
 }

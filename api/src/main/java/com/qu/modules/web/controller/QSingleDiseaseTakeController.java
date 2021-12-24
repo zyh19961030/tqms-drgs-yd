@@ -249,8 +249,8 @@ public class QSingleDiseaseTakeController {
     @ApiOperation(value = "全院单病种上报记录查询-全院上报记录", notes = "全院单病种上报记录查询-全院上报记录")
     @GetMapping(value = "/singleDiseaseAllList")
     public Result<QSingleDiseaseTakeByDoctorPageVo> singleDiseaseAllList(QSingleDiseaseTakeByDeptParam qSingleDiseaseTakeByDeptParam,
-                                                                            @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
-                                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+                                                                         @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                         @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
         Result<QSingleDiseaseTakeByDoctorPageVo> result = new Result<>();
         QSingleDiseaseTakeByDoctorPageVo list = qSingleDiseaseTakeService.singleDiseaseByDeptList(qSingleDiseaseTakeByDeptParam, pageNo, pageSize,qSingleDiseaseTakeByDeptParam.getDeptId());
         result.setSuccess(true);
@@ -506,9 +506,9 @@ public class QSingleDiseaseTakeController {
     @GetMapping(value = "/reportFailureRecordPage")
     public Result<String> reportFailureRecordPage() {
         Result<String> result = new Result<>();
-        List<ReportFailureRecordVo> reportFailureRecordVoList = qSingleDiseaseTakeService.reportFailureRecordPage();
-//        result.setSuccess(true);
-//        result.setResult(reportFailureRecordVoList);
+        List<ReportFailureRecordParameterVo> reportFailureRecordParameterVoList = qSingleDiseaseTakeService.reportFailureRecordPage();
+        result.setSuccess(true);
+        result.setResult(reportFailureRecordParameterVoList);
         return result;
     }
 
