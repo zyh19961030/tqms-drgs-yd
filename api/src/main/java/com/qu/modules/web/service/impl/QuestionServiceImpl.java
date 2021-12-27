@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
+import com.qu.constant.QoptionConstant;
 import com.qu.constant.QuestionConstant;
 import com.qu.modules.web.entity.Qoption;
 import com.qu.modules.web.entity.Qsubject;
@@ -93,12 +95,30 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             Question question = questionMapper.selectById(id);
             BeanUtils.copyProperties(question, questionVo);
             List<Qsubject> subjectList = subjectMapper.selectSubjectByQuId(id);
+            if(subjectList.isEmpty()){
+                return questionVo;
+            }
+
+            List<Integer> collect = subjectList.stream().map(Qsubject::getId).distinct().collect(Collectors.toList());
+            LambdaQueryWrapper<Qoption> lambda = new QueryWrapper<Qoption>().lambda();
+            lambda.in(Qoption::getSubId,collect);
+            lambda.in(Qoption::getDel, QoptionConstant.DEL_NORMAL);
+            lambda.orderByAsc(Qoption::getOpOrder);
+            List<Qoption> qoptions = optionMapper.selectList(lambda);
+
+            Map<Integer, ArrayList<Qoption>> optionMap = qoptions.stream().collect(Collectors.toMap(Qoption::getSubId, Lists::newArrayList, (ArrayList<Qoption> k1, ArrayList<Qoption> k2) -> {
+                k1.addAll(k2);
+                return k1;
+            }));
+
             List<SubjectVo> subjectVoList = new ArrayList<>();
+            ArrayList<Qoption> optionEmptyList = Lists.newArrayList();
             for (Qsubject subject : subjectList) {
                 SubjectVo subjectVo = new SubjectVo();
                 BeanUtils.copyProperties(subject, subjectVo);
-                List<Qoption> qoptionList = optionMapper.selectQoptionBySubId(subject.getId());
-                subjectVo.setOptionList(qoptionList);
+//                List<Qoption> qoptionList = optionMapper.selectQoptionBySubId(subject.getId());
+                ArrayList<Qoption> qoptionsList = optionMap.get(subject.getId());
+                subjectVo.setOptionList(qoptionsList==null?optionEmptyList:qoptionsList);
                 subjectVoList.add(subjectVo);
             }
             //开始组装分组题逻辑
