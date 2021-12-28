@@ -87,4 +87,6 @@ public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake>
     List<SingleDiseaseAnswerNavigationVo> singleDiseaseAnswerNavigation(SingleDiseaseAnswerNavigationParam singleDiseaseAnswerNavigationParam);
 
     List<ReportFailureRecordParameterVo> reportFailureRecordPage();
+
+
 }

@@ -32,6 +32,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.annotations.Param;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultFactory;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -498,20 +499,6 @@ public class QSingleDiseaseTakeController {
         return result;
     }
 
-    /**
-     * 单病种回显
-     */
-    @AutoLog(value = "上报失败记录")
-    @ApiOperation(value = "上报失败记录", notes = "上报失败记录")
-    @GetMapping(value = "/reportFailureRecordPage")
-    public Result<String> reportFailureRecordPage() {
-        Result<String> result = new Result<>();
-        List<ReportFailureRecordParameterVo> reportFailureRecordParameterVoList = qSingleDiseaseTakeService.reportFailureRecordPage();
-        result.setSuccess(true);
-        result.setResult(reportFailureRecordParameterVoList);
-        return result;
-    }
-
 
     /**
      * 科室单病种上报数量统计-查看图表-单病种上报数据概览
@@ -696,6 +683,45 @@ public class QSingleDiseaseTakeController {
         List<SingleDiseaseAnswerNavigationVo> singleDiseaseAnswerNavigationVoList = qSingleDiseaseTakeService.singleDiseaseAnswerNavigation(singleDiseaseAnswerNavigationParam);
         result.setSuccess(true);
         result.setResult(singleDiseaseAnswerNavigationVoList);
+        return result;
+    }
+
+    /**
+     * 上报失败记录
+     */
+    @AutoLog(value = "上报失败记录")
+    @ApiOperation(value = "上报失败记录", notes = "上报失败记录")
+    @GetMapping(value = "/reportFailureRecordPage")
+    public Result<String> reportFailureRecordPage() {
+        Result<String> result = new Result<>();
+        List<ReportFailureRecordParameterVo> reportFailureRecordParameterVoList = qSingleDiseaseTakeService.reportFailureRecordPage();
+        result.setSuccess(true);
+        result.setResult(reportFailureRecordParameterVoList);
+        return result;
+    }
+
+    /**
+     * 病种名称查询
+     */
+    @AutoLog(value = "病种名称查询")
+    @ApiOperation(value = "病种名称查询", notes = "病种名称查询")
+    @GetMapping(value = "/diseaseNameQuery")
+    public Result<String> diseaseNameQuery (@RequestParam(value = "name", required =  false) String name) {
+        Result<String> result = new Result<>();
+        List<ReportFailureRecordParameterVo> reportFailureRecordParameterVoList = qSingleDiseaseTakeService.reportFailureRecordPage();
+        List<ReportFailureRecordParameterVo> reportFailureRecordParameterVos = new ArrayList<>();
+        result.setSuccess(true);
+        if (name != null && name.length() > 0) {
+            for (ReportFailureRecordParameterVo reportFailureRecordParameterVo : reportFailureRecordParameterVoList) {
+                String questionName = reportFailureRecordParameterVo.getQuestionName();
+                if (questionName.indexOf(name) != -1) {
+                    reportFailureRecordParameterVos.add(reportFailureRecordParameterVo);
+                }
+            }
+            result.setResult(reportFailureRecordParameterVos);
+        } else {
+            result.setResult(reportFailureRecordParameterVoList);
+        }
         return result;
     }
 
