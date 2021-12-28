@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import cn.hutool.db.Page;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.qu.constant.Constant;
@@ -692,9 +693,10 @@ public class QSingleDiseaseTakeController {
     @AutoLog(value = "上报失败记录")
     @ApiOperation(value = "上报失败记录", notes = "上报失败记录")
     @GetMapping(value = "/reportFailureRecordPage")
-    public Result<String> reportFailureRecordPage() {
+    public Result<String> reportFailureRecordPage(@RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
+                                                  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize) {
         Result<String> result = new Result<>();
-        List<ReportFailureRecordParameterVo> reportFailureRecordParameterVoList = qSingleDiseaseTakeService.reportFailureRecordPage();
+        List<ReportFailureRecordParameterVo> reportFailureRecordParameterVoList = qSingleDiseaseTakeService.queryErrorQuestion(pageNo, pageSize);
         result.setSuccess(true);
         result.setResult(reportFailureRecordParameterVoList);
         return result;
@@ -706,22 +708,33 @@ public class QSingleDiseaseTakeController {
     @AutoLog(value = "病种名称查询")
     @ApiOperation(value = "病种名称查询", notes = "病种名称查询")
     @GetMapping(value = "/diseaseNameQuery")
-    public Result<String> diseaseNameQuery (@RequestParam(value = "name", required =  false) String name) {
+    public Result<String> diseaseNameQuery (@RequestParam(value = "name", required =  false) String name,
+                                            @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
+                                            @RequestParam(name="pageSize", defaultValue="10") Integer pageSize) {
         Result<String> result = new Result<>();
-        List<ReportFailureRecordParameterVo> reportFailureRecordParameterVoList = qSingleDiseaseTakeService.reportFailureRecordPage();
-        List<ReportFailureRecordParameterVo> reportFailureRecordParameterVos = new ArrayList<>();
         result.setSuccess(true);
         if (name != null && name.length() > 0) {
-            for (ReportFailureRecordParameterVo reportFailureRecordParameterVo : reportFailureRecordParameterVoList) {
-                String questionName = reportFailureRecordParameterVo.getQuestionName();
-                if (questionName.indexOf(name) != -1) {
-                    reportFailureRecordParameterVos.add(reportFailureRecordParameterVo);
-                }
-            }
-            result.setResult(reportFailureRecordParameterVos);
+            List<ReportFailureRecordParameterVo> reportFailureRecordParameterVoList = qSingleDiseaseTakeService.queryErrorQuestionByName(name, pageNo, pageSize);
+            result.setResult(reportFailureRecordParameterVoList);
         } else {
+            List<ReportFailureRecordParameterVo> reportFailureRecordParameterVoList = qSingleDiseaseTakeService.queryErrorQuestion(pageNo, pageSize);
             result.setResult(reportFailureRecordParameterVoList);
         }
+        return result;
+    }
+
+    /**
+     * 上报失败记录
+     */
+    @AutoLog(value = "上报失败记录页面分页")
+    @ApiOperation(value = "上报失败记录页面分页", notes = "上报失败记录页面分页")
+    @GetMapping(value = "/paging")
+    public Result<String> paging(@RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
+                                 @RequestParam(name="pageSize", defaultValue="10") Integer pageSize) {
+        Result<String> result = new Result<>();
+        List<ReportFailureRecordParameterVo> reportFailureRecordParameterVoList = qSingleDiseaseTakeService.queryErrorQuestion(pageNo, pageSize);
+        result.setSuccess(true);
+        result.setResult(reportFailureRecordParameterVoList);
         return result;
     }
 

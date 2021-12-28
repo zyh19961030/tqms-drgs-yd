@@ -299,13 +299,18 @@
         update q_single_disease_take set status = #{status}, country_examine_reason = #{countryExamineReason}, country_report_time = #{time} where id = #{id}
     </update>
 
-    <select id="reportFailureRecordPage" resultType="com.qu.modules.web.vo.ReportFailureRecordVo" >
+    <select id="queryErrorQuestion" resultType="com.qu.modules.web.vo.ReportFailureRecordVo" >
         select id, hospital_in_no, patient_name, question_id, question_name, department, country_examine_reason, status, country_report_time, write_time
-        from q_single_disease_take where status in (7, 9)
+        from q_single_disease_take where status in (7, 9) order by id asc limit #{pageNo}, #{pageSize}
     </select>
 
     <select id="queryAnswerJsonByStatus" resultType="com.qu.modules.web.entity.QSingleDiseaseTake">
         select * from q_single_disease_take where status in (7, 9) and id = #{id}
+    </select>
+
+    <select id="queryErrorQuestionByName" resultType="com.qu.modules.web.vo.ReportFailureRecordVo" >
+        select id, hospital_in_no, patient_name, question_id, question_name, department, country_examine_reason, status, country_report_time, write_time
+        from q_single_disease_take where status in (7, 9) and question_name like CONCAT('%',#{name},'%') order by id asc limit #{pageNo}, #{pageSize}
     </select>
 
 </mapper>
