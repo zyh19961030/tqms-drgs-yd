@@ -1511,4 +1511,14 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         List<ReportFailureRecordParameterVo> ReportFailureRecordParameterVoList = ErrorMessageUtil.getErrorSubjectAnswer(reportFailureRecordVoList);
         return ReportFailureRecordParameterVoList;
     }
+
+    @Override
+    public Integer pageDataCountByName(String name) {
+        return qSingleDiseaseTakeMapper.pageDataCountByName(name);
+    }
+
+    @Override
+    public Integer pageDataCount() {
+        return qSingleDiseaseTakeMapper.pageDataCount();
+    }
 }

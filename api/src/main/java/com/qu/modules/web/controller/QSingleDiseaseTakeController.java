@@ -687,33 +687,33 @@ public class QSingleDiseaseTakeController {
         return result;
     }
 
-    /**
-     * 上报失败记录
-     */
-    @AutoLog(value = "上报失败记录")
-    @ApiOperation(value = "上报失败记录", notes = "上报失败记录")
-    @GetMapping(value = "/reportFailureRecordPage")
-    public Result<String> reportFailureRecordPage(@RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
-                                                  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize) {
-        Result<String> result = new Result<>();
-        List<ReportFailureRecordParameterVo> reportFailureRecordParameterVoList = qSingleDiseaseTakeService.queryErrorQuestion(pageNo, pageSize);
-        result.setSuccess(true);
-        result.setResult(reportFailureRecordParameterVoList);
-        return result;
-    }
+//    /**
+//     * 上报失败记录
+//     */
+//    @AutoLog(value = "上报失败记录")
+//    @ApiOperation(value = "上报失败记录", notes = "上报失败记录")
+//    @GetMapping(value = "/reportFailureRecordPage")
+//    public Result<String> reportFailureRecordPage(@RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
+//                                                  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize) {
+//        Result<String> result = new Result<>();
+//        List<ReportFailureRecordParameterVo> reportFailureRecordParameterVoList = qSingleDiseaseTakeService.queryErrorQuestion(pageNo, pageSize);
+//        result.setSuccess(true);
+//        result.setResult(reportFailureRecordParameterVoList);
+//        return result;
+//    }
 
     /**
-     * 病种名称查询
+     * 上报失败记录页面
      */
-    @AutoLog(value = "病种名称查询")
-    @ApiOperation(value = "病种名称查询", notes = "病种名称查询")
-    @GetMapping(value = "/diseaseNameQuery")
+    @AutoLog(value = "上报失败记录页面")
+    @ApiOperation(value = "上报失败记录页面", notes = "上报失败记录页面")
+    @GetMapping(value = "/reportFailureRecordPage")
     public Result<String> diseaseNameQuery (@RequestParam(value = "name", required =  false) String name,
                                             @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
                                             @RequestParam(name="pageSize", defaultValue="10") Integer pageSize) {
         Result<String> result = new Result<>();
         result.setSuccess(true);
-        if (name != null && name.length() > 0) {
+        if (name != null && !name.isEmpty()) {
             List<ReportFailureRecordParameterVo> reportFailureRecordParameterVoList = qSingleDiseaseTakeService.queryErrorQuestionByName(name, pageNo, pageSize);
             result.setResult(reportFailureRecordParameterVoList);
         } else {
@@ -724,17 +724,21 @@ public class QSingleDiseaseTakeController {
     }
 
     /**
-     * 上报失败记录
+     * 上报失败记录页面数据条数
      */
-    @AutoLog(value = "上报失败记录页面分页")
-    @ApiOperation(value = "上报失败记录页面分页", notes = "上报失败记录页面分页")
-    @GetMapping(value = "/paging")
-    public Result<String> paging(@RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
-                                 @RequestParam(name="pageSize", defaultValue="10") Integer pageSize) {
-        Result<String> result = new Result<>();
-        List<ReportFailureRecordParameterVo> reportFailureRecordParameterVoList = qSingleDiseaseTakeService.queryErrorQuestion(pageNo, pageSize);
+    @AutoLog(value = "上报失败记录页面数据条数")
+    @ApiOperation(value = "上报失败记录页面数据条数", notes = "上报失败记录页面数据条数")
+    @GetMapping(value = "/pageDataCount")
+    public Result<Integer> pageDataCount(@RequestParam(value = "name", required =  false) String name) {
+        Result<Integer> result = new Result<>();
         result.setSuccess(true);
-        result.setResult(reportFailureRecordParameterVoList);
+        if (name != null && !name.isEmpty()) {
+            Integer count = qSingleDiseaseTakeService.pageDataCountByName(name);
+            result.setResult(count);
+        } else {
+            Integer count = qSingleDiseaseTakeService.pageDataCount();
+            result.setResult(count);
+        }
         return result;
     }
 

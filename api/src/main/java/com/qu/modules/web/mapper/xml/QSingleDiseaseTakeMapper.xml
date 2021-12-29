@@ -313,4 +313,12 @@
         from q_single_disease_take where status in (7, 9) and question_name like CONCAT('%',#{name},'%') order by id asc limit #{pageNo}, #{pageSize}
     </select>
 
+    <select id="pageDataCountByName" resultType="java.lang.Integer" >
+        select count(*) from q_single_disease_take where status in (7, 9) and question_name like CONCAT('%',#{name},'%')
+    </select>
+
+    <select id="pageDataCount" resultType="java.lang.Integer" >
+        select count(*) from q_single_disease_take where status in (7, 9)
+    </select>
+
 </mapper>

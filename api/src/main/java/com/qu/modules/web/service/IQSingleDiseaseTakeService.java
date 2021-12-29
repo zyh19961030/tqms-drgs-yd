@@ -90,4 +90,8 @@ public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake>
 
     List<ReportFailureRecordParameterVo> queryErrorQuestionByName(String name, Integer pageNo, Integer pageSize);
 
+    Integer pageDataCountByName(String name);
+
+    Integer pageDataCount();
+
 }

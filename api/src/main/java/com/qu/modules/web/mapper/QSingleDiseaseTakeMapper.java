@@ -51,4 +51,8 @@ public interface QSingleDiseaseTakeMapper extends BaseMapper<QSingleDiseaseTake>
     QSingleDiseaseTake queryAnswerJsonByStatus(Integer id);
 
     List<ReportFailureRecordVo> queryErrorQuestionByName(String name, Integer pageNo, Integer pageSize);
+
+    Integer pageDataCountByName(String name);
+
+    Integer pageDataCount();
 }
