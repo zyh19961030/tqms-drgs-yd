@@ -712,35 +712,24 @@ public class QSingleDiseaseTakeController {
                                             @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
                                             @RequestParam(name="pageSize", defaultValue="10") Integer pageSize) {
         Result<String> result = new Result<>();
+        ReportFailureRecordParameterPageVo reportFailureRecordParameterPageVo = new ReportFailureRecordParameterPageVo();
         result.setSuccess(true);
         if (name != null && !name.isEmpty()) {
             List<ReportFailureRecordParameterVo> reportFailureRecordParameterVoList = qSingleDiseaseTakeService.queryErrorQuestionByName(name, pageNo, pageSize);
-            result.setResult(reportFailureRecordParameterVoList);
+            Integer count = qSingleDiseaseTakeService.pageDataCountByName(name);
+            reportFailureRecordParameterPageVo.setTotal(count);
+            reportFailureRecordParameterPageVo.setReportFailureRecordParameterVoList(reportFailureRecordParameterVoList);
+            result.setResult(reportFailureRecordParameterPageVo);
         } else {
             List<ReportFailureRecordParameterVo> reportFailureRecordParameterVoList = qSingleDiseaseTakeService.queryErrorQuestion(pageNo, pageSize);
-            result.setResult(reportFailureRecordParameterVoList);
+            Integer count = qSingleDiseaseTakeService.pageDataCount();
+            reportFailureRecordParameterPageVo.setTotal(count);
+            reportFailureRecordParameterPageVo.setReportFailureRecordParameterVoList(reportFailureRecordParameterVoList);
+            result.setResult(reportFailureRecordParameterPageVo);
         }
         return result;
     }
 
-    /**
-     * 上报失败记录页面数据条数
-     */
-    @AutoLog(value = "上报失败记录页面数据条数")
-    @ApiOperation(value = "上报失败记录页面数据条数", notes = "上报失败记录页面数据条数")
-    @GetMapping(value = "/pageDataCount")
-    public Result<Integer> pageDataCount(@RequestParam(value = "name", required =  false) String name) {
-        Result<Integer> result = new Result<>();
-        result.setSuccess(true);
-        if (name != null && !name.isEmpty()) {
-            Integer count = qSingleDiseaseTakeService.pageDataCountByName(name);
-            result.setResult(count);
-        } else {
-            Integer count = qSingleDiseaseTakeService.pageDataCount();
-            result.setResult(count);
-        }
-        return result;
-    }
 
 
 
