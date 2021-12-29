@@ -1501,14 +1501,14 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
     @Override
     public List<ReportFailureRecordParameterVo> queryErrorQuestion(Integer pageNo, Integer pageSize) {
-        List<ReportFailureRecordVo> reportFailureRecordVoList = qSingleDiseaseTakeMapper.queryErrorQuestion((pageNo -1) * 10, pageSize);
+        List<ReportFailureRecordVo> reportFailureRecordVoList = qSingleDiseaseTakeMapper.queryErrorQuestion((pageNo -1) * pageSize, pageSize);
         List<ReportFailureRecordParameterVo> ReportFailureRecordParameterVoList = ErrorMessageUtil.getErrorSubjectAnswer(reportFailureRecordVoList);
         return ReportFailureRecordParameterVoList;
     }
 
     @Override
     public List<ReportFailureRecordParameterVo> queryErrorQuestionByName(String name, Integer pageNo, Integer pageSize) {
-        List<ReportFailureRecordVo> reportFailureRecordVoList = qSingleDiseaseTakeMapper.queryErrorQuestionByName(name, (pageNo - 1) * 10, pageSize);
+        List<ReportFailureRecordVo> reportFailureRecordVoList = qSingleDiseaseTakeMapper.queryErrorQuestionByName(name, (pageNo - 1) * pageSize, pageSize);
         List<ReportFailureRecordParameterVo> ReportFailureRecordParameterVoList = ErrorMessageUtil.getErrorSubjectAnswer(reportFailureRecordVoList);
         return ReportFailureRecordParameterVoList;
     }
