@@ -296,7 +296,7 @@
     </select>
 
     <update id="updateStatusById" parameterType="com.qu.modules.web.entity.QSingleDiseaseTake">
-        update q_single_disease_take set status = #{status}, country_examine_reason = #{countryExamineReason}, country_report_time = #{time} where id = #{id}
+        update q_single_disease_take set status = #{status}, question_name = #{questionName} country_examine_reason = #{countryExamineReason}, country_report_time = #{time} where id = #{id}
     </update>
 
     <select id="queryErrorQuestion" resultType="com.qu.modules.web.vo.ReportFailureRecordVo" >
