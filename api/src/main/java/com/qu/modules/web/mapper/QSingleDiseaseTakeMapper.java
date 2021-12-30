@@ -40,9 +40,9 @@ public interface QSingleDiseaseTakeMapper extends BaseMapper<QSingleDiseaseTake>
 
     List<QSingleDiseaseTakeReportStatisticSummaryVo> allSingleDiseaseReportStatisticSummary(Map<String, Object> params);
 
-    Integer workbenchReminderNotWriteCount(String dept);
+    Integer workbenchReminderNotWriteCount(@Param("dept")String dept);
 
-    Integer workbenchReminderRejectCount(String dept);
+    Integer workbenchReminderRejectCount(@Param("dept")String dept);
 
     Integer updateStatusById(Integer id, Integer status, String questionName, String countryExamineReason, Date time);
 
