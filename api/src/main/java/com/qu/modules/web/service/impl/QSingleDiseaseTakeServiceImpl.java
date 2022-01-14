@@ -676,6 +676,8 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         QSingleDiseaseTake qSingleDiseaseTake = this.getById(singleDiseaseAnswerParam.getId());
         if(qSingleDiseaseTake==null){
             qSingleDiseaseTake = new QSingleDiseaseTake();
+            qSingleDiseaseTake.setTqmsDept(answerDeptid);
+            qSingleDiseaseTake.setTqmsDeptName(answerDeptname);
         }
 //        QSingleDiseaseTake qSingleDiseaseTake = this.getById(singleDiseaseAnswerParam.getId());
         qSingleDiseaseTake.setId(singleDiseaseAnswerParam.getId());
@@ -684,11 +686,12 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         qSingleDiseaseTake.setStatus(status);
         qSingleDiseaseTake.setAnswer(answer);
         qSingleDiseaseTake.setAnswerName(answerName);
-        qSingleDiseaseTake.setAnswerTime(new Date());
+        Date date = new Date();
+        qSingleDiseaseTake.setAnswerTime(date);
         qSingleDiseaseTake.setAnswerDeptid(answerDeptid);
         qSingleDiseaseTake.setAnswerDeptname(answerDeptname);
         qSingleDiseaseTake.setQuestionId(singleDiseaseAnswerParam.getQuId());
-        qSingleDiseaseTake.setWriteTime(new Date());
+        qSingleDiseaseTake.setWriteTime(date);
 
 
         Map<String, String> mapCache = new HashMap<>();
