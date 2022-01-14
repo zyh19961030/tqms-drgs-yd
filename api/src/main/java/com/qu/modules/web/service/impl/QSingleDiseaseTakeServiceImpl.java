@@ -1,5 +1,17 @@
 package com.qu.modules.web.service.impl;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
@@ -19,12 +31,42 @@ import com.qu.modules.web.entity.QSingleDiseaseTake;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.entity.TqmsQuotaCategory;
-import com.qu.modules.web.mapper.*;
-import com.qu.modules.web.param.*;
+import com.qu.modules.web.mapper.DynamicTableMapper;
+import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
+import com.qu.modules.web.mapper.QsubjectMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
+import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticDeptPermutationParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewLineParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewPieParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticSummaryParam;
+import com.qu.modules.web.param.SingleDiseaseAnswer;
+import com.qu.modules.web.param.SingleDiseaseAnswerNavigationParam;
+import com.qu.modules.web.param.SingleDiseaseAnswerParam;
+import com.qu.modules.web.param.SingleDiseaseExamineRecordParam;
+import com.qu.modules.web.param.SingleDiseaseWaitUploadParam;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
 import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.vo.*;
+import com.qu.modules.web.vo.QSingleDiseaseNameVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptPermutationVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewLineVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewPieVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticSummaryVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticTrendVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
+import com.qu.modules.web.vo.ReportFailureRecordParameterVo;
+import com.qu.modules.web.vo.ReportFailureRecordVo;
+import com.qu.modules.web.vo.SingleDiseaseAnswerNavigationVo;
+import com.qu.modules.web.vo.WorkbenchReminderVo;
 import com.qu.util.ErrorMessageUtil;
 import com.qu.util.HttpClient;
 import com.qu.util.HttpTools;
@@ -45,13 +87,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @Description: 单病种总表
@@ -667,6 +702,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         LambdaQueryWrapper<Qsubject> lambdaPatientName = new QueryWrapper<Qsubject>().lambda();
         lambdaPatientName.eq(Qsubject::getColumnName,"xm");
         lambdaPatientName.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        lambdaPatientName.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
         Qsubject qsubject = qsubjectMapper.selectOne(lambdaPatientName);
         if(qsubject!=null){
             String patientName = mapCache.get(qsubject.getColumnName());
@@ -676,6 +712,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         LambdaQueryWrapper<Qsubject> lambdaPatientGender = new QueryWrapper<Qsubject>().lambda();
         lambdaPatientGender.eq(Qsubject::getColumnName,"CM-0-2-1-2");
         lambdaPatientGender.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        lambdaPatientGender.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
         qsubject = qsubjectMapper.selectOne(lambdaPatientGender);
         if(qsubject!=null){
             qSingleDiseaseTake.setPatientGender(mapCache.get(qsubject.getColumnName()));
@@ -684,6 +721,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         LambdaQueryWrapper<Qsubject> lambdaBirthday = new QueryWrapper<Qsubject>().lambda();
         lambdaBirthday.eq(Qsubject::getColumnName,"CM-0-2-1-1");
         lambdaBirthday.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        lambdaBirthday.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
         qsubject = qsubjectMapper.selectOne(lambdaBirthday);
         if(qsubject!=null){
             String birthday = mapCache.get(qsubject.getColumnName());
@@ -695,6 +733,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         LambdaQueryWrapper<Qsubject> lambdaInTime = new QueryWrapper<Qsubject>().lambda();
         lambdaInTime.eq(Qsubject::getColumnName,"CM-0-2-4-1");
         lambdaInTime.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        lambdaInTime.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
         qsubject = qsubjectMapper.selectOne(lambdaInTime);
         if(qsubject!=null){
             String dateInTimeString = mapCache.get(qsubject.getColumnName());
@@ -707,6 +746,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         LambdaQueryWrapper<Qsubject> lambdaOutTime = new QueryWrapper<Qsubject>().lambda();
         lambdaOutTime.eq(Qsubject::getColumnName,"CM-0-2-4-2");
         lambdaOutTime.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        lambdaOutTime.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
         qsubject = qsubjectMapper.selectOne(lambdaOutTime);
         if(qsubject!=null){
             String dateOutTimeString = mapCache.get(qsubject.getColumnName());
@@ -719,6 +759,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         LambdaQueryWrapper<Qsubject> lambdaDoctor = new QueryWrapper<Qsubject>().lambda();
         lambdaDoctor.eq(Qsubject::getColumnName,"CM-0-1-1-3");
         lambdaDoctor.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        lambdaDoctor.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
         qsubject = qsubjectMapper.selectOne(lambdaDoctor);
         if (qsubject != null) {
             qSingleDiseaseTake.setDoctorName(mapCache.get(qsubject.getColumnName()));
@@ -727,6 +768,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         LambdaQueryWrapper<Qsubject> lambdaDept = new QueryWrapper<Qsubject>().lambda();
         lambdaDept.eq(Qsubject::getColumnName,"CM-0-1-1-5");
         lambdaDept.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        lambdaDept.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
         qsubject = qsubjectMapper.selectOne(lambdaDept);
         if(qsubject!=null){
             qSingleDiseaseTake.setDepartment(mapCache.get(qsubject.getColumnName()));
@@ -735,6 +777,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         LambdaQueryWrapper<Qsubject> lambdaIdCard = new QueryWrapper<Qsubject>().lambda();
         lambdaIdCard.eq(Qsubject::getColumnName,"IDCard");
         lambdaIdCard.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        lambdaIdCard.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
         qsubject = qsubjectMapper.selectOne(lambdaIdCard);
         if(qsubject!=null){
             qSingleDiseaseTake.setIdCard(mapCache.get(qsubject.getColumnName()));
@@ -743,6 +786,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         LambdaQueryWrapper<Qsubject> lambdaInHospitalDay = new QueryWrapper<Qsubject>().lambda();
         lambdaInHospitalDay.eq(Qsubject::getColumnName,"CM-4-1");
         lambdaInHospitalDay.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        lambdaInHospitalDay.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
         qsubject = qsubjectMapper.selectOne(lambdaInHospitalDay);
         if (qsubject != null) {
             String inHospitalDayString = mapCache.get(qsubject.getColumnName());
@@ -758,6 +802,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         LambdaQueryWrapper<Qsubject> lambdaInHospitalFee = new QueryWrapper<Qsubject>().lambda();
         lambdaInHospitalFee.eq(Qsubject::getColumnName,"CM-6-1");
         lambdaInHospitalFee.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        lambdaInHospitalFee.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
         qsubject = qsubjectMapper.selectOne(lambdaInHospitalFee);
         if(qsubject!=null){
             String inHospitalFee = mapCache.get(qsubject.getColumnName());
@@ -769,6 +814,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         LambdaQueryWrapper<Qsubject> lambdaOperationTreatmentFee = new QueryWrapper<Qsubject>().lambda();
         lambdaOperationTreatmentFee.eq(Qsubject::getColumnName,"CM-6-13");
         lambdaOperationTreatmentFee.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        lambdaOperationTreatmentFee.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
         qsubject = qsubjectMapper.selectOne(lambdaOperationTreatmentFee);
         if(qsubject!=null){
             String operationTreatmentFeeString = mapCache.get(qsubject.getColumnName());
@@ -780,6 +826,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         LambdaQueryWrapper<Qsubject> lambdaDisposableConsumable = new QueryWrapper<Qsubject>().lambda();
         lambdaDisposableConsumable.eq(Qsubject::getColumnName,"CM-6-29");
         lambdaDisposableConsumable.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        lambdaDisposableConsumable.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
         qsubject = qsubjectMapper.selectOne(lambdaDisposableConsumable);
         Integer operationDisposableMaterialFee=0;
         if(qsubject!=null){
@@ -790,6 +837,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         LambdaQueryWrapper<Qsubject> lambdaExaminationDisposableConsumable = new QueryWrapper<Qsubject>().lambda();
         lambdaExaminationDisposableConsumable.eq(Qsubject::getColumnName,"CM-6-27");
         lambdaExaminationDisposableConsumable.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        lambdaExaminationDisposableConsumable.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
         qsubject = qsubjectMapper.selectOne(lambdaExaminationDisposableConsumable);
         Integer examinationDisposableMaterialFee=0;
         if(qsubject!=null){
@@ -800,6 +848,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         LambdaQueryWrapper<Qsubject> lambdaTreatmentDisposableConsumable = new QueryWrapper<Qsubject>().lambda();
         lambdaTreatmentDisposableConsumable.eq(Qsubject::getColumnName,"CM-6-28");
         lambdaTreatmentDisposableConsumable.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        lambdaTreatmentDisposableConsumable.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
         qsubject = qsubjectMapper.selectOne(lambdaTreatmentDisposableConsumable);
         Integer treatmentDisposableMaterialFee=0;
         if(qsubject!=null){
