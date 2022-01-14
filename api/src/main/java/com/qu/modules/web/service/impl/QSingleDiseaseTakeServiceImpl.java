@@ -236,7 +236,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             queryWrapper.like("main_diagnosis", qSingleDiseaseTakeByDoctorParam.getMainDiagnosis());
         }
 
-
+        queryWrapper.orderByDesc("create_time");
         IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, queryWrapper);
         for (QSingleDiseaseTake record : qSingleDiseaseTakeIPage.getRecords()) {
             String dynamicTableName = record.getDynamicTableName();
@@ -320,6 +320,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             queryWrapper.le(QSingleDiseaseTake::getOutTime, singleDiseaseWaitUploadParam.getOutHospitalEndDate());
         }
         queryWrapper.eq(QSingleDiseaseTake::getStatus, QSingleDiseaseTakeConstant.STATUS_WAIT_UPLOAD);
+        queryWrapper.orderByDesc(QSingleDiseaseTake::getCreateTime);
         IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, queryWrapper);
 
         for (QSingleDiseaseTake record : qSingleDiseaseTakeIPage.getRecords()) {
@@ -381,6 +382,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         Page<QSingleDiseaseTake> page = new Page<>(pageNo, pageSize);
         QueryWrapper<QSingleDiseaseTake> queryWrapper = new QueryWrapper<>();
         queryWrapper.in("status", QSingleDiseaseTakeConstant.STATUS_REJECT_AND_COUNTRY_REJECT);
+        queryWrapper.orderByDesc("create_time");
         IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, queryWrapper);
         QSingleDiseaseTakeByDoctorPageVo qsubjectlibPageVo = new QSingleDiseaseTakeByDoctorPageVo();
         qsubjectlibPageVo.setTotal(qSingleDiseaseTakeIPage.getTotal());
@@ -431,7 +433,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         if (StringUtils.isNotBlank(deptId)) {
             queryWrapper.in("tqms_dept", deptId);
         }
-
+        queryWrapper.orderByDesc("create_time");
         IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, queryWrapper);
         QSingleDiseaseTakeByDoctorPageVo qsubjectlibPageVo = new QSingleDiseaseTakeByDoctorPageVo();
         qsubjectlibPageVo.setTotal(qSingleDiseaseTakeIPage.getTotal());
@@ -485,7 +487,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
         lambda.gt(QSingleDiseaseTake::getStatus, QSingleDiseaseTakeConstant.STATUS_WAIT_UPLOAD);
         lambda.ne(QSingleDiseaseTake::getStatus, QSingleDiseaseTakeConstant.STATUS_NO_NEED);
-
+        lambda.orderByDesc(QSingleDiseaseTake::getCreateTime);
         IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, lambda);
         QSingleDiseaseTakeByDoctorPageVo qsubjectlibPageVo = new QSingleDiseaseTakeByDoctorPageVo();
         qsubjectlibPageVo.setTotal(qSingleDiseaseTakeIPage.getTotal());
