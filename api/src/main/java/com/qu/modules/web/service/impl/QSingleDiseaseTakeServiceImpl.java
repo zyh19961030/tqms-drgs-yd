@@ -36,10 +36,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.jeecg.common.util.UUIDGenerator;
-import org.joda.time.DateTime;
-import org.joda.time.Days;
-import org.joda.time.Months;
-import org.joda.time.Years;
+import org.joda.time.*;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1552,4 +1549,47 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     public Integer pageDataCount() {
         return qSingleDiseaseTakeMapper.pageDataCount();
     }
+
+    @Override
+    public SingleDiseaseReportCountVo singleDiseaseReportCount(String deptId) {
+        List<String> categoryIdList=null;
+        if(StringUtils.isNotBlank(deptId)){
+            //查询所拥有的单病种
+            LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+            lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+            lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+            lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+            lambda.like(Question::getDeptIds,String.format("%s,",deptId));
+            List<Question> questionList = questionMapper.selectList(lambda);
+            categoryIdList = questionList.stream().map(Question::getCategoryId).distinct().collect(Collectors.toList());
+        }
+        //日期
+        DateTime now = DateTime.now();
+        log.info("now--->"+now);
+        //今日零点
+        DateTime today = now.withTimeAtStartOfDay();
+        log.info("today--->"+today);
+        //明日零点
+        DateTime tomorrow = today.plusDays(1);
+        log.info("tomorrow--->"+tomorrow);
+        //昨日零点
+        DateTime yesterday = today.minusDays(1);
+        log.info("yesterday--->"+yesterday);
+        //本月零点
+        DateTime month = now.dayOfMonth().withMinimumValue().withTimeAtStartOfDay();
+        log.info("month--->"+month);
+        Integer todayCount = this.qSingleDiseaseTakeMapper.singleDiseaseReportCount(now.toDate(),tomorrow.toDate(),categoryIdList);
+        Integer yesterdayCount = this.qSingleDiseaseTakeMapper.singleDiseaseReportCount(yesterday.toDate(),today.toDate(),categoryIdList);
+        Integer monthCount = this.qSingleDiseaseTakeMapper.singleDiseaseReportCount(month.toDate(),tomorrow.toDate(),categoryIdList);
+        Integer count = this.qSingleDiseaseTakeMapper.singleDiseaseReportCount(null,null,categoryIdList);
+
+        return SingleDiseaseReportCountVo.builder()
+                .todaySingleDiseaseReportCount(todayCount)
+                .yesterdaySingleDiseaseReportCount(yesterdayCount)
+                .monthSingleDiseaseReportCount(monthCount)
+                .singleDiseaseReportCount(count).build();
+    }
+
+
+
 }

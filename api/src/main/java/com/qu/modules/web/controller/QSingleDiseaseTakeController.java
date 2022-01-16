@@ -1,28 +1,10 @@
 package com.qu.modules.web.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
-import cn.hutool.db.Page;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.qu.constant.Constant;
 import com.qu.constant.QSingleDiseaseTakeConstant;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticDeptPermutationParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewLineParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewPieParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticSummaryParam;
-import com.qu.modules.web.param.SingleDiseaseAnswerNavigationParam;
-import com.qu.modules.web.param.SingleDiseaseAnswerParam;
-import com.qu.modules.web.param.SingleDiseaseExamineRecordParam;
-import com.qu.modules.web.param.SingleDiseaseRejectParam;
-import com.qu.modules.web.param.SingleDiseaseWaitUploadParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.pojo.Deps;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
@@ -33,18 +15,16 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.ibatis.annotations.Param;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultFactory;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Description: 单病种总表
@@ -731,6 +711,33 @@ public class QSingleDiseaseTakeController {
     }
 
 
+    /**
+     * 单病种上报数量统计
+     */
+    @AutoLog(value = "单病种上报数量统计")
+    @ApiOperation(value = "单病种上报数量统计", notes = "单病种上报数量统计")
+    @GetMapping(value = "/singleDiseaseReportCount")
+    public Result<SingleDiseaseReportCountVo> singleDiseaseReportCount(HttpServletRequest request) {
+        Result<SingleDiseaseReportCountVo> result = new Result<>();
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        if(data==null){
+            return ResultFactory.fail("登录过期,请重新登录");
+        }
+        String type = data.getDeps().get(0).getType();
+        String deptId=null;
+        if(DeptUtil.isClinical(type)){
+            deptId=data.getDeps().get(0).getId();
+        }
+        SingleDiseaseReportCountVo singleDiseaseReportCount = qSingleDiseaseTakeService.singleDiseaseReportCount(deptId);
+//        if(DeptUtil.isClinical(type)){
+//            singleDiseaseReportCount.setClinical(0);
+//        }else{
+//            singleDiseaseReportCount.setClinical(1);
+//        }
+        result.setSuccess(true);
+        result.setResult(singleDiseaseReportCount);
+        return result;
+    }
 
 
 

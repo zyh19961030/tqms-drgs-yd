@@ -321,4 +321,21 @@
         select count(*) from q_single_disease_take where status in (7, 9)
     </select>
 
+    <select id="singleDiseaseReportCount"
+            resultType="java.lang.Integer">
+        select count(1) from q_single_disease_take where status = 6
+        <if test="start!=null">
+            and country_report_time >= #{start}
+        </if>
+        <if test="end!=null">
+            and country_report_time &lt; #{end}
+        </if>
+        <if test="categoryIdList!=null and categoryIdList.size() > 0">
+            and category_id in
+            <foreach close=")" collection="categoryIdList" item="listItem" open="(" separator=",">
+                #{listItem}
+            </foreach>
+        </if>
+    </select>
+
 </mapper>

@@ -6,30 +6,6 @@ import com.qu.modules.web.param.*;
 import com.qu.modules.web.vo.*;
 
 import java.util.List;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticDeptPermutationParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewLineParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewPieParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticSummaryParam;
-import com.qu.modules.web.param.SingleDiseaseAnswerNavigationParam;
-import com.qu.modules.web.param.SingleDiseaseAnswerParam;
-import com.qu.modules.web.param.SingleDiseaseWaitUploadParam;
-import com.qu.modules.web.param.SingleDiseaseExamineRecordParam;
-import com.qu.modules.web.vo.QSingleDiseaseNameVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptPermutationVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewLineVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewPieVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticSummaryVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticTrendVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
-import com.qu.modules.web.vo.SingleDiseaseAnswerNavigationVo;
-import com.qu.modules.web.vo.WorkbenchReminderVo;
 
 /**
  * @Description: 单病种总表
@@ -94,4 +70,5 @@ public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake>
 
     Integer pageDataCount();
 
+    SingleDiseaseReportCountVo singleDiseaseReportCount(String deptId);
 }
