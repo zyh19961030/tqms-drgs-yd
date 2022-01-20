@@ -36,11 +36,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.jeecg.common.util.UUIDGenerator;
-import org.joda.time.*;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.Months;
+import org.joda.time.Years;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -1209,10 +1213,15 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
 
     @Override
+    @Async
     public void  runSingleDiseaseTakeReport() {
         LambdaQueryWrapper<QSingleDiseaseTake> lambda = new QueryWrapper<QSingleDiseaseTake>().lambda();
         lambda.eq(QSingleDiseaseTake::getStatus,QSingleDiseaseTakeConstant.STATUS_PASS_WAIT_UPLOAD);
         List<QSingleDiseaseTake> qSingleDiseaseTakeList = this.list(lambda);
+        if(qSingleDiseaseTakeList==null || qSingleDiseaseTakeList.isEmpty()){
+            log.info("runSingleDiseaseTakeReport STATUS_PASS_WAIT_UPLOAD is null return;");
+            return;
+        }
         List<String> dynamicTableNameList = qSingleDiseaseTakeList.stream().map(QSingleDiseaseTake::getDynamicTableName).collect(Collectors.toList());
 
         LambdaQueryWrapper<Question> questionQueryWrapper = new QueryWrapper<Question>().lambda();

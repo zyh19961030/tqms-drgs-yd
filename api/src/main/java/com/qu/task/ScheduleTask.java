@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  *
@@ -25,10 +25,13 @@ public class ScheduleTask {
     // 每天凌晨1点执行
 //    @Scheduled(cron = "0 0 1 * * ?")
     // 每半小时执行一次
-    @Scheduled(cron = "0 30 * * * ?")
+    @Scheduled(cron = "30 * * * * ?")
 //    @PostConstruct
     public void task() {
+        String uuid= UUID.randomUUID().toString();
+        log.info("{}",uuid);
+        log.info("ScheduleTask start 单病种上报：{}-----时间----->{}",uuid,new Date());
         qSingleDiseaseTakeService.runSingleDiseaseTakeReport();
-        log.info("每天凌晨1点执行一次单病种上报：" + new Date());
+        log.info("ScheduleTask end 单病种上报：{}-----时间----->{}",uuid,new Date());
     }
 }
