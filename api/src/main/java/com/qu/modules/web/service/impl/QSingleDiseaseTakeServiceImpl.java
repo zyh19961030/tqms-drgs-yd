@@ -1431,9 +1431,9 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 // 接口调用并返回结果
                 ResponseEntity responseEntity = null;
                 Integer id = qSingleDiseaseTake.getId();
-                String questionName = qSingleDiseaseTake.getQuestionName();
                 Date date = new Date();
                 try {
+                    log.info("request start qSingleDiseaseTake id-->{}",qSingleDiseaseTake.getId());
                     responseEntity = HttpTools.post(singleDiseaseReportUrl1, data);
                     if (responseEntity.isOk()) {
                         log.info("sync businessSync success.{}", responseEntity);
@@ -1441,21 +1441,21 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                         Integer code = jsonObject.getInteger("code");
                         if (Objects.equals(1, code)) {
                             //status数据改成6，并更新
-                            qSingleDiseaseTakeMapper.updateStatusById(id, 6, questionName, null, date);
+                            qSingleDiseaseTakeMapper.updateStatusById(id, 6,  null, date);
                         } else {
                             //status数据改成7，并更新
                             String message = jsonObject.getString("message");
-                            qSingleDiseaseTakeMapper.updateStatusById(id, 7, questionName,  message, date);
+                            qSingleDiseaseTakeMapper.updateStatusById(id, 7,   message, date);
                         }
                     } else {
                         log.info("sync businessSync fail.{}", responseEntity);
                         //status数据改成9，并更新,原因写HTTP通信错误
-                        qSingleDiseaseTakeMapper.updateStatusById(id, 9, questionName,  "HTTP通信错误", date);
+                        qSingleDiseaseTakeMapper.updateStatusById(id, 9,   "HTTP通信错误", date);
                     }
                 } catch (IOException e) {
                     log.error("国家上报定时器报错-->",e);
                     //status数据改成9，并更新,原因写上报出错
-                    qSingleDiseaseTakeMapper.updateStatusById(id, 9, questionName,  "上报出错", date);
+                    qSingleDiseaseTakeMapper.updateStatusById(id, 9,   "上报出错", date);
                 }
                 log.info("qSingleDiseaseTake上报id-->{},国家上报接口响应：{}",qSingleDiseaseTake.getId(),responseEntity);
             }
