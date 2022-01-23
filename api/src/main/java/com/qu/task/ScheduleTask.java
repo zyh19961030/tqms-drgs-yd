@@ -25,7 +25,11 @@ public class ScheduleTask {
     // 每天凌晨1点执行
 //    @Scheduled(cron = "0 0 1 * * ?")
     // 每半小时执行一次
-    @Scheduled(cron = "0 30 * * * ?")
+//    @Scheduled(cron = "0 30 * * * ?")
+    // 每30s执行一次
+//    @Scheduled(cron = "0/30 * * * * ?")
+    // 每3分钟执行一次
+    @Scheduled(cron = "0 0/3 * * * ?")
 //    @PostConstruct
     public void task() {
         String uuid= UUID.randomUUID().toString();
