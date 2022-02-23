@@ -1355,6 +1355,14 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                             cn.hutool.core.date.DateTime parse = DateUtil.parse(subValue, parsePatterns);
                             a.setSubValue(parse.toString(DatePattern.NORM_DATETIME_MINUTE_PATTERN));
                         }
+                        //两个终末期单病种新增患者姓名xm 上报前要改回去 DRGS_DPD
+                        if (qSingleDiseaseTake.getQuestionId().equals(128) && a.getSubColumnName().equals("xm")) {
+                            a.setSubColumnName("DPD-0-2-2");
+                        }
+                        if (qSingleDiseaseTake.getQuestionId().equals(244) && a.getSubColumnName().equals("xm")) {
+                            a.setSubColumnName("HD-0-2-1");
+                        }
+
                     }
                     if (a.getSubColumnName().equals("STK-9-1-7")) {
                         if (a.getSubValue().equals("a")) {
