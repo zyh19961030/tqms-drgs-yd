@@ -103,13 +103,13 @@ public class QSingleDiseaseTake {
 	@Excel(name = "不需要上报原因中的备注", width = 15)
 	@ApiModelProperty(value = "不需要上报原因中的备注")
 	private java.lang.String reportNoReasonNote;
-	/**医院科室id*/
-	@Excel(name = "医院科室id", width = 15)
-	@ApiModelProperty(value = "医院科室id")
+	/**医院his科室id*/
+	@Excel(name = "医院his科室id", width = 15)
+	@ApiModelProperty(value = "医院his科室id")
 	private java.lang.String departmentId;
-	/**医院科室名*/
-	@Excel(name = "医院科室名", width = 15)
-	@ApiModelProperty(value = "医院科室名")
+	/**医院his科室名*/
+	@Excel(name = "医院his科室名", width = 15)
+	@ApiModelProperty(value = "医院his科室名")
 	private java.lang.String department;
 	/**审核状态  0未审核  1已审核通过 2审核不通过*/
 	@Excel(name = "审核状态  0未审核  1已审核通过 2审核不通过", width = 15)

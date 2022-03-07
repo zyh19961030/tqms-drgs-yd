@@ -282,7 +282,7 @@
             resultType="java.lang.Integer">
         select count(1) from q_single_disease_take where out_time is not null and report_status!=0 and (status = 0 or status = 1)
         <if test="dept!=null and dept!=''">
-            and tqms_dept =#{dept}
+            and (tqms_dept =#{dept} or answer_deptid=#{dept})
         </if>
     </select>
 
@@ -291,7 +291,7 @@
             resultType="java.lang.Integer">
         select count(1) from q_single_disease_take where out_time is not null and report_status!=0 and (status = 3 or status = 7)
         <if test="dept!=null and dept!=''">
-            and tqms_dept =#{dept}
+            and (tqms_dept =#{dept} or answer_deptid=#{dept})
         </if>
     </select>
 
