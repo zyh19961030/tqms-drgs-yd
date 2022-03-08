@@ -254,11 +254,11 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             questionQueryWrapper.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
             questionQueryWrapper.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
             List<Question> questionList = questionMapper.selectList(questionQueryWrapper);
-            Map<String, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getTableName, Function.identity(), (oldData, newData) -> newData));
+            Map<String, Question> questionMap = questionList.stream().collect(Collectors.toMap(q-> q.getTableName().toLowerCase(), Function.identity(), (oldData, newData) -> newData));
             for (QSingleDiseaseTake qSingleDiseaseTake : qSingleDiseaseTakeList) {
                 String dynamicTableName = qSingleDiseaseTake.getDynamicTableName();
                 if(StringUtils.isNotBlank(dynamicTableName)){
-                    Question question = questionMap.get(dynamicTableName);
+                    Question question = questionMap.get(dynamicTableName.toLowerCase());
                     if(question!=null){
                         qSingleDiseaseTake.setQuestionId(question.getId());
                         qSingleDiseaseTake.setQuestionName(question.getQuName());
@@ -346,11 +346,11 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             questionQueryWrapper.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
             questionQueryWrapper.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
             List<Question> questionList = questionMapper.selectList(questionQueryWrapper);
-            Map<String, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getTableName, Function.identity(), (oldData, newData) -> newData));
+            Map<String, Question> questionMap = questionList.stream().collect(Collectors.toMap(q-> q.getTableName().toLowerCase(), Function.identity(), (oldData, newData) -> newData));
             for (QSingleDiseaseTake qSingleDiseaseTake : qSingleDiseaseTakeList) {
                 String dynamicTableName = qSingleDiseaseTake.getDynamicTableName();
                 if(StringUtils.isNotBlank(dynamicTableName)){
-                    Question question = questionMap.get(dynamicTableName);
+                    Question question = questionMap.get(dynamicTableName.toLowerCase());
                     if(question!=null){
                         qSingleDiseaseTake.setQuestionId(question.getId());
                         qSingleDiseaseTake.setQuestionName(question.getQuName());
@@ -472,11 +472,11 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             questionQueryWrapper.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
             questionQueryWrapper.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
             List<Question> questionList = questionMapper.selectList(questionQueryWrapper);
-            Map<String, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getTableName, Function.identity(), (oldData, newData) -> newData));
+            Map<String, Question> questionMap = questionList.stream().collect(Collectors.toMap(q-> q.getTableName().toLowerCase(), Function.identity(), (oldData, newData) -> newData));
             for (QSingleDiseaseTake qSingleDiseaseTake : qSingleDiseaseTakeList) {
                 String dynamicTableName = qSingleDiseaseTake.getDynamicTableName();
                 if (StringUtils.isNotBlank(dynamicTableName)) {
-                    Question question = questionMap.get(dynamicTableName);
+                    Question question = questionMap.get(dynamicTableName.toLowerCase());
                     if (question != null) {
                         qSingleDiseaseTake.setQuestionId(question.getId());
                         qSingleDiseaseTake.setQuestionName(question.getQuName());
