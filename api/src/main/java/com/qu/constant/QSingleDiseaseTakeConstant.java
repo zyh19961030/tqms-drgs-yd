@@ -1,8 +1,8 @@
 package com.qu.constant;
 
-import com.google.common.collect.Lists;
-
 import java.util.List;
+
+import com.google.common.collect.Lists;
 
 public class QSingleDiseaseTakeConstant {
 
@@ -22,6 +22,8 @@ public class QSingleDiseaseTakeConstant {
 	public static final Integer REPORT_STATUS_NO_NEED = 0;
 
 	public static final List<Integer> STATUS_REJECT_AND_COUNTRY_REJECT = Lists.newArrayList(3,7);
+
+	public static final List<Integer> STATUS_WAIT_WRITE_LIST = Lists.newArrayList(0,1);
 
 
 
