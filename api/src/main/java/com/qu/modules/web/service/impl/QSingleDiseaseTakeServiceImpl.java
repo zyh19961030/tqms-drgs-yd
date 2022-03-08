@@ -243,23 +243,31 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
         queryWrapper.orderByDesc("create_time");
         IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, queryWrapper);
-        for (QSingleDiseaseTake record : qSingleDiseaseTakeIPage.getRecords()) {
-            String dynamicTableName = record.getDynamicTableName();
-            if(StringUtils.isNotBlank(dynamicTableName)){
-                LambdaQueryWrapper<Question> questionQueryWrapper = new QueryWrapper<Question>().lambda();
-                questionQueryWrapper.in(Question::getTableName, dynamicTableName);
-//                questionQueryWrapper.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
-                questionQueryWrapper.eq(Question::getQuStop,QuestionConstant.QU_STOP_NORMAL);
-                questionQueryWrapper.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
-                questionQueryWrapper.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
-                Question question = questionMapper.selectOne(questionQueryWrapper);
-                record.setQuestionId(question.getId());
-                record.setQuestionName(question.getQuName());
+
+        List<QSingleDiseaseTake> qSingleDiseaseTakeList = qSingleDiseaseTakeIPage.getRecords();
+        List<String> dynamicTableNameList = qSingleDiseaseTakeList.stream().map(QSingleDiseaseTake::getDynamicTableName).distinct().collect(Collectors.toList());
+        if(!dynamicTableNameList.isEmpty()){
+            LambdaQueryWrapper<Question> questionQueryWrapper = new QueryWrapper<Question>().lambda();
+            questionQueryWrapper.in(Question::getTableName, dynamicTableNameList);
+            //                questionQueryWrapper.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+            questionQueryWrapper.eq(Question::getQuStop,QuestionConstant.QU_STOP_NORMAL);
+            questionQueryWrapper.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+            questionQueryWrapper.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+            List<Question> questionList = questionMapper.selectList(questionQueryWrapper);
+            Map<String, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getTableName, Function.identity(), (oldData, newData) -> newData));
+            for (QSingleDiseaseTake qSingleDiseaseTake : qSingleDiseaseTakeList) {
+                String dynamicTableName = qSingleDiseaseTake.getDynamicTableName();
+                if(StringUtils.isNotBlank(dynamicTableName)){
+                    Question question = questionMap.get(dynamicTableName);
+                    if(question!=null){
+                        qSingleDiseaseTake.setQuestionId(question.getId());
+                        qSingleDiseaseTake.setQuestionName(question.getQuName());
+                    }
+                }
             }
         }
-
         qsubjectlibPageVo.setTotal(qSingleDiseaseTakeIPage.getTotal());
-        qsubjectlibPageVo.setQSingleDiseaseTakeList(qSingleDiseaseTakeIPage.getRecords());
+        qsubjectlibPageVo.setQSingleDiseaseTakeList(qSingleDiseaseTakeList);
         return qsubjectlibPageVo;
     }
 
@@ -328,24 +336,32 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         queryWrapper.orderByDesc(QSingleDiseaseTake::getCreateTime);
         IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, queryWrapper);
 
-        for (QSingleDiseaseTake record : qSingleDiseaseTakeIPage.getRecords()) {
-            String dynamicTableName = record.getDynamicTableName();
-            if(StringUtils.isNotBlank(dynamicTableName)){
-                LambdaQueryWrapper<Question> questionQueryWrapper = new QueryWrapper<Question>().lambda();
-                questionQueryWrapper.in(Question::getTableName, dynamicTableName);
-//                questionQueryWrapper.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
-                questionQueryWrapper.eq(Question::getQuStop,QuestionConstant.QU_STOP_NORMAL);
-                questionQueryWrapper.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
-                questionQueryWrapper.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
-                Question question = questionMapper.selectOne(questionQueryWrapper);
-
-                record.setQuestionId(question.getId());
-                record.setQuestionName(question.getQuName());
+        List<QSingleDiseaseTake> qSingleDiseaseTakeList = qSingleDiseaseTakeIPage.getRecords();
+        List<String> dynamicTableNameList = qSingleDiseaseTakeList.stream().map(QSingleDiseaseTake::getDynamicTableName).distinct().collect(Collectors.toList());
+        if(!dynamicTableNameList.isEmpty()){
+            LambdaQueryWrapper<Question> questionQueryWrapper = new QueryWrapper<Question>().lambda();
+            questionQueryWrapper.in(Question::getTableName, dynamicTableNameList);
+            //                questionQueryWrapper.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+            questionQueryWrapper.eq(Question::getQuStop,QuestionConstant.QU_STOP_NORMAL);
+            questionQueryWrapper.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+            questionQueryWrapper.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+            List<Question> questionList = questionMapper.selectList(questionQueryWrapper);
+            Map<String, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getTableName, Function.identity(), (oldData, newData) -> newData));
+            for (QSingleDiseaseTake qSingleDiseaseTake : qSingleDiseaseTakeList) {
+                String dynamicTableName = qSingleDiseaseTake.getDynamicTableName();
+                if(StringUtils.isNotBlank(dynamicTableName)){
+                    Question question = questionMap.get(dynamicTableName);
+                    if(question!=null){
+                        qSingleDiseaseTake.setQuestionId(question.getId());
+                        qSingleDiseaseTake.setQuestionName(question.getQuName());
+                    }
+                }
             }
         }
+
         QSingleDiseaseTakeByDoctorPageVo qsubjectlibPageVo = new QSingleDiseaseTakeByDoctorPageVo();
         qsubjectlibPageVo.setTotal(qSingleDiseaseTakeIPage.getTotal());
-        qsubjectlibPageVo.setQSingleDiseaseTakeList(qSingleDiseaseTakeIPage.getRecords());
+        qsubjectlibPageVo.setQSingleDiseaseTakeList(qSingleDiseaseTakeList);
         return qsubjectlibPageVo;
     }
 
@@ -442,13 +458,36 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         //todo  添加科室操作---
         if (StringUtils.isNotBlank(deptId)) {
 //            queryWrapper.in("tqms_dept", deptId);
-            queryWrapper.and(w->w.eq("answer_deptid", deptId).or().eq("tqms_dept", deptId));
+            queryWrapper.and(w -> w.eq("answer_deptid", deptId).or().eq("tqms_dept", deptId));
         }
         queryWrapper.orderByDesc("create_time");
         IPage<QSingleDiseaseTake> qSingleDiseaseTakeIPage = this.page(page, queryWrapper);
+        List<QSingleDiseaseTake> qSingleDiseaseTakeList = qSingleDiseaseTakeIPage.getRecords();
+        List<String> dynamicTableNameList = qSingleDiseaseTakeList.stream().map(QSingleDiseaseTake::getDynamicTableName).distinct().collect(Collectors.toList());
+        if (!dynamicTableNameList.isEmpty()) {
+            LambdaQueryWrapper<Question> questionQueryWrapper = new QueryWrapper<Question>().lambda();
+            questionQueryWrapper.in(Question::getTableName, dynamicTableNameList);
+//                questionQueryWrapper.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+            questionQueryWrapper.eq(Question::getQuStop, QuestionConstant.QU_STOP_NORMAL);
+            questionQueryWrapper.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+            questionQueryWrapper.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
+            List<Question> questionList = questionMapper.selectList(questionQueryWrapper);
+            Map<String, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getTableName, Function.identity(), (oldData, newData) -> newData));
+            for (QSingleDiseaseTake qSingleDiseaseTake : qSingleDiseaseTakeList) {
+                String dynamicTableName = qSingleDiseaseTake.getDynamicTableName();
+                if (StringUtils.isNotBlank(dynamicTableName)) {
+                    Question question = questionMap.get(dynamicTableName);
+                    if (question != null) {
+                        qSingleDiseaseTake.setQuestionId(question.getId());
+                        qSingleDiseaseTake.setQuestionName(question.getQuName());
+                    }
+                }
+            }
+        }
+
         QSingleDiseaseTakeByDoctorPageVo qsubjectlibPageVo = new QSingleDiseaseTakeByDoctorPageVo();
         qsubjectlibPageVo.setTotal(qSingleDiseaseTakeIPage.getTotal());
-        qsubjectlibPageVo.setQSingleDiseaseTakeList(qSingleDiseaseTakeIPage.getRecords());
+        qsubjectlibPageVo.setQSingleDiseaseTakeList(qSingleDiseaseTakeList);
         return qsubjectlibPageVo;
     }
 
