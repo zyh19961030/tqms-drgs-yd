@@ -70,7 +70,7 @@ public class AnswerController {
     @GetMapping(value = "/queryById")
     public Result<Answer> queryById(@RequestParam(name = "id", required = true) String id) {
         Result<Answer> result = new Result<Answer>();
-        Answer answer = answerService.getById(id);
+        Answer answer = answerService.queryById(id);
         if (answer == null) {
             result.error500("未找到对应实体");
         } else {

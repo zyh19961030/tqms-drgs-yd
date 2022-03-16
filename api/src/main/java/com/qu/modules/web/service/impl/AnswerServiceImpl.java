@@ -16,10 +16,7 @@ import com.qu.modules.web.mapper.AnswerMapper;
 import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.AnswerMonthQuarterYearSubmitParam;
-import com.qu.modules.web.param.AnswerParam;
-import com.qu.modules.web.param.AnswerPatientSubmitParam;
-import com.qu.modules.web.param.Answers;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IAnswerService;
 import com.qu.modules.web.vo.*;
@@ -34,10 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -535,5 +529,59 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         answer.setDel(AnswerConstant.DEL_DELETED);
         answerMapper.updateById(answer);
         return true;
+    }
+
+    @Override
+    public Answer queryById(String id) {
+        Answer answer = this.getById(id);
+        if (answer == null) {
+            return null;
+        }
+
+        String answerJson = (String) answer.getAnswerJson();
+        List<SingleDiseaseAnswer> singleDiseaseAnswerList = JSON.parseArray(answerJson, SingleDiseaseAnswer.class);
+        Map<String, SingleDiseaseAnswer> mapCache = new HashMap<>();
+        if(singleDiseaseAnswerList!=null && !singleDiseaseAnswerList.isEmpty()){
+            for (SingleDiseaseAnswer a : singleDiseaseAnswerList) {
+                mapCache.put(a.getSubColumnName(), a);
+            }
+        }
+        Question question = questionMapper.selectById(answer.getQuId());
+
+        StringBuffer sqlAns = new StringBuffer();
+        if (question != null) {
+            sqlAns.append("select * from `");
+            sqlAns.append(question.getTableName());
+            sqlAns.append("` where summary_mapping_table_id ='");
+            sqlAns.append(answer.getSummaryMappingTableId());
+            sqlAns.append("'");
+            Map<String,String> map = dynamicTableMapper.selectDynamicTableColumn(sqlAns.toString());
+//            String s = "select * from q_single_disease_take where id =20 ";
+//            Map<String, String> map = dynamicTableMapper.selectDynamicTableColumn(s);
+            if(map==null){
+                return answer;
+            }
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                QueryWrapper<Qsubject> wrapper = new QueryWrapper<Qsubject>();
+                if("id".equals(entry.getKey())){
+                    continue;
+                }
+                wrapper.eq("column_name", entry.getKey());
+                wrapper.eq("qu_id", question.getId());
+                wrapper.eq("del", "0");
+                Qsubject qsubject = qsubjectMapper.selectOne(wrapper);
+                if(qsubject==null){
+                    continue;
+                }
+                SingleDiseaseAnswer singleDiseaseAnswer = new SingleDiseaseAnswer();
+                singleDiseaseAnswer.setSubColumnName(qsubject.getColumnName());
+                singleDiseaseAnswer.setSubValue(String.valueOf(entry.getValue()));
+                mapCache.put(qsubject.getColumnName(), singleDiseaseAnswer);
+            }
+            List<SingleDiseaseAnswer> resList = new ArrayList<>(mapCache.values());
+            answer.setAnswerJson( JSON.toJSONString(resList));
+        }
+
+        return answer;
     }
 }

@@ -35,4 +35,5 @@ public interface IAnswerService extends IService<Answer> {
 
     boolean patientMonthQuarterYearFillingInDelete(Integer id);
 
+    Answer queryById(String id);
 }
