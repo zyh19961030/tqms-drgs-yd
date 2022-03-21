@@ -360,7 +360,11 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
     public AnswerPatientFillingInAndSubmitPageVo patientSubmitList(String deptId, AnswerPatientSubmitParam answerPatientSubmitParam, Integer pageNo, Integer pageSize) {
         Page<Answer> page = new Page<>(pageNo, pageSize);
         LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
-        lambda.like(Answer::getCreaterDeptid,deptId);
+        //院领导和质控办放开查询的权限
+        log.info("-----查询的科室ID{}", deptId);
+        if(!"341f22af7cd148c9813e53496969032a".equals(deptId)&&!"c9f3d69323e84f019bb77207b72f5c85".equals(deptId)){
+            lambda.like(Answer::getCreaterDeptid,deptId);
+        }
         lambda.eq(Answer::getAnswerStatus,AnswerConstant.ANSWER_STATUS_RELEASE);
         lambda.eq(Answer::getDel,AnswerConstant.DEL_NORMAL);
 
@@ -457,7 +461,11 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
                                                                                      Integer pageNo, Integer pageSize) {
         Page<Answer> page = new Page<>(pageNo, pageSize);
         LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
-        lambda.like(Answer::getCreaterDeptid,deptId);
+        //院领导和质控办放开查询的权限
+        log.info("-----查询的科室ID{}", deptId);
+        if(!"341f22af7cd148c9813e53496969032a".equals(deptId)&&!"c9f3d69323e84f019bb77207b72f5c85".equals(deptId)){
+            lambda.like(Answer::getCreaterDeptid,deptId);
+        }
         lambda.eq(Answer::getAnswerStatus,AnswerConstant.ANSWER_STATUS_RELEASE);
         lambda.eq(Answer::getDel,AnswerConstant.DEL_NORMAL);
 
@@ -499,6 +507,8 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
     }
 
     private AnswerMonthQuarterYearFillingInAndSubmitPageVo getAnswerMonthQuarterYearFillingInAndSubmitPageVo(Page<Answer> page, LambdaQueryWrapper<Answer> lambda) {
+        //定期汇总登记表中要排除系统中转表
+        lambda.notIn(Answer::getQuId,248);
         AnswerMonthQuarterYearFillingInAndSubmitPageVo res = new AnswerMonthQuarterYearFillingInAndSubmitPageVo();
         IPage<Answer> answerIPage = this.page(page, lambda);
         List<Answer> questions = answerIPage.getRecords();
