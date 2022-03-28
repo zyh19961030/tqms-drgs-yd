@@ -16,7 +16,7 @@
         <if test="deptShow !=null and deptShow==1 ">
             tqms_dept_name dept,
         </if>
-        count(1) inHospitalCount
+        count(1) inHospitalCount,category_id categoryId
         FROM `q_single_disease_take`
         <where>
             <if test="categoryId!=null and categoryId!=''">
@@ -48,7 +48,7 @@
 
     <!--<select id="allSingleDiseaseReportStatistic" parameterType="java.lang.String" resultType="map">-->
     <select id="allSingleDiseaseReportStatistic" parameterType="java.lang.String" resultType="com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo">
-    <include refid="reportStatisticCount"></include> limit #{startRow},#{pageSize}
+        <include refid="reportStatisticCount"></include> limit #{startRow},#{pageSize}
     </select>
 
     <select id="countSql" parameterType="map" resultType="java.lang.Integer">

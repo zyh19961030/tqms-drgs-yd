@@ -610,7 +610,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         for (int i = 0; i < allSingleDiseaseReportStatisticList.size(); i++) {
             QSingleDiseaseTakeReportStatisticVo qSingleDiseaseTakeReportStatisticVo = allSingleDiseaseReportStatisticList.get(i);
             Map<String, Object> countParams = new HashMap<>();
-            countParams.put("categoryId", qSingleDiseaseTakeReportStatisticParam.getCategoryId());
+            countParams.put("categoryId", qSingleDiseaseTakeReportStatisticVo.getCategoryId());
             countParams.put("dept", qSingleDiseaseTakeReportStatisticVo.getDept());
             countParams.put("status", QSingleDiseaseTakeConstant.STATUS_NO_NEED);
             countParams.put("dateType", dateType);
