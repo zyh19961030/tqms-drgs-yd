@@ -1,13 +1,21 @@
 package com.qu.modules.web.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.qu.modules.web.entity.QSingleDiseaseTake;
-import com.qu.modules.web.vo.*;
-import org.apache.ibatis.annotations.Param;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.qu.modules.web.entity.QSingleDiseaseTake;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptPermutationVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewLineVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewPieVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticSummaryVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticTrendVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo;
+import com.qu.modules.web.vo.ReportFailureRecordVo;
 
 /**
  * @Description: 单病种总表
@@ -17,7 +25,7 @@ import java.util.Map;
  */
 public interface QSingleDiseaseTakeMapper extends BaseMapper<QSingleDiseaseTake> {
 
-    List<QSingleDiseaseTakeVo> singleDiseaseList(@Param("name") String name);
+    /*List<QSingleDiseaseTakeVo> singleDiseaseList(@Param("name") String name);*/
 
     Integer allSingleDiseaseReportStatisticCount(Map<String, Object> params);
 
