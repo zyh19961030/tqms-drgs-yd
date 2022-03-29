@@ -58,7 +58,7 @@
                 and category_id =#{categoryId}
             </if>
             <if test="dept!=null and dept!=''">
-                and tqms_dept =#{dept}
+                and tqms_dept_name =#{dept}
             </if>
             <if test="status!=null">
                 and status=#{status}
