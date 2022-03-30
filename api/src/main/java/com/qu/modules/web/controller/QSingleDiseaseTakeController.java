@@ -1,31 +1,71 @@
 package com.qu.modules.web.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.google.common.collect.Lists;
-import com.qu.constant.Constant;
-import com.qu.constant.QSingleDiseaseTakeConstant;
-import com.qu.modules.web.param.*;
-import com.qu.modules.web.pojo.Data;
-import com.qu.modules.web.pojo.Deps;
-import com.qu.modules.web.service.IQSingleDiseaseTakeService;
-import com.qu.modules.web.vo.*;
-import com.qu.util.DeptUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import lombok.extern.slf4j.Slf4j;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultFactory;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.qu.constant.Constant;
+import com.qu.constant.QSingleDiseaseTakeConstant;
+import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticDeptPermutationParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewLineParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewPieParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticSummaryParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisParam;
+import com.qu.modules.web.param.SingleDiseaseAnswerNavigationParam;
+import com.qu.modules.web.param.SingleDiseaseAnswerParam;
+import com.qu.modules.web.param.SingleDiseaseExamineRecordParam;
+import com.qu.modules.web.param.SingleDiseaseRejectParam;
+import com.qu.modules.web.param.SingleDiseaseWaitUploadParam;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.pojo.Deps;
+import com.qu.modules.web.service.IQSingleDiseaseTakeService;
+import com.qu.modules.web.vo.QSingleDiseaseNameVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptPermutationVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewLineVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewPieVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticSummaryVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticTrendVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticAnalysisTableVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticAnalysisVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDepartmentComparisonVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
+import com.qu.modules.web.vo.ReportFailureRecordParameterPageVo;
+import com.qu.modules.web.vo.ReportFailureRecordParameterVo;
+import com.qu.modules.web.vo.SingleDiseaseAnswerNavigationVo;
+import com.qu.modules.web.vo.SingleDiseaseReportCountVo;
+import com.qu.modules.web.vo.WorkbenchReminderVo;
+import com.qu.util.DeptUtil;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: 单病种总表
@@ -335,19 +375,69 @@ public class QSingleDiseaseTakeController {
     @AutoLog(value = "全院单病种上报数量统计-点击某个病种-统计分析")
     @ApiOperation(value = "全院单病种上报数量统计-点击某个病种-统计分析", notes = "全院单病种上报数量统计-点击某个病种-统计分析", response = QSingleDiseaseTakeStatisticAnalysisVo.class)
     @GetMapping(value = "/singleDiseaseStatisticAnalysis")
-    public Result<QSingleDiseaseTakeStatisticAnalysisVo> singleDiseaseStatisticAnalysis(@Validated QSingleDiseaseTakeStatisticAnalysisParam qSingleDiseaseTakeStatisticAnalysisParam) {
+    public Result<QSingleDiseaseTakeStatisticAnalysisTableVo> singleDiseaseStatisticAnalysis(@Validated QSingleDiseaseTakeStatisticAnalysisParam qSingleDiseaseTakeStatisticAnalysisParam) {
 
-        Result<QSingleDiseaseTakeStatisticAnalysisVo> result = new Result<>();
+        Result<QSingleDiseaseTakeStatisticAnalysisTableVo> result = new Result<>();
 //        QSingleDiseaseTakeStatisticAnalysisVo list = qSingleDiseaseTakeService.allSingleDiseaseReportStatistic(qSingleDiseaseTakeReportStatisticParam, pageNo, pageSize);
         ArrayList<QSingleDiseaseTakeStatisticAnalysisVo> list = Lists.newArrayList();
         for (int i = 0; i < 6; i++) {
-            QSingleDiseaseTakeStatisticAnalysisVo build = QSingleDiseaseTakeStatisticAnalysisVo.builder().categoryId("11111").yearMonth(String.format("2022年%s月",i+1)).completeReportCountryCount(2)
-                    .averageInHospitalDay(new BigDecimal("28593.26")).averageInHospitalFee(new BigDecimal("894564.26")).mortality("0.57%").complicationRate("1.21%").build();
+            QSingleDiseaseTakeStatisticAnalysisVo build = QSingleDiseaseTakeStatisticAnalysisVo.builder().categoryId("11111").yearMonth(String.format("2022年%s月",i+1)).completeReportCountryCount(2+i)
+                    .averageInHospitalDay(new BigDecimal("28593.26").add(new BigDecimal(i))).averageInHospitalFee(new BigDecimal("894564.26").add(new BigDecimal(i)))
+                    .mortality(String.format("0.5%s%%",i)).complicationRate(String.format("1.2%s%%",i)).build();
             list.add(build);
         }
 
+
+        List<LinkedHashMap<String,String>> fieldItems = Lists.newArrayList();
+        LinkedHashMap<String, String> fieldItem = Maps.newLinkedHashMap();
+        fieldItems.add(fieldItem);
+        fieldItem.put("fieldTxt","name1");
+
+        List<LinkedHashMap<String,String>> singleDataList = Lists.newArrayList();
+        LinkedHashMap<String, String> singleData = Maps.newLinkedHashMap();
+        singleDataList.add(singleData);
+        singleData.put("name1","上报例数");
+        LinkedHashMap<String, String> singleData2 = Maps.newLinkedHashMap();
+        singleDataList.add(singleData2);
+        singleData2.put("name1","平均住院日");
+        LinkedHashMap<String, String> singleData3 = Maps.newLinkedHashMap();
+        singleDataList.add(singleData3);
+        singleData3.put("name1","平均住院费用");
+        LinkedHashMap<String, String> singleData4 = Maps.newLinkedHashMap();
+        singleDataList.add(singleData4);
+        singleData4.put("name1","死亡率");
+        LinkedHashMap<String, String> singleData5 = Maps.newLinkedHashMap();
+        singleDataList.add(singleData5);
+        singleData5.put("name1","手术并发症发生率");
+
+        for (int i = 0; i < list.size(); i++) {
+            QSingleDiseaseTakeStatisticAnalysisVo qSingleDiseaseTakeStatisticAnalysisVo = list.get(i);
+            LinkedHashMap<String, String> fieldItemTemp = Maps.newLinkedHashMap();
+            fieldItems.add(fieldItemTemp);
+            fieldItemTemp.put("fieldTxt",qSingleDiseaseTakeStatisticAnalysisVo.getYearMonth());
+
+            for (int j = 0; j < singleDataList.size(); j++) {
+                LinkedHashMap<String, String> stringStringLinkedHashMap = singleDataList.get(j);
+                if(j==0){
+                    stringStringLinkedHashMap.put(qSingleDiseaseTakeStatisticAnalysisVo.getYearMonth(),String.valueOf(qSingleDiseaseTakeStatisticAnalysisVo.getCompleteReportCountryCount()));
+                }else if(j==1){
+                    stringStringLinkedHashMap.put(qSingleDiseaseTakeStatisticAnalysisVo.getYearMonth(),String.valueOf(qSingleDiseaseTakeStatisticAnalysisVo.getAverageInHospitalDay()));
+                }else if(j==2){
+                    stringStringLinkedHashMap.put(qSingleDiseaseTakeStatisticAnalysisVo.getYearMonth(),String.valueOf(qSingleDiseaseTakeStatisticAnalysisVo.getAverageInHospitalFee()));
+                }else if(j==3){
+                    stringStringLinkedHashMap.put(qSingleDiseaseTakeStatisticAnalysisVo.getYearMonth(),String.valueOf(qSingleDiseaseTakeStatisticAnalysisVo.getMortality()));
+                }else if(j==4){
+                    stringStringLinkedHashMap.put(qSingleDiseaseTakeStatisticAnalysisVo.getYearMonth(),String.valueOf(qSingleDiseaseTakeStatisticAnalysisVo.getComplicationRate()));
+                }
+            }
+
+
+
+        }
+
+        QSingleDiseaseTakeStatisticAnalysisTableVo build = QSingleDiseaseTakeStatisticAnalysisTableVo.builder().fieldItems(fieldItems).singleDataList(singleDataList).build();
         result.setSuccess(true);
-        result.setResult(list);
+        result.setResult(build);
         return result;
     }
 
