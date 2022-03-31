@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -15,14 +17,13 @@ import lombok.NoArgsConstructor;
 public class QSingleDiseaseTakeStatisticDepartmentComparisonChartVo {
 
 
+
     @ApiModelProperty(value = "年月")
     private String yearMonth;
 
-    @ApiModelProperty(value = "科室名称")
-    private String deptName;
 
-    @ApiModelProperty(value = "数据")
-    private String number;
+    @ApiModelProperty(value = "年月")
+    private List<QSingleDiseaseTakeStatisticDepartmentComparisonChartInDeptVo> deptList;
 
 
 }

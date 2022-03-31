@@ -477,15 +477,21 @@ public class QSingleDiseaseTakeController {
      * 全院单病种上报数量统计-点击某个病种-科室对比-五个图表-五个图表
      */
     @AutoLog(value = "全院单病种上报数量统计-点击某个病种-科室对比-五个图表")
-    @ApiOperation(value = "全院单病种上报数量统计-点击某个病种-科室对比-五个图表", notes = "全院单病种上报数量统计-点击某个病种-科室对比-五个图表",response = QSingleDiseaseTakeStatisticDepartmentComparisonVo.class)
+    @ApiOperation(value = "全院单病种上报数量统计-点击某个病种-科室对比-五个图表", notes = "全院单病种上报数量统计-点击某个病种-科室对比-五个图表",response = QSingleDiseaseTakeStatisticDepartmentComparisonChartVo.class)
     @GetMapping(value = "/singleDiseaseStatisticDepartmentComparisonChart")
     public Result<QSingleDiseaseTakeStatisticDepartmentComparisonChartVo> singleDiseaseStatisticDepartmentComparisonChart(@Validated QSingleDiseaseTakeStatisticDepartmentComparisonChartParam qSingleDiseaseTakeStatisticDepartmentComparisonChartParam) {
         Result<QSingleDiseaseTakeStatisticDepartmentComparisonChartVo> result = new Result<>();
 //        QSingleDiseaseTakeReportStatisticPageVo list = qSingleDiseaseTakeService.allSingleDiseaseReportStatistic(qSingleDiseaseTakeReportStatisticParam, pageNo, pageSize);
         ArrayList<QSingleDiseaseTakeStatisticDepartmentComparisonChartVo> list = Lists.newArrayList();
         for (int i = 0; i < 8; i++) {
+            ArrayList<QSingleDiseaseTakeStatisticDepartmentComparisonChartInDeptVo> objects = Lists.newArrayList();
+            for (int j = 0; j < 5; j++) {
+                QSingleDiseaseTakeStatisticDepartmentComparisonChartInDeptVo build = QSingleDiseaseTakeStatisticDepartmentComparisonChartInDeptVo.builder().deptName("科室" + j).number(new BigDecimal(j + "3").toPlainString()).build();
+                objects.add(build);
+            }
             QSingleDiseaseTakeStatisticDepartmentComparisonChartVo build = QSingleDiseaseTakeStatisticDepartmentComparisonChartVo.builder()
-                    .deptName("内科").yearMonth(String.format("2022年%s月",i+1)).number(new BigDecimal(i + "3").toPlainString())
+                    .yearMonth(String.format("2022年%s月",i+1))
+                    .deptList(objects)
                     .build();
             list.add(build);
         }
