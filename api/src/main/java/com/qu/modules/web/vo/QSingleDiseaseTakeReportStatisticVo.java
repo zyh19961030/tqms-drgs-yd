@@ -58,4 +58,9 @@ public class QSingleDiseaseTakeReportStatisticVo {
     private BigDecimal averageOperationFee;
     @ApiModelProperty(value = "平均一次性耗材费")
     private BigDecimal averageDisposableConsumableFee;
+    @ApiModelProperty(value = "死亡率")
+    private String mortality="0.12%";
+    @ApiModelProperty(value = "手术并发症发生率")
+    private String operationComplicationRate="0.25%";
+
 }
