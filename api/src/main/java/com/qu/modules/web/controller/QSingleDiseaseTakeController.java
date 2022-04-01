@@ -1,82 +1,36 @@
 package com.qu.modules.web.controller;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.jeecg.common.aspect.annotation.AutoLog;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.qu.constant.Constant;
 import com.qu.constant.QSingleDiseaseTakeConstant;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeNumberListParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportQuantityRankingParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticDeptPermutationParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewLineParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewPieParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticSummaryParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticDepartmentComparisonChartParam;
-import com.qu.modules.web.param.SingleDiseaseAnswerNavigationParam;
-import com.qu.modules.web.param.SingleDiseaseAnswerParam;
-import com.qu.modules.web.param.SingleDiseaseExamineRecordParam;
-import com.qu.modules.web.param.SingleDiseaseRejectParam;
-import com.qu.modules.web.param.SingleDiseaseWaitUploadParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.pojo.Deps;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
-import com.qu.modules.web.vo.QSingleDiseaseNameVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeNumberListVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportQuantityRankingVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptPermutationVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewLineVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewPieVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticSummaryVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticTrendVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticAnalysisTableVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticAnalysisVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDepartmentComparisonChartInDeptVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDepartmentComparisonChartVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDepartmentComparisonVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
-import com.qu.modules.web.vo.ReportFailureRecordParameterPageVo;
-import com.qu.modules.web.vo.ReportFailureRecordParameterVo;
-import com.qu.modules.web.vo.SingleDiseaseAnswerNavigationVo;
-import com.qu.modules.web.vo.SingleDiseaseReportCountVo;
-import com.qu.modules.web.vo.WorkbenchReminderVo;
+import com.qu.modules.web.vo.*;
 import com.qu.util.DeptUtil;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.aspect.annotation.AutoLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 单病种总表
@@ -508,7 +462,7 @@ public class QSingleDiseaseTakeController {
 //        QSingleDiseaseTakeReportStatisticPageVo list = qSingleDiseaseTakeService.allSingleDiseaseReportStatistic(qSingleDiseaseTakeReportStatisticParam, pageNo, pageSize);
         ArrayList<QSingleDiseaseTakeStatisticDepartmentComparisonVo> list = Lists.newArrayList();
         for (int i = 0; i < 8; i++) {
-            QSingleDiseaseTakeStatisticDepartmentComparisonVo build = QSingleDiseaseTakeStatisticDepartmentComparisonVo.builder().deptName("内科").needWriteCount(20).completeWriteCount(2).notWriteCount(18).completeReportCountryRate("5.26%")
+            QSingleDiseaseTakeStatisticDepartmentComparisonVo build = QSingleDiseaseTakeStatisticDepartmentComparisonVo.builder().deptName("内科"+i).needWriteCount(20).completeWriteCount(2).notWriteCount(18).completeReportCountryRate("5.26%")
                     .averageInHospitalDay(new BigDecimal("28593.26")).averageInHospitalFee(new BigDecimal("894564.26")).complicationRate("1.21%").mortality("0.57%")
                     .averageDrugFee(new BigDecimal("1856.12")).averageOperationFee(new BigDecimal("9856.12")).averageDisposableConsumableFee(new BigDecimal("1586.82"))
                     .build();
@@ -552,8 +506,8 @@ public class QSingleDiseaseTakeController {
     @AutoLog(value = "菜单-科室单病种上报例数列表")
     @ApiOperation(value = "菜单-科室单病种上报例数列表", notes = "菜单-科室单病种上报例数列表",response = QSingleDiseaseTakeStatisticDepartmentComparisonVo.class)
     @GetMapping(value = "/deptSingleDiseaseNumberList")
-    public Result<QSingleDiseaseTakeNumberListVo> deptSingleDiseaseNumberList(@Validated QSingleDiseaseTakeNumberListParam qSingleDiseaseTakeNumberListParam) {
-        Result<QSingleDiseaseTakeNumberListVo> result = new Result<>();
+    public Result<QSingleDiseaseTakeNumberVo> deptSingleDiseaseNumberList(@Validated QSingleDiseaseTakeNumberListParam qSingleDiseaseTakeNumberListParam) {
+        Result<QSingleDiseaseTakeNumberVo> result = new Result<>();
 //        QSingleDiseaseTakeReportStatisticPageVo list = qSingleDiseaseTakeService.allSingleDiseaseReportStatistic(qSingleDiseaseTakeReportStatisticParam, pageNo, pageSize);
         ArrayList<QSingleDiseaseTakeNumberListVo> list = Lists.newArrayList();
         for (int i = 0; i < 8; i++) {
@@ -576,13 +530,98 @@ public class QSingleDiseaseTakeController {
                     return qSingleDiseaseTakeNumberListVos;
                 },
                 (List<JSONObject> n1, List<JSONObject> n2) -> {
-            n1.addAll(n2);
-            return n1;
-        }));
+                    n1.addAll(n2);
+                    return n1;
+                }));
+        result.setSuccess(true);
+        result.setResult(resMap);
+        return result;
+    }
+
+    /**
+     * 菜单-科室单病种上报例数列表2
+     */
+    @AutoLog(value = "菜单-科室单病种上报例数列表2")
+    @ApiOperation(value = "菜单-科室单病种上报例数列表2", notes = "菜单-科室单病种上报例数列表2",response = QSingleDiseaseTakeStatisticDepartmentComparisonVo.class)
+    @GetMapping(value = "/deptSingleDiseaseNumberList2")
+    public Result<QSingleDiseaseTakeNumberListVo> deptSingleDiseaseNumberList2(@Validated QSingleDiseaseTakeNumberListParam qSingleDiseaseTakeNumberListParam) {
+        Result<QSingleDiseaseTakeNumberListVo> result = new Result<>();
+//        QSingleDiseaseTakeReportStatisticPageVo list = qSingleDiseaseTakeService.allSingleDiseaseReportStatistic(qSingleDiseaseTakeReportStatisticParam, pageNo, pageSize);
+        ArrayList<QSingleDiseaseTakeNumberListVo> list = Lists.newArrayList();
+        for (int i = 0; i < 8; i++) {
+            QSingleDiseaseTakeNumberListVo build = QSingleDiseaseTakeNumberListVo.builder()
+                    .deptName("内科").disease("病种"+i).number(new BigDecimal(i + "3").toPlainString())
+                    .build();
+            list.add(build);
+        }
+        for (int i = 0; i < 8; i++) {
+            QSingleDiseaseTakeNumberListVo build = QSingleDiseaseTakeNumberListVo.builder()
+                    .deptName("外科").disease("病种"+i).number(new BigDecimal(i + "6").toPlainString())
+                    .build();
+            list.add(build);
+        }
+//        Map<String, List<JSONObject>> resMap = list.stream().collect(Collectors.toMap(QSingleDiseaseTakeNumberListVo::getDeptName, q->{
+//                    JSONObject o = (JSONObject)JSON.toJSON(q);
+//                    o.remove("deptName");
+//                    ArrayList<JSONObject> qSingleDiseaseTakeNumberListVos = Lists.newArrayList();
+//                    qSingleDiseaseTakeNumberListVos.add(o);
+//                    return qSingleDiseaseTakeNumberListVos;
+//                },
+//                (List<JSONObject> n1, List<JSONObject> n2) -> {
+//            n1.addAll(n2);
+//            return n1;
+//        }));
 
 
         result.setSuccess(true);
-        result.setResult(resMap);
+        result.setResult(list);
+        return result;
+    }
+
+    /**
+     * 菜单-科室单病种上报例数列表3
+     */
+    @AutoLog(value = "菜单-科室单病种上报例数列表3")
+    @ApiOperation(value = "菜单-科室单病种上报例数列表3", notes = "菜单-科室单病种上报例数列表3",response = QSingleDiseaseTakeStatisticDepartmentComparisonVo.class)
+    @GetMapping(value = "/deptSingleDiseaseNumberList3")
+    public Result<QSingleDiseaseTakeNumberVo> deptSingleDiseaseNumberList3(@Validated QSingleDiseaseTakeNumberListParam qSingleDiseaseTakeNumberListParam) {
+        Result<QSingleDiseaseTakeNumberVo> result = new Result<>();
+//        QSingleDiseaseTakeReportStatisticPageVo list = qSingleDiseaseTakeService.allSingleDiseaseReportStatistic(qSingleDiseaseTakeReportStatisticParam, pageNo, pageSize);
+        ArrayList<QSingleDiseaseTakeNumberListVo> list = Lists.newArrayList();
+        for (int i = 0; i < 8; i++) {
+            QSingleDiseaseTakeNumberListVo build = QSingleDiseaseTakeNumberListVo.builder()
+                    .deptName("内科").disease("病种"+i).number(new BigDecimal(i + "3").toPlainString())
+                    .build();
+            list.add(build);
+        }
+        for (int i = 0; i < 8; i++) {
+            QSingleDiseaseTakeNumberListVo build = QSingleDiseaseTakeNumberListVo.builder()
+                    .deptName("外科").disease("病种"+i).number(new BigDecimal(i + "6").toPlainString())
+                    .build();
+            list.add(build);
+        }
+        Map<String, List<QSingleDiseaseTakeNumberListInDeptVo>> resMap = list.stream().collect(Collectors.toMap(QSingleDiseaseTakeNumberListVo::getDeptName, q->{
+                    QSingleDiseaseTakeNumberListInDeptVo build = QSingleDiseaseTakeNumberListInDeptVo.builder().disease(q.getDisease()).number(q.getNumber()).build();
+                    ArrayList<QSingleDiseaseTakeNumberListInDeptVo> qSingleDiseaseTakeNumberListVos = Lists.newArrayList();
+                    qSingleDiseaseTakeNumberListVos.add(build);
+                    return qSingleDiseaseTakeNumberListVos;
+                },
+                (List<QSingleDiseaseTakeNumberListInDeptVo> n1, List<QSingleDiseaseTakeNumberListInDeptVo> n2) -> {
+                    n1.addAll(n2);
+                    return n1;
+                }));
+
+        List<QSingleDiseaseTakeNumberVo> resList = Lists.newArrayList();
+        resMap.forEach((k,v)->{
+//            ArrayList<QSingleDiseaseTakeNumberListInDeptVo> objects = Lists.newArrayList();
+//            QSingleDiseaseTakeNumberListInDeptVo.builder().build()
+//            objects.add()
+            QSingleDiseaseTakeNumberVo build = QSingleDiseaseTakeNumberVo.builder().deptName(k).numberList(v).build();
+            resList.add(build);
+        });
+
+        result.setSuccess(true);
+        result.setResult(resList);
         return result;
     }
 

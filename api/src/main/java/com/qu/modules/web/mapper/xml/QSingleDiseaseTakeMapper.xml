@@ -19,8 +19,11 @@
         count(1) inHospitalCount,category_id categoryId
         FROM `q_single_disease_take`
         <where>
-            <if test="categoryId!=null and categoryId!=''">
-                and category_id =#{categoryId}
+            <if test="categoryId!=null and categoryId.length > 0">
+                and category_id in
+                <foreach close=")" collection="categoryId" item="listItem" open="(" separator=",">
+                    #{listItem}
+                </foreach>
             </if>
             <if test="dateType!=null">
                 and in_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
