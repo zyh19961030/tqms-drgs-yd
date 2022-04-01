@@ -504,7 +504,7 @@ public class QSingleDiseaseTakeController {
      * 菜单-科室单病种上报例数列表
      */
     @AutoLog(value = "菜单-科室单病种上报例数列表")
-    @ApiOperation(value = "菜单-科室单病种上报例数列表", notes = "菜单-科室单病种上报例数列表",response = QSingleDiseaseTakeStatisticDepartmentComparisonVo.class)
+    @ApiOperation(value = "菜单-科室单病种上报例数列表", notes = "菜单-科室单病种上报例数列表",response = QSingleDiseaseTakeNumberVo.class)
     @GetMapping(value = "/deptSingleDiseaseNumberList")
     public Result<QSingleDiseaseTakeNumberVo> deptSingleDiseaseNumberList(@Validated QSingleDiseaseTakeNumberListParam qSingleDiseaseTakeNumberListParam) {
         Result<QSingleDiseaseTakeNumberVo> result = new Result<>();
@@ -542,7 +542,7 @@ public class QSingleDiseaseTakeController {
      * 菜单-科室单病种上报例数列表2
      */
     @AutoLog(value = "菜单-科室单病种上报例数列表2")
-    @ApiOperation(value = "菜单-科室单病种上报例数列表2", notes = "菜单-科室单病种上报例数列表2",response = QSingleDiseaseTakeStatisticDepartmentComparisonVo.class)
+    @ApiOperation(value = "菜单-科室单病种上报例数列表2", notes = "菜单-科室单病种上报例数列表2",response = QSingleDiseaseTakeNumberListVo.class)
     @GetMapping(value = "/deptSingleDiseaseNumberList2")
     public Result<QSingleDiseaseTakeNumberListVo> deptSingleDiseaseNumberList2(@Validated QSingleDiseaseTakeNumberListParam qSingleDiseaseTakeNumberListParam) {
         Result<QSingleDiseaseTakeNumberListVo> result = new Result<>();
@@ -582,7 +582,7 @@ public class QSingleDiseaseTakeController {
      * 菜单-科室单病种上报例数列表3
      */
     @AutoLog(value = "菜单-科室单病种上报例数列表3")
-    @ApiOperation(value = "菜单-科室单病种上报例数列表3", notes = "菜单-科室单病种上报例数列表3",response = QSingleDiseaseTakeStatisticDepartmentComparisonVo.class)
+    @ApiOperation(value = "菜单-科室单病种上报例数列表3", notes = "菜单-科室单病种上报例数列表3",response = QSingleDiseaseTakeNumberVo.class)
     @GetMapping(value = "/deptSingleDiseaseNumberList3")
     public Result<QSingleDiseaseTakeNumberVo> deptSingleDiseaseNumberList3(@Validated QSingleDiseaseTakeNumberListParam qSingleDiseaseTakeNumberListParam) {
         Result<QSingleDiseaseTakeNumberVo> result = new Result<>();
