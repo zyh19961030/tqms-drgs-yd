@@ -10,6 +10,7 @@ import lombok.Data;
 @Data
 @ApiModel(value="全院单病种上报数量统计-点击某个病种-科室对比-五个图表入参", description="全院单病种上报数量统计-点击某个病种-科室对比-五个图表入参")
 public class QSingleDiseaseTakeStatisticDepartmentComparisonChartParam {
+    @NotBlank(message = "分类id(单病种)不能为空")
     @ApiModelProperty(value = "分类id")
     private String categoryId;
     @NotBlank(message = "图表类型不能为空")
