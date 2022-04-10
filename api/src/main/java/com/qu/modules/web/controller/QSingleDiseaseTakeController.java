@@ -390,7 +390,7 @@ public class QSingleDiseaseTakeController {
         ArrayList<QSingleDiseaseTakeStatisticAnalysisVo> list = Lists.newArrayList();
         for (int i = 0; i < 6; i++) {
             QSingleDiseaseTakeStatisticAnalysisVo build = QSingleDiseaseTakeStatisticAnalysisVo.builder().categoryId("11111").yearMonth(String.format("2022年%s月",i+1)).completeReportCountryCount(2+i)
-                    .averageInHospitalDay(new BigDecimal("28593.26").add(new BigDecimal(i))).averageInHospitalFee(new BigDecimal("894564.26").add(new BigDecimal(i)))
+                    .averageInHospitalDay(new BigDecimal(String.format("1%s.%s2",i,i+2)).add(new BigDecimal(i))).averageInHospitalFee(new BigDecimal("94564.26").add(new BigDecimal(i)))
                     .mortality(String.format("0.5%s%%",i)).complicationRate(String.format("1.2%s%%",i)).build();
             list.add(build);
         }
@@ -463,7 +463,7 @@ public class QSingleDiseaseTakeController {
         ArrayList<QSingleDiseaseTakeStatisticDepartmentComparisonVo> list = Lists.newArrayList();
         for (int i = 0; i < 8; i++) {
             QSingleDiseaseTakeStatisticDepartmentComparisonVo build = QSingleDiseaseTakeStatisticDepartmentComparisonVo.builder().deptName("内科"+i).needWriteCount(20).completeWriteCount(2).notWriteCount(18).completeReportCountryRate("5.26%")
-                    .averageInHospitalDay(new BigDecimal("28593.26")).averageInHospitalFee(new BigDecimal("894564.26")).complicationRate("1.21%").mortality("0.57%")
+                    .averageInHospitalDay(new BigDecimal(String.format("1%s.%s2",i,i+2)).add(new BigDecimal(i))).averageInHospitalFee(new BigDecimal("894564.26")).complicationRate("1.21%").mortality("0.57%")
                     .averageDrugFee(new BigDecimal("1856.12")).averageOperationFee(new BigDecimal("9856.12")).averageDisposableConsumableFee(new BigDecimal("1586.82"))
                     .build();
             list.add(build);
@@ -504,7 +504,7 @@ public class QSingleDiseaseTakeController {
      * 菜单-科室单病种上报例数列表
      */
     @AutoLog(value = "菜单-科室单病种上报例数列表")
-    @ApiOperation(value = "菜单-科室单病种上报例数列表", notes = "菜单-科室单病种上报例数列表",response = QSingleDiseaseTakeNumberVo.class)
+    @ApiOperation(value = "菜单-科室单病种上报例数列表", notes = "菜单-科室单病种上报例数列表")
     @GetMapping(value = "/deptSingleDiseaseNumberList")
     public Result<QSingleDiseaseTakeNumberVo> deptSingleDiseaseNumberList(@Validated QSingleDiseaseTakeNumberListParam qSingleDiseaseTakeNumberListParam) {
         Result<QSingleDiseaseTakeNumberVo> result = new Result<>();

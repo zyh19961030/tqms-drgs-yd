@@ -22,7 +22,7 @@ public class QSingleDiseaseTakeStatisticDepartmentComparisonChartVo {
     private String yearMonth;
 
 
-    @ApiModelProperty(value = "年月")
+    @ApiModelProperty(value = "数据")
     private List<QSingleDiseaseTakeStatisticDepartmentComparisonChartInDeptVo> deptList;
 
 
