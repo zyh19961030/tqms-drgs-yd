@@ -1,19 +1,16 @@
 package com.qu.modules.web.entity;
 
-import java.io.Serializable;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
+
+import java.util.Date;
 
 /**
  * @Description: 单病种统计表
@@ -52,6 +49,10 @@ public class QSingleDiseaseStatistic {
 	@Excel(name = "单病种名称", width = 15)
     @ApiModelProperty(value = "单病种名称")
 	private String singleDiseaseName;
+	/**动态创建表的表名*/
+	@Excel(name = "动态创建表的表名", width = 15)
+    @ApiModelProperty(value = "动态创建表的表名")
+	private String dynamicTableName;
 	/**科室id*/
 	@Excel(name = "科室id", width = 15)
     @ApiModelProperty(value = "科室id")

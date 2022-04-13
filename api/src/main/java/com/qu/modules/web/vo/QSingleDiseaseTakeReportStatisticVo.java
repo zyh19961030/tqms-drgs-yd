@@ -24,7 +24,7 @@ public class QSingleDiseaseTakeReportStatisticVo {
     private String disease;
     @ApiModelProperty(value = "科室名称,勾选显示科室返回有值,其它为空")
     private String dept;
-    @ApiModelProperty(value = "住院数")
+    @ApiModelProperty(value = "住院数")//todo-jbb 这个类需要处理
     private Integer  inHospitalCount;
     @ApiModelProperty(value = "无需填报数")
     private Integer noNeedWriteCount;

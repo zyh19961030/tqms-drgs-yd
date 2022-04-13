@@ -1,11 +1,13 @@
 package com.qu.modules.web.service.impl;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qu.modules.web.entity.QSingleDiseaseStatistic;
 import com.qu.modules.web.mapper.QSingleDiseaseStatisticMapper;
 import com.qu.modules.web.service.IQSingleDiseaseStatisticService;
+import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import java.util.Date;
 
 /**
  * @Description: 单病种统计表
@@ -18,6 +20,14 @@ public class QSingleDiseaseStatisticServiceImpl extends ServiceImpl<QSingleDisea
 
     @Override
     public void processData() {
+        Date date = this.baseMapper.selectMinOutTime();
+        DateTime dateTime = new DateTime(date);
+        DateTime startOfDay = dateTime.withTimeAtStartOfDay();
+        DateTime endDay = dateTime.plusMonths(1);
+
+
+
+
 
     }
 
