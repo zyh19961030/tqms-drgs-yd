@@ -1512,7 +1512,6 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 String singleDiseaseReportUrl1 = String.format(singleDiseaseReportUrl,quotaCategoryMap.get(qSingleDiseaseTake.getCategoryId()).getDiseaseType());
                 HttpData data = HttpData.instance();
                 data.setPostEntity(new StringEntity(JSON.toJSONString(mapCache), ContentType.APPLICATION_JSON));
-                mapCache.clear();
                 // 接口调用并返回结果
                 ResponseEntity responseEntity = null;
                 Integer id = qSingleDiseaseTake.getId();
