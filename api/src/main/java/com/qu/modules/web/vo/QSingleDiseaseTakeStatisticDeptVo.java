@@ -7,18 +7,25 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel(value = "单病种上报统计Vo", description = "单病种上报统计Vo")
-public class QSingleDiseaseTakeReportStatisticVo {
-    /*@ApiModelProperty(value = "问卷id")
-    private Integer questionId;*/
+public class QSingleDiseaseTakeStatisticDeptVo {
     @ApiModelProperty(value = "分类id")
     private String categoryId;
+    private String dynamicTableName;
     @ApiModelProperty(value = "病种名称")
     private String disease;
+    /**tqms的科室id*/
+    @ApiModelProperty(value = "tqms的科室id")
+    private String tqmsDept;
+    /**tqms科室名字*/
+    @ApiModelProperty(value = "tqms科室名字")
+    private String tqmsDeptName;
     /**需要上报数*/
     @ApiModelProperty(value = "需要上报数")
     private Integer needReportCount;
@@ -31,18 +38,18 @@ public class QSingleDiseaseTakeReportStatisticVo {
     @ApiModelProperty(value = "国家上报率")
     private String completeReportCountryRate;
     @ApiModelProperty(value = "平均住院日")
-    private String averageInHospitalDay;
+    private BigDecimal averageInHospitalDay;
     @ApiModelProperty(value = "平均住院费用")
-    private String averageInHospitalFee;
+    private BigDecimal averageInHospitalFee;
     @ApiModelProperty(value = "平均药品费用")
-    private String averageDrugFee;
+    private BigDecimal averageDrugFee;
     @ApiModelProperty(value = "平均手术治疗费")
-    private String averageOperationTreatmentFee;
+    private BigDecimal averageOperationTreatmentFee;
     @ApiModelProperty(value = "平均一次性耗材费")
-    private String averageDisposableConsumable;
+    private BigDecimal averageDisposableConsumable;
     @ApiModelProperty(value = "死亡率")
-    private String mortality;
+    private String mortality="0.12%";
     @ApiModelProperty(value = "手术并发症发生率")
-    private String operationComplicationRate;
+    private String operationComplicationRate="0.25%";
 
 }

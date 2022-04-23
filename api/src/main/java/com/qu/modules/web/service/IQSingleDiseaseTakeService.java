@@ -33,8 +33,6 @@ public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake>
 
     QSingleDiseaseTakeByDoctorPageVo singleDiseaseExamineRecordAllList(SingleDiseaseExamineRecordParam singleDiseaseExamineRecordParam, Integer pageNo, Integer pageSize);
 
-    QSingleDiseaseTakeReportStatisticPageVo allSingleDiseaseReportStatistic(QSingleDiseaseTakeReportStatisticParam qSingleDiseaseTakeReportStatisticParam, Integer pageNo, Integer pageSize);
-
     List<QSingleDiseaseTakeReportStatisticDeptVo> allSingleDiseaseReportStatisticDept();
 
     List<QSingleDiseaseTakeReportStatisticDeptVo> deptSingleDiseaseReportStatisticDept();

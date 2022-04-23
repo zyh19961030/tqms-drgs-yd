@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -16,5 +18,5 @@ public class QSingleDiseaseTakeReportQuantityRankingVo {
     @ApiModelProperty(value = "x轴病种")
     private String disease;
     @ApiModelProperty(value = "y轴数量")
-    private Integer number;
+    private BigDecimal number;
 }

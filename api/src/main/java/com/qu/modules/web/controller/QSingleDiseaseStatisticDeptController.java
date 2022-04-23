@@ -1,6 +1,6 @@
 package com.qu.modules.web.controller;
 
-import com.qu.modules.web.service.IQSingleDiseaseStatisticService;
+import com.qu.modules.web.service.IQSingleDiseaseStatisticDeptService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(tags="单病种统计表")
 @RestController
 @RequestMapping("/web/qSingleDiseaseStatistic")
-public class QSingleDiseaseStatisticController {
+public class QSingleDiseaseStatisticDeptController {
 	@Autowired
-	private IQSingleDiseaseStatisticService qSingleDiseaseStatisticService;
+	private IQSingleDiseaseStatisticDeptService qSingleDiseaseStatisticService;
 
 	/**
 	 * 整理数据
@@ -35,12 +35,13 @@ public class QSingleDiseaseStatisticController {
 	@AutoLog(value = "单病种统计表-处理数据")
 	@ApiOperation(value="单病种统计表-处理数据", notes="单病种统计表-处理数据")
 	@GetMapping(value = "/processData")
-	public Result<?> processData(@RequestParam(name="code",required=true) String code) {
+	public Result<?> processData(@RequestParam(name="code") String code,
+								 @RequestParam(name="startDate",required=false) String startDate,
+								 @RequestParam(name="endDate") String endDate) {
 		if(!"a11".equals(code)){
 			return ResultFactory.fail();
 		}
-		Result<?> result = new Result<>();
-		qSingleDiseaseStatisticService.processData();
+		qSingleDiseaseStatisticService.processData(startDate,endDate);
 		return ResultFactory.success();
 	}
 

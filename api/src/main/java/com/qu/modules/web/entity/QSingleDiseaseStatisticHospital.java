@@ -13,20 +13,20 @@ import org.jeecgframework.poi.excel.annotation.Excel;
 import java.util.Date;
 
 /**
- * @Description: 单病种统计表
+ * @Description: 单病种统计院级表
  * @Author: jeecg-boot
- * @Date:   2022-04-12
+ * @Date:   2022-04-21
  * @Version: V1.0
  */
 @Data
-@TableName("q_single_disease_statistic")
+@TableName("q_single_disease_statistic_hospital")
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@ApiModel(value="q_single_disease_statistic对象", description="单病种统计表")
-public class QSingleDiseaseStatistic {
+@ApiModel(value="q_single_disease_statistic_hospital对象", description="单病种统计院级表")
+public class QSingleDiseaseStatisticHospital {
     
 	/**id*/
-	@TableId(type = IdType.UUID)
+	@TableId(type = IdType.AUTO)
     @ApiModelProperty(value = "id")
 	private Integer id;
 	/**年*/
@@ -37,14 +37,18 @@ public class QSingleDiseaseStatistic {
 	@Excel(name = "月份", width = 15)
     @ApiModelProperty(value = "月份")
 	private Integer month;
-	/**年月*/
-	@Excel(name = "年月", width = 15)
-    @ApiModelProperty(value = "年月")
-	private String yearMonth;
+	/**年月格式 yyyy-MM*/
+	@Excel(name = "年月格式 yyyy-MM", width = 15)
+    @ApiModelProperty(value = "年月格式 yyyy-MM")
+	private String yearMonthRemark;
+	/**年月格式 yyyy年MM月*/
+	@Excel(name = "年月格式 yyyy年MM月", width = 15)
+    @ApiModelProperty(value = "年月格式 yyyy年MM月")
+	private String yearMonthTitle;
 	/**分类id*/
 	@Excel(name = "分类id", width = 15)
     @ApiModelProperty(value = "分类id")
-	private Integer categoryId;
+	private String categoryId;
 	/**单病种名称*/
 	@Excel(name = "单病种名称", width = 15)
     @ApiModelProperty(value = "单病种名称")
@@ -53,26 +57,18 @@ public class QSingleDiseaseStatistic {
 	@Excel(name = "动态创建表的表名", width = 15)
     @ApiModelProperty(value = "动态创建表的表名")
 	private String dynamicTableName;
-	/**科室id*/
-	@Excel(name = "科室id", width = 15)
-    @ApiModelProperty(value = "科室id")
-	private String deptId;
-	/**科室名称*/
-	@Excel(name = "科室名称", width = 15)
-    @ApiModelProperty(value = "科室名称")
-	private String deptName;
 	/**需要上报数*/
 	@Excel(name = "需要上报数", width = 15)
     @ApiModelProperty(value = "需要上报数")
 	private Integer needReportCount;
-	/**已填报数*/
-	@Excel(name = "已填报数", width = 15)
-    @ApiModelProperty(value = "已填报数")
-	private Integer completeWriteCount;
-	/**未填报数*/
-	@Excel(name = "未填报数", width = 15)
-    @ApiModelProperty(value = "未填报数")
-	private Integer notWriteCount;
+	/**已上报数*/
+	@Excel(name = "已上报数", width = 15)
+    @ApiModelProperty(value = "已上报数")
+	private Integer completeReportCount;
+	/**未上报数*/
+	@Excel(name = "未上报数", width = 15)
+    @ApiModelProperty(value = "未上报数")
+	private Integer notReportCount;
 	/**上报国家率*/
 	@Excel(name = "上报国家率", width = 15)
     @ApiModelProperty(value = "上报国家率")
@@ -85,14 +81,6 @@ public class QSingleDiseaseStatistic {
 	@Excel(name = "平均住院费用 字符串 可以带小数", width = 15)
     @ApiModelProperty(value = "平均住院费用 字符串 可以带小数")
 	private String averageInHospitalFee;
-	/**手术并发症发生率*/
-	@Excel(name = "手术并发症发生率", width = 15)
-    @ApiModelProperty(value = "手术并发症发生率")
-	private String operationComplicationRate;
-	/**死亡率*/
-	@Excel(name = "死亡率", width = 15)
-    @ApiModelProperty(value = "死亡率")
-	private String mortality;
 	/**平均药品费用 字符串 可以带小数*/
 	@Excel(name = "平均药品费用 字符串 可以带小数", width = 15)
     @ApiModelProperty(value = "平均药品费用 字符串 可以带小数")
@@ -105,6 +93,14 @@ public class QSingleDiseaseStatistic {
 	@Excel(name = "平均一次性耗材费用 字符串 可以带小数", width = 15)
     @ApiModelProperty(value = "平均一次性耗材费用 字符串 可以带小数")
 	private String averageDisposableConsumable;
+	/**死亡率*/
+	@Excel(name = "死亡率", width = 15)
+    @ApiModelProperty(value = "死亡率")
+	private String mortality;
+	/**手术并发症发生率*/
+	@Excel(name = "手术并发症发生率", width = 15)
+    @ApiModelProperty(value = "手术并发症发生率")
+	private String operationComplicationRate;
 	/**创建时间*/
     @ApiModelProperty(value = "创建时间")
 	private Date createTime;

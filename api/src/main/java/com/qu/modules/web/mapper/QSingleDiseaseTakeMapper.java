@@ -1,21 +1,13 @@
 package com.qu.modules.web.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.qu.modules.web.entity.QSingleDiseaseTake;
+import com.qu.modules.web.vo.*;
+import org.apache.ibatis.annotations.Param;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.ibatis.annotations.Param;
-
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.qu.modules.web.entity.QSingleDiseaseTake;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptPermutationVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewLineVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewPieVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticSummaryVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticTrendVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo;
-import com.qu.modules.web.vo.ReportFailureRecordVo;
 
 /**
  * @Description: 单病种总表
@@ -27,14 +19,15 @@ public interface QSingleDiseaseTakeMapper extends BaseMapper<QSingleDiseaseTake>
 
     /*List<QSingleDiseaseTakeVo> singleDiseaseList(@Param("name") String name);*/
 
-    Integer allSingleDiseaseReportStatisticCount(Map<String, Object> params);
-
-//        List<Map<String,Object>> allSingleDiseaseReportStatistic(Map<String, Object> params);
-    List<QSingleDiseaseTakeReportStatisticVo> allSingleDiseaseReportStatistic(Map<String, Object> params);
+    List<QSingleDiseaseTakeStatisticDeptVo> singleDiseaseReportStatistic(Map<String, Object> params);
 
     Integer countSql(Map<String, Object> params);
 
     Map<String, Object> countAvgSql(Map<String, Object> countParams);
+
+    Integer countMortalitySql(Map<String, Object> countParams);
+
+    Integer countOperationComplicationSql(Map<String, Object> countParams);
 
     List<QSingleDiseaseTakeReportStatisticDeptVo> selectDept();
 
@@ -65,4 +58,7 @@ public interface QSingleDiseaseTakeMapper extends BaseMapper<QSingleDiseaseTake>
     Integer pageDataCount();
 
     Integer singleDiseaseReportCount(@Param("start")Date start, @Param("end")Date end, @Param("categoryIdList")List<String> categoryIdList);
+
+
+
 }
