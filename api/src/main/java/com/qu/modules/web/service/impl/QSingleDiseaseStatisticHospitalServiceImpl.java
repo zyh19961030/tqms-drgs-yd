@@ -1,5 +1,13 @@
 package com.qu.modules.web.service.impl;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -13,13 +21,6 @@ import com.qu.modules.web.vo.QSingleDiseaseTakeReportQuantityRankingVo;
 import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
 import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo;
 import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticAnalysisVo;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @Description: 单病种统计院级表
@@ -81,7 +82,7 @@ public class QSingleDiseaseStatisticHospitalServiceImpl extends ServiceImpl<QSin
 
     @Override
     public List<QSingleDiseaseTakeReportQuantityRankingVo> singleDiseaseReportWriteRanking(QSingleDiseaseTakeReportQuantityRankingParam qSingleDiseaseTakeReportQuantityRankingParam) {
-        return this.baseMapper.singleDiseaseReportQuantityRanking(qSingleDiseaseTakeReportQuantityRankingParam);
+        return this.baseMapper.singleDiseaseReportWriteRanking(qSingleDiseaseTakeReportQuantityRankingParam);
     }
 
     @Override
