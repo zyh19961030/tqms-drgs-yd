@@ -1,18 +1,14 @@
 package com.qu.modules.web.service.impl;
 
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
+import com.qu.constant.QuestionConstant;
 import com.qu.modules.web.entity.QSingleDiseaseStatisticHospital;
+import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.mapper.QSingleDiseaseStatisticHospitalMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
 import com.qu.modules.web.param.QSingleDiseaseTakeReportQuantityRankingParam;
 import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
 import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisParam;
@@ -21,6 +17,16 @@ import com.qu.modules.web.vo.QSingleDiseaseTakeReportQuantityRankingVo;
 import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
 import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo;
 import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticAnalysisVo;
+import com.qu.util.DeptUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 单病种统计院级表
@@ -31,14 +37,41 @@ import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticAnalysisVo;
 @Service
 public class QSingleDiseaseStatisticHospitalServiceImpl extends ServiceImpl<QSingleDiseaseStatisticHospitalMapper, QSingleDiseaseStatisticHospital> implements IQSingleDiseaseStatisticHospitalService {
 
+    @Autowired
+    private QuestionMapper questionMapper;
 
     @Override
-    public QSingleDiseaseTakeReportStatisticPageVo allSingleDiseaseReportStatistic(QSingleDiseaseTakeReportStatisticParam qSingleDiseaseTakeReportStatisticParam, Integer pageNo, Integer pageSize) {
+    public QSingleDiseaseTakeReportStatisticPageVo allSingleDiseaseReportStatistic(QSingleDiseaseTakeReportStatisticParam qSingleDiseaseTakeReportStatisticParam, Integer pageNo, Integer pageSize, String deptId, String type) {
         QSingleDiseaseTakeReportStatisticPageVo qSingleDiseaseTakeReportStatisticPageVo = new QSingleDiseaseTakeReportStatisticPageVo();
+
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        lambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+        lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+        lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+        if(DeptUtil.isClinical(type)){
+            lambda.like(Question::getDeptIds,deptId);
+        }else{
+            lambda.like(Question::getSeeDeptIds,deptId);
+        }
+        //科室匹配 按医生填报查询-本科室单病种上报记录-全院单病种上报统计-科室单病种上报统计-单病种指标统计-病种名称筛选条件
+        List<Question> questionList = questionMapper.selectList(lambda);
+        ArrayList<String> categoryIdList = null;
+        if (qSingleDiseaseTakeReportStatisticParam.getCategoryId() != null) {
+            categoryIdList = Lists.newArrayList(qSingleDiseaseTakeReportStatisticParam.getCategoryId());
+        } else {
+            categoryIdList = Lists.newArrayList();
+        }
+
+        if(!questionList.isEmpty()){
+            for (Question question : questionList) {
+                categoryIdList.add(question.getCategoryId());
+            }
+        }
+
         Map<String, Object> params = new HashMap<>();
         params.put("startRow", (pageNo - 1) * pageSize);
         params.put("pageSize", pageSize);
-        params.put("categoryId", qSingleDiseaseTakeReportStatisticParam.getCategoryId());
+        params.put("categoryId", categoryIdList);
         String dateStart = qSingleDiseaseTakeReportStatisticParam.getDateStart();
         String dateEnd = qSingleDiseaseTakeReportStatisticParam.getDateEnd();
 //        DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM");

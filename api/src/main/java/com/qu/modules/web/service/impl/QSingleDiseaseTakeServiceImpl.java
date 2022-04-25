@@ -25,12 +25,9 @@ import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.*;
-import com.qu.util.ErrorMessageUtil;
-import com.qu.util.HttpClient;
-import com.qu.util.HttpTools;
+import com.qu.util.*;
 import com.qu.util.HttpTools.HttpData;
 import com.qu.util.HttpTools.ResponseEntity;
-import com.qu.util.PriceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
@@ -116,13 +113,15 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     }
 
     @Override
-    public List<QSingleDiseaseNameVo> singleDiseaseNameList(String deptId) {
+    public List<QSingleDiseaseNameVo> singleDiseaseNameList(String deptId, String type) {
         QueryWrapper<Question> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("category_type",QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
         queryWrapper.eq("qu_Status",QuestionConstant.QU_STATUS_RELEASE);
         queryWrapper.eq("del",QuestionConstant.DEL_NORMAL);
-        if(StringUtils.isNotBlank(deptId)){
+        if(DeptUtil.isClinical(type)){
             queryWrapper.like("dept_ids",deptId);
+        }else{
+            queryWrapper.like("see_dept_ids",deptId);
         }
         //科室匹配 按医生填报查询-本科室单病种上报记录-全院单病种上报统计-科室单病种上报统计-单病种指标统计-病种名称筛选条件
         List<Question> questions = questionMapper.selectList(queryWrapper);

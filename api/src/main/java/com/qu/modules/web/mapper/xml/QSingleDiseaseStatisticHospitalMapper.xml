@@ -18,7 +18,7 @@
         FROM `q_single_disease_statistic_hospital`
         <where>
             year_month_remark >= #{dateStart} and year_month_remark &lt;= #{dateEnd}
-            <if test="categoryId!=null and categoryId.length > 0">
+            <if test="categoryId!=null and categoryId.size() > 0">
                 and category_id in
                 <foreach close=")" collection="categoryId" item="listItem" open="(" separator=",">
                     #{listItem}

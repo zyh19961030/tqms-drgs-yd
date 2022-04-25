@@ -20,7 +20,7 @@ import java.util.List;
 public interface IQSingleDiseaseStatisticHospitalService extends IService<QSingleDiseaseStatisticHospital> {
 
 
-    QSingleDiseaseTakeReportStatisticPageVo allSingleDiseaseReportStatistic(QSingleDiseaseTakeReportStatisticParam qSingleDiseaseTakeReportStatisticParam, Integer pageNo, Integer pageSize);
+    QSingleDiseaseTakeReportStatisticPageVo allSingleDiseaseReportStatistic(QSingleDiseaseTakeReportStatisticParam qSingleDiseaseTakeReportStatisticParam, Integer pageNo, Integer pageSize, String deptId, String type);
 
     List<QSingleDiseaseTakeReportQuantityRankingVo> singleDiseaseReportQuantityRanking(QSingleDiseaseTakeReportQuantityRankingParam qSingleDiseaseTakeReportQuantityRankingParam);
 
