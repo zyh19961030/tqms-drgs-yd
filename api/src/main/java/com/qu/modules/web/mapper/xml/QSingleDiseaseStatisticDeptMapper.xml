@@ -6,4 +6,27 @@
         select min(out_time) from q_single_disease_take
     </select>
 
+    <select id="singleDiseaseStatisticDepartmentComparison" parameterType="com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisParam" resultType="com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDepartmentComparisonVo">
+        SELECT
+        tqms_dept_name deptName,sum(need_report_count) needWriteCount,sum(complete_report_count) completeWriteCount,sum(not_report_count) notWriteCount,
+        CONCAT(IFNULL(CAST(AVG(complete_report_country_rate) AS DECIMAL(18,2)),0),'%') completeReportCountryRate,
+        CAST(sum(average_in_hospital_day) AS DECIMAL(18,2)) averageInHospitalDay,
+        CAST(sum(average_in_hospital_fee) AS DECIMAL(18,2)) averageInHospitalFee,
+        CAST(sum(average_drug_fee) AS DECIMAL(18,2)) averageDrugFee,
+        CAST(sum(average_operation_treatment_fee) AS DECIMAL(18,2)) averageOperationFee,
+        CAST(sum(average_disposable_consumable) AS DECIMAL(18,2)) averageDisposableConsumableFee,
+        CONCAT(CAST(sum(mortality) AS DECIMAL(18,2)),'%') mortality,
+        CONCAT(CAST(sum(operation_complication_rate) AS DECIMAL(18,2)),'%') complicationRate
+        FROM `q_single_disease_statistic_dept`
+        <where>
+            year_month_remark >= #{qSingleDiseaseTakeStatisticAnalysisParam.dateStart} and year_month_remark &lt;= #{qSingleDiseaseTakeStatisticAnalysisParam.dateEnd}
+            <if test="qSingleDiseaseTakeStatisticAnalysisParam.categoryId!=null and qSingleDiseaseTakeStatisticAnalysisParam.categoryId!='' ">
+                and category_id = #{qSingleDiseaseTakeStatisticAnalysisParam.categoryId}
+            </if>
+        </where>
+        group by tqms_dept
+    </select>
+
+
+
 </mapper>

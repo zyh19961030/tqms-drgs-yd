@@ -1,13 +1,13 @@
 package com.qu.modules.web.vo;
 
+import java.util.List;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @Builder
@@ -20,6 +20,10 @@ public class QSingleDiseaseTakeStatisticDepartmentComparisonChartVo {
 
     @ApiModelProperty(value = "年月")
     private String yearMonth;
+
+
+    @ApiModelProperty(value = "单位")
+    private String rateType;
 
 
     @ApiModelProperty(value = "数据")
