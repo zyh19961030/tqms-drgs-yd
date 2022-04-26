@@ -1,9 +1,22 @@
 package com.qu.modules.web.service.impl;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.qu.constant.QuestionConstant;
 import com.qu.modules.web.entity.QSingleDiseaseStatisticHospital;
 import com.qu.modules.web.entity.Question;
@@ -18,15 +31,6 @@ import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
 import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo;
 import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticAnalysisVo;
 import com.qu.util.DeptUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @Description: 单病种统计院级表
@@ -55,17 +59,31 @@ public class QSingleDiseaseStatisticHospitalServiceImpl extends ServiceImpl<QSin
         }
         //科室匹配 按医生填报查询-本科室单病种上报记录-全院单病种上报统计-科室单病种上报统计-单病种指标统计-病种名称筛选条件
         List<Question> questionList = questionMapper.selectList(lambda);
-        ArrayList<String> categoryIdList = null;
-        if (qSingleDiseaseTakeReportStatisticParam.getCategoryId() != null) {
-            categoryIdList = Lists.newArrayList(qSingleDiseaseTakeReportStatisticParam.getCategoryId());
+        ArrayList<String> questionCategoryIdList = Lists.newArrayList();
+        if(questionList.isEmpty()){
+            qSingleDiseaseTakeReportStatisticPageVo.setTotal(0L);
+            qSingleDiseaseTakeReportStatisticPageVo.setQSingleDiseaseTakeList(Lists.newArrayList());
+            return qSingleDiseaseTakeReportStatisticPageVo;
+        }else{
+            for (Question question : questionList) {
+                questionCategoryIdList.add(question.getCategoryId());
+            }
+        }
+        List<String> categoryIdList = Lists.newArrayList();
+        String[] categoryId = qSingleDiseaseTakeReportStatisticParam.getCategoryId();
+        if (categoryId == null || categoryId.length<=0) {
+            categoryIdList = questionCategoryIdList;
         } else {
-            categoryIdList = Lists.newArrayList();
+            HashSet<String> categoryIdParamSet = Sets.newHashSet(categoryId);
+            HashSet<String> categoryIdQuestionSet = Sets.newHashSet(questionCategoryIdList);
+
+            categoryIdList = getIntersectionSetByGuava(categoryIdParamSet, categoryIdQuestionSet);
         }
 
-        if(!questionList.isEmpty()){
-            for (Question question : questionList) {
-                categoryIdList.add(question.getCategoryId());
-            }
+        if(categoryIdList.isEmpty()){
+            qSingleDiseaseTakeReportStatisticPageVo.setTotal(0L);
+            qSingleDiseaseTakeReportStatisticPageVo.setQSingleDiseaseTakeList(Lists.newArrayList());
+            return qSingleDiseaseTakeReportStatisticPageVo;
         }
 
         Map<String, Object> params = new HashMap<>();
@@ -90,6 +108,10 @@ public class QSingleDiseaseStatisticHospitalServiceImpl extends ServiceImpl<QSin
         return qSingleDiseaseTakeReportStatisticPageVo;
     }
 
+    private static List<String> getIntersectionSetByGuava(Set<String> setOne, Set<String> setTwo) {
+        Set<String> differenceSet = Sets.intersection(setOne, setTwo);
+        return Lists.newArrayList(differenceSet);
+    }
 
 //    {
 //        Page<QSingleDiseaseStatisticHospital> page = new Page<>(pageNo, pageSize);
