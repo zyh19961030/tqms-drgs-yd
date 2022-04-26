@@ -5,13 +5,14 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.qu.constant.Constant;
 import com.qu.constant.QSingleDiseaseTakeConstant;
-import com.qu.modules.web.entity.QSingleDiseaseStatisticHospital;
+import com.qu.modules.web.entity.TbDep;
 import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.pojo.Deps;
 import com.qu.modules.web.service.IQSingleDiseaseStatisticDeptService;
 import com.qu.modules.web.service.IQSingleDiseaseStatisticHospitalService;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
+import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.*;
 import com.qu.util.DeptUtil;
 import io.swagger.annotations.Api;
@@ -49,6 +50,9 @@ public class QSingleDiseaseTakeController {
 
     @Autowired
     private IQSingleDiseaseStatisticDeptService qSingleDiseaseStatisticDeptService;
+
+    @Autowired
+    private IQuestionService questionService;
 
 
     /**
@@ -320,12 +324,105 @@ public class QSingleDiseaseTakeController {
         return result;
     }
 
+    /**
+     * 全院单病种上报统计(全院单病种数量统计_科室筛选)查询
+     */
+    @AutoLog(value = "全院单病种上报统计(全院单病种数量统计_科室筛选)查询")
+    @ApiOperation(value = "全院单病种上报统计(全院单病种数量统计_科室筛选)查询", notes = "全院单病种上报统计(全院单病种数量统计_科室筛选)查询",response = QSingleDiseaseTakeReportStatisticPageVo.class)
+    @GetMapping(value = "/allSingleDiseaseReportStatisticByDept")
+    public Result<QSingleDiseaseTakeReportStatisticPageVo> allSingleDiseaseReportStatisticByDept(@Validated QSingleDiseaseTakeReportStatisticByDeptParam qSingleDiseaseTakeReportStatisticByDeptParam,
+                                                                                           @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                                           @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+
+        Result<QSingleDiseaseTakeReportStatisticPageVo> result = new Result<>();
+        QSingleDiseaseTakeReportStatisticPageVo list = qSingleDiseaseStatisticDeptService.allSingleDiseaseReportStatisticByDept(qSingleDiseaseTakeReportStatisticByDeptParam, pageNo, pageSize);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
 
     /**
-     * 全院单病种上报统计查询
+     * 全院单病种上报统计(全院单病种数量统计_科室筛选)-点击某个病种-科室筛选条件
      */
-    @AutoLog(value = "全院单病种上报统计查询")
-    @ApiOperation(value = "全院单病种上报统计查询", notes = "全院单病种上报统计查询",response = QSingleDiseaseStatisticHospital.class)
+    @AutoLog(value = "全院单病种上报统计(全院单病种数量统计_科室筛选)-点击某个病种-科室筛选条件")
+    @ApiOperation(value = "全院单病种上报统计(全院单病种数量统计_科室筛选)-点击某个病种-科室筛选条件", notes = "全院单病种上报统计(全院单病种数量统计_科室筛选)-点击某个病种-科室筛选条件", response = TbDep.class)
+    @GetMapping(value = "/singleDiseaseStatisticAnalysisByDeptCondition")
+    public Result<List<TbDep>> singleDiseaseStatisticAnalysisByDeptCondition(@Validated QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam qSingleDiseaseTakeStatisticAnalysisByDeptConditionParam) {
+        List <TbDep> tbDepList = questionService.singleDiseaseStatisticAnalysisByDeptCondition(qSingleDiseaseTakeStatisticAnalysisByDeptConditionParam);
+        Result<List<TbDep>> result = new Result<>();
+        result.setSuccess(true);
+        result.setResult(tbDepList);
+        return result;
+    }
+
+        /**
+         * 全院单病种上报统计(全院单病种数量统计_科室筛选)-点击某个病种-统计分析
+         */
+    @AutoLog(value = "全院单病种上报统计(全院单病种数量统计_科室筛选)-点击某个病种-统计分析")
+    @ApiOperation(value = "全院单病种上报统计(全院单病种数量统计_科室筛选)-点击某个病种-统计分析", notes = "全院单病种上报统计(全院单病种数量统计_科室筛选)-点击某个病种-统计分析", response = QSingleDiseaseTakeStatisticAnalysisTableVo.class)
+    @GetMapping(value = "/singleDiseaseStatisticAnalysisByDept")
+    public Result<QSingleDiseaseTakeStatisticAnalysisTableVo> singleDiseaseStatisticAnalysisByDept(@Validated QSingleDiseaseTakeStatisticAnalysisByDeptParam qSingleDiseaseTakeStatisticAnalysisByDeptParam) {
+
+        Result<QSingleDiseaseTakeStatisticAnalysisTableVo> result = new Result<>();
+        List<QSingleDiseaseTakeStatisticAnalysisVo> list = qSingleDiseaseStatisticDeptService.singleDiseaseStatisticAnalysisByDept(qSingleDiseaseTakeStatisticAnalysisByDeptParam);
+
+        List<LinkedHashMap<String,String>> fieldItems = Lists.newArrayList();
+        LinkedHashMap<String, String> fieldItem = Maps.newLinkedHashMap();
+        fieldItems.add(fieldItem);
+        fieldItem.put("fieldTxt","name1");
+
+        List<LinkedHashMap<String,String>> singleDataList = Lists.newArrayList();
+        LinkedHashMap<String, String> singleData = Maps.newLinkedHashMap();
+        singleDataList.add(singleData);
+        singleData.put("name1","上报例数");
+        LinkedHashMap<String, String> singleData2 = Maps.newLinkedHashMap();
+        singleDataList.add(singleData2);
+        singleData2.put("name1","平均住院日");
+        LinkedHashMap<String, String> singleData3 = Maps.newLinkedHashMap();
+        singleDataList.add(singleData3);
+        singleData3.put("name1","平均住院费用");
+        LinkedHashMap<String, String> singleData4 = Maps.newLinkedHashMap();
+        singleDataList.add(singleData4);
+        singleData4.put("name1","死亡率");
+        LinkedHashMap<String, String> singleData5 = Maps.newLinkedHashMap();
+        singleDataList.add(singleData5);
+        singleData5.put("name1","手术并发症发生率");
+
+        for (int i = 0; i < list.size(); i++) {
+            QSingleDiseaseTakeStatisticAnalysisVo qSingleDiseaseTakeStatisticAnalysisVo = list.get(i);
+            LinkedHashMap<String, String> fieldItemTemp = Maps.newLinkedHashMap();
+            fieldItems.add(fieldItemTemp);
+            fieldItemTemp.put("fieldTxt",qSingleDiseaseTakeStatisticAnalysisVo.getYearMonth());
+
+            for (int j = 0; j < singleDataList.size(); j++) {
+                LinkedHashMap<String, String> stringStringLinkedHashMap = singleDataList.get(j);
+                if(j==0){
+                    stringStringLinkedHashMap.put(qSingleDiseaseTakeStatisticAnalysisVo.getYearMonth(),String.valueOf(qSingleDiseaseTakeStatisticAnalysisVo.getCompleteReportCountryCount()));
+                }else if(j==1){
+                    stringStringLinkedHashMap.put(qSingleDiseaseTakeStatisticAnalysisVo.getYearMonth(),String.valueOf(qSingleDiseaseTakeStatisticAnalysisVo.getAverageInHospitalDay()));
+                }else if(j==2){
+                    stringStringLinkedHashMap.put(qSingleDiseaseTakeStatisticAnalysisVo.getYearMonth(),String.valueOf(qSingleDiseaseTakeStatisticAnalysisVo.getAverageInHospitalFee()));
+                }else if(j==3){
+                    stringStringLinkedHashMap.put(qSingleDiseaseTakeStatisticAnalysisVo.getYearMonth(),String.format("%s%%",qSingleDiseaseTakeStatisticAnalysisVo.getMortality()));
+                }else if(j==4){
+                    stringStringLinkedHashMap.put(qSingleDiseaseTakeStatisticAnalysisVo.getYearMonth(),String.format("%s%%",qSingleDiseaseTakeStatisticAnalysisVo.getComplicationRate()));
+                }
+            }
+        }
+
+        QSingleDiseaseTakeStatisticAnalysisTableVo build = QSingleDiseaseTakeStatisticAnalysisTableVo.builder().fieldItems(fieldItems).singleDataList(singleDataList).build();
+        result.setSuccess(true);
+        result.setResult(build);
+        return result;
+    }
+
+
+
+    /**
+     * 全院单病种上报统计(全院单病种数量统计_单病种筛选)查询
+     */
+    @AutoLog(value = "全院单病种上报统计(全院单病种数量统计_单病种筛选)查询")
+    @ApiOperation(value = "全院单病种上报统计(全院单病种数量统计_单病种筛选)查询", notes = "全院单病种上报统计(全院单病种数量统计_单病种筛选)查询",response = QSingleDiseaseTakeReportStatisticPageVo.class)
     @GetMapping(value = "/allSingleDiseaseReportStatistic")
     public Result<QSingleDiseaseTakeReportStatisticPageVo> allSingleDiseaseReportStatistic(@Validated QSingleDiseaseTakeReportStatisticParam qSingleDiseaseTakeReportStatisticParam,
                                                                                            @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
@@ -386,7 +483,7 @@ public class QSingleDiseaseTakeController {
      * 全院单病种上报数量统计-点击某个病种-统计分析
      */
     @AutoLog(value = "全院单病种上报数量统计-点击某个病种-统计分析")
-    @ApiOperation(value = "全院单病种上报数量统计-点击某个病种-统计分析", notes = "全院单病种上报数量统计-点击某个病种-统计分析", response = QSingleDiseaseTakeStatisticAnalysisVo.class)
+    @ApiOperation(value = "全院单病种上报数量统计-点击某个病种-统计分析", notes = "全院单病种上报数量统计-点击某个病种-统计分析")
     @GetMapping(value = "/singleDiseaseStatisticAnalysis")
     public Result<QSingleDiseaseTakeStatisticAnalysisTableVo> singleDiseaseStatisticAnalysis(@Validated QSingleDiseaseTakeStatisticAnalysisParam qSingleDiseaseTakeStatisticAnalysisParam) {
 

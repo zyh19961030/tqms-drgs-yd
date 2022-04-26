@@ -2,6 +2,7 @@ package com.qu.modules.web.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.entity.TbDep;
 import com.qu.modules.web.param.*;
 import com.qu.modules.web.vo.*;
 
@@ -42,4 +43,9 @@ public interface IQuestionService extends IService<Question> {
     List<QuestionPatientCreateListVo> patientCreateList(String name, String deptId);
 
     List<QuestionMonthQuarterYearCreateListVo> monthQuarterYearCreateList(String type, String deptId);
+
+    List<TbDep> singleDiseaseStatisticAnalysisByDeptCondition(QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam qSingleDiseaseTakeStatisticAnalysisByDeptConditionParam);
+
+
+
 }

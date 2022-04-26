@@ -2,12 +2,8 @@ package com.qu.modules.web.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.QSingleDiseaseStatisticDept;
-import com.qu.modules.web.param.QSingleDiseaseTakeNumberListParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticDepartmentComparisonChartParam;
-import com.qu.modules.web.vo.QSingleDiseaseTakeNumberVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDepartmentComparisonChartVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDepartmentComparisonVo;
+import com.qu.modules.web.param.*;
+import com.qu.modules.web.vo.*;
 
 import java.util.List;
 
@@ -28,5 +24,10 @@ public interface IQSingleDiseaseStatisticDeptService extends IService<QSingleDis
     List<QSingleDiseaseTakeStatisticDepartmentComparisonChartVo> singleDiseaseStatisticDepartmentComparisonChart(QSingleDiseaseTakeStatisticDepartmentComparisonChartParam qSingleDiseaseTakeStatisticDepartmentComparisonChartParam);
 
     List<QSingleDiseaseTakeNumberVo> deptSingleDiseaseNumberList3(QSingleDiseaseTakeNumberListParam qSingleDiseaseTakeNumberListParam);
+
+    QSingleDiseaseTakeReportStatisticPageVo allSingleDiseaseReportStatisticByDept(QSingleDiseaseTakeReportStatisticByDeptParam qSingleDiseaseTakeReportStatisticByDeptParam, Integer pageNo, Integer pageSize);
+
+    List<QSingleDiseaseTakeStatisticAnalysisVo> singleDiseaseStatisticAnalysisByDept(QSingleDiseaseTakeStatisticAnalysisByDeptParam qSingleDiseaseTakeStatisticAnalysisByDeptParam);
+
 
 }

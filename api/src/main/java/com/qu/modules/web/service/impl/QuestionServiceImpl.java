@@ -4,15 +4,14 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
+import com.qu.constant.Constant;
 import com.qu.constant.QoptionConstant;
 import com.qu.constant.QuestionConstant;
-import com.qu.modules.web.entity.Qoption;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.entity.TqmsQuotaCategory;
+import com.qu.modules.web.entity.*;
 import com.qu.modules.web.mapper.*;
 import com.qu.modules.web.param.*;
 import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.service.ITbDepService;
 import com.qu.modules.web.vo.*;
 import com.qu.util.IntegerUtil;
 import com.qu.util.StringUtil;
@@ -49,6 +48,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Autowired
     private TqmsQuotaCategoryMapper tqmsQuotaCategoryMapper;
+
+    @Autowired
+    private ITbDepService tbDepService;
 
     @Override
     public Question saveQuestion(QuestionParam questionParam) {
@@ -507,4 +509,30 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         }).collect(Collectors.toList());
         return patientCreateListVos;
     }
+
+    @Override
+    public List<TbDep> singleDiseaseStatisticAnalysisByDeptCondition(QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam qSingleDiseaseTakeStatisticAnalysisByDeptConditionParam) {
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+        lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+        lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+        lambda.eq(Question::getCategoryId,qSingleDiseaseTakeStatisticAnalysisByDeptConditionParam.getCategoryId());
+        List<Question> questionList = questionMapper.selectList(lambda);
+        if(questionList.isEmpty()){
+            return Lists.newArrayList();
+        }
+        Question question = questionList.get(0);
+        String deptIds = question.getDeptIds();
+        if(StringUtils.isBlank(deptIds)){
+            return Lists.newArrayList();
+        }
+        List<String>  deptIdList=Arrays.asList(deptIds.split(","));
+
+        LambdaQueryWrapper<TbDep> tbDepLambda = new QueryWrapper<TbDep>().lambda();
+        tbDepLambda.eq(TbDep::getIsdelete, Constant.IS_DELETE_NO);
+        tbDepLambda.in(TbDep::getId,deptIdList);
+        return tbDepService.list(tbDepLambda);
+    }
+
+
 }
