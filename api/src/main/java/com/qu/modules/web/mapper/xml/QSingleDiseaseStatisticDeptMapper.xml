@@ -60,5 +60,27 @@
         <include refid="reportStatisticCount"></include> limit #{startRow},#{pageSize}
     </select>
 
+    <select id="singleDiseaseStatisticAnalysisByDept"  resultType="com.qu.modules.web.vo.QSingleDiseaseTakeStatisticAnalysisVo">
+        SELECT
+        category_id categoryId,year_month_title yearMonth,
+        sum(complete_report_count) completeReportCountryCount,
+        CAST(sum(average_in_hospital_day) AS DECIMAL(18,4)) averageInHospitalDay,
+        CAST(sum(average_in_hospital_fee) AS DECIMAL(18,2)) averageInHospitalFee,
+        CAST(sum(mortality) AS DECIMAL(18,2)) mortality,
+        CAST(sum(operation_complication_rate) AS DECIMAL(18,2)) complicationRate
+        FROM `q_single_disease_statistic_dept`
+        <where>
+            year_month_remark >= #{dateStart} and year_month_remark &lt;= #{dateEnd}
+            <if test="deptId!=null and deptId != '' ">
+                and tqms_dept =#{deptId}
+            </if>
+            <if test="categoryId!=null and categoryId!='' ">
+                and category_id = #{categoryId}
+            </if>
+        </where>
+        group by year_month_remark
+    </select>
+
+
 
 </mapper>

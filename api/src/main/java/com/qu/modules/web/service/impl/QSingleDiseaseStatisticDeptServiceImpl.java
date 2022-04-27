@@ -1,5 +1,24 @@
 package com.qu.modules.web.service.impl;
 
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -13,23 +32,24 @@ import com.qu.modules.web.entity.TbDep;
 import com.qu.modules.web.mapper.QSingleDiseaseStatisticDeptMapper;
 import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.*;
+import com.qu.modules.web.param.QSingleDiseaseTakeNumberListParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticByDeptParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisByDeptParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeStatisticDepartmentComparisonChartParam;
 import com.qu.modules.web.service.IQSingleDiseaseStatisticDeptService;
 import com.qu.modules.web.service.IQSingleDiseaseStatisticHospitalService;
 import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.vo.*;
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.qu.modules.web.vo.QSingleDiseaseTakeNumberListInDeptVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeNumberListVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeNumberVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticAnalysisVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDepartmentComparisonChartInDeptVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDepartmentComparisonChartVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDepartmentComparisonVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDeptVo;
 
 /**
  * @Description: 单病种统计表
@@ -436,15 +456,25 @@ public class QSingleDiseaseStatisticDeptServiceImpl extends ServiceImpl<QSingleD
         lambda.in(QSingleDiseaseStatisticDept::getCategoryId,qSingleDiseaseTakeStatisticAnalysisByDeptParam.getCategoryId());
         lambda.ge(QSingleDiseaseStatisticDept::getYearMonthRemark,qSingleDiseaseTakeStatisticAnalysisByDeptParam.getDateStart());
         lambda.le(QSingleDiseaseStatisticDept::getYearMonthRemark,qSingleDiseaseTakeStatisticAnalysisByDeptParam.getDateEnd());
-        lambda.eq(QSingleDiseaseStatisticDept::getTqmsDept,qSingleDiseaseTakeStatisticAnalysisByDeptParam.getDeptId());
-        List<QSingleDiseaseStatisticDept> qSingleDiseaseStatisticDeptList = this.baseMapper.selectList(lambda);
-        List<QSingleDiseaseTakeStatisticAnalysisVo> qSingleDiseaseTakeStatisticAnalysisVoList = qSingleDiseaseStatisticDeptList.stream().map(e -> QSingleDiseaseTakeStatisticAnalysisVo.builder()
-                .categoryId(e.getCategoryId()).yearMonth(e.getYearMonthTitle())
-                .completeReportCountryCount(e.getCompleteReportCount()).averageInHospitalDay(new BigDecimal(e.getAverageInHospitalDay()))
-                .averageInHospitalFee(new BigDecimal(e.getAverageInHospitalFee())).mortality(e.getMortality()).complicationRate(e.getOperationComplicationRate()).build())
-                .collect(Collectors.toList());
-
-        return qSingleDiseaseTakeStatisticAnalysisVoList;
+        if(StringUtils.isNotBlank(qSingleDiseaseTakeStatisticAnalysisByDeptParam.getDeptId())){
+            lambda.eq(QSingleDiseaseStatisticDept::getTqmsDept,qSingleDiseaseTakeStatisticAnalysisByDeptParam.getDeptId());
+            List<QSingleDiseaseStatisticDept> qSingleDiseaseStatisticDeptList = this.baseMapper.selectList(lambda);
+            List<QSingleDiseaseTakeStatisticAnalysisVo> qSingleDiseaseTakeStatisticAnalysisVoList = qSingleDiseaseStatisticDeptList.stream().map(e -> QSingleDiseaseTakeStatisticAnalysisVo.builder()
+                    .categoryId(e.getCategoryId()).yearMonth(e.getYearMonthTitle())
+                    .completeReportCountryCount(e.getCompleteReportCount()).averageInHospitalDay(new BigDecimal(e.getAverageInHospitalDay()))
+                    .averageInHospitalFee(new BigDecimal(e.getAverageInHospitalFee())).mortality(e.getMortality()).complicationRate(e.getOperationComplicationRate()).build())
+                    .collect(Collectors.toList());
+            return qSingleDiseaseTakeStatisticAnalysisVoList;
+        }else{
+            Map<String, Object> params = new HashMap<>();
+            params.put("categoryId",qSingleDiseaseTakeStatisticAnalysisByDeptParam.getCategoryId());
+            params.put("deptId", qSingleDiseaseTakeStatisticAnalysisByDeptParam.getDeptId());
+            String dateStart = qSingleDiseaseTakeStatisticAnalysisByDeptParam.getDateStart();
+            String dateEnd = qSingleDiseaseTakeStatisticAnalysisByDeptParam.getDateEnd();
+            params.put("dateStart", dateStart);
+            params.put("dateEnd", dateEnd);
+            return this.baseMapper.singleDiseaseStatisticAnalysisByDept(params);
+        }
     }
 
 
