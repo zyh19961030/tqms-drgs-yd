@@ -448,7 +448,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             queryWrapper.le("write_time", qSingleDiseaseTakeByDeptParam.getWriteTimeEndDate());
         }
 
-        if (qSingleDiseaseTakeByDeptParam.getStatus() != null) {
+        if (qSingleDiseaseTakeByDeptParam.getStatus() != null && qSingleDiseaseTakeByDeptParam.getStatus().length>0) {
             if(qSingleDiseaseTakeByDeptParam.getStatus()[0]==0){
                 queryWrapper.in("status", QSingleDiseaseTakeConstant.STATUS_WAIT_WRITE_LIST);
             }else{
