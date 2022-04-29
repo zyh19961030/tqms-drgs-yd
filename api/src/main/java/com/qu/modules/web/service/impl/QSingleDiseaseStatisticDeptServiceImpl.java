@@ -432,11 +432,12 @@ public class QSingleDiseaseStatisticDeptServiceImpl extends ServiceImpl<QSingleD
     }
 
     @Override
-    public QSingleDiseaseTakeReportStatisticPageVo allSingleDiseaseReportStatisticByDept(QSingleDiseaseTakeReportStatisticByDeptParam qSingleDiseaseTakeReportStatisticByDeptParam, Integer pageNo, Integer pageSize) {
+    public QSingleDiseaseTakeReportStatisticPageVo allSingleDiseaseReportStatisticByDept(QSingleDiseaseTakeReportStatisticByDeptParam qSingleDiseaseTakeReportStatisticByDeptParam, Integer pageNo, Integer pageSize, List<String> deptIdList) {
         Map<String, Object> params = new HashMap<>();
         params.put("startRow", (pageNo - 1) * pageSize);
         params.put("pageSize", pageSize);
         params.put("deptId", qSingleDiseaseTakeReportStatisticByDeptParam.getDeptId());
+        params.put("deptIdList", deptIdList);
         String dateStart = qSingleDiseaseTakeReportStatisticByDeptParam.getDateStart();
         String dateEnd = qSingleDiseaseTakeReportStatisticByDeptParam.getDateEnd();
         params.put("dateStart", dateStart);

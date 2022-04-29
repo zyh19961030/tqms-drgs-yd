@@ -46,6 +46,12 @@
             <if test="deptId!=null and deptId != '' ">
                 and tqms_dept =#{deptId}
             </if>
+            <if test="deptIdList!=null and deptIdList.size() > 0">
+                and tqms_dept in
+                <foreach close=")" collection="deptIdList" item="listItem" open="(" separator=",">
+                    #{listItem}
+                </foreach>
+            </if>
         </where>
         group by categoryId
     </sql>

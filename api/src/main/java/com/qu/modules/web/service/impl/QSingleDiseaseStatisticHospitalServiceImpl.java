@@ -46,6 +46,7 @@ public class QSingleDiseaseStatisticHospitalServiceImpl extends ServiceImpl<QSin
 
     @Override
     public QSingleDiseaseTakeReportStatisticPageVo allSingleDiseaseReportStatistic(QSingleDiseaseTakeReportStatisticParam qSingleDiseaseTakeReportStatisticParam, Integer pageNo, Integer pageSize, String deptId, String type) {
+
         QSingleDiseaseTakeReportStatisticPageVo qSingleDiseaseTakeReportStatisticPageVo = new QSingleDiseaseTakeReportStatisticPageVo();
 
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();

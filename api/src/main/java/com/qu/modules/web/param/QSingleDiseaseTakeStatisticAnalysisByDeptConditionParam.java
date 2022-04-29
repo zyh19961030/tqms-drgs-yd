@@ -4,13 +4,11 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
-
 @Data
 @ApiModel(value="全院单病种上报统计(全院单病种数量统计_科室筛选)-点击某个病种-科室筛选条件入参", description="全院单病种上报统计(全院单病种数量统计_科室筛选)-点击某个病种-科室筛选条件入参")
 public class QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam {
     @ApiModelProperty(value = "分类id")
-    @NotNull(message = "分类id不能为空")
+    /*@NotNull(message = "分类id不能为空")*/
     private String categoryId;
     /*@ApiModelProperty(value = "科室id")
     @NotNull(message = "科室id不能为空")
