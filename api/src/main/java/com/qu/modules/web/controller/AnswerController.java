@@ -43,15 +43,15 @@ public class AnswerController {
         return answerService.answer(cookie, answerParam);
     }
 
-    @ApiOperation(value = "答题回显-废弃", notes = "答题回显-废弃")
-    @GetMapping(value = "/queryByQuId")
-    public Result<String> queryByQuId(@RequestParam Integer quId) {
-        Result<String> result = new Result<String>();
-        String answer = answerService.queryByQuId(quId);
-        result.setSuccess(true);
-        result.setResult(answer);
-        return result;
-    }
+//    @ApiOperation(value = "答题回显-废弃", notes = "答题回显-废弃")
+//    @GetMapping(value = "/queryByQuId")
+//    public Result<String> queryByQuId(@RequestParam Integer quId) {
+//        Result<String> result = new Result<String>();
+//        String answer = answerService.queryByQuId(quId);
+//        result.setSuccess(true);
+//        result.setResult(answer);
+//        return result;
+//    }
 
     @ApiOperation(value = "问卷填报记录分页列表", notes = "问卷填报记录分页列表")
     @GetMapping(value = "/questionFillInList")

@@ -18,7 +18,7 @@ public interface IAnswerService extends IService<Answer> {
 
     Result answer(String cookie, AnswerParam answerParam);
 
-    String queryByQuId(Integer quId);
+//    String queryByQuId(Integer quId);
 
     AnswerPageVo questionFillInList(String quName, Integer pageNo, Integer pageSize);
 
