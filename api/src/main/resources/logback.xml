@@ -29,7 +29,7 @@
         <file>${LOG_HOME}/question.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <!--日志文件输出的文件名 -->
-            <fileNamePattern>${LOG_PATH}/question-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${LOG_HOME}/question-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <!--日志文件保留天数 -->
             <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
             <MaxHistory>30</MaxHistory>
