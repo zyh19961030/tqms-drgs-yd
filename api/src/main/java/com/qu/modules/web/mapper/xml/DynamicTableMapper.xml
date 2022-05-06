@@ -22,4 +22,8 @@
         ${sql}
     </select>
 
+    <select id="selectDynamicTableColumnList" parameterType="java.lang.String" resultType="map">
+        ${sql}
+    </select>
+
 </mapper>

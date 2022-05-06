@@ -47,7 +47,7 @@ spring:
 #          username: zyh
 #          username: tqmsn
           username: root
-          #          password: root
+          #          pashsword: root
           #          password: gzyjy123@
           password: 123456
 #          password: tqms$2021@Shijiyunyi

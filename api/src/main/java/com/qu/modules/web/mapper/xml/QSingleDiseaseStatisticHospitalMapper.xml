@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qu.modules.web.mapper.QSingleDiseaseStatisticHospitalMapper">
+
+
+    <sql id="reportStatisticCount">
+        SELECT
+        category_id categoryId,single_disease_name disease,sum(need_report_count) needReportCount,
+        sum(complete_report_count) completeReportCount,sum(not_report_count) notReportCount,
+        CONCAT(IFNULL(CAST(AVG(complete_report_country_rate) AS DECIMAL(18,2)),0),'%') completeReportCountryRate,
+        CAST(sum(average_in_hospital_day) AS DECIMAL(18,2)) averageInHospitalDay,
+        CAST(sum(average_in_hospital_fee) AS DECIMAL(18,2)) averageInHospitalFee,
+        CAST(sum(average_drug_fee) AS DECIMAL(18,2)) averageDrugFee,
+        CAST(sum(average_operation_treatment_fee) AS DECIMAL(18,2)) averageOperationTreatmentFee,
+        CAST(sum(average_disposable_consumable) AS DECIMAL(18,2)) averageDisposableConsumable,
+        CONCAT(CAST(sum(mortality) AS DECIMAL(18,2)),'%') mortality,
+        CONCAT(CAST(sum(operation_complication_rate) AS DECIMAL(18,2)),'%') operationComplicationRate
+        FROM `q_single_disease_statistic_hospital`
+        <where>
+            year_month_remark >= #{dateStart} and year_month_remark &lt;= #{dateEnd}
+            <if test="categoryId!=null and categoryId.size() > 0">
+                and category_id in
+                <foreach close=")" collection="categoryId" item="listItem" open="(" separator=",">
+                    #{listItem}
+                </foreach>
+            </if>
+        </where>
+        group by categoryId
+    </sql>
+
+    <select id="allSingleDiseaseReportStatisticCount" resultType="java.lang.Integer">
+        select count(1) from (
+        <include refid="reportStatisticCount"></include>
+        ) t
+    </select>
+
+    <select id="allSingleDiseaseReportStatistic"  resultType="com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo">
+        <include refid="reportStatisticCount"></include> limit #{startRow},#{pageSize}
+    </select>
+
+
+    <select id="singleDiseaseReportQuantityRanking" parameterType="com.qu.modules.web.param.QSingleDiseaseTakeReportQuantityRankingParam" resultType="com.qu.modules.web.vo.QSingleDiseaseTakeReportQuantityRankingVo">
+        SELECT	single_disease_name disease,sum(complete_report_count) number FROM `q_single_disease_statistic_hospital`
+        <where>
+            <if test="qSingleDiseaseTakeReportQuantityRankingParam.dateStart!=null and qSingleDiseaseTakeReportQuantityRankingParam.dateStart!=''
+            and qSingleDiseaseTakeReportQuantityRankingParam.dateEnd!=null and qSingleDiseaseTakeReportQuantityRankingParam.dateEnd!=''  ">
+                year_month_remark >= #{qSingleDiseaseTakeReportQuantityRankingParam.dateStart} and year_month_remark &lt;= #{qSingleDiseaseTakeReportQuantityRankingParam.dateEnd}
+            </if>
+        </where>
+        group by category_id order by number desc
+    </select>
+
+    <select id="singleDiseaseReportWriteRanking" parameterType="com.qu.modules.web.param.QSingleDiseaseTakeReportQuantityRankingParam" resultType="com.qu.modules.web.vo.QSingleDiseaseTakeReportQuantityRankingVo">
+        SELECT	single_disease_name disease,CAST(avg(complete_report_country_rate) AS DECIMAL(18,2)) number FROM `q_single_disease_statistic_hospital`
+        <where>
+            <if test="qSingleDiseaseTakeReportQuantityRankingParam.dateStart!=null and qSingleDiseaseTakeReportQuantityRankingParam.dateStart!=''
+            and qSingleDiseaseTakeReportQuantityRankingParam.dateEnd!=null and qSingleDiseaseTakeReportQuantityRankingParam.dateEnd!=''  ">
+                year_month_remark >= #{qSingleDiseaseTakeReportQuantityRankingParam.dateStart} and year_month_remark &lt;= #{qSingleDiseaseTakeReportQuantityRankingParam.dateEnd}
+            </if>
+        </where>
+        group by category_id order by number desc
+    </select>
+
+</mapper>

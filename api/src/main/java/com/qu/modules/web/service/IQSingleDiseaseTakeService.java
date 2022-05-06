@@ -17,7 +17,7 @@ public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake>
 
     List<QSingleDiseaseTakeVo> singleDiseaseList(String name, String deptId);
 
-    List<QSingleDiseaseNameVo> singleDiseaseNameList(String deptId);
+    List<QSingleDiseaseNameVo> singleDiseaseNameList(String deptId, String type);
 
     QSingleDiseaseTakeByDoctorPageVo singleDiseaseByDoctorList(QSingleDiseaseTakeByDoctorParam qSingleDiseaseTakeByDoctorParam, Integer pageNo, Integer pageSize,String deptId);
 
@@ -32,8 +32,6 @@ public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake>
     QSingleDiseaseTakeByDoctorPageVo singleDiseaseByDeptList(QSingleDiseaseTakeByDeptParam qSingleDiseaseTakeByDeptParam, Integer pageNo, Integer pageSize, String deptId);
 
     QSingleDiseaseTakeByDoctorPageVo singleDiseaseExamineRecordAllList(SingleDiseaseExamineRecordParam singleDiseaseExamineRecordParam, Integer pageNo, Integer pageSize);
-
-    QSingleDiseaseTakeReportStatisticPageVo allSingleDiseaseReportStatistic(QSingleDiseaseTakeReportStatisticParam qSingleDiseaseTakeReportStatisticParam, Integer pageNo, Integer pageSize);
 
     List<QSingleDiseaseTakeReportStatisticDeptVo> allSingleDiseaseReportStatisticDept();
 

@@ -11,48 +11,32 @@
         group by icd_name  order by id
     </select>-->
 
-    <sql id="reportStatisticCount">
-        SELECT dynamic_table_name dynamicTableName,question_id questionId,
-        <if test="deptShow !=null and deptShow==1 ">
-            tqms_dept_name dept,
-        </if>
-        count(1) inHospitalCount,category_id categoryId
+    <select id="singleDiseaseReportStatistic" resultType="com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDeptVo">
+        SELECT
+        dynamic_table_name dynamicTableName,tqms_dept tqmsDept,tqms_dept_name tqmsDeptName, count(1) needReportCount,category_id categoryId
         FROM `q_single_disease_take`
         <where>
-            <if test="categoryId!=null and categoryId.length > 0">
-                and category_id in
-                <foreach close=")" collection="categoryId" item="listItem" open="(" separator=",">
-                    #{listItem}
-                </foreach>
+            status &lt;> 8
+            and out_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
+            and out_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
+            <if test="categoryId!=null and categoryId!=''">
+                and category_id =#{categoryId}
             </if>
-            <if test="dateType!=null">
-                and in_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
-                and in_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
+            <if test="dept!=null and dept!=''">
+                and tqms_dept =#{dept}
             </if>
-            <if test="dept!=null and dept.length > 0">
-                and tqms_dept in
-                <foreach close=")" collection="dept" item="listItem" open="(" separator=",">
-                    #{listItem}
-                </foreach>
+            <if test="status!=null">
+                and status=#{status}
             </if>
+            and out_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
+            and out_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
         </where>
-         group by dynamicTableName
-        <if test="deptShow !=null and deptShow==1 ">
-            ,tqms_dept_name
+        group by dynamicTableName
+        <if test="dept!=null and dept!=''">
+            ,tqms_dept
         </if>
-    </sql>
-
-    <select id="allSingleDiseaseReportStatisticCount" parameterType="java.lang.String" resultType="java.lang.Integer">
-        select count(1) from (
-        <include refid="reportStatisticCount"></include>
-        ) t
     </select>
 
-
-    <!--<select id="allSingleDiseaseReportStatistic" parameterType="java.lang.String" resultType="map">-->
-    <select id="allSingleDiseaseReportStatistic" parameterType="java.lang.String" resultType="com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo">
-        <include refid="reportStatisticCount"></include> limit #{startRow},#{pageSize}
-    </select>
 
     <select id="countSql" parameterType="map" resultType="java.lang.Integer">
         SELECT count(1) FROM `q_single_disease_take`
@@ -61,15 +45,13 @@
                 and category_id =#{categoryId}
             </if>
             <if test="dept!=null and dept!=''">
-                and tqms_dept_name =#{dept}
+                and tqms_dept =#{dept}
             </if>
             <if test="status!=null">
                 and status=#{status}
             </if>
-            <if test="dateType!=null  and dateType!=''">
-                and in_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
-                and in_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
-            </if>
+            and out_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
+            and out_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
         </where>
     </select>
 
@@ -77,15 +59,15 @@
     <select id="countAvgSql" parameterType="map" resultType="map">
         /*round(AVG(drug_fee),2)*/
         select
-            IFNULL(avg(in_hospital_day),0) avgInHospitalDay,
-            IFNULL(CAST(AVG(in_hospital_fee) AS DECIMAL(10,2)),0) avgInHospitalFee,
---              IFNULL(AVG(in_hospital_fee),0) avgInHospitalFee,
-            IFNULL(CAST(AVG(drug_fee) AS DECIMAL(10,2)),0) avgDrugFee,
---              IFNULL(AVG(drug_fee),0) avgDrugFee,
-            IFNULL(CAST(AVG(operation_treatment_fee) AS DECIMAL(10,2)),0) avgOperationTreatmentFee,
---              IFNULL(AVG(operation_treatment_fee),0) avgOperationTreatmentFee,
-            IFNULL(CAST(AVG(disposable_consumable) AS DECIMAL(10,2)),0) avgDisposableConsumable
---              IFNULL(AVG(disposable_consumable),0) avgDisposableConsumable
+            IFNULL(avg(in_hospital_day),0) averageInHospitalDay,
+            IFNULL(CAST(AVG(in_hospital_fee) AS DECIMAL(18,2)),0) averageInHospitalFee,
+--              IFNULL(AVG(in_hospital_fee),0) averageInHospitalFee,
+            IFNULL(CAST(AVG(drug_fee) AS DECIMAL(18,2)),0) averageDrugFee,
+--              IFNULL(AVG(drug_fee),0) averageDrugFee,
+            IFNULL(CAST(AVG(operation_treatment_fee) AS DECIMAL(18,2)),0) averageOperationTreatmentFee,
+--              IFNULL(AVG(operation_treatment_fee),0) averageOperationTreatmentFee,
+            IFNULL(CAST(AVG(disposable_consumable) AS DECIMAL(18,2)),0) averageDisposableConsumable
+--              IFNULL(AVG(disposable_consumable),0) averageDisposableConsumable
         FROM `q_single_disease_take`
         <where>
             <if test="categoryId!=null and categoryId!=''">
@@ -94,10 +76,44 @@
             <if test="dept!=null and dept!=''">
                 and tqms_dept =#{dept}
             </if>
-            <if test="dateType!=null  and dateType!=''">
-                and in_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
-                and in_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
+                and out_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
+                and out_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
+        </where>
+    </select>
+
+    <select id="countMortalitySql" parameterType="map" resultType="java.lang.Integer">
+        SELECT count(1) FROM `q_single_disease_take`
+        <where>
+            <if test="categoryId!=null and categoryId!=''">
+                and category_id =#{categoryId}
             </if>
+            <if test="dept!=null and dept!=''">
+                and tqms_dept =#{dept}
+            </if>
+            <if test="status!=null">
+                and status=#{status}
+            </if>
+                and out_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
+                and out_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
+            and leave_hospital_way = 'e'
+        </where>
+    </select>
+
+    <select id="countOperationComplicationSql" parameterType="map" resultType="java.lang.Integer">
+        SELECT count(1) FROM `q_single_disease_take`
+        <where>
+            <if test="categoryId!=null and categoryId!=''">
+                and category_id =#{categoryId}
+            </if>
+            <if test="dept!=null and dept!=''">
+                and tqms_dept =#{dept}
+            </if>
+            <if test="status!=null">
+                and status=#{status}
+            </if>
+                and out_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
+                and out_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
+            and operation_complication = '1'
         </where>
     </select>
 

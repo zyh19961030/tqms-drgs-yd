@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qu.modules.web.mapper.QSingleDiseaseStatisticDeptMapper">
+
+    <select id="selectMinOutTime" resultType="java.util.Date">
+        select min(out_time) from q_single_disease_take
+    </select>
+
+    <select id="singleDiseaseStatisticDepartmentComparison" parameterType="com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisParam" resultType="com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDepartmentComparisonVo">
+        SELECT
+        tqms_dept_name deptName,sum(need_report_count) needWriteCount,sum(complete_report_count) completeWriteCount,sum(not_report_count) notWriteCount,
+        CONCAT(IFNULL(CAST(AVG(complete_report_country_rate) AS DECIMAL(18,2)),0),'%') completeReportCountryRate,
+        CAST(sum(average_in_hospital_day) AS DECIMAL(18,2)) averageInHospitalDay,
+        CAST(sum(average_in_hospital_fee) AS DECIMAL(18,2)) averageInHospitalFee,
+        CAST(sum(average_drug_fee) AS DECIMAL(18,2)) averageDrugFee,
+        CAST(sum(average_operation_treatment_fee) AS DECIMAL(18,2)) averageOperationFee,
+        CAST(sum(average_disposable_consumable) AS DECIMAL(18,2)) averageDisposableConsumableFee,
+        CONCAT(CAST(sum(mortality) AS DECIMAL(18,2)),'%') mortality,
+        CONCAT(CAST(sum(operation_complication_rate) AS DECIMAL(18,2)),'%') complicationRate
+        FROM `q_single_disease_statistic_dept`
+        <where>
+            year_month_remark >= #{qSingleDiseaseTakeStatisticAnalysisParam.dateStart} and year_month_remark &lt;= #{qSingleDiseaseTakeStatisticAnalysisParam.dateEnd}
+            <if test="qSingleDiseaseTakeStatisticAnalysisParam.categoryId!=null and qSingleDiseaseTakeStatisticAnalysisParam.categoryId!='' ">
+                and category_id = #{qSingleDiseaseTakeStatisticAnalysisParam.categoryId}
+            </if>
+        </where>
+        group by tqms_dept
+    </select>
+
+
+    <sql id="reportStatisticCount">
+        SELECT
+        category_id categoryId,single_disease_name disease,sum(need_report_count) needReportCount,
+        sum(complete_report_count) completeReportCount,sum(not_report_count) notReportCount,
+        CONCAT(IFNULL(CAST(AVG(complete_report_country_rate) AS DECIMAL(18,2)),0),'%') completeReportCountryRate,
+        CAST(sum(average_in_hospital_day) AS DECIMAL(18,2)) averageInHospitalDay,
+        CAST(sum(average_in_hospital_fee) AS DECIMAL(18,2)) averageInHospitalFee,
+        CAST(sum(average_drug_fee) AS DECIMAL(18,2)) averageDrugFee,
+        CAST(sum(average_operation_treatment_fee) AS DECIMAL(18,2)) averageOperationTreatmentFee,
+        CAST(sum(average_disposable_consumable) AS DECIMAL(18,2)) averageDisposableConsumable,
+        CONCAT(CAST(sum(mortality) AS DECIMAL(18,2)),'%') mortality,
+        CONCAT(CAST(sum(operation_complication_rate) AS DECIMAL(18,2)),'%') operationComplicationRate
+        FROM `q_single_disease_statistic_dept`
+        <where>
+            year_month_remark >= #{dateStart} and year_month_remark &lt;= #{dateEnd}
+            <if test="deptId!=null and deptId != '' ">
+                and tqms_dept =#{deptId}
+            </if>
+            <if test="deptIdList!=null and deptIdList.size() > 0">
+                and tqms_dept in
+                <foreach close=")" collection="deptIdList" item="listItem" open="(" separator=",">
+                    #{listItem}
+                </foreach>
+            </if>
+        </where>
+        group by categoryId
+    </sql>
+
+    <select id="allSingleDiseaseReportStatisticByDeptCount" resultType="java.lang.Integer">
+        select count(1) from (
+        <include refid="reportStatisticCount"></include>
+        ) t
+    </select>
+
+    <select id="allSingleDiseaseReportStatisticByDept"  resultType="com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo">
+        <include refid="reportStatisticCount"></include> limit #{startRow},#{pageSize}
+    </select>
+
+    <select id="singleDiseaseStatisticAnalysisByDept"  resultType="com.qu.modules.web.vo.QSingleDiseaseTakeStatisticAnalysisVo">
+        SELECT
+        category_id categoryId,year_month_title yearMonth,
+        sum(complete_report_count) completeReportCountryCount,
+        CAST(sum(average_in_hospital_day) AS DECIMAL(18,4)) averageInHospitalDay,
+        CAST(sum(average_in_hospital_fee) AS DECIMAL(18,2)) averageInHospitalFee,
+        CAST(sum(mortality) AS DECIMAL(18,2)) mortality,
+        CAST(sum(operation_complication_rate) AS DECIMAL(18,2)) complicationRate
+        FROM `q_single_disease_statistic_dept`
+        <where>
+            year_month_remark >= #{dateStart} and year_month_remark &lt;= #{dateEnd}
+            <if test="deptId!=null and deptId != '' ">
+                and tqms_dept =#{deptId}
+            </if>
+            <if test="categoryId!=null and categoryId!='' ">
+                and category_id = #{categoryId}
+            </if>
+        </where>
+        group by year_month_remark
+    </select>
+
+
+
+</mapper>

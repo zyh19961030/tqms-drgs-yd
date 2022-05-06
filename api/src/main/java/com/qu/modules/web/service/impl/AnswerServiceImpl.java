@@ -261,19 +261,19 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         return ResultFactory.success();
     }
 
-    @Override
-    public String queryByQuId(Integer quId) {
-        String answer = null;
-        try {
-            StringBuffer sql = new StringBuffer();
-            sql.append("select answer_json from answer where  qu_id = " + quId + "  order by create_time  desc limit  1");
-            log.info("-----insert sql:{}", sql.toString());
-            answer = dynamicTableMapper.selectDynamicTable(sql.toString());
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
-        return answer;
-    }
+//    @Override
+//    public String queryByQuId(Integer quId) {
+//        String answer = null;
+//        try {
+//            StringBuffer sql = new StringBuffer();
+//            sql.append("select answer_json from answer where  qu_id = " + quId + "  order by create_time  desc limit  1");
+//            log.info("-----insert sql:{}", sql.toString());
+//            answer = dynamicTableMapper.selectDynamicTable(sql.toString());
+//        } catch (Exception e) {
+//            log.error(e.getMessage(), e);
+//        }
+//        return answer;
+//    }
 
     @Override
     public AnswerPageVo questionFillInList(String quName, Integer pageNo, Integer pageSize) {
