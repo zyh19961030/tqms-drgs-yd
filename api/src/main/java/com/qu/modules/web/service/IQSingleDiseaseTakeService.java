@@ -27,7 +27,7 @@ public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake>
 
     String setSingleDiseaseStatus(String[] ids, Integer status, String examineReason);
 
-    QSingleDiseaseTakeByDoctorPageVo singleDiseaseRejectList(Integer pageNo, Integer pageSize);
+    QSingleDiseaseTakeByDoctorPageVo singleDiseaseRejectList(Integer pageNo, Integer pageSize, String deptId);
 
     QSingleDiseaseTakeByDoctorPageVo singleDiseaseByDeptList(QSingleDiseaseTakeByDeptParam qSingleDiseaseTakeByDeptParam, Integer pageNo, Integer pageSize, String deptId);
 

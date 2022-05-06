@@ -259,9 +259,12 @@ public class QSingleDiseaseTakeController {
     @ApiOperation(value = "单病种驳回待处理查询", notes = "单病种驳回待处理查询")
     @GetMapping(value = "/singleDiseaseRejectList")
     public Result<QSingleDiseaseTakeByDoctorPageVo> singleDiseaseRejectList(@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
-                                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+                                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                                            HttpServletRequest request) {
         Result<QSingleDiseaseTakeByDoctorPageVo> result = new Result<>();
-        QSingleDiseaseTakeByDoctorPageVo list = qSingleDiseaseTakeService.singleDiseaseRejectList(pageNo, pageSize);
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String deptId = data.getDeps().get(0).getId();
+        QSingleDiseaseTakeByDoctorPageVo list = qSingleDiseaseTakeService.singleDiseaseRejectList(pageNo, pageSize,deptId);
         result.setSuccess(true);
         result.setResult(list);
         return result;
