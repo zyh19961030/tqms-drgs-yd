@@ -1335,6 +1335,37 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                                 }
                             }
                         }
+                        int sg = 0;
+                        if (a.getSubColumnName().equals("CM-0-2-1-5")) {
+                            String sgs = a.getSubValue();
+                            sg = Integer.parseInt(sgs) / 100;
+                        }
+                        int tz = 0;
+                        if (a.getSubColumnName().equals("CM-0-2-1-3")) {
+                            String tzs = a.getSubValue();
+                            tz = Integer.parseInt(tzs);
+                        }
+                        String zs = String.valueOf(tz / (sg * sg));
+                        if (qSingleDiseaseTake.getQuestionId().equals(77) || qSingleDiseaseTake.getQuestionId().equals(98) ||
+                                qSingleDiseaseTake.getQuestionId().equals(70) || qSingleDiseaseTake.getQuestionId().equals(117)) {
+                            a.setSubColumnName("CM-0-2-1-4");
+                            a.setSubValue(zs);
+                        }
+                        if (qSingleDiseaseTake.getQuestionId().equals(107)) {
+                            a.setSubColumnName("HD-9-1-1-3");
+                            a.setSubValue(zs);
+                        }
+                        if (qSingleDiseaseTake.getQuestionId().equals(123) || qSingleDiseaseTake.getQuestionId().equals(131) ||
+                                qSingleDiseaseTake.getQuestionId().equals(132) || qSingleDiseaseTake.getQuestionId().equals(142) ||
+                                qSingleDiseaseTake.getQuestionId().equals(143) || qSingleDiseaseTake.getQuestionId().equals(124) ||
+                                qSingleDiseaseTake.getQuestionId().equals(130)) {
+                            a.setSubColumnName("CM-0-2-1-3-1");
+                            a.setSubValue(zs);
+                        }
+                        if (qSingleDiseaseTake.getQuestionId().equals(128)) {
+                            a.setSubColumnName("DPD-2-7-1-4");
+                            a.setSubValue(zs);
+                        }
                         mapCache.put(a.getSubColumnName(), a.getSubValue());
                         if (qSingleDiseaseTake.getQuestionId().equals(115) || qSingleDiseaseTake.getQuestionId().equals(122)
                                 || qSingleDiseaseTake.getQuestionId().equals(100) || qSingleDiseaseTake.getQuestionId().equals(106)
