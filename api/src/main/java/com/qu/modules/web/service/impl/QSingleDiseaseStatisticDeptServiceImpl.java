@@ -1,24 +1,5 @@
 package com.qu.modules.web.service.impl;
 
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -32,24 +13,23 @@ import com.qu.modules.web.entity.TbDep;
 import com.qu.modules.web.mapper.QSingleDiseaseStatisticDeptMapper;
 import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.QSingleDiseaseTakeNumberListParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticDepartmentComparisonChartParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.service.IQSingleDiseaseStatisticDeptService;
 import com.qu.modules.web.service.IQSingleDiseaseStatisticHospitalService;
 import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.vo.QSingleDiseaseTakeNumberListInDeptVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeNumberListVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeNumberVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticAnalysisVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDepartmentComparisonChartInDeptVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDepartmentComparisonChartVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDepartmentComparisonVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDeptVo;
+import com.qu.modules.web.vo.*;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 单病种统计表
@@ -174,7 +154,7 @@ public class QSingleDiseaseStatisticDeptServiceImpl extends ServiceImpl<QSingleD
                         countParams.put("dept", qSingleDiseaseTakeReportStatisticVo.getTqmsDept());
                         countParams.put("dateStart", startDate);
                         countParams.put("dateEnd", endDate);
-                        countParams.put("status", QSingleDiseaseTakeConstant.STATUS_COMPLETE);
+                        countParams.put("status", Lists.newArrayList(QSingleDiseaseTakeConstant.STATUS_COMPLETE));
                         Integer needReportCount = qSingleDiseaseTakeReportStatisticVo.getNeedReportCount();
                         Integer completeReportCount = qSingleDiseaseTakeMapper.countSql(countParams);
                         Integer notReportCount = needReportCount - completeReportCount;
@@ -268,7 +248,7 @@ public class QSingleDiseaseStatisticDeptServiceImpl extends ServiceImpl<QSingleD
                     countParams.put("categoryId", qSingleDiseaseTakeReportStatisticVo.getCategoryId());
                     countParams.put("dateStart", startDate);
                     countParams.put("dateEnd", endDate);
-                    countParams.put("status", QSingleDiseaseTakeConstant.STATUS_COMPLETE);
+                    countParams.put("status", Lists.newArrayList(QSingleDiseaseTakeConstant.STATUS_COMPLETE));
                     Integer needReportCount = qSingleDiseaseTakeReportStatisticVo.getNeedReportCount();
                     Integer completeReportCount = qSingleDiseaseTakeMapper.countSql(countParams);
                     Integer notReportCount = needReportCount - completeReportCount;

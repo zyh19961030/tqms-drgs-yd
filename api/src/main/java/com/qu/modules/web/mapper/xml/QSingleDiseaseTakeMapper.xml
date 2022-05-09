@@ -47,8 +47,11 @@
             <if test="dept!=null and dept!=''">
                 and tqms_dept =#{dept}
             </if>
-            <if test="status!=null">
-                and status=#{status}
+            <if test="status!=null and status.size() > 0">
+                and status in
+                <foreach close=")" collection="status" item="listItem" open="(" separator=",">
+                    #{listItem}
+                </foreach>
             </if>
             and out_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
             and out_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
@@ -90,8 +93,11 @@
             <if test="dept!=null and dept!=''">
                 and tqms_dept =#{dept}
             </if>
-            <if test="status!=null">
-                and status=#{status}
+            <if test="status!=null and status.size() > 0">
+                and status in
+                <foreach close=")" collection="status" item="listItem" open="(" separator=",">
+                    #{listItem}
+                </foreach>
             </if>
                 and out_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
                 and out_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
@@ -356,5 +362,20 @@
             </foreach>
         </if>
     </select>
+
+    <select id="departmentQuantityStatistics" parameterType="map" resultType="com.qu.modules.web.vo.DepartmentQuantityStatisticsVo">
+            SELECT tqms_dept tqmsDept,tqms_dept_name deptName,
+            count(1) needReportCount
+            FROM `q_single_disease_take`
+            <where>
+                status &lt;> 8
+                <if test="dateType!=null">
+                    and in_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
+                    and in_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
+                </if>
+            </where>
+            group by tqms_dept
+    </select>
+
 
 </mapper>

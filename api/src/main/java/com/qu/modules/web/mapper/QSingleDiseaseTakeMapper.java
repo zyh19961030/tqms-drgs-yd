@@ -59,6 +59,6 @@ public interface QSingleDiseaseTakeMapper extends BaseMapper<QSingleDiseaseTake>
 
     Integer singleDiseaseReportCount(@Param("start")Date start, @Param("end")Date end, @Param("categoryIdList")List<String> categoryIdList);
 
-
+    List<DepartmentQuantityStatisticsVo> departmentQuantityStatistics(Map<String, Object> params);
 
 }

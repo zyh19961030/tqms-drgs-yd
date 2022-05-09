@@ -1,83 +1,36 @@
 package com.qu.modules.web.controller;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.jeecg.common.aspect.annotation.AutoLog;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.qu.constant.Constant;
 import com.qu.constant.QSingleDiseaseTakeConstant;
 import com.qu.modules.web.entity.TbDep;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeNumberListParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportQuantityRankingParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticDeptPermutationParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewLineParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewPieParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticSummaryParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticDepartmentComparisonChartParam;
-import com.qu.modules.web.param.SingleDiseaseAnswerNavigationParam;
-import com.qu.modules.web.param.SingleDiseaseAnswerParam;
-import com.qu.modules.web.param.SingleDiseaseExamineRecordParam;
-import com.qu.modules.web.param.SingleDiseaseRejectParam;
-import com.qu.modules.web.param.SingleDiseaseWaitUploadParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.pojo.Deps;
 import com.qu.modules.web.service.IQSingleDiseaseStatisticDeptService;
 import com.qu.modules.web.service.IQSingleDiseaseStatisticHospitalService;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
 import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.vo.QSingleDiseaseNameVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeNumberVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportQuantityRankingVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptPermutationVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewLineVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewPieVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticSummaryVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticTrendVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticAnalysisTableVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticAnalysisVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDepartmentComparisonChartVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDepartmentComparisonVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
-import com.qu.modules.web.vo.ReportFailureRecordParameterPageVo;
-import com.qu.modules.web.vo.ReportFailureRecordParameterVo;
-import com.qu.modules.web.vo.SingleDiseaseAnswerNavigationVo;
-import com.qu.modules.web.vo.SingleDiseaseReportCountVo;
-import com.qu.modules.web.vo.WorkbenchReminderVo;
+import com.qu.modules.web.vo.*;
 import com.qu.util.DeptUtil;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.aspect.annotation.AutoLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 单病种总表
@@ -733,6 +686,20 @@ public class QSingleDiseaseTakeController {
     public Result<QSingleDiseaseTakeNumberVo> deptSingleDiseaseNumberList3(@Validated QSingleDiseaseTakeNumberListParam qSingleDiseaseTakeNumberListParam) {
         Result<QSingleDiseaseTakeNumberVo> result = new Result<>();
         List<QSingleDiseaseTakeNumberVo> resList = qSingleDiseaseStatisticDeptService.deptSingleDiseaseNumberList3(qSingleDiseaseTakeNumberListParam);
+        result.setSuccess(true);
+        result.setResult(resList);
+        return result;
+    }
+
+    /**
+     * 菜单-新增-科室数量统计列表
+     */
+    @AutoLog(value = "菜单-新增-科室数量统计列表")
+    @ApiOperation(value = "菜单-新增-科室数量统计列表", notes = "菜单-新增-科室数量统计列表",response = DepartmentQuantityStatisticsVo.class)
+    @GetMapping(value = "/departmentQuantityStatistics")
+    public Result<DepartmentQuantityStatisticsVo> departmentQuantityStatistics(@Validated DepartmentQuantityStatisticsParam departmentQuantityStatisticsParam) {
+        Result<DepartmentQuantityStatisticsVo> result = new Result<>();
+        List<DepartmentQuantityStatisticsVo> resList = qSingleDiseaseTakeService.departmentQuantityStatistics(departmentQuantityStatisticsParam);
         result.setSuccess(true);
         result.setResult(resList);
         return result;

@@ -69,4 +69,7 @@ public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake>
     Integer pageDataCount();
 
     SingleDiseaseReportCountVo singleDiseaseReportCount(String deptId);
+
+    List<DepartmentQuantityStatisticsVo> departmentQuantityStatistics(DepartmentQuantityStatisticsParam departmentQuantityStatisticsParam);
+
 }
