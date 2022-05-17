@@ -28,8 +28,6 @@
             <if test="status!=null">
                 and status=#{status}
             </if>
-            and out_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
-            and out_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
         </where>
         group by dynamicTableName
         <if test="dept!=null and dept!=''">
@@ -369,9 +367,9 @@
             FROM `q_single_disease_take`
             <where>
                 status &lt;> 8
-                <if test="dateType!=null">
-                    and in_time >=STR_TO_DATE(#{dateStart},'%Y-%m-%d %H:%i:%S')
-                    and in_time &lt;STR_TO_DATE(#{dateEnd},'%Y-%m-%d %H:%i:%S')
+                <if test="startDate!=null and endDate!=null">
+                    and in_time >=STR_TO_DATE(#{startDate},'%Y-%m-%d %H:%i:%S')
+                    and in_time &lt;STR_TO_DATE(#{endDate},'%Y-%m-%d %H:%i:%S')
                 </if>
             </where>
             group by tqms_dept
