@@ -244,6 +244,20 @@ public class QSingleDiseaseTakeController {
     }
 
     /**
+     * 全院单病种上报记录查询-全院上报记录菜单中-科室筛选条件列表接口
+     */
+    @AutoLog(value = "全院单病种上报记录查询-全院上报记录菜单中-科室筛选条件列表接口")
+    @ApiOperation(value = "全院单病种上报记录查询-全院上报记录菜单中-科室筛选条件列表接口", notes = "全院单病种上报记录查询-全院上报记录菜单中-科室筛选条件列表接口")
+    @GetMapping(value = "/singleDiseaseAllListDeptCondition")
+    public Result<List<TbDep>> singleDiseaseAllListDeptCondition() {
+        Result<List<TbDep>> result = new Result<>();
+        List<TbDep> list = qSingleDiseaseTakeService.singleDiseaseAllListDeptCondition();
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+    /**
      * 全院单病种上报记录查询-全院上报记录
      */
     @AutoLog(value = "全院单病种上报记录查询-全院上报记录")

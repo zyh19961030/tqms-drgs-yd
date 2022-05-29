@@ -1,5 +1,6 @@
 package com.qu.modules.web.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
@@ -11,19 +12,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.qu.constant.QSingleDiseaseTakeConstant;
-import com.qu.constant.QsubjectConstant;
-import com.qu.constant.QuestionConstant;
-import com.qu.constant.TqmsQuotaCategoryConstant;
-import com.qu.modules.web.entity.QSingleDiseaseTake;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.entity.TqmsQuotaCategory;
+import com.qu.constant.*;
+import com.qu.modules.web.entity.*;
 import com.qu.modules.web.mapper.*;
 import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
 import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.service.ITbDepService;
 import com.qu.modules.web.vo.*;
 import com.qu.util.*;
 import com.qu.util.HttpTools.HttpData;
@@ -79,6 +75,10 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     @Autowired
     private TqmsQuotaCategoryMapper tqmsQuotaCategoryMapper;
 
+    @Autowired
+    private ITbDepService tbDepService;
+
+
     @Value("${system.tokenUrl}")
     private String tokenUrl;
 
@@ -93,9 +93,9 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         if(StringUtils.isNotBlank(name)){
             lambda.like(Question::getQuName,name);
         }
-        lambda.eq(Question::getQuStatus,"1");
-        lambda.eq(Question::getCategoryType,"1");
-        lambda.eq(Question::getDel,"0");
+        lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+        lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+        lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
         //科室匹配 按单病种填报 问卷设置科室权限---
         if(StringUtils.isNotBlank(deptId)){
             lambda.like(Question::getDeptIds,deptId);
@@ -371,6 +371,18 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         qsubjectlibPageVo.setTotal(qSingleDiseaseTakeIPage.getTotal());
         qsubjectlibPageVo.setQSingleDiseaseTakeList(qSingleDiseaseTakeIPage.getRecords());
         return qsubjectlibPageVo;
+    }
+
+    @Override
+    public List<TbDep> singleDiseaseAllListDeptCondition() {
+        List<String> deptIdList = questionService.selectSingleDiseaseDeptIdList(null);
+        if(CollectionUtil.isEmpty(deptIdList)){
+            return Lists.newArrayList();
+        }
+        LambdaQueryWrapper<TbDep> tbDepLambda = new QueryWrapper<TbDep>().lambda();
+        tbDepLambda.eq(TbDep::getIsdelete, Constant.IS_DELETE_NO);
+        tbDepLambda.in(TbDep::getId,deptIdList);
+        return tbDepService.list(tbDepLambda);
     }
 
     @Override
@@ -689,6 +701,41 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 qSingleDiseaseTake.setInHospitalFee(inHospitalFee);
             }
         }
+
+
+        LambdaQueryWrapper<Qsubject> lambdaWesternMedicineFee = new QueryWrapper<Qsubject>().lambda();
+        lambdaWesternMedicineFee.eq(Qsubject::getColumnName,"CM-6-18");
+        lambdaWesternMedicineFee.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        lambdaWesternMedicineFee.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
+        qsubject = qsubjectMapper.selectOne(lambdaWesternMedicineFee);
+        Integer westernMedicineFee=0;
+        if(qsubject!=null){
+            String westernMedicineFeeString = mapCache.get(qsubject.getColumnName())==null?"0":mapCache.get(qsubject.getColumnName());
+            westernMedicineFee= PriceUtil.toFenInt(new BigDecimal(westernMedicineFeeString));
+        }
+
+        LambdaQueryWrapper<Qsubject> lambdaChineseMedicineFee = new QueryWrapper<Qsubject>().lambda();
+        lambdaChineseMedicineFee.eq(Qsubject::getColumnName,"CM-6-20");
+        lambdaChineseMedicineFee.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        lambdaChineseMedicineFee.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
+        qsubject = qsubjectMapper.selectOne(lambdaChineseMedicineFee);
+        Integer chineseMedicineFee=0;
+        if(qsubject!=null){
+            String chineseMedicineFeeString = mapCache.get(qsubject.getColumnName())==null?"0":mapCache.get(qsubject.getColumnName());
+            chineseMedicineFee= PriceUtil.toFenInt(new BigDecimal(chineseMedicineFeeString));
+        }
+
+        LambdaQueryWrapper<Qsubject> lambdaChineseHerbalMedicineFee = new QueryWrapper<Qsubject>().lambda();
+        lambdaChineseHerbalMedicineFee.eq(Qsubject::getColumnName,"CM-6-21");
+        lambdaChineseHerbalMedicineFee.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+        lambdaChineseHerbalMedicineFee.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
+        qsubject = qsubjectMapper.selectOne(lambdaChineseHerbalMedicineFee);
+        Integer chineseHerbalMedicineFee=0;
+        if(qsubject!=null){
+            String chineseHerbalMedicineFeeString = mapCache.get(qsubject.getColumnName())==null?"0":mapCache.get(qsubject.getColumnName());
+            chineseHerbalMedicineFee= PriceUtil.toFenInt(new BigDecimal(chineseHerbalMedicineFeeString));
+        }
+        qSingleDiseaseTake.setDrugFee(PriceUtil.toYuanStr(westernMedicineFee + chineseMedicineFee + chineseHerbalMedicineFee));
 
         LambdaQueryWrapper<Qsubject> lambdaOperationTreatmentFee = new QueryWrapper<Qsubject>().lambda();
         lambdaOperationTreatmentFee.eq(Qsubject::getColumnName,"CM-6-13");
@@ -1125,9 +1172,9 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
         LambdaQueryWrapper<Question> questionQueryWrapper = new QueryWrapper<Question>().lambda();
         questionQueryWrapper.in(Question::getTableName, dynamicTableNameList);
-        questionQueryWrapper.eq(Question::getQuStatus,"1");
-        questionQueryWrapper.eq(Question::getCategoryType,"1");
-        questionQueryWrapper.eq(Question::getDel,"0");
+        questionQueryWrapper.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+        questionQueryWrapper.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+        questionQueryWrapper.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
         List<Question> questionList = questionMapper.selectList(questionQueryWrapper);
         List<Integer> questionIds = questionList.stream().map(Question::getId).collect(Collectors.toList());
 //        Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
