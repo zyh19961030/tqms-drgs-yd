@@ -2,6 +2,7 @@ package com.qu.modules.web.controller.test;
 
 import com.alibaba.fastjson.JSON;
 import com.qu.modules.web.param.AdminPrivateParam;
+import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
 import com.qu.modules.web.service.IAdminPrivateService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,8 +33,22 @@ public class AdminPrivateController {
         if(!"a1q2".equals(adminPrivateParam.getName())){
             return ResultFactory.fail();
         }
-        log.info("-----------answerParam={}", JSON.toJSONString(adminPrivateParam));
+        log.info("-----------updateTableDate={}", JSON.toJSONString(adminPrivateParam));
         boolean flag = adminPrivateService.updateTableDate(adminPrivateParam);
+        if(flag){
+            return  ResultFactory.success();
+        }
+        return  ResultFactory.fail("失败");
+    }
+
+    @ApiOperation(value = "处理药品费用", notes = "处理药品费用")
+    @PostMapping(value = "/updateTableDrugFee")
+    public Result updateTableDrugFee(@RequestBody AdminPrivateUpdateTableDrugFeeParam adminPrivateUpdateTableDrugFeeParam) {
+        if(!"s3w2".equals(adminPrivateUpdateTableDrugFeeParam.getName())){
+            return ResultFactory.fail();
+        }
+        log.info("-----------updateTableDrugFee={}", JSON.toJSONString(adminPrivateUpdateTableDrugFeeParam));
+        boolean flag = adminPrivateService.updateTableDrugFee(adminPrivateUpdateTableDrugFeeParam);
         if(flag){
             return  ResultFactory.success();
         }

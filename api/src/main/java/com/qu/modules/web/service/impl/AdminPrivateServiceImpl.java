@@ -16,11 +16,15 @@ import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
 import com.qu.modules.web.param.AdminPrivateParam;
+import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
 import com.qu.modules.web.service.IAdminPrivateService;
+import com.qu.util.PriceUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -128,6 +132,109 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
                 }
             }
             sqlSelect.setLength(0);
+        }
+        return true;
+    }
+
+
+    @Override
+    public boolean updateTableDrugFee(AdminPrivateUpdateTableDrugFeeParam adminPrivateUpdateTableDrugFeeParam) {
+        //查出来所有的单病种表
+        LambdaQueryWrapper<QSingleDiseaseTake> lambda = new QueryWrapper<QSingleDiseaseTake>().lambda();
+        List<QSingleDiseaseTake> qSingleDiseaseTakeList = qSingleDiseaseTakeMapper.selectList(lambda);
+        StringBuilder sqlSelect = new StringBuilder();
+        boolean dateUpdateFlag = false;
+        for (QSingleDiseaseTake qSingleDiseaseTake : qSingleDiseaseTakeList) {
+            sqlSelect.setLength(0);
+            if (qSingleDiseaseTake != null) {
+                String dynamicTableName = qSingleDiseaseTake.getDynamicTableName();
+                String summaryMappingTableId = qSingleDiseaseTake.getSummaryMappingTableId();
+                if(StringUtils.isAnyBlank(dynamicTableName,summaryMappingTableId)){
+                    log.info("continue qSingleDiseaseTake.dynamicTableName or summaryMappingTableId is null---qSingleDiseaseTakeId-------{},{},{}", dynamicTableName, qSingleDiseaseTake.getId(),summaryMappingTableId);
+                    continue;
+                }
+                sqlSelect.append("select * from `");
+                sqlSelect.append(dynamicTableName);
+                sqlSelect.append("`");
+                sqlSelect.append(" where summary_mapping_table_id = '");
+                sqlSelect.append(summaryMappingTableId);
+                sqlSelect.append("'");
+                Map<String,String> map = dynamicTableMapper.selectDynamicTableColumn(sqlSelect.toString());
+                if (map == null || map.isEmpty()) {
+                    log.info("continue sqlAns map is null---qSingleDiseaseTakeId-------{},{},{}", dynamicTableName, qSingleDiseaseTake.getId(),summaryMappingTableId);
+                    continue;
+                }
+
+                //住院天数
+//                String inHospitalDayString = map.get("CM-4-1");
+//                if(StringUtils.isNotBlank(inHospitalDayString)){
+//                    if(inHospitalDayString.contains("天")){
+//                        inHospitalDayString = inHospitalDayString.replaceAll("天","");
+//                    }
+//                    qSingleDiseaseTake.setInHospitalDay(Integer.parseInt(inHospitalDayString));
+//                }
+//
+//                String inHospitalFee = map.get("CM-6-1");
+//                if(StringUtils.isNotBlank(inHospitalFee)){
+//                    qSingleDiseaseTake.setInHospitalFee(inHospitalFee);
+//                }
+//
+//                String operationTreatmentFeeString = map.get("CM-6-13");
+//                if(StringUtils.isNotBlank(operationTreatmentFeeString)){
+//                    qSingleDiseaseTake.setOperationTreatmentFee(operationTreatmentFeeString);
+//                }
+//
+//                String operationDisposableMaterialFeeString = map.get("CM-6-29");
+//                if(StringUtils.isBlank(operationDisposableMaterialFeeString)){
+//                    log.info("continue CM-6-29 is null---qSingleDiseaseTakeId-------{},{},{}", dynamicTableName, qSingleDiseaseTake.getId(),summaryMappingTableId);
+//                    operationDisposableMaterialFeeString="0";
+//                }
+//                Integer operationDisposableMaterialFee= PriceUtil.toFenInt(new BigDecimal(operationDisposableMaterialFeeString));
+//                String examinationDisposableMaterialFeeString = map.get("CM-6-27");
+//                if(StringUtils.isBlank(examinationDisposableMaterialFeeString)){
+//                    log.info("continue CM-6-27 is null---qSingleDiseaseTakeId-------{},{},{}", dynamicTableName, qSingleDiseaseTake.getId(),summaryMappingTableId);
+//                    examinationDisposableMaterialFeeString="0";
+//                }
+//                Integer examinationDisposableMaterialFee = PriceUtil.toFenInt(new BigDecimal(examinationDisposableMaterialFeeString));
+//                String treatmentDisposableMaterialFeeString = map.get("CM-6-28");
+//                if(StringUtils.isBlank(treatmentDisposableMaterialFeeString)){
+//                    log.info("continue CM-6-28 is null---qSingleDiseaseTakeId-------{},{},{}", dynamicTableName, qSingleDiseaseTake.getId(),summaryMappingTableId);
+//                    treatmentDisposableMaterialFeeString="0";
+//                }
+//                Integer treatmentDisposableMaterialFee = PriceUtil.toFenInt(new BigDecimal(treatmentDisposableMaterialFeeString));
+//                qSingleDiseaseTake.setDisposableConsumable(PriceUtil.toYuanStr(treatmentDisposableMaterialFee+examinationDisposableMaterialFee+operationDisposableMaterialFee));
+
+
+                String westernMedicineFeeString = map.get("CM-6-18");
+                if(StringUtils.isBlank(westernMedicineFeeString)){
+                    log.info("continue CM-6-18 is null---qSingleDiseaseTakeId-------{},{},{}", dynamicTableName, qSingleDiseaseTake.getId(),summaryMappingTableId);
+                    westernMedicineFeeString="0";
+                }
+                Integer westernMedicineFee= PriceUtil.toFenInt(new BigDecimal(westernMedicineFeeString));
+
+                String chineseMedicineFeeString = map.get("CM-6-20");
+                if(StringUtils.isBlank(chineseMedicineFeeString)){
+                    log.info("continue CM-6-18 is null---qSingleDiseaseTakeId-------{},{},{}", dynamicTableName, qSingleDiseaseTake.getId(),summaryMappingTableId);
+                    chineseMedicineFeeString="0";
+                }
+                Integer chineseMedicineFee = PriceUtil.toFenInt(new BigDecimal(chineseMedicineFeeString));
+
+                String chineseHerbalMedicineFeeString = map.get("CM-6-21");
+                if(StringUtils.isBlank(chineseHerbalMedicineFeeString)){
+                    log.info("continue CM-6-18 is null---qSingleDiseaseTakeId-------{},{},{}", dynamicTableName, qSingleDiseaseTake.getId(),summaryMappingTableId);
+                    chineseHerbalMedicineFeeString="0";
+                }
+                Integer chineseHerbalMedicineFee = PriceUtil.toFenInt(new BigDecimal(chineseHerbalMedicineFeeString));
+
+                qSingleDiseaseTake.setDrugFee(PriceUtil.toYuanStr(westernMedicineFee + chineseMedicineFee + chineseHerbalMedicineFee));
+                dateUpdateFlag = qSingleDiseaseTakeMapper.updateById(qSingleDiseaseTake)>0;
+
+                if (!dateUpdateFlag) {
+                    log.info("not dateUpdateFlag , continue qSingleDiseaseTake.getTableName() data is null---questionId--summary_mapping_table_id-----{},{},{}", dynamicTableName, qSingleDiseaseTake.getId(),summaryMappingTableId);
+                    continue;
+                }
+
+            }
         }
         return true;
     }
