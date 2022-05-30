@@ -67,10 +67,11 @@ public class QuestionController {
     @AutoLog(value = "问卷表-添加")
     @ApiOperation(value = "问卷表-添加", notes = "问卷表-添加")
     @PostMapping(value = "/add")
-    public Result<Question> add(@RequestBody QuestionParam questionParam) {
+    public Result<Question> add(@RequestBody QuestionParam questionParam, HttpServletRequest request) {
         Result<Question> result = new Result<Question>();
         try {
-            Question q = questionService.saveQuestion(questionParam);
+            Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+            Question q = questionService.saveQuestion(questionParam,data.getTbUser());
             result.setResult(q);
             result.success("添加成功！");
         } catch (Exception e) {
@@ -89,9 +90,10 @@ public class QuestionController {
     @AutoLog(value = "问卷表-编辑")
     @ApiOperation(value = "问卷表-编辑", notes = "问卷表-编辑")
     @PutMapping(value = "/edit")
-    public Result<Question> edit(@RequestBody QuestionEditParam questionEditParam) {
+    public Result<Question> edit(@RequestBody QuestionEditParam questionEditParam, HttpServletRequest request) {
         Result<Question> result = new Result<Question>();
-        Question question = questionService.updateQuestionById(questionEditParam);
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        Question question = questionService.updateQuestionById(questionEditParam,data.getTbUser());
         if (question == null) {
             result.error500("建表失败，表名重复!");
             return result;
@@ -127,9 +129,10 @@ public class QuestionController {
     @AutoLog(value = "问卷表-通过id删除")
     @ApiOperation(value = "问卷表-通过id删除", notes = "问卷表-通过id删除")
     @DeleteMapping(value = "/delete")
-    public Result<Boolean> delete(@RequestParam(name = "id", required = true) Integer id) {
+    public Result<Boolean> delete(@RequestParam(name = "id", required = true) Integer id, HttpServletRequest request) {
         Result<Boolean> result = new Result<Boolean>();
-        Boolean ok = questionService.removeQuestionById(id);
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        Boolean ok = questionService.removeQuestionById(id,data.getTbUser());
         result.setResult(ok);
         result.success("删除成功!");
         return result;

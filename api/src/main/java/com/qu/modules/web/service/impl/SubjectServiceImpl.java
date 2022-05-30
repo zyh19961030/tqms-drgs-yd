@@ -1,12 +1,14 @@
 package com.qu.modules.web.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.qu.constant.QoptionConstant;
 import com.qu.constant.QsubjectConstant;
 import com.qu.modules.web.entity.Qoption;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.mapper.OptionMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.param.*;
+import com.qu.modules.web.pojo.TbUser;
 import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.SubjectVo;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +36,7 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
     private OptionMapper optionMapper;
 
     @Override
-    public SubjectVo saveSubject(SubjectParam subjectParam) {
+    public SubjectVo saveSubject(SubjectParam subjectParam, TbUser tbUser) {
         SubjectVo subjectVo = new SubjectVo();
         Qsubject subject = new Qsubject();
 
@@ -67,11 +69,15 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
             }
             subject.setGroupIds(groupIds.toString());
         }
-        subject.setDel(0);
-        subject.setCreater(1);
-        subject.setCreateTime(new Date());
-        subject.setUpdater(1);
-        subject.setUpdateTime(new Date());
+
+        Date date = new Date();
+        String userId = tbUser.getId();
+
+        subject.setDel(QsubjectConstant.DEL_NORMAL);
+        subject.setCreater(userId);
+        subject.setCreateTime(date);
+        subject.setUpdater(userId);
+        subject.setUpdateTime(date);
         qsubjectMapper.insert(subject);
         //拷贝到Vo对象
         BeanUtils.copyProperties(subject, subjectVo);
@@ -85,11 +91,11 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
                 BeanUtils.copyProperties(optionParam, option);
                 option.setSubId(subject.getId());
                 option.setOpOrder(i);
-                option.setDel(0);
-                option.setCreater(1);
-                option.setCreateTime(new Date());
-                option.setUpdater(1);
-                option.setUpdateTime(new Date());
+                option.setDel(QoptionConstant.DEL_NORMAL);
+                option.setCreater(userId);
+                option.setCreateTime(date);
+                option.setUpdater(userId);
+                option.setUpdateTime(date);
                 optionMapper.insert(option);
                 i++;
                 optionList.add(option);
@@ -114,7 +120,7 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
     }
 
     @Override
-    public SubjectVo insertSubject(InsertSubjectParam insertSubjectParam) {
+    public SubjectVo insertSubject(InsertSubjectParam insertSubjectParam, TbUser tbUser) {
         SubjectVo subjectVo = new SubjectVo();
         Qsubject subject = new Qsubject();
 
@@ -148,11 +154,14 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
             }
             subject.setGroupIds(groupIds.toString());
         }
-        subject.setDel(0);
-        subject.setCreater(1);
-        subject.setCreateTime(new Date());
-        subject.setUpdater(1);
-        subject.setUpdateTime(new Date());
+        Date date = new Date();
+        String userId = tbUser.getId();
+
+        subject.setDel(QsubjectConstant.DEL_NORMAL);
+        subject.setCreater(userId);
+        subject.setCreateTime(date);
+        subject.setUpdater(userId);
+        subject.setUpdateTime(date);
         qsubjectMapper.insert(subject);
 
         //把这道题以后的所有题的序号都加1
@@ -198,11 +207,11 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
                 BeanUtils.copyProperties(optionParam, option);
                 option.setSubId(subject.getId());
                 option.setOpOrder(i);
-                option.setDel(0);
-                option.setCreater(1);
-                option.setCreateTime(new Date());
-                option.setUpdater(1);
-                option.setUpdateTime(new Date());
+                option.setDel(QoptionConstant.DEL_NORMAL);
+                option.setCreater(userId);
+                option.setCreateTime(date);
+                option.setUpdater(userId);
+                option.setUpdateTime(date);
                 optionMapper.insert(option);
                 i++;
                 optionList.add(option);
@@ -214,7 +223,7 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
     }
 
     @Override
-    public SubjectVo updateQsubjectById(SubjectEditParam subjectEditParam) {
+    public SubjectVo updateQsubjectById(SubjectEditParam subjectEditParam, TbUser tbUser) {
         SubjectVo subjectVo = new SubjectVo();
         Qsubject subject = new Qsubject();
 
@@ -262,8 +271,10 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
                 }
             }
         }
-        subject.setUpdater(1);
-        subject.setUpdateTime(new Date());
+        String userId = tbUser.getId();
+        Date date = new Date();
+        subject.setUpdater(userId);
+        subject.setUpdateTime(date);
         qsubjectMapper.updateById(subject);
         //拷贝到Vo对象
         BeanUtils.copyProperties(subject, subjectVo);
@@ -279,11 +290,11 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
                 BeanUtils.copyProperties(optionParam, option);
                 option.setSubId(subject.getId());
                 option.setOpOrder(i);
-                option.setDel(0);
-                option.setCreater(1);
-                option.setCreateTime(new Date());
-                option.setUpdater(1);
-                option.setUpdateTime(new Date());
+                option.setDel(QoptionConstant.DEL_NORMAL);
+                option.setCreater(userId);
+                option.setCreateTime(date);
+                option.setUpdater(userId);
+                option.setUpdateTime(date);
                 if (option.getId() != null && option.getId() != 0) {
                     optionMapper.updateById(option);
                 } else {
@@ -304,13 +315,14 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
     }
 
     @Override
-    public Boolean removeSubjectById(Integer id) {
+    public Boolean removeSubjectById(Integer id, TbUser tbUser) {
         Boolean delFlag = true;
         try {
+            String userId = tbUser.getId();
             Qsubject subject = new Qsubject();
             subject.setId(id);
-            subject.setDel(1);
-            subject.setUpdater(1);
+            subject.setDel(QsubjectConstant.DEL_DELETED);
+            subject.setUpdater(userId);
             subject.setUpdateTime(new Date());
             qsubjectMapper.updateById(subject);
             //如果此题在分组中，删除分组题中的groupIds

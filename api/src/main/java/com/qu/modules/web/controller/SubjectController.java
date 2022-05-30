@@ -1,7 +1,9 @@
 package com.qu.modules.web.controller;
 
+import com.qu.constant.Constant;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.param.*;
+import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.SubjectVo;
 import io.swagger.annotations.Api;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,10 +42,11 @@ public class SubjectController {
     @AutoLog(value = "题目表-添加")
     @ApiOperation(value = "题目表-添加", notes = "题目表-添加")
     @PostMapping(value = "/add")
-    public Result<SubjectVo> add(@RequestBody @Validated SubjectParam subjectParam) {
+    public Result<SubjectVo> add(@RequestBody @Validated SubjectParam subjectParam, HttpServletRequest request) {
         Result<SubjectVo> result = new Result<SubjectVo>();
         try {
-            SubjectVo so = subjectService.saveSubject(subjectParam);
+            Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+            SubjectVo so = subjectService.saveSubject(subjectParam,data.getTbUser());
             if (so == null) {
                 result.error500("添加失败,字段名重复!");
                 return result;
@@ -58,10 +62,11 @@ public class SubjectController {
 
     @ApiOperation(value = "在某题下面插入题目", notes = "在某题下面插入题目")
     @PostMapping(value = "/insertSubject")
-    public Result<SubjectVo> insertSubject(@RequestBody InsertSubjectParam insertSubjectParam) {
+    public Result<SubjectVo> insertSubject(@RequestBody InsertSubjectParam insertSubjectParam, HttpServletRequest request) {
         Result<SubjectVo> result = new Result<SubjectVo>();
         try {
-            SubjectVo so = subjectService.insertSubject(insertSubjectParam);
+            Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+            SubjectVo so = subjectService.insertSubject(insertSubjectParam,data.getTbUser());
             if (so == null) {
                 result.error500("添加失败,字段名重复!");
                 return result;
@@ -84,9 +89,10 @@ public class SubjectController {
     @AutoLog(value = "题目表-编辑")
     @ApiOperation(value = "题目表-编辑", notes = "题目表-编辑")
     @PutMapping(value = "/edit")
-    public Result<SubjectVo> edit(@RequestBody SubjectEditParam subjectEditParam) {
+    public Result<SubjectVo> edit(@RequestBody SubjectEditParam subjectEditParam, HttpServletRequest request) {
         Result<SubjectVo> result = new Result<SubjectVo>();
-        SubjectVo subjectVo = subjectService.updateQsubjectById(subjectEditParam);
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        SubjectVo subjectVo = subjectService.updateQsubjectById(subjectEditParam,data.getTbUser());
         result.setResult(subjectVo);
         result.success("修改成功!");
         return result;
@@ -101,9 +107,10 @@ public class SubjectController {
     @AutoLog(value = "题目表-通过id删除")
     @ApiOperation(value = "题目表-通过id删除", notes = "题目表-通过id删除")
     @DeleteMapping(value = "/delete")
-    public Result<Boolean> delete(@RequestParam(name = "id", required = true) Integer id) {
+    public Result<Boolean> delete(@RequestParam(name = "id", required = true) Integer id, HttpServletRequest request) {
         Result<Boolean> result = new Result<Boolean>();
-        Boolean ok = subjectService.removeSubjectById(id);
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        Boolean ok = subjectService.removeSubjectById(id,data.getTbUser());
         result.setResult(ok);
         result.success("删除成功!");
         return result;

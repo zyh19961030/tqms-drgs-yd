@@ -10,6 +10,7 @@ import com.qu.constant.QuestionConstant;
 import com.qu.modules.web.entity.*;
 import com.qu.modules.web.mapper.*;
 import com.qu.modules.web.param.*;
+import com.qu.modules.web.pojo.TbUser;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.service.ITbDepService;
 import com.qu.modules.web.vo.*;
@@ -54,17 +55,19 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     private ITbDepService tbDepService;
 
     @Override
-    public Question saveQuestion(QuestionParam questionParam) {
+    public Question saveQuestion(QuestionParam questionParam, TbUser tbUser) {
         Question question = new Question();
         try {
             BeanUtils.copyProperties(questionParam, question);
-            question.setQuStatus(0);
-            question.setQuStop(0);
-            question.setDel(0);
-            question.setCreater(1);
-            question.setCreateTime(new Date());
-            question.setUpdater(1);
-            question.setUpdateTime(new Date());
+            question.setQuStatus(QuestionConstant.QU_STATUS_DRAFT);
+            question.setQuStop(QuestionConstant.QU_STOP_NORMAL);
+            question.setDel(QuestionConstant.DEL_NORMAL);
+            Date date = new Date();
+            String userId = tbUser.getId();
+            question.setCreater(userId);
+            question.setCreateTime(date);
+            question.setUpdater(userId);
+            question.setUpdateTime(date);
             questionMapper.insert(question);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -162,11 +165,12 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     }
 
     @Override
-    public Question updateQuestionById(QuestionEditParam questionEditParam) {
+    public Question updateQuestionById(QuestionEditParam questionEditParam, TbUser tbUser) {
         Question question = new Question();
         try {
             BeanUtils.copyProperties(questionEditParam, question);
-            question.setUpdater(1);
+            String userId = tbUser.getId();
+            question.setUpdater(userId);
             question.setUpdateTime(new Date());
             questionMapper.updateById(question);
             question = questionMapper.selectById(questionEditParam.getId());
@@ -216,13 +220,14 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     }
 
     @Override
-    public boolean removeQuestionById(Integer id) {
+    public boolean removeQuestionById(Integer id, TbUser tbUser) {
         boolean delFlag = true;
         try {
             Question question = new Question();
             question.setId(id);
-            question.setDel(1);
-            question.setUpdater(1);
+            String userId = tbUser.getId();
+            question.setDel(QuestionConstant.DEL_DELETED);
+            question.setUpdater(userId);
             question.setUpdateTime(new Date());
             questionMapper.updateById(question);
         } catch (Exception e) {

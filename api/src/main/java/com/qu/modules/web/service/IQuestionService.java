@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.entity.TbDep;
 import com.qu.modules.web.param.*;
+import com.qu.modules.web.pojo.TbUser;
 import com.qu.modules.web.vo.*;
 
 import java.util.List;
@@ -16,13 +17,13 @@ import java.util.List;
  */
 public interface IQuestionService extends IService<Question> {
 
-    Question saveQuestion(QuestionParam questionParam);
+    Question saveQuestion(QuestionParam questionParam, TbUser tbUser);
 
     QuestionVo queryById(Integer id);
 
-    Question updateQuestionById(QuestionEditParam questionEditParam);
+    Question updateQuestionById(QuestionEditParam questionEditParam, TbUser tbUser);
 
-    boolean removeQuestionById(Integer id);
+    boolean removeQuestionById(Integer id, TbUser tbUser);
 
     QuestionAndCategoryPageVo queryPageList(QuestionParam questionParam, Integer pageNo, Integer pageSize);
 

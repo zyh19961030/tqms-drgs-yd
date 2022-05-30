@@ -3,6 +3,7 @@ package com.qu.modules.web.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.param.*;
+import com.qu.modules.web.pojo.TbUser;
 import com.qu.modules.web.vo.SubjectVo;
 
 import java.util.List;
@@ -15,13 +16,13 @@ import java.util.List;
  */
 public interface ISubjectService extends IService<Qsubject> {
 
-    SubjectVo saveSubject(SubjectParam subjectParam);
+    SubjectVo saveSubject(SubjectParam subjectParam, TbUser tbUser);
 
-    SubjectVo insertSubject(InsertSubjectParam insertSubjectParam);
+    SubjectVo insertSubject(InsertSubjectParam insertSubjectParam, TbUser tbUser);
 
-    SubjectVo updateQsubjectById(SubjectEditParam subjectEditParam);
+    SubjectVo updateQsubjectById(SubjectEditParam subjectEditParam, TbUser tbUser);
 
-    Boolean removeSubjectById(Integer id);
+    Boolean removeSubjectById(Integer id, TbUser tbUser);
 
     Boolean updateOrderNum(UpdateOrderNumParam updateOrderNumParam);
 

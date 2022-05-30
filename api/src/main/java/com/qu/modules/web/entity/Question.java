@@ -65,7 +65,7 @@ public class Question {
 	/**创建者*/
 	@Excel(name = "创建者", width = 15)
 	@ApiModelProperty(value = "创建者")
-	private java.lang.Integer creater;
+	private java.lang.String creater;
 	/**创建时间*/
 	@Excel(name = "创建时间", width = 20, format = "yyyy-MM-dd HH:mm:ss")
 	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
@@ -75,7 +75,7 @@ public class Question {
 	/**更新者*/
 	@Excel(name = "更新者", width = 15)
 	@ApiModelProperty(value = "更新者")
-	private java.lang.Integer updater;
+	private java.lang.String updater;
 	/**更新时间*/
 	@Excel(name = "更新时间", width = 20, format = "yyyy-MM-dd HH:mm:ss")
 	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
