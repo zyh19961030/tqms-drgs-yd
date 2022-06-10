@@ -1,12 +1,12 @@
 package com.qu.modules.web.param;
 
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 @Data
 @ApiModel(value="本科室单病种上报记录查询-全院单病种上报记录查询共用", description="本科室单病种上报记录查询-全院单病种上报记录查询共用")
@@ -39,5 +39,8 @@ public class SingleDiseaseExamineRecordParam {
     private Date writeTimeEndDate;
     @ApiModelProperty(value = "状态：0待填报 1填报中 2已填报待审核 3审核失败驳回 4通过上报上中 5已上报待国家审核 6已完成 7已被国家驳回 8无需填报")
     private Integer[] status;
+    /**住院编号-病案号*/
+    @ApiModelProperty(value = "住院编号-病案号")
+    private java.lang.String hospitalInNo;
 
 }

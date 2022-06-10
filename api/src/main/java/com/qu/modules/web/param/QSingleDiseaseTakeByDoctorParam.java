@@ -1,12 +1,12 @@
 package com.qu.modules.web.param;
 
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 @Data
 @ApiModel(value="按医生填报入参", description="按医生填报入参")
@@ -37,5 +37,8 @@ public class QSingleDiseaseTakeByDoctorParam {
     private Date outHospitalEndDate;
     @ApiModelProperty(value = "主要诊断")
     private String mainDiagnosis;
+    /**住院编号-病案号*/
+    @ApiModelProperty(value = "住院编号-病案号")
+    private java.lang.String hospitalInNo;
 
 }

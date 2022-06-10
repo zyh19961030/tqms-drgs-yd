@@ -1,12 +1,12 @@
 package com.qu.modules.web.param;
 
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 @Data
 @ApiModel(value="单病种上报待审查询(院级审核-科级审核共用)", description="单病种上报待审查询(院级审核-科级审核共用)")
@@ -35,6 +35,9 @@ public class SingleDiseaseWaitUploadParam {
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "出院日期结束时间 格式：yyyy-MM-dd HH:mm:ss")
     private Date outHospitalEndDate;
+    /**住院编号-病案号*/
+    @ApiModelProperty(value = "住院编号-病案号")
+    private java.lang.String hospitalInNo;
 
 
     /*

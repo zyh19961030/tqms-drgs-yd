@@ -40,17 +40,14 @@ spring:
           #          url: jdbc:mysql://47.97.123.235:3306/questiondb?characterEncoding=UTF-8&useUnicode=true&useSSL=false
           #          username: question
           #          password: question01
-          url: jdbc:mysql://121.89.196.128:13307/tqmsn?characterEncoding=UTF-8&useUnicode=true&useSSL=false
-#          url: jdbc:mysql://localhost:13307/tqmsn?characterEncoding=UTF-8&useUnicode=true&useSSL=false
-#          url: jdbc:mysql://39.103.166.135:13307/tqmsn?characterEncoding=UTF-8&useUnicode=true&useSSL=false
-          url: jdbc:mysql://localhost:3306/tqmsqhd?characterEncoding=UTF-8&useUnicode=true&useSSL=false
-#          username: zyh
+#          url: jdbc:mysql://121.89.196.128:13307/tqmsn?characterEncoding=UTF-8&useUnicode=true&useSSL=false
+          url: jdbc:mysql://localhost:13307/tqmsn?characterEncoding=UTF-8&useUnicode=true&useSSL=false
 #          username: tqmsn
           username: root
           #          pashsword: root
           #          password: gzyjy123@
-          password: 123456
-#          password: tqms$2021@Shijiyunyi
+#          password: 123456
+          password: tqms$2021@Shijiyunyi
           driver-class-name: com.mysql.jdbc.Driver
 
 

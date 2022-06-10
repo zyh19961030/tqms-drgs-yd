@@ -161,6 +161,10 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             queryWrapper.in("category_id", categoryIdList);
         }
 
+        if (StringUtils.isNotBlank(qSingleDiseaseTakeByDoctorParam.getHospitalInNo())) {
+            queryWrapper.like("hospital_in_no", qSingleDiseaseTakeByDoctorParam.getHospitalInNo());
+        }
+
         if(StringUtils.isNotBlank(deptId)){
             queryWrapper.and(w->w.eq("answer_deptid", deptId).or().eq("tqms_dept", deptId));
 //            queryWrapper.in("tqms_dept", deptId);
@@ -265,6 +269,9 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         queryWrapper.eq(QSingleDiseaseTake::getStatus, QSingleDiseaseTakeConstant.STATUS_WAIT_UPLOAD);
         if(StringUtils.isNotBlank(deptId)){
             queryWrapper.and(w->w.eq(QSingleDiseaseTake::getAnswerDeptid, deptId).or().eq(QSingleDiseaseTake::getTqmsDept, deptId));
+        }
+        if (StringUtils.isNotBlank(singleDiseaseWaitUploadParam.getHospitalInNo())) {
+            queryWrapper.like(QSingleDiseaseTake::getHospitalInNo, singleDiseaseWaitUploadParam.getHospitalInNo());
         }
         if (StringUtils.isNotBlank(singleDiseaseWaitUploadParam.getCategoryId())) {
             queryWrapper.eq(QSingleDiseaseTake::getCategoryId, singleDiseaseWaitUploadParam.getCategoryId());
@@ -392,7 +399,9 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         if (StringUtils.isNotBlank(qSingleDiseaseTakeByDeptParam.getCategoryId())) {
             queryWrapper.like("category_id", qSingleDiseaseTakeByDeptParam.getCategoryId());
         }
-
+        if (StringUtils.isNotBlank(qSingleDiseaseTakeByDeptParam.getHospitalInNo())) {
+            queryWrapper.like("hospital_in_no", qSingleDiseaseTakeByDeptParam.getHospitalInNo());
+        }
         if (StringUtils.isNotBlank(qSingleDiseaseTakeByDeptParam.getPatientName())) {
             queryWrapper.like("patient_name", qSingleDiseaseTakeByDeptParam.getPatientName());
         }
@@ -472,7 +481,9 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         if (StringUtils.isNotBlank(singleDiseaseExamineRecordParam.getCategoryId())) {
             lambda.like(QSingleDiseaseTake::getCategoryId, singleDiseaseExamineRecordParam.getCategoryId());
         }
-
+        if (StringUtils.isNotBlank(singleDiseaseExamineRecordParam.getHospitalInNo())) {
+            lambda.like(QSingleDiseaseTake::getHospitalInNo, singleDiseaseExamineRecordParam.getHospitalInNo());
+        }
         if (StringUtils.isNotBlank(singleDiseaseExamineRecordParam.getPatientName())) {
             lambda.like(QSingleDiseaseTake::getPatientName, singleDiseaseExamineRecordParam.getPatientName());
         }
