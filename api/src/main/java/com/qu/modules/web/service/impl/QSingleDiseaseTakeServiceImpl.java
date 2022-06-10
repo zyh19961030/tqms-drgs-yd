@@ -1396,12 +1396,12 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                                 tz = Double.parseDouble(tzs);
                             }
                         }
-                        if (sg != 0) {
-                            zs = String.valueOf(tz / (sg * sg));
-                        }
                     } else {
                         continue;
                     }
+                }
+                if (sg != 0) {
+                    zs = String.valueOf(tz / (sg * sg));
                 }
                 SingleDiseaseAnswer sda = new SingleDiseaseAnswer();
                 if (qSingleDiseaseTake.getQuestionId().equals(77) || qSingleDiseaseTake.getQuestionId().equals(98) ||
