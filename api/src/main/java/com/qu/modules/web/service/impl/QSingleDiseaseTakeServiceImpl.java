@@ -1389,53 +1389,53 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                                 }
                             }
                         }
-                        if (a.getSubColumnName().equals("CM-0-2-1-5")) {
-                            String sgs = a.getSubValue();
-                            sg = Double.parseDouble(sgs) / 100;
-                        }
-                        if (a.getSubColumnName().equals("CM-0-2-1-3")) {
-                            String tzs = a.getSubValue();
-                            tz = Double.parseDouble(tzs);
-                        }
-                        if (qSingleDiseaseTake.getQuestionId().equals(128)) {
-                            if (a.getSubColumnName().equals("DPD-2-7-1-2")) {
-                                String sgs = a.getSubValue();
-                                sg = Double.parseDouble(sgs) / 100;
-                            }
-                            if (a.getSubColumnName().equals("DPD-2-7-1-2")) {
-                                String tzs = a.getSubValue();
-                                tz = Double.parseDouble(tzs);
-                            }
-                        }
+//                        if (a.getSubColumnName().equals("CM-0-2-1-5")) {
+//                            String sgs = a.getSubValue();
+//                            sg = Double.parseDouble(sgs) / 100;
+//                        }
+//                        if (a.getSubColumnName().equals("CM-0-2-1-3")) {
+//                            String tzs = a.getSubValue();
+//                            tz = Double.parseDouble(tzs);
+//                        }
+//                        if (qSingleDiseaseTake.getQuestionId().equals(128)) {
+//                            if (a.getSubColumnName().equals("DPD-2-7-1-2")) {
+//                                String sgs = a.getSubValue();
+//                                sg = Double.parseDouble(sgs) / 100;
+//                            }
+//                            if (a.getSubColumnName().equals("DPD-2-7-1-2")) {
+//                                String tzs = a.getSubValue();
+//                                tz = Double.parseDouble(tzs);
+//                            }
+//                        }
                     } else {
                         continue;
                     }
                 }
-                if (sg != 0) {
-                    zs = String.valueOf(tz / (sg * sg));
-                }
-                SingleDiseaseAnswer sda = new SingleDiseaseAnswer();
-                if (qSingleDiseaseTake.getQuestionId().equals(77) || qSingleDiseaseTake.getQuestionId().equals(98) ||
-                        qSingleDiseaseTake.getQuestionId().equals(70) || qSingleDiseaseTake.getQuestionId().equals(117)) {
-                    sda.setSubColumnName("CM-0-2-1-4");
-                    sda.setSubValue(zs);
-                }
+//                if (sg != 0) {
+//                    zs = String.valueOf(tz / (sg * sg));
+//                }
+//                SingleDiseaseAnswer sda = new SingleDiseaseAnswer();
+//                if (qSingleDiseaseTake.getQuestionId().equals(77) || qSingleDiseaseTake.getQuestionId().equals(98) ||
+//                        qSingleDiseaseTake.getQuestionId().equals(70) || qSingleDiseaseTake.getQuestionId().equals(117)) {
+//                    sda.setSubColumnName("CM-0-2-1-4");
+//                    sda.setSubValue(zs);
+//                }
 //                if (qSingleDiseaseTake.getQuestionId().equals(107)) {
 //                    sda.setSubColumnName("HD-9-1-1-3");
 //                    sda.setSubValue(zs);
 //                }
-                if (qSingleDiseaseTake.getQuestionId().equals(123) || qSingleDiseaseTake.getQuestionId().equals(131) ||
-                        qSingleDiseaseTake.getQuestionId().equals(132) || qSingleDiseaseTake.getQuestionId().equals(142) ||
-                        qSingleDiseaseTake.getQuestionId().equals(143) || qSingleDiseaseTake.getQuestionId().equals(124) ||
-                        qSingleDiseaseTake.getQuestionId().equals(130)) {
-                    sda.setSubColumnName("CM-0-2-1-3-1");
-                    sda.setSubValue(zs);
-                }
+//                if (qSingleDiseaseTake.getQuestionId().equals(123) || qSingleDiseaseTake.getQuestionId().equals(131) ||
+//                        qSingleDiseaseTake.getQuestionId().equals(132) || qSingleDiseaseTake.getQuestionId().equals(142) ||
+//                        qSingleDiseaseTake.getQuestionId().equals(143) || qSingleDiseaseTake.getQuestionId().equals(124) ||
+//                        qSingleDiseaseTake.getQuestionId().equals(130)) {
+//                    sda.setSubColumnName("CM-0-2-1-3-1");
+//                    sda.setSubValue(zs);
+//                }
 //                if (qSingleDiseaseTake.getQuestionId().equals(128)) {
 //                    sda.setSubColumnName("DPD-2-7-1-4");
 //                    sda.setSubValue(zs);
 //                }
-                mapCache.put(sda.getSubColumnName(), sda.getSubValue());
+//                mapCache.put(sda.getSubColumnName(), sda.getSubValue());
                 String singleDiseaseReportUrl1 = String.format(singleDiseaseReportUrl,quotaCategoryMap.get(qSingleDiseaseTake.getCategoryId()).getDiseaseType());
                 HttpData data = HttpData.instance();
                 data.setPostEntity(new StringEntity(JSON.toJSONString(mapCache), ContentType.APPLICATION_JSON));
