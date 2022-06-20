@@ -45,7 +45,7 @@ public class QuestionController {
      * @return
      */
     @AutoLog(value = "问卷表-分页列表查询")
-    @ApiOperation(value = "问卷表-分页列表查询", notes = "问卷表-分页列表查询")
+    @ApiOperation(value = "问卷表-分页列表查询", notes = "问卷表-分页列表查询",response = QuestionAndCategoryPageVo.class)
     @GetMapping(value = "/list")
     public Result<QuestionAndCategoryPageVo> queryPageList(QuestionParam questionParam,
                                                            @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
@@ -178,7 +178,7 @@ public class QuestionController {
         return result;
     }
 
-    @ApiOperation(value = "批量更新问卷权限", notes = "批量更新问卷权限")
+    @ApiOperation(value = "批量更新问卷权限_改为配置填报科室接口", notes = "批量更新问卷权限_改为配置填报科室接口")
     @PostMapping(value = "/updateDeptIdsParam")
     public Result<Boolean> updateDeptIdsParam(@RequestBody UpdateDeptIdsParam updateDeptIdsParam) {
         Result<Boolean> result = new Result<Boolean>();
@@ -187,6 +187,17 @@ public class QuestionController {
         result.success("更新成功！");
         return result;
     }
+
+    @ApiOperation(value = "批量更新问卷权限_配置查看科室接口", notes = "批量更新问卷权限_配置查看科室接口")
+    @PostMapping(value = "/updateSeeDeptIdsParam")
+    public Result<Boolean> updateSeeDeptIdsParam(@RequestBody UpdateDeptIdsParam updateDeptIdsParam) {
+        Result<Boolean> result = new Result<Boolean>();
+        questionService.updateSeeDeptIdsParam(updateDeptIdsParam);
+        result.setResult(true);
+        result.success("更新成功！");
+        return result;
+    }
+
 
     @ApiOperation(value = "设置分类", notes = "设置分类")
     @PostMapping(value = "/updateCategoryIdParam")

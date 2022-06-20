@@ -31,6 +31,8 @@ public interface IQuestionService extends IService<Question> {
 
     void updateDeptIdsParam(UpdateDeptIdsParam updateDeptIdsParam);
 
+    void updateSeeDeptIdsParam(UpdateDeptIdsParam updateDeptIdsParam);
+
     QuestionVo queryPersonById(Integer id);
 
     void updateCategoryIdParam(UpdateCategoryIdParam updateCategoryIdParam);

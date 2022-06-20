@@ -303,6 +303,27 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     }
 
     @Override
+    public void updateSeeDeptIdsParam(UpdateDeptIdsParam updateDeptIdsParam) {
+        String[] quIds = updateDeptIdsParam.getQuIds();
+        String[] deptIds = updateDeptIdsParam.getDeptIds();
+        if (quIds != null && deptIds != null) {
+            StringBuffer deptid = new StringBuffer();
+            for (String did : deptIds) {
+                deptid.append(did);
+                deptid.append(",");
+            }
+            ///更新
+            for (String qid : quIds) {
+                Question question = new Question();
+                question.setId(Integer.parseInt(qid));
+                question.setSeeDeptIds(deptid.toString());
+                question.setUpdateTime(new Date());
+                questionMapper.updateById(question);
+            }
+        }
+    }
+
+    @Override
     public QuestionVo queryPersonById(Integer id) {
         QuestionVo questionVo = new QuestionVo();
         try {
