@@ -685,20 +685,20 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             qSingleDiseaseTake.setIdCard(mapCache.get(qsubject.getColumnName()));
         }
 
-        LambdaQueryWrapper<Qsubject> lambdaInHospitalDay = new QueryWrapper<Qsubject>().lambda();
-        lambdaInHospitalDay.eq(Qsubject::getColumnName,"CM-4-1");
-        lambdaInHospitalDay.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
-        lambdaInHospitalDay.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
-        qsubject = qsubjectMapper.selectOne(lambdaInHospitalDay);
-        if (qsubject != null) {
-            String inHospitalDayString = mapCache.get(qsubject.getColumnName());
-            if(StringUtils.isNotBlank(inHospitalDayString)){
-                if(inHospitalDayString.contains("天")){
-                    inHospitalDayString = inHospitalDayString.replaceAll("天","");
-                }
-                qSingleDiseaseTake.setInHospitalDay(Integer.parseInt(inHospitalDayString));
-            }
-        }
+//        LambdaQueryWrapper<Qsubject> lambdaInHospitalDay = new QueryWrapper<Qsubject>().lambda();
+//        lambdaInHospitalDay.eq(Qsubject::getColumnName,"CM-4-1");
+//        lambdaInHospitalDay.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
+//        lambdaInHospitalDay.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
+//        qsubject = qsubjectMapper.selectOne(lambdaInHospitalDay);
+//        if (qsubject != null) {
+//            String inHospitalDayString = mapCache.get(qsubject.getColumnName());
+//            if(StringUtils.isNotBlank(inHospitalDayString)){
+//                if(inHospitalDayString.contains("天")){
+//                    inHospitalDayString = inHospitalDayString.replaceAll("天","");
+//                }
+//                qSingleDiseaseTake.setInHospitalDay(Integer.parseInt(inHospitalDayString));
+//            }
+//        }
 
 
         LambdaQueryWrapper<Qsubject> lambdaInHospitalFee = new QueryWrapper<Qsubject>().lambda();
