@@ -12,6 +12,8 @@ import lombok.experimental.Accessors;
 import org.jeecgframework.poi.excel.annotation.Excel;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
+
 /**
  * @Description: 题目表
  * @Author: jeecg-boot
@@ -142,4 +144,12 @@ public class Qsubject {
 	@Excel(name = "特殊跳题逻辑,前端使用", width = 15)
     @ApiModelProperty(value = "特殊跳题逻辑,前端使用")
 	private java.lang.String specialJumpLogic;
+	/**数字类型最小值*/
+	@Excel(name = "数字类型最小值", width = 15)
+	@ApiModelProperty(value = "数字类型最小值")
+	private BigDecimal valueMin;
+	/**数字类型最大值*/
+	@Excel(name = "数字类型最大值", width = 15)
+	@ApiModelProperty(value = "数字类型最大值")
+	private BigDecimal valueMax;
 }
