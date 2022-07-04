@@ -64,7 +64,7 @@ public class DrugRulesRelationController {
 		Integer subject_type = null;
 		if (subType.equals("1") || subType.equals("2") || subType.equals("5")) {
 			subject_type = 1;
-		} else if (subType.equals("4") || subType.equals("6")){
+		} else if (subType.equals("3") || subType.equals("4") || subType.equals("6")){
 			subject_type = 2;
 		}
 //		if (type == 2) {

@@ -55,7 +55,7 @@ public class DrugRulesOptionController {
 		Integer subject_type = null;
 		if (subType.equals("1") || subType.equals("2") || subType.equals("5")) {
 			subject_type = 1;
-		} else if (subType.equals("4") || subType.equals("6")){
+		} else if (subType.equals("3") || subType.equals("4") || subType.equals("6")){
 			subject_type = 2;
 		}
 		List<DrugRulesOption> drugRulesOptions = drugRulesOptionService.queryOption(subjectIdAndMatchesParam.getSubjectId());
@@ -90,10 +90,10 @@ public class DrugRulesOptionController {
 				}
 			});
 			DrugRulesOptionListVo.setId(id);
-			if (finalSubject_type.equals(1)) {
+			if ("1".equals(finalSubject_type)) {
 				String opName = qoption.getOpName();
 				DrugRulesOptionListVo.setName(opName);
-			} else if (finalSubject_type.equals(2)) {
+			} else if ("2".equals(finalSubject_type)) {
 				DrugRulesOptionListVo.setName("");
 			}
 			DrugRulesOptionListVo.setHis(his);
