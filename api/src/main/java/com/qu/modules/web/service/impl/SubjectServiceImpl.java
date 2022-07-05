@@ -1,5 +1,7 @@
 package com.qu.modules.web.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qu.constant.QoptionConstant;
 import com.qu.constant.QsubjectConstant;
@@ -17,6 +19,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -276,6 +279,21 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
         subject.setUpdater(userId);
         subject.setUpdateTime(date);
         qsubjectMapper.updateById(subject);
+        BigDecimal valueMin = subject.getValueMin();
+        if(valueMin==null){
+            LambdaUpdateWrapper<Qsubject> lambda = new UpdateWrapper<Qsubject>().lambda();
+            lambda.eq(Qsubject::getId,subject.getId()).set(Qsubject::getValueMin,null);
+            Qsubject a = new Qsubject();
+            this.baseMapper.update(a,lambda);
+        }
+        BigDecimal valueMax = subject.getValueMax();
+        if(valueMax==null){
+            LambdaUpdateWrapper<Qsubject> lambda = new UpdateWrapper<Qsubject>().lambda();
+            lambda.eq(Qsubject::getId,subject.getId()).set(Qsubject::getValueMax,null);
+            Qsubject a = new Qsubject();
+            this.baseMapper.update(a,lambda);
+        }
+
         //拷贝到Vo对象
         BeanUtils.copyProperties(subject, subjectVo);
         //删除以前的所有选项
