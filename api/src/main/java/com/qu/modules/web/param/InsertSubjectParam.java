@@ -144,4 +144,25 @@ public class InsertSubjectParam {
     @Excel(name = "数字类型最大值", width = 15)
     @ApiModelProperty(value = "数字类型最大值")
     private BigDecimal valueMax;
+
+    /**提示属性*/
+    @Excel(name = "提示属性", width = 15)
+    @ApiModelProperty(value = "提示属性")
+    private java.lang.String tips;
+    /**是否开启痕迹0:开启  1:不开启*/
+    @Excel(name = "是否开启痕迹0:开启  1:不开启", width = 15)
+    @ApiModelProperty(value = "是否开启痕迹0:开启  1:不开启")
+    private java.lang.Integer mark;
+    /**分值*/
+    @Excel(name = "分值", width = 15)
+    @ApiModelProperty(value = "分值")
+    private java.math.BigDecimal score;
+    /**计算类型  0加分  1减分*/
+    @Excel(name = "计算类型  0加分  1减分", width = 15)
+    @ApiModelProperty(value = "计算类型  0加分  1减分")
+    private java.lang.Integer scoreType;
+    /**排列方式 0每行1列  1每行2列 2每行3列 3每行4列  4每行5列  5每行6列*/
+    @Excel(name = "排列方式 0每行1列  1每行2列 2每行3列 3每行4列  4每行5列  5每行6列", width = 15)
+    @ApiModelProperty(value = "排列方式 0每行1列  1每行2列 2每行3列 3每行4列  4每行5列  5每行6列")
+    private java.lang.Integer arrangement;
 }
