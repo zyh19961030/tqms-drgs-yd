@@ -1,16 +1,18 @@
 package com.qu.modules.web.entity;
 
+import org.jeecgframework.poi.excel.annotation.Excel;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.jeecgframework.poi.excel.annotation.Excel;
-import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * @Description: 选项表
@@ -86,4 +88,8 @@ public class Qoption {
 	@Excel(name = "特殊跳题逻辑,前端使用", width = 15)
     @ApiModelProperty(value = "特殊跳题逻辑,前端使用")
 	private java.lang.String specialJumpLogic;
+    /**选项分值*/
+    @Excel(name = "选项分值", width = 15)
+    @ApiModelProperty(value = "选项分值")
+    private java.math.BigDecimal optionScore;
 }

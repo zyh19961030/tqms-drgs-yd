@@ -1,9 +1,10 @@
 package com.qu.modules.web.param;
 
+import org.jeecgframework.poi.excel.annotation.Excel;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.jeecgframework.poi.excel.annotation.Excel;
 
 @Data
 @ApiModel(value="选项新增入参", description="选项新增入参")
@@ -30,4 +31,8 @@ public class QoptionParam {
     @Excel(name = "特殊跳题逻辑,前端使用", width = 15)
     @ApiModelProperty(value = "特殊跳题逻辑,前端使用")
     private java.lang.String specialJumpLogic;
+    /**选项分值*/
+    @Excel(name = "选项分值", width = 15)
+    @ApiModelProperty(value = "选项分值")
+    private java.math.BigDecimal optionScore;
 }
