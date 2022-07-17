@@ -1,57 +1,31 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.qu.constant.Constant;
 import com.qu.constant.QoptionConstant;
+import com.qu.constant.QsubjectConstant;
 import com.qu.constant.QuestionConstant;
-import com.qu.modules.web.entity.Qoption;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.entity.TbDep;
-import com.qu.modules.web.entity.TqmsQuotaCategory;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.OptionMapper;
-import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam;
-import com.qu.modules.web.param.QuestionAgainReleaseParam;
-import com.qu.modules.web.param.QuestionEditParam;
-import com.qu.modules.web.param.QuestionParam;
-import com.qu.modules.web.param.UpdateCategoryIdParam;
-import com.qu.modules.web.param.UpdateDeptIdsParam;
-import com.qu.modules.web.param.UpdateWriteFrequencyIdsParam;
+import com.qu.modules.web.entity.*;
+import com.qu.modules.web.mapper.*;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.TbUser;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
-import com.qu.modules.web.vo.QuestionAndCategoryVo;
-import com.qu.modules.web.vo.QuestionMonthQuarterYearCreateListVo;
-import com.qu.modules.web.vo.QuestionPageVo;
-import com.qu.modules.web.vo.QuestionPatientCreateListVo;
-import com.qu.modules.web.vo.QuestionVo;
-import com.qu.modules.web.vo.SubjectVo;
+import com.qu.modules.web.vo.*;
 import com.qu.util.DeptUtil;
 import com.qu.util.IntegerUtil;
 import com.qu.util.StringUtil;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 问卷表
@@ -215,6 +189,30 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                     if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType) || QuestionConstant.DEL_DELETED.equals(del)) {
                         continue;
                     }
+                    if (QsubjectConstant.SUB_TYPE_DEPT_USER.equals(subType)) {
+                        sql.append("`")
+                                .append("a_question_dept")
+                                .append("` ")
+                                .append(qsubject.getColumnTypeDatabase() == null ? "varchar" : qsubject.getColumnTypeDatabase())
+                                .append("(")
+                                .append(limitWords)
+                                .append(") COMMENT '")
+                                .append(qsubject.getSubName())
+                                .append("的科室")
+                                .append("',");
+                        sql.append("`")
+                                .append("a_question_dept_user")
+                                .append("` ")
+                                .append(qsubject.getColumnTypeDatabase() == null ? "varchar" : qsubject.getColumnTypeDatabase())
+                                .append("(")
+                                .append(limitWords)
+                                .append(") COMMENT '")
+                                .append(qsubject.getSubName())
+                                .append("的科室中人员")
+                                .append("',");
+                        continue;
+                    }
+
                     sql.append("`")
                             .append(qsubject.getColumnName())
                             .append("` ")
@@ -224,6 +222,31 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                             .append(") COMMENT '")
                             .append(qsubject.getSubName())
                             .append("',");
+
+                    if (QsubjectConstant.MARK_OPEN.equals(qsubject.getMark())) {
+                        sql.append("`")
+                                .append(qsubject.getColumnName())
+                                .append("_mark")
+                                .append("` ")
+                                .append(qsubject.getColumnTypeDatabase() == null ? "varchar" : qsubject.getColumnTypeDatabase())
+                                .append("(")
+                                .append(QsubjectConstant.MARK_LENGTH)
+                                .append(") COMMENT '")
+                                .append(qsubject.getSubName())
+                                .append("的痕迹")
+                                .append("',");
+                        sql.append("`")
+                                .append(qsubject.getColumnName())
+                                .append("_mark_img")
+                                .append("` ")
+                                .append(qsubject.getColumnTypeDatabase() == null ? "varchar" : qsubject.getColumnTypeDatabase())
+                                .append("(")
+                                .append(QsubjectConstant.MARK_LENGTH)
+                                .append(") COMMENT '")
+                                .append(qsubject.getSubName())
+                                .append("的痕迹图片")
+                                .append("',");
+                    }
                 }
                 sql.append(" `answer_datetime` timestamp(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '填报时间',");
                 sql.append(" `tbksmc` varchar(255) NULL COMMENT '填报科室名称',");
@@ -461,6 +484,29 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                 if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType) || QuestionConstant.DEL_DELETED.equals(del)) {
                     continue;
                 }
+                 if (QsubjectConstant.SUB_TYPE_DEPT_USER.equals(subType)) {
+                     sql.append("`")
+                             .append("question_dept")
+                             .append("` ")
+                             .append(qsubject.getColumnTypeDatabase() == null ? "varchar" : qsubject.getColumnTypeDatabase())
+                             .append("(")
+                             .append(limitWords)
+                             .append(") COMMENT '")
+                             .append(qsubject.getSubName())
+                             .append("的科室")
+                             .append("',");
+                     sql.append("`")
+                             .append("question_dept_user")
+                             .append("` ")
+                             .append(qsubject.getColumnTypeDatabase() == null ? "varchar" : qsubject.getColumnTypeDatabase())
+                             .append("(")
+                             .append(limitWords)
+                             .append(") COMMENT '")
+                             .append(qsubject.getSubName())
+                             .append("的科室中人员")
+                             .append("',");
+                     continue;
+                 }
                 sql.append("`")
                         .append(qsubject.getColumnName())
                         .append("` ")
@@ -470,6 +516,30 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                         .append(") NULL COMMENT '")
                         .append(qsubject.getSubName())
                         .append("',");
+                 if (QsubjectConstant.MARK_OPEN.equals(qsubject.getMark())) {
+                     sql.append("`")
+                             .append(qsubject.getColumnName())
+                             .append("_mark")
+                             .append("` ")
+                             .append(qsubject.getColumnTypeDatabase() == null ? "varchar" : qsubject.getColumnTypeDatabase())
+                             .append("(")
+                             .append(QsubjectConstant.MARK_LENGTH)
+                             .append(") COMMENT '")
+                             .append(qsubject.getSubName())
+                             .append("的痕迹")
+                             .append("',");
+                     sql.append("`")
+                             .append(qsubject.getColumnName())
+                             .append("_mark_img")
+                             .append("` ")
+                             .append(qsubject.getColumnTypeDatabase() == null ? "varchar" : qsubject.getColumnTypeDatabase())
+                             .append("(")
+                             .append(QsubjectConstant.MARK_LENGTH)
+                             .append(") COMMENT '")
+                             .append(qsubject.getSubName())
+                             .append("的痕迹图片")
+                             .append("',");
+                 }
             }
             sql.delete(sql.length()-1,sql.length());
             sql.append(" ; ");

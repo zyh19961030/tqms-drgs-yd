@@ -9,6 +9,11 @@ public class QsubjectConstant {
 	public static final String SUB_TYPE_RESULT = "6";
 	public static final String SUB_TYPE_GROUP = "8";
 	public static final String SUB_TYPE_TITLE = "9";
+	public static final String SUB_TYPE_DEPT_USER = "18";
+	//是否开启痕迹0:开启  1:不开启
+	public static final Integer MARK_OPEN = 0;
+	public static final Integer MARK_CLOSE = 1;
+	public static final String MARK_LENGTH = "500";
 
 
     public static final Integer DEL_NORMAL = 0;

@@ -165,4 +165,8 @@ public class InsertSubjectParam {
     @Excel(name = "排列方式 0每行1列  1每行2列 2每行3列 3每行4列  4每行5列  5每行6列", width = 15)
     @ApiModelProperty(value = "排列方式 0每行1列  1每行2列 2每行3列 3每行4列  4每行5列  5每行6列")
     private java.lang.Integer arrangement;
+    /**视图名称*/
+    @Excel(name = "视图名称", width = 15)
+    @ApiModelProperty(value = "视图名称")
+    private java.lang.String viewName;
 }

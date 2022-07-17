@@ -1,17 +1,15 @@
 package com.qu.modules.web.vo;
 
-import java.math.BigDecimal;
-import java.util.List;
-
-import org.jeecgframework.poi.excel.annotation.Excel;
-import org.springframework.format.annotation.DateTimeFormat;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.qu.modules.web.entity.Qoption;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.jeecgframework.poi.excel.annotation.Excel;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @ApiModel(value = "SubjectVo", description = "SubjectVo")
@@ -42,7 +40,7 @@ public class SubjectVo {
     @ApiModelProperty(value = "题目名称")
     private java.lang.String subName;
 
-    @ApiModelProperty(value = "题目类型 1.单选 2.多选 3.日期 4.时间 5.下拉框 6.单行文本 7.多行文本 8.分组框 9.提示标题")
+    @ApiModelProperty(value = "题目类型 1.单选   2.多选   3.日期   4.时间  5.下拉框    6.单行文本   7.多行文本  8.分组框  9.提示标题 10.日期选择器-月 11.日期选择器-季度 12.日期选择器-年 13.单选题（带分值、带附件） 14.下拉单选题（带分值、带附件） 15.分值型分组框 16.满意度评价题 17.科室选择改为数据源下拉单选 18.医院人员选择")
     private java.lang.String subType;
     /**
      * 是否为必填 0:非必填 1:必填
@@ -205,6 +203,10 @@ public class SubjectVo {
     @Excel(name = "排列方式 0每行1列  1每行2列 2每行3列 3每行4列  4每行5列  5每行6列", width = 15)
     @ApiModelProperty(value = "排列方式 0每行1列  1每行2列 2每行3列 3每行4列  4每行5列  5每行6列")
     private java.lang.Integer arrangement;
+    /**视图名称*/
+    @Excel(name = "视图名称", width = 15)
+    @ApiModelProperty(value = "视图名称")
+    private java.lang.String viewName;
 
     @ApiModelProperty(value = "分组题包含的题")
     private List<SubjectVo> subjectVoList;
