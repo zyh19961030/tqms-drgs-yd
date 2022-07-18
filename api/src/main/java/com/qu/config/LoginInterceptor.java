@@ -1,8 +1,5 @@
 package com.qu.config;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.alibaba.fastjson.JSON;
 import com.qu.constant.Constant;
 import com.qu.modules.web.pojo.JsonRootBean;
@@ -14,6 +11,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 登录拦截器
@@ -27,6 +27,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     private static final String URL_LOGIN = "/login";
 
     private static final String URL_REGISTER = "/register";
+    private static final String URL_MINIAPP = "/web/miniapp";
 
     @Value("${system.tokenUrl}")
     private String tokenUrl;
@@ -44,7 +45,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         log.info("-----preHandle");
         //放过登录接口
-//        String requestUrl = request.getRequestURL().toString();
+        String requestUrl = request.getRequestURL().toString();
 //        if (requestUrl.indexOf(URL_LOGIN) != -1) {
 //            return true;
 //        }
@@ -52,6 +53,9 @@ public class LoginInterceptor implements HandlerInterceptor {
 //        if (requestUrl.indexOf(URL_REGISTER) != -1) {
 //            return true;
 //        }
+        if (requestUrl.contains(URL_MINIAPP)) {
+            return true;
+        }
 
         String token = request.getHeader("token");
         if (StringUtil.isEmpty(token)) {

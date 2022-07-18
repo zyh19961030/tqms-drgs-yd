@@ -1,5 +1,6 @@
 package com.qu.modules.web.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.entity.TbDep;
@@ -52,5 +53,6 @@ public interface IQuestionService extends IService<Question> {
     List<String> selectSingleDiseaseDeptIdList(String categoryId);
 
 
+    IPage<QuestionMiniAppPageVo> queryPageListByMiniApp(String deptId, Integer pageNo, Integer pageSize);
 
 }

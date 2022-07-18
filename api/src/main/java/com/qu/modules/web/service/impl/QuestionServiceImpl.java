@@ -2,6 +2,8 @@ package com.qu.modules.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.qu.constant.Constant;
@@ -667,5 +669,27 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         }
 
         return deptIdList.stream().distinct().collect(Collectors.toList());
+    }
+
+    @Override
+    public IPage<QuestionMiniAppPageVo> queryPageListByMiniApp(String deptId, Integer pageNo, Integer pageSize) {
+        Page<Question> page = new Page<>(pageNo, pageSize);
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        lambda.like(Question::getDeptIds,deptId);
+        lambda.like(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
+        IPage<Question> questionIPage = this.page(page, lambda);
+        List<Question> records = questionIPage.getRecords();
+        if(records.isEmpty()){
+            return new Page<>();
+        }
+        List<QuestionMiniAppPageVo> resList = records.stream().map(r -> {
+            QuestionMiniAppPageVo vo = new QuestionMiniAppPageVo();
+            BeanUtils.copyProperties(r, vo);
+            return vo;
+        }).collect(Collectors.toList());
+        IPage<QuestionMiniAppPageVo> questionMiniAppPageVoIPage = new Page<>(pageNo,pageSize);
+        questionMiniAppPageVoIPage.setRecords(resList);
+        questionMiniAppPageVoIPage.setTotal(questionIPage.getTotal());
+        return questionMiniAppPageVoIPage;
     }
 }
