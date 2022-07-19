@@ -66,198 +66,208 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
 
     @Override
     public Result answer(String cookie, AnswerParam answerParam) {
-        try {
-            //解析token
-            String res = HttpClient.doPost(tokenUrl, cookie, null);
-            JsonRootBean jsonRootBean = JSON.parseObject(res, JsonRootBean.class);
-            String creater = "";
-            String creater_name = "";
-            String creater_deptid = "";
-            String creater_deptname = "";
-            if (jsonRootBean != null) {
-                if (jsonRootBean.getData() != null) {
-                    creater = jsonRootBean.getData().getTbUser().getId();
-                    creater_name = jsonRootBean.getData().getTbUser().getUserName();
-                    creater_deptid = jsonRootBean.getData().getDeps().get(0).getId();
-                    creater_deptname = jsonRootBean.getData().getDeps().get(0).getDepName();
-                }
+
+        //解析token
+        String res = HttpClient.doPost(tokenUrl, cookie, null);
+        JsonRootBean jsonRootBean = JSON.parseObject(res, JsonRootBean.class);
+        String creater = "";
+        String creater_name = "";
+        String creater_deptid = "";
+        String creater_deptname = "";
+        if (jsonRootBean != null) {
+            if (jsonRootBean.getData() != null) {
+                creater = jsonRootBean.getData().getTbUser().getId();
+                creater_name = jsonRootBean.getData().getTbUser().getUserName();
+                creater_deptid = jsonRootBean.getData().getDeps().get(0).getId();
+                creater_deptname = jsonRootBean.getData().getDeps().get(0).getDepName();
             }
-            Answer answer = this.getById(answerParam.getId());
-            if(answer==null){
-                answer = new Answer();
-            }else{
-                if(answer.getAnswerStatus().equals(1)){
-                    return ResultFactory.error("该记录已提交,无法更改。");
-                }
-            }
-            //插入总表
-            answer.setQuId(answerParam.getQuId());
-            answer.setAnswerJson( JSON.toJSONString(answerParam.getAnswers()));
-            Integer status = answerParam.getStatus();
-            answer.setAnswerStatus(status);
-            Date date = new Date();
-            if(status.equals(1)){
-                answer.setSubmitTime(date);
-            }
-            answer.setCreater(creater);
-            answer.setCreaterName(creater_name);
-            answer.setCreaterDeptid(creater_deptid);
-            answer.setCreaterDeptname(creater_deptname);
-            answer.setAnswerTime(date);
-
-            Answers[] answers = answerParam.getAnswers();
-            Map<String, String> mapCache = new HashMap<>();
-            for (Answers a : answers) {
-                mapCache.put(a.getSubColumnName(), a.getSubValue());
-            }
-
-            if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_TH_MONTH)
-                    && mapCache.get(AnswerConstant.COLUMN_NAME_TH_MONTH)!=null){
-                answer.setQuestionAnswerTime(mapCache.get(AnswerConstant.COLUMN_NAME_TH_MONTH));
-            }
-
-            if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_CASE_ID)
-                    && mapCache.get(AnswerConstant.COLUMN_NAME_CASE_ID)!=null){
-                answer.setHospitalInNo(mapCache.get(AnswerConstant.COLUMN_NAME_CASE_ID));
-            }
-
-            if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_PATIENT_NAME)
-                    && mapCache.get(AnswerConstant.COLUMN_NAME_PATIENT_NAME)!=null){
-                answer.setPatientName(mapCache.get(AnswerConstant.COLUMN_NAME_PATIENT_NAME));
-            }
-
-            if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_PATIENT_NAME_LOWER_CASE)
-                    && mapCache.get(AnswerConstant.COLUMN_NAME_PATIENT_NAME_LOWER_CASE)!=null){
-                answer.setPatientName(mapCache.get(AnswerConstant.COLUMN_NAME_PATIENT_NAME_LOWER_CASE));
-            }
-
-            if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_AGE)
-                    && mapCache.get(AnswerConstant.COLUMN_NAME_AGE)!=null){
-                answer.setAge(Integer.parseInt(mapCache.get(AnswerConstant.COLUMN_NAME_AGE)));
-            }
-
-            if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_AGE_LOWER_CASE)
-                    && mapCache.get(AnswerConstant.COLUMN_NAME_AGE_LOWER_CASE)!=null){
-                answer.setAge(Integer.parseInt(mapCache.get(AnswerConstant.COLUMN_NAME_AGE_LOWER_CASE)));
-            }
-
-            if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_IN_TIME)
-                    && mapCache.get(AnswerConstant.COLUMN_NAME_IN_TIME)!=null){
-                String dateInTimeString = mapCache.get(AnswerConstant.COLUMN_NAME_IN_TIME);
-                Date dateInTime = DateUtil.parse(dateInTimeString).toJdkDate();
-                answer.setInTime(dateInTime);
-            }
-
-            boolean insertOrUpdate = answer.getId() != null && answer.getId() != 0;
-            if (insertOrUpdate) {
-                answer.setUpdateTime(date);
-                answerMapper.updateById(answer);
-            }else{
-                answer.setCreateTime(date);
-                answer.setUpdateTime(date);
-                answer.setDel(AnswerConstant.DEL_NORMAL);
-
-                String summaryMappingTableId = UUIDGenerator.generateRandomUUIDAndCurrentTimeMillis();
-                answer.setSummaryMappingTableId(summaryMappingTableId);
-                answerMapper.insert(answer);
-            }
-            //插入子表
-            StringBuffer sqlAns = new StringBuffer();
-            Question question = questionMapper.selectById(answerParam.getQuId());
-            if (question != null) {
-                if (insertOrUpdate) {
-                    sqlAns.append("update `" + question.getTableName() + "` set ");
-                    List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
-                    for (int i = 0; i < subjectList.size(); i++) {
-                        Qsubject qsubjectDynamicTable = subjectList.get(i);
-                        String subType = qsubjectDynamicTable.getSubType();
-                        Integer del = qsubjectDynamicTable.getDel();
-                        if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
-                                || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null
-                                || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
-                            continue;
-                        }
-                        sqlAns.append("`");
-                        sqlAns.append(qsubjectDynamicTable.getColumnName());
-                        sqlAns.append("`");
-                        sqlAns.append("=");
-                        sqlAns.append("'");
-                        sqlAns.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
-                        sqlAns.append("'");
-                        sqlAns.append(",");
-                    }
-                    sqlAns.append("`tbksmc`='");
-                    sqlAns.append(creater_deptname);
-                    sqlAns.append("',");
-                    sqlAns.append("`tbksdm`='");
-                    sqlAns.append(creater_deptid);
-                    sqlAns.append("'");
-//                    sqlAns.delete(sqlAns.length()-1,sqlAns.length());
-                    sqlAns.append(" where summary_mapping_table_id = '");
-                    sqlAns.append(answer.getSummaryMappingTableId());
-                    sqlAns.append("'");
-                    log.info("-----update sqlAns:{}", sqlAns.toString());
-                    dynamicTableMapper.updateDynamicTable(sqlAns.toString());
-                }else{
-                    sqlAns.append("insert into `" + question.getTableName() + "` (");
-
-                    List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
-                    for (int i = 0; i < subjectList.size(); i++) {
-                        Qsubject qsubjectDynamicTable = subjectList.get(i);
-                        String subType = qsubjectDynamicTable.getSubType();
-                        Integer del = qsubjectDynamicTable.getDel();
-                        if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
-                                || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null
-                                || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
-                            continue;
-                        }
-
-                        Qsubject qsubject = subjectList.get(i);
-                        sqlAns.append("`");
-                        sqlAns.append(qsubject.getColumnName());
-                        sqlAns.append("`");
-                        sqlAns.append(",");
-                    }
-                    sqlAns.append("`tbksmc`,");
-                    sqlAns.append("`tbksdm`,");
-                    sqlAns.append("`summary_mapping_table_id`");
-//                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
-                    sqlAns.append(") values (");
-                    for (int i = 0; i < subjectList.size(); i++) {
-                        Qsubject qsubjectDynamicTable = subjectList.get(i);
-                        String subType = qsubjectDynamicTable.getSubType();
-                        Integer del = qsubjectDynamicTable.getDel();
-                        if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
-                                || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null
-                                || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
-                            continue;
-                        }
-                        sqlAns.append("'");
-                        sqlAns.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
-                        sqlAns.append("',");
-                    }
-                    sqlAns.append("'");
-                    sqlAns.append(creater_deptname);
-                    sqlAns.append("',");
-
-                    sqlAns.append("'");
-                    sqlAns.append(creater_deptid);
-                    sqlAns.append("',");
-
-                    sqlAns.append("'");
-                    sqlAns.append(answer.getSummaryMappingTableId());
-                    sqlAns.append("'");
-//                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
-
-                    sqlAns.append(")");
-                    log.info("-----insert sqlAns:{}", sqlAns.toString());
-                    dynamicTableMapper.insertDynamicTable(sqlAns.toString());
-                }
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return ResultFactory.error("操作失败！");
         }
+        return getResult(answerParam, creater, creater_name, creater_deptid, creater_deptname);
+    }
+
+    @Override
+    public Result answerByMiniApp(AnswerMiniAppParam answerMiniAppParam) {
+        String userId = answerMiniAppParam.getUserId();
+        //用户数据--
+        AnswerParam answerParam = new AnswerParam();
+        BeanUtils.copyProperties(answerMiniAppParam,answerParam);
+        return getResult(answerParam, "", "", "", "");
+    }
+
+    private Result getResult(AnswerParam answerParam, String creater, String creater_name, String creater_deptid, String creater_deptname) {
+        Answer answer = this.getById(answerParam.getId());
+        if(answer==null){
+            answer = new Answer();
+        }else{
+            if(answer.getAnswerStatus().equals(1)){
+                return ResultFactory.error("该记录已提交,无法更改。");
+            }
+        }
+        //插入总表
+        answer.setQuId(answerParam.getQuId());
+        answer.setAnswerJson( JSON.toJSONString(answerParam.getAnswers()));
+        Integer status = answerParam.getStatus();
+        answer.setAnswerStatus(status);
+        Date date = new Date();
+        if(status.equals(1)){
+            answer.setSubmitTime(date);
+        }
+        answer.setCreater(creater);
+        answer.setCreaterName(creater_name);
+        answer.setCreaterDeptid(creater_deptid);
+        answer.setCreaterDeptname(creater_deptname);
+        answer.setAnswerTime(date);
+
+        Answers[] answers = answerParam.getAnswers();
+        Map<String, String> mapCache = new HashMap<>();
+        for (Answers a : answers) {
+            mapCache.put(a.getSubColumnName(), a.getSubValue());
+        }
+
+        if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_TH_MONTH)
+                && mapCache.get(AnswerConstant.COLUMN_NAME_TH_MONTH)!=null){
+            answer.setQuestionAnswerTime(mapCache.get(AnswerConstant.COLUMN_NAME_TH_MONTH));
+        }
+
+        if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_CASE_ID)
+                && mapCache.get(AnswerConstant.COLUMN_NAME_CASE_ID)!=null){
+            answer.setHospitalInNo(mapCache.get(AnswerConstant.COLUMN_NAME_CASE_ID));
+        }
+
+        if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_PATIENT_NAME)
+                && mapCache.get(AnswerConstant.COLUMN_NAME_PATIENT_NAME)!=null){
+            answer.setPatientName(mapCache.get(AnswerConstant.COLUMN_NAME_PATIENT_NAME));
+        }
+
+        if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_PATIENT_NAME_LOWER_CASE)
+                && mapCache.get(AnswerConstant.COLUMN_NAME_PATIENT_NAME_LOWER_CASE)!=null){
+            answer.setPatientName(mapCache.get(AnswerConstant.COLUMN_NAME_PATIENT_NAME_LOWER_CASE));
+        }
+
+        if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_AGE)
+                && mapCache.get(AnswerConstant.COLUMN_NAME_AGE)!=null){
+            answer.setAge(Integer.parseInt(mapCache.get(AnswerConstant.COLUMN_NAME_AGE)));
+        }
+
+        if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_AGE_LOWER_CASE)
+                && mapCache.get(AnswerConstant.COLUMN_NAME_AGE_LOWER_CASE)!=null){
+            answer.setAge(Integer.parseInt(mapCache.get(AnswerConstant.COLUMN_NAME_AGE_LOWER_CASE)));
+        }
+
+        if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_IN_TIME)
+                && mapCache.get(AnswerConstant.COLUMN_NAME_IN_TIME)!=null){
+            String dateInTimeString = mapCache.get(AnswerConstant.COLUMN_NAME_IN_TIME);
+            Date dateInTime = DateUtil.parse(dateInTimeString).toJdkDate();
+            answer.setInTime(dateInTime);
+        }
+
+        boolean insertOrUpdate = answer.getId() != null && answer.getId() != 0;
+        if (insertOrUpdate) {
+            answer.setUpdateTime(date);
+            answerMapper.updateById(answer);
+        }else{
+            answer.setCreateTime(date);
+            answer.setUpdateTime(date);
+            answer.setDel(AnswerConstant.DEL_NORMAL);
+
+            String summaryMappingTableId = UUIDGenerator.generateRandomUUIDAndCurrentTimeMillis();
+            answer.setSummaryMappingTableId(summaryMappingTableId);
+            answerMapper.insert(answer);
+        }
+        //插入子表
+        StringBuffer sqlAns = new StringBuffer();
+        Question question = questionMapper.selectById(answerParam.getQuId());
+        if (question != null) {
+            if (insertOrUpdate) {
+                sqlAns.append("update `" + question.getTableName() + "` set ");
+                List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
+                for (int i = 0; i < subjectList.size(); i++) {
+                    Qsubject qsubjectDynamicTable = subjectList.get(i);
+                    String subType = qsubjectDynamicTable.getSubType();
+                    Integer del = qsubjectDynamicTable.getDel();
+                    if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                            || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null
+                            || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
+                        continue;
+                    }
+                    sqlAns.append("`");
+                    sqlAns.append(qsubjectDynamicTable.getColumnName());
+                    sqlAns.append("`");
+                    sqlAns.append("=");
+                    sqlAns.append("'");
+                    sqlAns.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
+                    sqlAns.append("'");
+                    sqlAns.append(",");
+                }
+                sqlAns.append("`tbksmc`='");
+                sqlAns.append(creater_deptname);
+                sqlAns.append("',");
+                sqlAns.append("`tbksdm`='");
+                sqlAns.append(creater_deptid);
+                sqlAns.append("'");
+//                    sqlAns.delete(sqlAns.length()-1,sqlAns.length());
+                sqlAns.append(" where summary_mapping_table_id = '");
+                sqlAns.append(answer.getSummaryMappingTableId());
+                sqlAns.append("'");
+                log.info("-----update sqlAns:{}", sqlAns.toString());
+                dynamicTableMapper.updateDynamicTable(sqlAns.toString());
+            }else{
+                sqlAns.append("insert into `" + question.getTableName() + "` (");
+
+                List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
+                for (int i = 0; i < subjectList.size(); i++) {
+                    Qsubject qsubjectDynamicTable = subjectList.get(i);
+                    String subType = qsubjectDynamicTable.getSubType();
+                    Integer del = qsubjectDynamicTable.getDel();
+                    if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                            || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null
+                            || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
+                        continue;
+                    }
+
+                    Qsubject qsubject = subjectList.get(i);
+                    sqlAns.append("`");
+                    sqlAns.append(qsubject.getColumnName());
+                    sqlAns.append("`");
+                    sqlAns.append(",");
+                }
+                sqlAns.append("`tbksmc`,");
+                sqlAns.append("`tbksdm`,");
+                sqlAns.append("`summary_mapping_table_id`");
+//                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
+                sqlAns.append(") values (");
+                for (int i = 0; i < subjectList.size(); i++) {
+                    Qsubject qsubjectDynamicTable = subjectList.get(i);
+                    String subType = qsubjectDynamicTable.getSubType();
+                    Integer del = qsubjectDynamicTable.getDel();
+                    if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                            || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null
+                            || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
+                        continue;
+                    }
+                    sqlAns.append("'");
+                    sqlAns.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
+                    sqlAns.append("',");
+                }
+                sqlAns.append("'");
+                sqlAns.append(creater_deptname);
+                sqlAns.append("',");
+
+                sqlAns.append("'");
+                sqlAns.append(creater_deptid);
+                sqlAns.append("',");
+
+                sqlAns.append("'");
+                sqlAns.append(answer.getSummaryMappingTableId());
+                sqlAns.append("'");
+//                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
+
+                sqlAns.append(")");
+                log.info("-----insert sqlAns:{}", sqlAns.toString());
+                dynamicTableMapper.insertDynamicTable(sqlAns.toString());
+            }
+        }
+
         return ResultFactory.success();
     }
 

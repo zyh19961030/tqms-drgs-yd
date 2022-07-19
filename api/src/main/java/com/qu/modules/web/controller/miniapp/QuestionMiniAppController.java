@@ -1,6 +1,8 @@
 package com.qu.modules.web.controller.miniapp;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.qu.modules.web.param.AnswerMiniAppParam;
+import com.qu.modules.web.service.IAnswerService;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
 import com.qu.modules.web.vo.QuestionMiniAppPageVo;
@@ -12,10 +14,7 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultFactory;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @Description: 问卷表_小程序后台调用
@@ -28,6 +27,10 @@ public class QuestionMiniAppController {
 
     @Autowired
     private IQuestionService questionService;
+
+    @Autowired
+    private IAnswerService answerService;
+
 
     /**
      * 分页列表查询
@@ -62,6 +65,12 @@ public class QuestionMiniAppController {
         result.setResult(questionVo);
         result.setSuccess(true);
         return result;
+    }
+
+    @ApiOperation(value = "答题", notes = "答题")
+    @PostMapping(value = "/answer")
+    public Result answer(@RequestBody AnswerMiniAppParam answerMiniAppParam) {
+        return answerService.answerByMiniApp(answerMiniAppParam);
     }
 
 
