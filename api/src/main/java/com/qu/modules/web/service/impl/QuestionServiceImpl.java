@@ -150,7 +150,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         StringBuffer groupIdsAll = new StringBuffer();
         for (SubjectVo subjectVo : subjectVoList) {
             //如果是分组题
-            if (subjectVo.getSubType().equals("8")) {
+
+            if (subjectVo.getSubType().equals(QsubjectConstant.SUB_TYPE_GROUP) || subjectVo.getSubType().equals(QsubjectConstant.SUB_TYPE_GROUP_SCORE)) {
                 String groupIds = subjectVo.getGroupIds();//包含题号
                 if (null != groupIds) {
                     String[] gids = groupIds.split(",");

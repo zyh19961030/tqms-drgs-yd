@@ -8,6 +8,7 @@ public class QsubjectConstant {
 	public static final String SUB_TYPE_TIME = "4";
 	public static final String SUB_TYPE_RESULT = "6";
 	public static final String SUB_TYPE_GROUP = "8";
+	public static final String SUB_TYPE_GROUP_SCORE = "15";
 	public static final String SUB_TYPE_TITLE = "9";
 	public static final String SUB_TYPE_DEPT_USER = "18";
 	//是否开启痕迹0:开启  1:不开启
