@@ -1,25 +1,46 @@
 package com.qu.modules.web.controller;
 
-import com.qu.constant.Constant;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.param.*;
-import com.qu.modules.web.pojo.Data;
-import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.vo.*;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
+import com.qu.constant.Constant;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.param.QuestionAgainReleaseParam;
+import com.qu.modules.web.param.QuestionEditParam;
+import com.qu.modules.web.param.QuestionParam;
+import com.qu.modules.web.param.UpdateCategoryIdParam;
+import com.qu.modules.web.param.UpdateDeptIdsParam;
+import com.qu.modules.web.param.UpdateWriteFrequencyIdsParam;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
+import com.qu.modules.web.vo.QuestionCheckProject;
+import com.qu.modules.web.vo.QuestionMonthQuarterYearCreateListVo;
+import com.qu.modules.web.vo.QuestionPageVo;
+import com.qu.modules.web.vo.QuestionPatientCreateListVo;
+import com.qu.modules.web.vo.QuestionVo;
+import com.qu.modules.web.vo.ViewNameVo;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: 问卷表
@@ -151,6 +172,23 @@ public class QuestionController {
         Result<QuestionVo> result = new Result<QuestionVo>();
         QuestionVo questionVo = questionService.queryById(id);
         result.setResult(questionVo);
+        result.setSuccess(true);
+        return result;
+    }
+
+    /**
+     * 通过视图查询数据
+     *
+     * @param viewName
+     * @return
+     */
+    @AutoLog(value = "问卷表-通过视图查询数据")
+    @ApiOperation(value = "问卷表-通过视图查询数据", notes = "问卷表-通过视图查询数据")
+    @GetMapping(value = "/queryByViewName")
+    public Result<QuestionVo> queryByViewName(@RequestParam(name = "viewName", required = true) String viewName) {
+        Result<QuestionVo> result = new Result<QuestionVo>();
+        List<ViewNameVo> queryByViewNameList = questionService.queryByViewName(viewName);
+        result.setResult(queryByViewNameList);
         result.setSuccess(true);
         return result;
     }

@@ -26,4 +26,8 @@
         ${sql}
     </select>
 
+    <select id="selectViewName" parameterType="java.lang.String" resultType="com.qu.modules.web.vo.ViewNameVo">
+        ${sql}
+    </select>
+
 </mapper>
