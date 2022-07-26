@@ -7,6 +7,7 @@ import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
 import com.qu.modules.web.vo.QuestionMiniAppPageVo;
 import com.qu.modules.web.vo.QuestionVo;
+import com.qu.modules.web.vo.ViewNameVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -16,11 +17,13 @@ import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
- * @Description: 问卷表_小程序后台调用
+ * @Description: 小程序后台调用_问卷表
  */
 @Slf4j
-@Api(tags = "问卷表_小程序后台调用")
+@Api(tags = "小程序后台调用_问卷表")
 @RestController
 @RequestMapping("/web/miniapp/question")
 public class QuestionMiniAppController {
@@ -74,6 +77,22 @@ public class QuestionMiniAppController {
     }
 
 
+    /**
+     * 通过视图查询数据
+     *
+     * @param viewName
+     * @return
+     */
+    @AutoLog(value = "问卷表-通过视图查询数据")
+    @ApiOperation(value = "问卷表-通过视图查询数据", notes = "问卷表-通过视图查询数据")
+    @GetMapping(value = "/queryByViewName")
+    public Result<QuestionVo> queryByViewName(@RequestParam(name = "viewName", required = true) String viewName) {
+        Result<QuestionVo> result = new Result<QuestionVo>();
+        List<ViewNameVo> queryByViewNameList = questionService.queryByViewName(viewName);
+        result.setResult(queryByViewNameList);
+        result.setSuccess(true);
+        return result;
+    }
 
 
 }
