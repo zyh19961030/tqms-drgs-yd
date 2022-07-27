@@ -1,5 +1,18 @@
 package com.qu.modules.web.controller.miniapp;
 
+import java.util.List;
+
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.aspect.annotation.AutoLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.qu.modules.web.param.AnswerMiniAppParam;
 import com.qu.modules.web.service.IAnswerService;
@@ -8,16 +21,10 @@ import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
 import com.qu.modules.web.vo.QuestionMiniAppPageVo;
 import com.qu.modules.web.vo.QuestionVo;
 import com.qu.modules.web.vo.ViewNameVo;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.jeecg.common.aspect.annotation.AutoLog;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * @Description: 小程序后台调用_问卷表
@@ -73,7 +80,14 @@ public class QuestionMiniAppController {
     @ApiOperation(value = "答题", notes = "答题")
     @PostMapping(value = "/answer")
     public Result answer(@RequestBody AnswerMiniAppParam answerMiniAppParam) {
-        return answerService.answerByMiniApp(answerMiniAppParam);
+        try {
+            return answerService.answerByMiniApp(answerMiniAppParam);
+        }catch (Exception e){
+            if( e.getMessage().contains("Table") &&  e.getMessage().contains("doesn't exist")) {
+                return ResultFactory.fail("问卷未发布");
+            }
+        }
+        return ResultFactory.fail();
     }
 
 
