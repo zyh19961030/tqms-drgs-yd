@@ -61,7 +61,7 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
         Integer subSumCount = qsubjectMapper.selectSumCount(subjectParam.getQuId());
         subject.setOrderNum(subSumCount + 1);
         //如果是分组题，计算分组题号字段
-        if (subjectParam.getSubType().equals("8")) {
+        if (subjectParam.getSubType().equals(QsubjectConstant.SUB_TYPE_GROUP) || subjectParam.getSubType().equals(QsubjectConstant.SUB_TYPE_GROUP_SCORE)) {
             String[] gids = subjectParam.getGroupIds();
             StringBuffer groupIds = new StringBuffer();
             if (null != gids) {
@@ -146,7 +146,7 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
         subject.setOrderNum(nextOrderNum + 1);
 
         //如果是分组题，计算分组题号字段
-        if (insertSubjectParam.getSubType().equals("8")) {
+        if (insertSubjectParam.getSubType().equals(QsubjectConstant.SUB_TYPE_GROUP) || insertSubjectParam.getSubType().equals(QsubjectConstant.SUB_TYPE_GROUP_SCORE)) {
             String[] gids = insertSubjectParam.getGroupIds();
             StringBuffer groupIds = new StringBuffer();
             if (null != gids) {
