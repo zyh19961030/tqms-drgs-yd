@@ -7,6 +7,8 @@ import lombok.Data;
 @Data
 @ApiModel(value="答案小程序后台入参", description="答案小程序后台入参")
 public class AnswerMiniAppParam {
+    @ApiModelProperty(value = "总表id")
+    private String id;
     @ApiModelProperty(value = "用户id")
     private String userId;
     @ApiModelProperty(value = "问卷id")

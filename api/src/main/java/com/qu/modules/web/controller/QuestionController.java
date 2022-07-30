@@ -1,46 +1,26 @@
 package com.qu.modules.web.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.qu.constant.Constant;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.param.*;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.vo.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.qu.constant.Constant;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.param.QuestionAgainReleaseParam;
-import com.qu.modules.web.param.QuestionEditParam;
-import com.qu.modules.web.param.QuestionParam;
-import com.qu.modules.web.param.UpdateCategoryIdParam;
-import com.qu.modules.web.param.UpdateDeptIdsParam;
-import com.qu.modules.web.param.UpdateWriteFrequencyIdsParam;
-import com.qu.modules.web.pojo.Data;
-import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
-import com.qu.modules.web.vo.QuestionCheckProject;
-import com.qu.modules.web.vo.QuestionMonthQuarterYearCreateListVo;
-import com.qu.modules.web.vo.QuestionPageVo;
-import com.qu.modules.web.vo.QuestionPatientCreateListVo;
-import com.qu.modules.web.vo.QuestionVo;
-import com.qu.modules.web.vo.ViewNameVo;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Description: 问卷表
@@ -203,7 +183,7 @@ public class QuestionController {
         return result;
     }
 
-    @ApiOperation(value = "问卷填报分页列表", notes = "问卷填报分页列表")
+    @ApiOperation(value = "普通问卷新增填报分页列表", notes = "普通问卷新增填报分页列表")
     @GetMapping(value = "/questionFillInList")
     public Result<QuestionPageVo> questionFillInList(QuestionParam questionParam,
                                                      @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
@@ -213,6 +193,20 @@ public class QuestionController {
         QuestionPageVo questionPageVo = questionService.questionFillInList(questionParam, pageNo, pageSize);
         result.setSuccess(true);
         result.setResult(questionPageVo);
+        return result;
+    }
+
+
+    @ApiOperation(value = "检查表_新增分页列表", notes = "检查表_新增分页列表")
+    @GetMapping(value = "/checkQuestionList")
+    public Result<QuestionCheckVo> checkQuestionList(QuestionCheckParam questionCheckParam,
+                                                    @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                    @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                    HttpServletRequest req) {
+        Result<QuestionCheckVo> result = new Result<>();
+        IPage<QuestionCheckVo> questionCheckPageVoIPage = questionService.checkQuestionList(questionCheckParam, pageNo, pageSize);
+        result.setSuccess(true);
+        result.setResult(questionCheckPageVoIPage);
         return result;
     }
 

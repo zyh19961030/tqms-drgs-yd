@@ -66,7 +66,6 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
 
     @Override
     public Result answer(String cookie, AnswerParam answerParam) {
-
         //解析token
         String res = HttpClient.doPost(tokenUrl, cookie, null);
         JsonRootBean jsonRootBean = JSON.parseObject(res, JsonRootBean.class);
@@ -82,19 +81,6 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
                 creater_deptname = jsonRootBean.getData().getDeps().get(0).getDepName();
             }
         }
-        return getResult(answerParam, creater, creater_name, creater_deptid, creater_deptname);
-    }
-
-    @Override
-    public Result answerByMiniApp(AnswerMiniAppParam answerMiniAppParam) {
-        String userId = answerMiniAppParam.getUserId();
-        //用户数据--
-        AnswerParam answerParam = new AnswerParam();
-        BeanUtils.copyProperties(answerMiniAppParam,answerParam);
-        return getResult(answerParam, "", "", "", "");
-    }
-
-    private Result getResult(AnswerParam answerParam, String creater, String creater_name, String creater_deptid, String creater_deptname) {
         Answer answer = this.getById(answerParam.getId());
         if(answer==null){
             answer = new Answer();
@@ -267,9 +253,9 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
                 dynamicTableMapper.insertDynamicTable(sqlAns.toString());
             }
         }
-
         return ResultFactory.success();
     }
+
 
 //    @Override
 //    public String queryByQuId(Integer quId) {
@@ -291,6 +277,10 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
 
         LambdaQueryWrapper<Question> questionLambdaQueryWrapper = getQuestionLambda();
         questionLambdaQueryWrapper.like(Question::getQuName, quName);
+        questionLambdaQueryWrapper.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+        questionLambdaQueryWrapper.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_NORMAL);
+        questionLambdaQueryWrapper.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+
         List<Question> questionList = questionMapper.selectList(questionLambdaQueryWrapper);
         List<Integer> questionSearchIdList = questionList.stream().map(Question::getId).distinct().collect(Collectors.toList());
 
@@ -325,6 +315,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         res.setAnswerVoList(answerVoList);
         return res;
     }
+
 
     @Override
     public boolean withdrawEdit(Integer id) {

@@ -1,30 +1,22 @@
 package com.qu.modules.web.controller.miniapp;
 
-import java.util.List;
-
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.qu.modules.web.param.AnswerMiniAppParam;
+import com.qu.modules.web.service.IAnswerCheckService;
+import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.vo.QuestionMiniAppPageVo;
+import com.qu.modules.web.vo.QuestionVo;
+import com.qu.modules.web.vo.ViewNameVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultFactory;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.qu.modules.web.param.AnswerMiniAppParam;
-import com.qu.modules.web.service.IAnswerService;
-import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
-import com.qu.modules.web.vo.QuestionMiniAppPageVo;
-import com.qu.modules.web.vo.QuestionVo;
-import com.qu.modules.web.vo.ViewNameVo;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
 
 /**
  * @Description: 小程序后台调用_问卷表
@@ -39,7 +31,7 @@ public class QuestionMiniAppController {
     private IQuestionService questionService;
 
     @Autowired
-    private IAnswerService answerService;
+    private IAnswerCheckService answerCheckService;
 
 
     /**
@@ -51,9 +43,9 @@ public class QuestionMiniAppController {
      * @return
      */
     @AutoLog(value = "检查填报-分页列表查询")
-    @ApiOperation(value = "检查填报-分页列表查询", notes = "检查填报-分页列表查询",response = QuestionAndCategoryPageVo.class)
+    @ApiOperation(value = "检查填报-分页列表查询", notes = "检查填报-分页列表查询",response = QuestionMiniAppPageVo.class)
     @GetMapping(value = "/list")
-    public Result<QuestionAndCategoryPageVo> queryPageList(String deptId,
+    public Result<QuestionMiniAppPageVo> queryPageList(String deptId,
                                                            @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                            @RequestParam(name = "pageSize", defaultValue = "100") Integer pageSize) {
         IPage<QuestionMiniAppPageVo> iPage = questionService.queryPageListByMiniApp(deptId, pageNo, pageSize);
@@ -66,8 +58,8 @@ public class QuestionMiniAppController {
      * @param id
      * @return
      */
-    @AutoLog(value = "检查填报-通过id查询")
-    @ApiOperation(value = "检查填报-通过id查询", notes = "检查填报-通过id查询")
+    @AutoLog(value = "检查填报问卷-通过id查询")
+    @ApiOperation(value = "检查填报问卷-通过id查询", notes = "检查填报问卷-通过id查询")
     @GetMapping(value = "/queryById")
     public Result<QuestionVo> queryById(@RequestParam(name = "id", required = true) Integer id) {
         Result<QuestionVo> result = new Result<QuestionVo>();
@@ -81,7 +73,7 @@ public class QuestionMiniAppController {
     @PostMapping(value = "/answer")
     public Result answer(@RequestBody AnswerMiniAppParam answerMiniAppParam) {
         try {
-            return answerService.answerByMiniApp(answerMiniAppParam);
+            return answerCheckService.answerByMiniApp(answerMiniAppParam);
         }catch (Exception e){
             if( e.getMessage().contains("Table") &&  e.getMessage().contains("doesn't exist")) {
                 return ResultFactory.fail("问卷未发布");

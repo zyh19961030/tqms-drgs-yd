@@ -53,7 +53,7 @@ public class AnswerController {
 //        return result;
 //    }
 
-    @ApiOperation(value = "问卷填报记录分页列表", notes = "问卷填报记录分页列表")
+    @ApiOperation(value = "普通问卷填报记录分页列表", notes = "普通问卷填报记录分页列表")
     @GetMapping(value = "/questionFillInList")
     public Result<AnswerPageVo> questionFillInList(@RequestParam(name = "quName", required = false) String quName,
                                                    @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,

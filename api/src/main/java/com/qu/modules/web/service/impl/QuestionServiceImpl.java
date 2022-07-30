@@ -1,18 +1,5 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -23,40 +10,24 @@ import com.qu.constant.Constant;
 import com.qu.constant.QoptionConstant;
 import com.qu.constant.QsubjectConstant;
 import com.qu.constant.QuestionConstant;
-import com.qu.modules.web.entity.Qoption;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.entity.TbDep;
-import com.qu.modules.web.entity.TqmsQuotaCategory;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.OptionMapper;
-import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam;
-import com.qu.modules.web.param.QuestionAgainReleaseParam;
-import com.qu.modules.web.param.QuestionEditParam;
-import com.qu.modules.web.param.QuestionParam;
-import com.qu.modules.web.param.UpdateCategoryIdParam;
-import com.qu.modules.web.param.UpdateDeptIdsParam;
-import com.qu.modules.web.param.UpdateWriteFrequencyIdsParam;
+import com.qu.modules.web.entity.*;
+import com.qu.modules.web.mapper.*;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.TbUser;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
-import com.qu.modules.web.vo.QuestionAndCategoryVo;
-import com.qu.modules.web.vo.QuestionMiniAppPageVo;
-import com.qu.modules.web.vo.QuestionMonthQuarterYearCreateListVo;
-import com.qu.modules.web.vo.QuestionPageVo;
-import com.qu.modules.web.vo.QuestionPatientCreateListVo;
-import com.qu.modules.web.vo.QuestionVo;
-import com.qu.modules.web.vo.SubjectVo;
-import com.qu.modules.web.vo.ViewNameVo;
+import com.qu.modules.web.vo.*;
 import com.qu.util.DeptUtil;
 import com.qu.util.IntegerUtil;
 import com.qu.util.StringUtil;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 问卷表
@@ -376,6 +347,37 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         questionPageVo.setTotal(total);
         questionPageVo.setQuestionList(questionList);
         return questionPageVo;
+    }
+
+
+    @Override
+    public IPage<QuestionCheckVo> checkQuestionList(QuestionCheckParam questionCheckParam, Integer pageNo, Integer pageSize) {
+        Page<Question> page = new Page<>(pageNo, pageSize);
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        String quName = questionCheckParam.getQuName();
+        if(StringUtils.isNotBlank(quName)){
+            lambda.like(Question::getQuName, quName);
+        }
+        lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+        lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
+        lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+        IPage<Question> iPage = this.page(page,lambda);
+
+        List<Question> questionList = iPage.getRecords();
+        if(questionList.isEmpty()){
+            return new Page<>();
+        }
+
+        List<QuestionCheckVo> answerPatientFillingInVos = questionList.stream().map(q -> {
+            QuestionCheckVo vo = new QuestionCheckVo();
+            BeanUtils.copyProperties(q,vo);
+            return vo;
+        }).collect(Collectors.toList());
+
+        IPage<QuestionCheckVo> questionCheckPageVoPage = new Page<>(pageNo,pageSize);
+        questionCheckPageVoPage.setRecords(answerPatientFillingInVos);
+        questionCheckPageVoPage.setTotal(iPage.getTotal());
+        return questionCheckPageVoPage;
     }
 
     @Override
