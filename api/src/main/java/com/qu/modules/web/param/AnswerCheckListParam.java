@@ -12,14 +12,14 @@ import java.util.Date;
 @ApiModel(value="AnswerCheckParam入参", description="AnswerCheckParam入参")
 public class AnswerCheckListParam {
 
-    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    @ApiModelProperty(value = "日期_起始时间 格式：yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern="yyyy-MM-dd")
+    @ApiModelProperty(value = "日期_起始时间 格式：yyyy-MM-dd")
     private Date startDate;
 
-    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    @ApiModelProperty(value = "日期_结束时间 格式：yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern="yyyy-MM-dd")
+    @ApiModelProperty(value = "日期_结束时间 格式：yyyy-MM-dd")
     private Date endDate;
 
     @ApiModelProperty(value = "问卷名称(也就是检查项目)")

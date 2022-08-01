@@ -16,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,7 +63,7 @@ public class SubjectController {
 
     @ApiOperation(value = "在某题下面插入题目", notes = "在某题下面插入题目")
     @PostMapping(value = "/insertSubject")
-    public Result<SubjectVo> insertSubject(@RequestBody InsertSubjectParam insertSubjectParam, HttpServletRequest request) {
+    public Result<SubjectVo> insertSubject(@Valid @RequestBody InsertSubjectParam insertSubjectParam, HttpServletRequest request) {
         Result<SubjectVo> result = new Result<SubjectVo>();
         try {
             Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);

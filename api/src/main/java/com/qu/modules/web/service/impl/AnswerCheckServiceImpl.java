@@ -22,12 +22,12 @@ import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IAnswerCheckService;
 import com.qu.modules.web.vo.AnswerCheckVo;
 import com.qu.util.HttpClient;
-import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultFactory;
 import org.jeecg.common.util.UUIDGenerator;
+import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -85,7 +85,8 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             lambda.ge(AnswerCheck::getCheckTime, answerCheckListParam.getStartDate());
         }
         if(answerCheckListParam !=null && answerCheckListParam.getEndDate()!=null){
-            lambda.le(AnswerCheck::getCheckTime, answerCheckListParam.getEndDate());
+            Date endDate = new DateTime(answerCheckListParam.getEndDate()).plusDays(1).toDate();
+            lambda.le(AnswerCheck::getCheckTime, endDate);
         }
         if(answerCheckListParam !=null &&StringUtils.isNotBlank(answerCheckListParam.getDeptId())){
             lambda.eq(AnswerCheck::getCheckedDept, answerCheckListParam.getDeptId());
