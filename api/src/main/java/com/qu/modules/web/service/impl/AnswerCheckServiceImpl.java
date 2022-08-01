@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qu.constant.AnswerCheckConstant;
+import com.qu.constant.QsubjectConstant;
 import com.qu.constant.QuestionConstant;
 import com.qu.modules.web.entity.AnswerCheck;
 import com.qu.modules.web.entity.Qsubject;
@@ -236,6 +237,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         Question question = questionMapper.selectById(answerCheckAddParam.getQuId());
         if (question != null) {
             if (insertOrUpdate) {
+
                 sqlAns.append("update `" + question.getTableName() + "` set ");
                 List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerCheckAddParam.getQuId());
                 for (int i = 0; i < subjectList.size(); i++) {
@@ -255,6 +257,35 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
                     sqlAns.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
                     sqlAns.append("'");
                     sqlAns.append(",");
+
+                    if (QsubjectConstant.MARK_OPEN.equals(qsubjectDynamicTable.getMark())) {
+                        String columnNameMark = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark");
+                        if(StringUtils.isNotBlank(columnNameMark)){
+                            sqlAns.append("`");
+                            sqlAns.append(qsubjectDynamicTable.getColumnName());
+                            sqlAns.append("_mark");
+                            sqlAns.append("`");
+                            sqlAns.append("=");
+                            sqlAns.append("'");
+                            sqlAns.append(columnNameMark);
+                            sqlAns.append("'");
+                            sqlAns.append(",");
+                        }
+                        String columnNameMarkImg = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark_img");
+                        if(StringUtils.isNotBlank(columnNameMarkImg)){
+                            sqlAns.append("`");
+                            sqlAns.append(qsubjectDynamicTable.getColumnName());
+                            sqlAns.append("_mark_img");
+                            sqlAns.append("`");
+                            sqlAns.append("=");
+                            sqlAns.append("'");
+                            sqlAns.append(columnNameMarkImg);
+                            sqlAns.append("'");
+                            sqlAns.append(",");
+                        }
+
+                    }
+
                 }
                 sqlAns.append("`tbksmc`='");
                 sqlAns.append(creater_deptname);
@@ -287,6 +318,27 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
                     sqlAns.append(qsubject.getColumnName());
                     sqlAns.append("`");
                     sqlAns.append(",");
+
+                    if (QsubjectConstant.MARK_OPEN.equals(qsubjectDynamicTable.getMark())) {
+                        String columnNameMark = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark");
+                        if(StringUtils.isNotBlank(columnNameMark)){
+                            sqlAns.append("`");
+                            sqlAns.append(qsubject.getColumnName());
+                            sqlAns.append("_mark");
+                            sqlAns.append("`");
+                            sqlAns.append(",");
+                        }
+
+                        String columnNameMarkImg = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark_img");
+                        if(StringUtils.isNotBlank(columnNameMarkImg)){
+                            sqlAns.append("`");
+                            sqlAns.append(qsubject.getColumnName());
+                            sqlAns.append("_mark_img");
+                            sqlAns.append("`");
+                            sqlAns.append(",");
+                        }
+
+                    }
                 }
                 sqlAns.append("`tbksmc`,");
                 sqlAns.append("`tbksdm`,");
@@ -305,6 +357,23 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
                     sqlAns.append("'");
                     sqlAns.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
                     sqlAns.append("',");
+
+
+                    if (QsubjectConstant.MARK_OPEN.equals(qsubjectDynamicTable.getMark())) {
+                        String columnNameMark = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark");
+                        if(StringUtils.isNotBlank(columnNameMark)){
+                            sqlAns.append("'");
+                            sqlAns.append(columnNameMark);
+                            sqlAns.append("',");
+                        }
+
+                        String columnNameMarkImg = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark_img");
+                        if(StringUtils.isNotBlank(columnNameMarkImg)){
+                            sqlAns.append("'");
+                            sqlAns.append(columnNameMarkImg);
+                            sqlAns.append("',");
+                        }
+                    }
                 }
                 sqlAns.append("'");
                 sqlAns.append(creater_deptname);

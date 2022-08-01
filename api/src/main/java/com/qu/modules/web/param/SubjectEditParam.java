@@ -148,9 +148,9 @@ public class SubjectEditParam {
     @Excel(name = "提示属性", width = 15)
     @ApiModelProperty(value = "提示属性")
     private java.lang.String tips;
-    /**是否开启痕迹0:开启  1:不开启*/
-    @Excel(name = "是否开启痕迹0:开启  1:不开启", width = 15)
-    @ApiModelProperty(value = "是否开启痕迹0:开启  1:不开启")
+    /**是否开启痕迹 改0:不开启1:开启 */
+    @Excel(name = "是否开启痕迹 改0:不开启1:开启 ", width = 15)
+    @ApiModelProperty(value = "是否开启痕迹 改0:不开启1:开启 ")
     private java.lang.Integer mark;
     /**分值*/
     @Excel(name = "分值", width = 15)
