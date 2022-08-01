@@ -83,6 +83,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         QuestionVo questionVo = new QuestionVo();
 
         Question question = questionMapper.selectById(id);
+        if(question==null){
+            return questionVo;
+        }
         BeanUtils.copyProperties(question, questionVo);
         List<Qsubject> subjectList = subjectMapper.selectSubjectByQuId(id);
         if(subjectList.isEmpty()){
