@@ -1,7 +1,22 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.NumberUtil;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.util.UUIDGenerator;
+import org.joda.time.DateTime;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -18,24 +33,19 @@ import com.qu.modules.web.mapper.AnswerCheckMapper;
 import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.*;
+import com.qu.modules.web.param.AnswerCheckAddParam;
+import com.qu.modules.web.param.AnswerCheckListParam;
+import com.qu.modules.web.param.AnswerMiniAppParam;
+import com.qu.modules.web.param.Answers;
+import com.qu.modules.web.param.SingleDiseaseAnswer;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IAnswerCheckService;
 import com.qu.modules.web.vo.AnswerCheckVo;
 import com.qu.util.HttpClient;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.jeecg.common.util.UUIDGenerator;
-import org.joda.time.DateTime;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.NumberUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: 检查表问卷总表
@@ -93,7 +103,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             lambda.eq(AnswerCheck::getCheckedDept, answerCheckListParam.getDeptId());
         }
 
-        lambda.orderByAsc(AnswerCheck::getAnswerTime);
+        lambda.orderByDesc(AnswerCheck::getAnswerTime);
         IPage<AnswerCheck> answerCheckIPage = this.page(page, lambda);
         List<AnswerCheck> answerCheckList = answerCheckIPage.getRecords();
         if(answerCheckList.isEmpty()){
