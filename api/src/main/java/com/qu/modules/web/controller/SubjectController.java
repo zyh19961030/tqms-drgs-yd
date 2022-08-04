@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -176,13 +175,49 @@ public class SubjectController {
     @ApiOperation(value = "问题表-根据输入内容搜索问题", notes = "问题表-根据输入内容搜索问题")
     @GetMapping(value = "/querySubjectByInput")
     public List<Qsubject> querySubjectByInput(@RequestParam(name = "name", required = true) String name) {
-        List<Qsubject> list = new ArrayList<>();
-        List<Qsubject> qsubjects = subjectService.querySubjectByInput(name);
-        qsubjects.forEach(qsubject -> {
-            list.add(qsubject);
-        });
-        return list;
+        return subjectService.querySubjectByInput(name);
     }
+
+    /**
+     * 针对19.数量统计题型的选择统计题目列表
+     * @param
+     * @return
+     */
+    @AutoLog(value = "针对19.数量统计题型的选择统计题目列表")
+    @ApiOperation(value = "针对19.数量统计题型的选择统计题目列表", notes = "针对19.数量统计题型的选择统计题目列表",response = Qsubject.class)
+    @PostMapping(value = "/querySubjectByQuantityStatistics")
+    public Result querySubjectByQuantityStatistics(@RequestBody SubjectQuantityStatisticsParam subjectQuantityStatisticsParam) {
+        List<Qsubject> qsubjects = subjectService.querySubjectByQuantityStatistics(subjectQuantityStatisticsParam);
+        return Result.ok(qsubjects);
+    }
+
+    /**
+     * 针对20.选择题分数求和题型的选择统计题目列表
+     * @param
+     * @return
+     */
+    @AutoLog(value = "针对20.选择题分数求和题型的选择统计题目列表")
+    @ApiOperation(value = "针对20.选择题分数求和题型的选择统计题目列表", notes = "针对20.选择题分数求和题型的选择统计题目列表",response = Qsubject.class)
+    @PostMapping(value = "/querySubjectByScoreCount")
+    public Result querySubjectByScoreCount(@RequestBody SubjectQuantityStatisticsParam subjectQuantityStatisticsParam) {
+        List<Qsubject> qsubjects = subjectService.querySubjectByScoreCount(subjectQuantityStatisticsParam);
+        return Result.ok(qsubjects);
+    }
+
+    /**
+     * 针对21.结果评价题型和22.数值题求和题型 的选择统计题目列表
+     * @param
+     * @return
+     */
+    @AutoLog(value = "针对21.结果评价题型和22.数值题求和题型 的选择统计题目列表")
+    @ApiOperation(value = "针对21.结果评价题型和22.数值题求和题型 的选择统计题目列表", notes = "针对21.结果评价题型和22.数值题求和题型 的选择统计题目列表",response = Qsubject.class)
+    @PostMapping(value = "/querySubjectByResultEvaluate")
+    public Result querySubjectByResultEvaluate(@RequestBody SubjectQuantityStatisticsParam subjectQuantityStatisticsParam) {
+        List<Qsubject> qsubjects = subjectService.querySubjectByResultEvaluate(subjectQuantityStatisticsParam);
+        return Result.ok(qsubjects);
+    }
+
+
 
 
 //    /**

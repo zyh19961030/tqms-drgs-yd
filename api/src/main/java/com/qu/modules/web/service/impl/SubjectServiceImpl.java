@@ -1,5 +1,7 @@
 package com.qu.modules.web.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -478,6 +480,33 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
     public List<Qsubject> querySubjectByInput(String name) {
         List<Qsubject> qsubjects = qsubjectMapper.querySubjectByInput(name);
         return qsubjects;
+    }
+
+    @Override
+    public List<Qsubject> querySubjectByQuantityStatistics(SubjectQuantityStatisticsParam subjectQuantityStatisticsParam) {
+        LambdaQueryWrapper<Qsubject> lambda = new QueryWrapper<Qsubject>().lambda();
+        lambda.eq(Qsubject::getQuId,subjectQuantityStatisticsParam.getId())
+                .eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL)
+                .in(Qsubject::getSubType, QsubjectConstant.QUANTITY_STATISTICS_LIST);
+        return qsubjectMapper.selectList(lambda);
+    }
+
+    @Override
+    public List<Qsubject> querySubjectByScoreCount(SubjectQuantityStatisticsParam subjectQuantityStatisticsParam) {
+        LambdaQueryWrapper<Qsubject> lambda = new QueryWrapper<Qsubject>().lambda();
+        lambda.eq(Qsubject::getQuId,subjectQuantityStatisticsParam.getId())
+                .eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL)
+                .in(Qsubject::getSubType, QsubjectConstant.SCORE_COUNT_LIST);
+        return qsubjectMapper.selectList(lambda);
+    }
+
+    @Override
+    public List<Qsubject> querySubjectByResultEvaluate(SubjectQuantityStatisticsParam subjectQuantityStatisticsParam) {
+        LambdaQueryWrapper<Qsubject> lambda = new QueryWrapper<Qsubject>().lambda();
+        lambda.eq(Qsubject::getQuId,subjectQuantityStatisticsParam.getId())
+                .eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL)
+                .in(Qsubject::getSubType, QsubjectConstant.RESULT_EVALUATE_LIST);
+        return qsubjectMapper.selectList(lambda);
     }
 
     @Override

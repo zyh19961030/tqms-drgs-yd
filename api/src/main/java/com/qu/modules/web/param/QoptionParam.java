@@ -35,4 +35,20 @@ public class QoptionParam {
     @Excel(name = "选项分值", width = 15)
     @ApiModelProperty(value = "选项分值")
     private java.math.BigDecimal optionScore;
+    /**答案*/
+    @Excel(name = "答案", width = 15)
+    @ApiModelProperty(value = "答案")
+    private java.lang.String answerName;
+    /**答案值*/
+    @Excel(name = "答案值", width = 15)
+    @ApiModelProperty(value = "答案值")
+    private java.lang.String answerValue;
+    /**大于的值*/
+    @Excel(name = "大于的值", width = 15)
+    @ApiModelProperty(value = "大于的值")
+    private java.lang.String greaterThanValue;
+    /**小于的值*/
+    @Excel(name = "小于的值", width = 15)
+    @ApiModelProperty(value = "小于的值")
+    private java.lang.String lessThanValue;
 }

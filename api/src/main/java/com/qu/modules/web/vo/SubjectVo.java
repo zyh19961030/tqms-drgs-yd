@@ -207,6 +207,22 @@ public class SubjectVo {
     @Excel(name = "视图名称", width = 15)
     @ApiModelProperty(value = "视图名称")
     private java.lang.String viewName;
+    /**针对 19.数量统计题型 的统计的答案值的条件类型  0等于 1大于 2大于等于 3小于 4小于等于*/
+    @Excel(name = "针对 19.数量统计题型 的统计的答案值的条件类型  0等于 1大于 2大于等于 3小于 4小于等于", width = 15)
+    @ApiModelProperty(value = "针对 19.数量统计题型 的统计的答案值的条件类型  0等于 1大于 2大于等于 3小于 4小于等于")
+    private java.lang.Integer conditionType;
+    /**针对 19.数量统计题型 的统计的答案值的条件的值*/
+    @Excel(name = "针对 19.数量统计题型 的统计的答案值的条件的值", width = 15)
+    @ApiModelProperty(value = "针对 19.数量统计题型 的统计的答案值的条件的值")
+    private java.lang.String conditionValue;
+    /**针对 19.数量统计题型 20.选择题分数求和题型 21.结果评价题型 22.数值题求和题型 选择统计题目的id集合*/
+    @Excel(name = "针对 19.数量统计题型 20.选择题分数求和题型 21.结果评价题型 22.数值题求和题型 选择统计题目的id集合", width = 15)
+    @ApiModelProperty(value = "针对 19.数量统计题型 20.选择题分数求和题型 21.结果评价题型 22.数值题求和题型 选择统计题目的id集合")
+    private java.lang.String choiceSubjectId;
+    /**针对  23.预设题目数量题型的项目总数量*/
+    @Excel(name = "针对  23.预设题目数量题型 的项目总数量", width = 15)
+    @ApiModelProperty(value = "针对  23.预设题目数量题型 的项目总数量")
+    private java.lang.String subjectCount;
 
     @ApiModelProperty(value = "分组题包含的题")
     private List<SubjectVo> subjectVoList;

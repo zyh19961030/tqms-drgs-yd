@@ -34,6 +34,12 @@ public interface ISubjectService extends IService<Qsubject> {
 
     List<Qsubject> querySubjectByInput(String name);
 
+    List<Qsubject> querySubjectByQuantityStatistics(SubjectQuantityStatisticsParam subjectQuantityStatisticsParam);
+
+    List<Qsubject> querySubjectByScoreCount(SubjectQuantityStatisticsParam subjectQuantityStatisticsParam);
+
+    List<Qsubject> querySubjectByResultEvaluate(SubjectQuantityStatisticsParam subjectQuantityStatisticsParam);
+
     List<Qsubject> querySubjectByQuId(Integer id);
 
     Qsubject querySubjectById(Integer id);
