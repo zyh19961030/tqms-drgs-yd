@@ -91,7 +91,9 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         if(!questionSearchIdList.isEmpty()){
             lambda.in(AnswerCheck::getQuId,questionSearchIdList);
         }
-        lambda.eq(AnswerCheck::getAnswerStatus,answerStatus);
+        if(answerStatus!=null){
+            lambda.eq(AnswerCheck::getAnswerStatus,answerStatus);
+        }
         if(answerCheckListParam !=null && answerCheckListParam.getStartDate()!=null){
             lambda.ge(AnswerCheck::getCheckTime, answerCheckListParam.getStartDate());
         }

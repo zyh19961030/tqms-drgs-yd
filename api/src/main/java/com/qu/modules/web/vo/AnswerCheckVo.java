@@ -1,12 +1,14 @@
 package com.qu.modules.web.vo;
 
+import java.util.Date;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.util.Date;
 
 @Data
 @ApiModel(value = "AnswerCheckVo", description = "AnswerCheckVo")
@@ -31,6 +33,10 @@ public class AnswerCheckVo {
 
     @ApiModelProperty(value = "答题人姓名")
     private String createrName;
+
+    /**0:草稿1:已提交*/
+    @ApiModelProperty(value = "0:草稿(填报中)1:已提交(已完成)")
+    private Integer answerStatus;
 
     /**答题时间-填报时间*/
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
