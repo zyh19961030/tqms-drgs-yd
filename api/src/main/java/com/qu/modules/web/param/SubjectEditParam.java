@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @ApiModel(value = "题目编辑入参", description = "题目编辑入参")
 public class SubjectEditParam {
-    @ApiModelProperty(value = "主键")
+    @ApiModelProperty(value = "主键id不能为空")
     @NotNull(message = "主键id不能为空")
     private java.lang.Integer id;
     /**

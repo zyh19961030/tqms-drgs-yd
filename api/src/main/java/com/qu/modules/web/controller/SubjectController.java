@@ -89,7 +89,7 @@ public class SubjectController {
     @AutoLog(value = "题目表-编辑")
     @ApiOperation(value = "题目表-编辑", notes = "题目表-编辑")
     @PutMapping(value = "/edit")
-    public Result<SubjectVo> edit(@RequestBody SubjectEditParam subjectEditParam, HttpServletRequest request) {
+    public Result<SubjectVo> edit(@RequestBody @Valid SubjectEditParam subjectEditParam, HttpServletRequest request) {
         Result<SubjectVo> result = new Result<SubjectVo>();
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
         SubjectVo subjectVo = subjectService.updateQsubjectById(subjectEditParam,data.getTbUser());
