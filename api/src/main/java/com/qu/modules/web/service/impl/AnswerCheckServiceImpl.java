@@ -156,6 +156,9 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         //todo ----用户数据--
         AnswerCheckAddParam answerCheckAddParam = new AnswerCheckAddParam();
         BeanUtils.copyProperties(answerMiniAppParam,answerCheckAddParam);
+        if(answerMiniAppParam.getId()!=null && NumberUtil.isNumber(answerMiniAppParam.getId())){
+            answerCheckAddParam.setId(Integer.parseInt(answerMiniAppParam.getId()));
+        }
         return getResult(answerCheckAddParam, "", "", "", "");
     }
 
