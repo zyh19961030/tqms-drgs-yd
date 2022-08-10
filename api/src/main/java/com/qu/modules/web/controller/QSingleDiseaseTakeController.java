@@ -899,7 +899,7 @@ public class QSingleDiseaseTakeController {
                                                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*/) {
 
 //        Result<List<QSingleDiseaseTakeReportStatisticOverviewLineVo>> result = new Result<>();
-//        //todo  加科室过滤---
+//        // 加科室过滤---
 //        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
 //        String[] dept = qSingleDiseaseTakeReportStatisticOverviewLineParam.getDept();
 //        if(dept!=null){
@@ -931,7 +931,7 @@ public class QSingleDiseaseTakeController {
                                                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*/) {
 
 //        Result<List<QSingleDiseaseTakeReportStatisticOverviewPieVo>> result = new Result<>();
-//        //todo  加科室过滤---
+//        // 加科室过滤---
 //        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
 //        String[] dept = qSingleDiseaseTakeReportStatisticOverviewParam.getDept();
 //        if(dept!=null){
@@ -963,7 +963,7 @@ public class QSingleDiseaseTakeController {
                                                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*/) {
 
 //        Result<List<QSingleDiseaseTakeReportStatisticTrendVo>> result = new Result<>();
-//        //todo  加科室过滤---
+//        // 加科室过滤---
 //        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
 //        String[] dept = qSingleDiseaseTakeReportStatisticOverviewParam.getDept();
 //        if(dept!=null){
@@ -1011,7 +1011,7 @@ public class QSingleDiseaseTakeController {
                                                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize*/) {
 
 //        Result<List<QSingleDiseaseTakeReportStatisticSummaryVo>> result = new Result<>();
-//        //todo  加科室过滤---
+//        // 加科室过滤---
 //        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
 //        qSingleDiseaseTakeReportStatisticSummaryParam.setDept(data.getDeps().get(0).getId());
 //        List<QSingleDiseaseTakeReportStatisticSummaryVo> list = qSingleDiseaseTakeService.allSingleDiseaseReportStatisticSummary(qSingleDiseaseTakeReportStatisticSummaryParam);
@@ -1029,7 +1029,7 @@ public class QSingleDiseaseTakeController {
     @GetMapping(value = "/workbenchReminder")
     public Result<WorkbenchReminderVo> workbenchReminder(HttpServletRequest request) {
         Result<WorkbenchReminderVo> result = new Result<>();
-        //todo  加科室过滤---
+        // 加科室过滤---
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
         String type = data.getDeps().get(0).getType();
         String dept=null;

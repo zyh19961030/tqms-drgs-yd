@@ -1,18 +1,5 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -23,42 +10,24 @@ import com.qu.constant.Constant;
 import com.qu.constant.QoptionConstant;
 import com.qu.constant.QsubjectConstant;
 import com.qu.constant.QuestionConstant;
-import com.qu.modules.web.entity.Qoption;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.entity.TbDep;
-import com.qu.modules.web.entity.TqmsQuotaCategory;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.OptionMapper;
-import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam;
-import com.qu.modules.web.param.QuestionAgainReleaseParam;
-import com.qu.modules.web.param.QuestionCheckParam;
-import com.qu.modules.web.param.QuestionEditParam;
-import com.qu.modules.web.param.QuestionParam;
-import com.qu.modules.web.param.UpdateCategoryIdParam;
-import com.qu.modules.web.param.UpdateDeptIdsParam;
-import com.qu.modules.web.param.UpdateWriteFrequencyIdsParam;
+import com.qu.modules.web.entity.*;
+import com.qu.modules.web.mapper.*;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.TbUser;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
-import com.qu.modules.web.vo.QuestionAndCategoryVo;
-import com.qu.modules.web.vo.QuestionCheckVo;
-import com.qu.modules.web.vo.QuestionMiniAppPageVo;
-import com.qu.modules.web.vo.QuestionMonthQuarterYearCreateListVo;
-import com.qu.modules.web.vo.QuestionPageVo;
-import com.qu.modules.web.vo.QuestionPatientCreateListVo;
-import com.qu.modules.web.vo.QuestionVo;
-import com.qu.modules.web.vo.SubjectVo;
-import com.qu.modules.web.vo.ViewNameVo;
+import com.qu.modules.web.vo.*;
 import com.qu.util.DeptUtil;
 import com.qu.util.IntegerUtil;
 import com.qu.util.StringUtil;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 问卷表
@@ -776,5 +745,74 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         questionMiniAppPageVoIPage.setRecords(resList);
         questionMiniAppPageVoIPage.setTotal(questionIPage.getTotal());
         return questionMiniAppPageVoIPage;
+    }
+
+    @Override
+    public List<SubjectVo> queryQuestionSubjectById(Integer id) {
+        Question question = questionMapper.selectById(id);
+        if(question==null){
+            return null;
+        }
+        List<Qsubject> subjectList = subjectMapper.selectSubjectByQuId(id);
+        if(subjectList.isEmpty()){
+            return null;
+        }
+
+        List<SubjectVo> subjectVoList = new ArrayList<>();
+        for (Qsubject subject : subjectList) {
+            SubjectVo subjectVo = new SubjectVo();
+            BeanUtils.copyProperties(subject, subjectVo);
+            subjectVoList.add(subjectVo);
+        }
+        //开始组装分组题逻辑
+        //先缓存
+        Map<Integer, SubjectVo> mapCache = new HashMap<>();
+        for (SubjectVo subjectVo : subjectVoList) {
+            mapCache.put(subjectVo.getId(), subjectVo);
+        }
+        //开始算
+        StringBuffer groupIdsAll = new StringBuffer();
+        for (SubjectVo subjectVo : subjectVoList) {
+            //如果是分组题
+            if (subjectVo.getSubType().equals(QsubjectConstant.SUB_TYPE_GROUP) || subjectVo.getSubType().equals(QsubjectConstant.SUB_TYPE_GROUP_SCORE)) {
+                String groupIds = subjectVo.getGroupIds();//包含题号
+                if (null != groupIds) {
+                    String[] gids = groupIds.split(",");
+                    List<SubjectVo> subjectVoGroupList = new ArrayList<>();
+                    for (String subId : gids) {
+                        groupIdsAll.append(subId);
+                        groupIdsAll.append(",");
+                        if (!StringUtil.isEmpty(subId)) {
+                            SubjectVo svo = mapCache.get(Integer.parseInt(subId));
+                            subjectVoGroupList.add(svo);
+                        }
+                    }
+                    //设置到分组题对象列表
+                    subjectVo.setSubjectVoList(subjectVoGroupList);
+                }
+            }
+        }
+        //删除在subjectVoList集合中删除groupIdsAll包含的题
+        if (groupIdsAll.length() != 0) {
+            String removeIds = groupIdsAll.toString();
+            String[] remIds = removeIds.split(",");
+            if (null != remIds && remIds.length > 0) {
+                for (int i = 0; i < subjectVoList.size(); i++) {
+                    //for (SubjectVo subjectVo : subjectVoList) {
+                    SubjectVo subjectVo = subjectVoList.get(i);
+                    Integer nowId = subjectVo.getId();
+                    for (String remId : remIds) {
+                        if (!IntegerUtil.isNull(nowId) && !StringUtil.isEmpty(remId)) {
+                            if (nowId == Integer.parseInt(remId)) {
+                                subjectVoList.remove(i);//移除
+                                i--;
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+        return subjectVoList;
     }
 }

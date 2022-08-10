@@ -59,4 +59,11 @@ public interface IQuestionService extends IService<Question> {
 
     IPage<QuestionMiniAppPageVo> queryPageListByMiniApp(String deptId, Integer pageNo, Integer pageSize);
 
+    /**
+     * CheckDetailSet检查表设置列时使用
+     * @param id
+     * @return
+     */
+    List<SubjectVo> queryQuestionSubjectById(Integer id);
+
 }

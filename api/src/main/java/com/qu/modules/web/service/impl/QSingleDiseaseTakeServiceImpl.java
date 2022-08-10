@@ -438,7 +438,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             }
         }
 //        queryWrapper.gt("status", QSingleDiseaseTakeConstant.STATUS_WAIT_UPLOAD);
-        //todo  添加科室操作---
+        // 添加科室操作---
         if (StringUtils.isNotBlank(deptId)) {
 //            queryWrapper.in("tqms_dept", deptId);
             queryWrapper.and(w -> w.eq("answer_deptid", deptId).or().eq("tqms_dept", deptId));
