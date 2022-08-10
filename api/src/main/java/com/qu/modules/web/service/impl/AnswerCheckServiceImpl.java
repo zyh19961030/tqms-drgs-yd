@@ -163,7 +163,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
     public Result answerByMiniApp(AnswerMiniAppParam answerMiniAppParam) {
         String userId = answerMiniAppParam.getUserId();
         TbUser tbUser = tbUserService.getById(userId);
-        if(StringUtils.isNotBlank(userId)  || tbUser==null){
+        if(StringUtils.isBlank(userId)  || tbUser==null){
             return ResultFactory.error("userId参数错误");
         }
         AnswerCheckAddParam answerCheckAddParam = new AnswerCheckAddParam();
