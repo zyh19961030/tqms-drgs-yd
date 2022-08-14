@@ -5,11 +5,13 @@ import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.ISubjectService;
+import com.qu.modules.web.vo.StatisticsCheckTableSubjectVo;
 import com.qu.modules.web.vo.SubjectVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -215,6 +217,19 @@ public class SubjectController {
     public Result querySubjectByResultEvaluate(@RequestBody SubjectQuantityStatisticsParam subjectQuantityStatisticsParam) {
         List<Qsubject> qsubjects = subjectService.querySubjectByResultEvaluate(subjectQuantityStatisticsParam);
         return Result.ok(qsubjects);
+    }
+
+    /**
+     * 检查表统计中使用_表格数据接口
+     * @param
+     * @return
+     */
+    @AutoLog(value = "检查表统计中使用_表格数据接口")
+    @ApiOperation(value = "检查表统计中使用_表格数据接口", notes = "检查表统计中使用_表格数据接口",response = StatisticsCheckTableSubjectVo.class)
+    @GetMapping(value = "/statisticsCheckTable")
+    public Result<List<StatisticsCheckTableSubjectVo>> statisticsCheckTable(StatisticsCheckTableParam statisticsCheckTableParam) {
+        List<StatisticsCheckTableSubjectVo> statisticsCheckTableList = subjectService.statisticsCheckTable(statisticsCheckTableParam);
+        return ResultFactory.success(statisticsCheckTableList);
     }
 
 

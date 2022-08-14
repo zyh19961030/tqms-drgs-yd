@@ -383,6 +383,31 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         return questionCheckPageVoPage;
     }
 
+
+    @Override
+    public List<QuestionCheckVo> statisticsCheckList(QuestionCheckParam questionCheckParam) {
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        String quName = questionCheckParam.getQuName();
+        if(StringUtils.isNotBlank(quName)){
+            lambda.like(Question::getQuName, quName);
+        }
+        lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+        lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
+        lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+        List<Question> questionList = this.list(lambda);
+        if(questionList.isEmpty()){
+            return Lists.newArrayList();
+        }
+
+        List<QuestionCheckVo> statisticsCheckList = questionList.stream().map(q -> {
+            QuestionCheckVo vo = new QuestionCheckVo();
+            BeanUtils.copyProperties(q,vo);
+            return vo;
+        }).collect(Collectors.toList());
+
+        return statisticsCheckList;
+    }
+
     @Override
     public void updateDeptIdsParam(UpdateDeptIdsParam updateDeptIdsParam) {
         String[] quIds = updateDeptIdsParam.getQuIds();

@@ -14,6 +14,7 @@ import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.TbUser;
 import com.qu.modules.web.service.ISubjectService;
+import com.qu.modules.web.vo.StatisticsCheckTableSubjectVo;
 import com.qu.modules.web.vo.SubjectVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 题目表
@@ -519,5 +521,19 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
     public Qsubject querySubjectById(Integer id) {
         Qsubject qsubject = qsubjectMapper.querySubjectById(id);
         return qsubject;
+    }
+
+    @Override
+    public List<StatisticsCheckTableSubjectVo> statisticsCheckTable(StatisticsCheckTableParam statisticsCheckTableParam) {
+        LambdaQueryWrapper<Qsubject> lambda = new QueryWrapper<Qsubject>().lambda();
+        lambda.eq(Qsubject::getQuId,statisticsCheckTableParam.getId())
+                .eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
+        List<Qsubject> subjectList = qsubjectMapper.selectList(lambda);
+        List<StatisticsCheckTableSubjectVo> statisticsCheckTableList = subjectList.stream().map(q -> {
+            StatisticsCheckTableSubjectVo vo = new StatisticsCheckTableSubjectVo();
+            BeanUtils.copyProperties(q,vo);
+            return vo;
+        }).collect(Collectors.toList());
+        return statisticsCheckTableList;
     }
 }

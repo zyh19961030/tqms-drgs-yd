@@ -210,6 +210,17 @@ public class QuestionController {
         return result;
     }
 
+
+    @ApiOperation(value = "检查表统计中使用_数据源SQL下拉的接口", notes = "检查表统计中使用_数据源SQL下拉的接口")
+    @GetMapping(value = "/statisticsCheckList")
+    public Result<QuestionCheckVo> statisticsCheckList(QuestionCheckParam questionCheckParam) {
+        Result<QuestionCheckVo> result = new Result<>();
+        List<QuestionCheckVo> checkVoList = questionService.statisticsCheckList(questionCheckParam);
+        result.setSuccess(true);
+        result.setResult(checkVoList);
+        return result;
+    }
+
     @ApiOperation(value = "批量更新问卷权限_改为配置填报科室接口", notes = "批量更新问卷权限_改为配置填报科室接口")
     @PostMapping(value = "/updateDeptIdsParam")
     public Result<Boolean> updateDeptIdsParam(@RequestBody UpdateDeptIdsParam updateDeptIdsParam) {

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.TbUser;
+import com.qu.modules.web.vo.StatisticsCheckTableSubjectVo;
 import com.qu.modules.web.vo.SubjectVo;
 
 import java.util.List;
@@ -43,5 +44,7 @@ public interface ISubjectService extends IService<Qsubject> {
     List<Qsubject> querySubjectByQuId(Integer id);
 
     Qsubject querySubjectById(Integer id);
+
+    List<StatisticsCheckTableSubjectVo> statisticsCheckTable(StatisticsCheckTableParam statisticsCheckTableParam);
 
 }

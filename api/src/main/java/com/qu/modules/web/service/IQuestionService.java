@@ -34,6 +34,8 @@ public interface IQuestionService extends IService<Question> {
 
     IPage<QuestionCheckVo> checkQuestionList(QuestionCheckParam questionParam, Integer pageNo, Integer pageSize);
 
+    List<QuestionCheckVo> statisticsCheckList(QuestionCheckParam questionParam);
+
     void updateDeptIdsParam(UpdateDeptIdsParam updateDeptIdsParam);
 
     void updateSeeDeptIdsParam(UpdateDeptIdsParam updateDeptIdsParam);
