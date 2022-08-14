@@ -3,10 +3,14 @@ package com.qu.modules.web.controller;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.qu.constant.AnswerCheckConstant;
+import com.qu.constant.Constant;
 import com.qu.modules.web.entity.AnswerCheck;
 import com.qu.modules.web.param.AnswerCheckAddParam;
+import com.qu.modules.web.param.AnswerCheckDetailListParam;
 import com.qu.modules.web.param.AnswerCheckListParam;
+import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.IAnswerCheckService;
+import com.qu.modules.web.vo.AnswerCheckDetailListVo;
 import com.qu.modules.web.vo.AnswerCheckPageVo;
 import com.qu.modules.web.vo.AnswerCheckVo;
 import io.swagger.annotations.Api;
@@ -17,8 +21,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
- /**
+/**
  * @Description: 检查表问卷总表
  * @Author: jeecg-boot
  * @Date:   2022-07-30
@@ -82,6 +87,20 @@ public class AnswerCheckController {
 		 return result;
 	 }
 
+	 @ApiOperation(value = "检查表_检查明细记录", notes = "检查表_检查明细记录",response = AnswerCheckDetailListVo.class)
+	 @GetMapping(value = "/detailList")
+	 public Result<AnswerCheckDetailListVo> detailList(@Valid AnswerCheckDetailListParam answerCheckDetailListParam,
+													   @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+													   @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+													   HttpServletRequest request) {
+		 Result<AnswerCheckDetailListVo> result = new Result<>();
+		 Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+		 String userId = data.getTbUser().getId();
+		 AnswerCheckDetailListVo vo =  answerCheckService.detailList(answerCheckDetailListParam, userId, pageNo, pageSize);
+		 result.setSuccess(true);
+		 result.setResult(vo);
+		 return result;
+	 }
 
 
 

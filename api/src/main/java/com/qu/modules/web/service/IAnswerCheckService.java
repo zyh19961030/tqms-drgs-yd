@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.AnswerCheck;
 import com.qu.modules.web.param.AnswerCheckAddParam;
+import com.qu.modules.web.param.AnswerCheckDetailListParam;
 import com.qu.modules.web.param.AnswerCheckListParam;
 import com.qu.modules.web.param.AnswerMiniAppParam;
+import com.qu.modules.web.vo.AnswerCheckDetailListVo;
 import com.qu.modules.web.vo.AnswerCheckVo;
 import org.jeecg.common.api.vo.Result;
 
@@ -24,5 +26,7 @@ public interface IAnswerCheckService extends IService<AnswerCheck> {
     Result answerByMiniApp(AnswerMiniAppParam answerParam);
 
     AnswerCheck queryById(String id);
+
+    AnswerCheckDetailListVo detailList(AnswerCheckDetailListParam answerCheckDetailListParam, String userId, Integer pageNo, Integer pageSize);
 
 }

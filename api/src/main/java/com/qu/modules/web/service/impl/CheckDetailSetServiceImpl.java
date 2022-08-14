@@ -90,7 +90,7 @@ public class CheckDetailSetServiceImpl extends ServiceImpl<CheckDetailSetMapper,
             }
         }
         for (CheckDetailSetVo child : checkDetailSetVoList) {
-            child.setChildList(getChildren(child.getId(), checkDetailSetList));
+            child.setChildList(getChildren(child.getSubjectId(), checkDetailSetList));
         }
         return checkDetailSetVoList;
     }
@@ -116,7 +116,7 @@ public class CheckDetailSetServiceImpl extends ServiceImpl<CheckDetailSetMapper,
         for (CheckDetailSetVo checkDetailSetVo : childList) {
             if (!org.springframework.util.StringUtils.isEmpty(checkDetailSetVo.getQuestionParentId())) {
                 // 递归
-                checkDetailSetVo.setChildList(getChildren(checkDetailSetVo.getId(), checkDetailSetList));
+                checkDetailSetVo.setChildList(getChildren(checkDetailSetVo.getSubjectId(), checkDetailSetList));
 
             }
         } // 递归退出条件

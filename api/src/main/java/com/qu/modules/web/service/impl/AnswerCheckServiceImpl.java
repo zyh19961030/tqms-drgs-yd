@@ -1,55 +1,48 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.jeecg.common.util.UUIDGenerator;
-import org.joda.time.DateTime;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.NumberUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.qu.constant.AnswerCheckConstant;
 import com.qu.constant.QsubjectConstant;
 import com.qu.constant.QuestionConstant;
-import com.qu.modules.web.entity.AnswerCheck;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.entity.TbDep;
-import com.qu.modules.web.entity.TbUser;
+import com.qu.modules.web.entity.*;
 import com.qu.modules.web.mapper.AnswerCheckMapper;
 import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.AnswerCheckAddParam;
-import com.qu.modules.web.param.AnswerCheckListParam;
-import com.qu.modules.web.param.AnswerMiniAppParam;
-import com.qu.modules.web.param.Answers;
-import com.qu.modules.web.param.SingleDiseaseAnswer;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IAnswerCheckService;
+import com.qu.modules.web.service.ICheckDetailSetService;
 import com.qu.modules.web.service.ITbDepService;
 import com.qu.modules.web.service.ITbUserService;
+import com.qu.modules.web.vo.AnswerCheckDetailListVo;
 import com.qu.modules.web.vo.AnswerCheckVo;
+import com.qu.modules.web.vo.CheckDetailSetVo;
 import com.qu.util.HttpClient;
-
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.NumberUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.util.UUIDGenerator;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 检查表问卷总表
@@ -77,6 +70,9 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
     private ITbUserService tbUserService;
     @Autowired
     private ITbDepService tbDepService;
+
+    @Autowired
+    private ICheckDetailSetService checkDetailSetService;
 
 
     @Override
@@ -481,4 +477,109 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         return answerCheck;
     }
 
+    @Override
+    public AnswerCheckDetailListVo detailList(AnswerCheckDetailListParam answerCheckDetailListParam, String userId, Integer pageNo, Integer pageSize) {
+        //查询显示列
+        Integer quId = answerCheckDetailListParam.getQuId();
+        List<CheckDetailSetVo> checkDetailSet = checkDetailSetService.queryByQuestionId(quId,userId);
+        //查询题目
+        List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(quId);
+        Map<Integer, Qsubject> subjectMap = subjectList.stream().collect(Collectors.toMap(Qsubject::getId, q -> q));
+        //表头
+        List<LinkedHashMap<String,Object>> fieldItems = Lists.newArrayList();
+        setItems(checkDetailSet, subjectMap, fieldItems);
+        //数据
+        Page<AnswerCheck> page = new Page<>(pageNo, pageSize);
+        LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
+        lambda.eq(AnswerCheck::getQuId,answerCheckDetailListParam.getQuId());
+        String checkMonth = answerCheckDetailListParam.getCheckMonth();
+        if(StringUtils.isNotBlank(checkMonth)){
+            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM");
+            DateTime dateTime = dateTimeFormatter.parseDateTime(checkMonth);
+            DateTime dateTimeMonthStart = dateTime.dayOfMonth().withMinimumValue();
+            DateTime dateTimeMonthEnd = dateTime.dayOfMonth().withMaximumValue();
+            lambda.ge(AnswerCheck::getCheckTime, dateTimeMonthStart.toDate());
+            lambda.le(AnswerCheck::getCheckTime, dateTimeMonthEnd.toDate());
+        }
+        lambda.orderByDesc(AnswerCheck::getAnswerTime);
+        IPage<AnswerCheck> answerCheckIPage = this.page(page, lambda);
+        List<AnswerCheck> answerCheckList = answerCheckIPage.getRecords();
+        List<LinkedHashMap<String,Object>> detailDataList = Lists.newArrayList();
+        if(answerCheckList.isEmpty()){
+//            return ResultFactory.success(AnswerCheckDetailListVo.builder().fieldItems(fieldItems).detailDataList(detailDataList).build());
+            return AnswerCheckDetailListVo.builder().fieldItems(fieldItems).detailDataList(detailDataList).build();
+        }
+        List<String> summaryMappingTableIdList = answerCheckList.stream().map(AnswerCheck::getSummaryMappingTableId).collect(Collectors.toList());
+        //查子表
+        Question question = questionMapper.selectById(quId);
+        StringBuffer sqlSelect = new StringBuffer();
+        sqlSelect.append("select * from `");
+        sqlSelect.append(question.getTableName());
+        sqlSelect.append("`");
+        sqlSelect.append(" where summary_mapping_table_id in (");
+        for (String summaryMappingTableId : summaryMappingTableIdList) {
+            sqlSelect.append("'");
+            sqlSelect.append(summaryMappingTableId);
+            sqlSelect.append("'");
+            sqlSelect.append(",");
+        }
+        sqlSelect.delete(sqlSelect.length() - 1, sqlSelect.length());
+        sqlSelect.append(")");
+        List<Map<String, String>> dataList = dynamicTableMapper.selectDynamicTableColumnList(sqlSelect.toString());
+//        Map<String, Map<String,String>> dataMap = dataList.stream().collect(Collectors.toMap(m-> m.get("summary_mapping_table_id"), m -> m));
+        for (Map<String, String> dataItemMap : dataList) {
+            setList(checkDetailSet,subjectMap,dataItemMap,detailDataList);
+        }
+        AnswerCheckDetailListVo build = AnswerCheckDetailListVo.builder().fieldItems(fieldItems).detailDataList(detailDataList).build();
+//        return ResultFactory.success(build);
+        return build;
+    }
+
+    private void setItems(List<CheckDetailSetVo> checkDetailSet, Map<Integer, Qsubject> subjectMap, List<LinkedHashMap<String,Object>> fieldItems) {
+        for (int i = 0; i < checkDetailSet.size(); i++) {
+            LinkedHashMap<String, Object> fieldItem = Maps.newLinkedHashMap();
+            ArrayList<LinkedHashMap<String,Object>> emptyList = Lists.newArrayList();
+            fieldItems.add(fieldItem);
+            CheckDetailSetVo checkDetailSetVo = checkDetailSet.get(i);
+            Integer subjectId = checkDetailSetVo.getSubjectId();
+            Qsubject qsubject = subjectMap.get(subjectId);
+            if(qsubject==null){
+                continue;
+            }
+            fieldItem.put("fieldTxt",qsubject.getSubName());
+            fieldItem.put("fieldId",qsubject.getColumnName());
+            if(checkDetailSetVo.getChildList()!=null && !checkDetailSetVo.getChildList().isEmpty()){
+                List<LinkedHashMap<String,Object>> fieldItemsFor = Lists.newArrayList();
+                fieldItem.put("fieldChildList",fieldItemsFor);
+                setItems(checkDetailSetVo.getChildList(), subjectMap, fieldItemsFor);
+            }else{
+                fieldItem.put("fieldChildList",emptyList);
+            }
+        }
+    }
+
+    private void setList(List<CheckDetailSetVo> checkDetailSet, Map<Integer, Qsubject> subjectMap,Map<String, String> dataItemMap, List<LinkedHashMap<String, Object>> detailDataList) {
+        LinkedHashMap<String, Object> valueItem = Maps.newLinkedHashMap();
+        for (int i = 0; i < checkDetailSet.size(); i++) {
+            ArrayList<Object> emptyList = Lists.newArrayList();
+            CheckDetailSetVo checkDetailSetVo = checkDetailSet.get(i);
+            Integer subjectId = checkDetailSetVo.getSubjectId();
+            Qsubject qsubject = subjectMap.get(subjectId);
+            if(qsubject==null){
+                continue;
+            }
+            String columnName = qsubject.getColumnName();
+            if(StringUtils.isNotBlank(columnName)){
+                valueItem.put(qsubject.getColumnName(),dataItemMap.get(qsubject.getColumnName()));
+            }
+            if(checkDetailSetVo.getChildList()!=null && !checkDetailSetVo.getChildList().isEmpty()){
+                List<LinkedHashMap<String,Object>> valueItemsFor = Lists.newArrayList();
+                valueItem.put("fieldChildList",valueItemsFor);
+                setList(checkDetailSetVo.getChildList(), subjectMap,dataItemMap, valueItemsFor);
+            }else{
+                valueItem.put("fieldChildList",emptyList);
+            }
+        }
+        detailDataList.add(valueItem);
+    }
 }
