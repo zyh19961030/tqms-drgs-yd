@@ -95,8 +95,7 @@ public class AnswerCheckController {
 													   HttpServletRequest request) {
 		 Result<AnswerCheckDetailListVo> result = new Result<>();
 		 Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-		 String userId = data.getTbUser().getId();
-		 AnswerCheckDetailListVo vo =  answerCheckService.detailList(answerCheckDetailListParam, userId, pageNo, pageSize);
+		 AnswerCheckDetailListVo vo =  answerCheckService.detailList(answerCheckDetailListParam, data, pageNo, pageSize);
 		 result.setSuccess(true);
 		 result.setResult(vo);
 		 return result;

@@ -7,6 +7,7 @@ import com.qu.modules.web.param.AnswerCheckAddParam;
 import com.qu.modules.web.param.AnswerCheckDetailListParam;
 import com.qu.modules.web.param.AnswerCheckListParam;
 import com.qu.modules.web.param.AnswerMiniAppParam;
+import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.vo.AnswerCheckDetailListVo;
 import com.qu.modules.web.vo.AnswerCheckVo;
 import org.jeecg.common.api.vo.Result;
@@ -27,6 +28,6 @@ public interface IAnswerCheckService extends IService<AnswerCheck> {
 
     AnswerCheck queryById(String id);
 
-    AnswerCheckDetailListVo detailList(AnswerCheckDetailListParam answerCheckDetailListParam, String userId, Integer pageNo, Integer pageSize);
+    AnswerCheckDetailListVo detailList(AnswerCheckDetailListParam answerCheckDetailListParam, Data userId, Integer pageNo, Integer pageSize);
 
 }

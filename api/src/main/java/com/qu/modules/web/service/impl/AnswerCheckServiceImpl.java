@@ -19,6 +19,7 @@ import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
 import com.qu.modules.web.param.*;
+import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IAnswerCheckService;
 import com.qu.modules.web.service.ICheckDetailSetService;
@@ -478,10 +479,10 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
     }
 
     @Override
-    public AnswerCheckDetailListVo detailList(AnswerCheckDetailListParam answerCheckDetailListParam, String userId, Integer pageNo, Integer pageSize) {
+    public AnswerCheckDetailListVo detailList(AnswerCheckDetailListParam answerCheckDetailListParam, Data data, Integer pageNo, Integer pageSize) {
         //查询显示列
         Integer quId = answerCheckDetailListParam.getQuId();
-        List<CheckDetailSetVo> checkDetailSet = checkDetailSetService.queryByQuestionId(quId,userId);
+        List<CheckDetailSetVo> checkDetailSet = checkDetailSetService.queryByQuestionId(quId,data.getTbUser().getId());
         //查询题目
         List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(quId);
         Map<Integer, Qsubject> subjectMap = subjectList.stream().collect(Collectors.toMap(Qsubject::getId, q -> q));
@@ -492,6 +493,8 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         Page<AnswerCheck> page = new Page<>(pageNo, pageSize);
         LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
         lambda.eq(AnswerCheck::getQuId,answerCheckDetailListParam.getQuId());
+        lambda.eq(AnswerCheck::getCreaterDeptId,data.getTbUser().getDepId());
+        lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
         String checkMonth = answerCheckDetailListParam.getCheckMonth();
         if(StringUtils.isNotBlank(checkMonth)){
             DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM");
