@@ -1,10 +1,10 @@
 package com.qu.modules.web.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.qu.modules.web.entity.Qsubject;
-
 import java.util.List;
 import java.util.Map;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.qu.modules.web.entity.Qsubject;
 
 /**
  * @Description: 题目表

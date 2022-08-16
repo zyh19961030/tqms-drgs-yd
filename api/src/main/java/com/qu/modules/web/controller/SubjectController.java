@@ -1,25 +1,42 @@
 package com.qu.modules.web.controller;
 
-import com.qu.constant.Constant;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.param.*;
-import com.qu.modules.web.pojo.Data;
-import com.qu.modules.web.service.ISubjectService;
-import com.qu.modules.web.vo.StatisticsCheckTableSubjectVo;
-import com.qu.modules.web.vo.SubjectVo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultFactory;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.util.List;
+import com.qu.constant.Constant;
+import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.param.InsertSubjectParam;
+import com.qu.modules.web.param.StatisticsCheckTableParam;
+import com.qu.modules.web.param.SubjectEditParam;
+import com.qu.modules.web.param.SubjectLogicParam;
+import com.qu.modules.web.param.SubjectParam;
+import com.qu.modules.web.param.SubjectQuantityStatisticsParam;
+import com.qu.modules.web.param.SubjectSpecialLogicParam;
+import com.qu.modules.web.param.UpdateOrderNumParam;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.service.ISubjectService;
+import com.qu.modules.web.vo.StatisticsCheckTableSubjectVo;
+import com.qu.modules.web.vo.SubjectVo;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: 题目表
@@ -227,7 +244,7 @@ public class SubjectController {
     @AutoLog(value = "检查表统计中使用_表格数据接口")
     @ApiOperation(value = "检查表统计中使用_表格数据接口", notes = "检查表统计中使用_表格数据接口",response = StatisticsCheckTableSubjectVo.class)
     @GetMapping(value = "/statisticsCheckTable")
-    public Result<List<StatisticsCheckTableSubjectVo>> statisticsCheckTable(StatisticsCheckTableParam statisticsCheckTableParam) {
+    public Result<List<StatisticsCheckTableSubjectVo>> statisticsCheckTable( @Valid  StatisticsCheckTableParam statisticsCheckTableParam) {
         List<StatisticsCheckTableSubjectVo> statisticsCheckTableList = subjectService.statisticsCheckTable(statisticsCheckTableParam);
         return ResultFactory.success(statisticsCheckTableList);
     }

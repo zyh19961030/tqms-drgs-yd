@@ -1,9 +1,12 @@
 package com.qu.modules.web.vo;
 
+import java.util.List;
+
+import org.jeecgframework.poi.excel.annotation.Excel;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.jeecgframework.poi.excel.annotation.Excel;
 
 @Data
 @ApiModel(value = "StatisticsCheckTableSubjectVo", description = "StatisticsCheckTableSubjectVo")
@@ -218,8 +221,8 @@ public class StatisticsCheckTableSubjectVo {
 //    @ApiModelProperty(value = "针对  23.预设题目数量题型 的项目总数量")
 //    private String subjectCount;
 //
-//    @ApiModelProperty(value = "分组题包含的题")
-//    private List<StatisticsCheckTableSubjectVo> subjectVoList;
+    @ApiModelProperty(value = "分组题包含的题")
+    private List<StatisticsCheckTableSubjectVo> childList;
 //
 //    @ApiModelProperty(value = "选项")
 //    private List<Qoption> optionList;

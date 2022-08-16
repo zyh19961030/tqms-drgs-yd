@@ -1,30 +1,48 @@
 package com.qu.modules.web.service.impl;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
 import com.qu.constant.QoptionConstant;
 import com.qu.constant.QsubjectConstant;
 import com.qu.modules.web.entity.Qoption;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.mapper.OptionMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.param.*;
+import com.qu.modules.web.param.InsertSubjectParam;
+import com.qu.modules.web.param.LogicParam;
+import com.qu.modules.web.param.QoptionParam;
+import com.qu.modules.web.param.SpecialLogicParam;
+import com.qu.modules.web.param.StatisticsCheckTableParam;
+import com.qu.modules.web.param.SubjectEditParam;
+import com.qu.modules.web.param.SubjectLogicParam;
+import com.qu.modules.web.param.SubjectParam;
+import com.qu.modules.web.param.SubjectQuantityStatisticsParam;
+import com.qu.modules.web.param.SubjectSpecialLogicParam;
+import com.qu.modules.web.param.UpdateOrderNumParam;
 import com.qu.modules.web.pojo.TbUser;
+import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.StatisticsCheckTableSubjectVo;
 import com.qu.modules.web.vo.SubjectVo;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: 题目表
@@ -41,6 +59,9 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
 
     @Autowired
     private OptionMapper optionMapper;
+
+    @Autowired
+    private IQuestionService questionService;
 
     @Override
     public SubjectVo saveSubject(SubjectParam subjectParam, TbUser tbUser) {
@@ -525,15 +546,71 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
 
     @Override
     public List<StatisticsCheckTableSubjectVo> statisticsCheckTable(StatisticsCheckTableParam statisticsCheckTableParam) {
-        LambdaQueryWrapper<Qsubject> lambda = new QueryWrapper<Qsubject>().lambda();
-        lambda.eq(Qsubject::getQuId,statisticsCheckTableParam.getId())
-                .eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
-        List<Qsubject> subjectList = qsubjectMapper.selectList(lambda);
-        List<StatisticsCheckTableSubjectVo> statisticsCheckTableList = subjectList.stream().map(q -> {
-            StatisticsCheckTableSubjectVo vo = new StatisticsCheckTableSubjectVo();
-            BeanUtils.copyProperties(q,vo);
-            return vo;
-        }).collect(Collectors.toList());
+//        LambdaQueryWrapper<Qsubject> lambda = new QueryWrapper<Qsubject>().lambda();
+//        lambda.eq(Qsubject::getQuId,statisticsCheckTableParam.getId())
+//                .eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
+//        List<Qsubject> subjectList = qsubjectMapper.selectList(lambda);
+        List<SubjectVo> subjectVoList = questionService.queryQuestionSubjectById(statisticsCheckTableParam.getId());
+        if(subjectVoList==null || subjectVoList.isEmpty()){
+            return Lists.newArrayList();
+        }
+        List<StatisticsCheckTableSubjectVo> statisticsCheckTableList = setResList(subjectVoList);
+
+
+//        List<StatisticsCheckTableSubjectVo> statisticsCheckTableList = subjectList.stream().map(q -> {
+//            StatisticsCheckTableSubjectVo vo = new StatisticsCheckTableSubjectVo();
+//            BeanUtils.copyProperties(q,vo);
+//            return vo;
+//        }).collect(Collectors.toList());
         return statisticsCheckTableList;
+    }
+
+    private List<StatisticsCheckTableSubjectVo> setResList(List<SubjectVo> subjectVoList) {
+        List<StatisticsCheckTableSubjectVo> res = Lists.newArrayList();
+        for (SubjectVo subjectVo : subjectVoList) {
+            StatisticsCheckTableSubjectVo vo = new StatisticsCheckTableSubjectVo();
+            BeanUtils.copyProperties(subjectVo,vo);
+            res.add(vo);
+
+            if(subjectVo.getSubjectVoList()!=null && !subjectVo.getSubjectVoList().isEmpty()){
+                List<StatisticsCheckTableSubjectVo> statisticsCheckTableSubjectVos = setResList(subjectVo.getSubjectVoList());
+                vo.setChildList(statisticsCheckTableSubjectVos);
+            }else{
+                vo.setChildList(Lists.newArrayList());
+            }
+        }
+        return res;
+    }
+
+    @Override
+    public List<SubjectVo> selectSubjectAndOptionByQuId(Integer questionId) {
+        List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(questionId);
+        if(subjectList.isEmpty()){
+            return Lists.newArrayList();
+        }
+
+        List<Integer> collect = subjectList.stream().map(Qsubject::getId).distinct().collect(Collectors.toList());
+        LambdaQueryWrapper<Qoption> lambda = new QueryWrapper<Qoption>().lambda();
+        lambda.in(Qoption::getSubId,collect);
+        lambda.in(Qoption::getDel, QoptionConstant.DEL_NORMAL);
+        lambda.orderByAsc(Qoption::getOpOrder);
+        List<Qoption> qoptions = optionMapper.selectList(lambda);
+
+        Map<Integer, ArrayList<Qoption>> optionMap = qoptions.stream().collect(Collectors.toMap(Qoption::getSubId, Lists::newArrayList, (ArrayList<Qoption> k1, ArrayList<Qoption> k2) -> {
+            k1.addAll(k2);
+            return k1;
+        }));
+
+        List<SubjectVo> subjectVoList = new ArrayList<>();
+        ArrayList<Qoption> optionEmptyList = Lists.newArrayList();
+        for (Qsubject subject : subjectList) {
+            SubjectVo subjectVo = new SubjectVo();
+            BeanUtils.copyProperties(subject, subjectVo);
+            //                List<Qoption> qoptionList = optionMapper.selectQoptionBySubId(subject.getId());
+            ArrayList<Qoption> qoptionsList = optionMap.get(subject.getId());
+            subjectVo.setOptionList(qoptionsList==null?optionEmptyList:qoptionsList);
+            subjectVoList.add(subjectVo);
+        }
+        return subjectVoList;
     }
 }

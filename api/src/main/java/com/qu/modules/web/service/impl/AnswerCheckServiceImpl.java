@@ -1,35 +1,14 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.NumberUtil;
-import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.qu.constant.AnswerCheckConstant;
-import com.qu.constant.QsubjectConstant;
-import com.qu.constant.QuestionConstant;
-import com.qu.modules.web.entity.*;
-import com.qu.modules.web.mapper.AnswerCheckMapper;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.*;
-import com.qu.modules.web.pojo.Data;
-import com.qu.modules.web.pojo.JsonRootBean;
-import com.qu.modules.web.service.IAnswerCheckService;
-import com.qu.modules.web.service.ICheckDetailSetService;
-import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.service.ITbUserService;
-import com.qu.modules.web.vo.AnswerCheckDetailListVo;
-import com.qu.modules.web.vo.AnswerCheckVo;
-import com.qu.modules.web.vo.CheckDetailSetVo;
-import com.qu.util.HttpClient;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultFactory;
@@ -42,8 +21,49 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.qu.constant.AnswerCheckConstant;
+import com.qu.constant.QsubjectConstant;
+import com.qu.constant.QuestionConstant;
+import com.qu.modules.web.entity.AnswerCheck;
+import com.qu.modules.web.entity.Qoption;
+import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.entity.TbDep;
+import com.qu.modules.web.entity.TbUser;
+import com.qu.modules.web.mapper.AnswerCheckMapper;
+import com.qu.modules.web.mapper.DynamicTableMapper;
+import com.qu.modules.web.mapper.QsubjectMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.param.AnswerCheckAddParam;
+import com.qu.modules.web.param.AnswerCheckDetailListParam;
+import com.qu.modules.web.param.AnswerCheckListParam;
+import com.qu.modules.web.param.AnswerMiniAppParam;
+import com.qu.modules.web.param.Answers;
+import com.qu.modules.web.param.SingleDiseaseAnswer;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.pojo.JsonRootBean;
+import com.qu.modules.web.service.IAnswerCheckService;
+import com.qu.modules.web.service.ICheckDetailSetService;
+import com.qu.modules.web.service.ISubjectService;
+import com.qu.modules.web.service.ITbDepService;
+import com.qu.modules.web.service.ITbUserService;
+import com.qu.modules.web.vo.AnswerCheckDetailListVo;
+import com.qu.modules.web.vo.AnswerCheckVo;
+import com.qu.modules.web.vo.CheckDetailSetVo;
+import com.qu.modules.web.vo.SubjectVo;
+import com.qu.util.HttpClient;
+
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.NumberUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: 检查表问卷总表
@@ -74,6 +94,9 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
 
     @Autowired
     private ICheckDetailSetService checkDetailSetService;
+
+    @Autowired
+    private ISubjectService subjectService;
 
 
     @Override
@@ -484,8 +507,8 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         Integer quId = answerCheckDetailListParam.getQuId();
         List<CheckDetailSetVo> checkDetailSet = checkDetailSetService.queryByQuestionId(quId,data.getTbUser().getId());
         //查询题目
-        List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(quId);
-        Map<Integer, Qsubject> subjectMap = subjectList.stream().collect(Collectors.toMap(Qsubject::getId, q -> q));
+        List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(quId);
+        Map<Integer, SubjectVo> subjectMap = subjectList.stream().collect(Collectors.toMap(SubjectVo::getId, q -> q));
         //表头
         List<LinkedHashMap<String,Object>> fieldItems = Lists.newArrayList();
         setItems(checkDetailSet, subjectMap, fieldItems);
@@ -509,8 +532,8 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         List<AnswerCheck> answerCheckList = answerCheckIPage.getRecords();
         List<LinkedHashMap<String,Object>> detailDataList = Lists.newArrayList();
         if(answerCheckList.isEmpty()){
-//            return ResultFactory.success(AnswerCheckDetailListVo.builder().fieldItems(fieldItems).detailDataList(detailDataList).build());
-            return AnswerCheckDetailListVo.builder().fieldItems(fieldItems).detailDataList(detailDataList).build();
+//            return ResultFactory.success(AnswerCheckDetailListVo.builder().fieldItems(fieldItems).detailDataList(detailDataList).total(0).build());
+            return AnswerCheckDetailListVo.builder().fieldItems(fieldItems).detailDataList(detailDataList).total(0).build();
         }
         List<String> summaryMappingTableIdList = answerCheckList.stream().map(AnswerCheck::getSummaryMappingTableId).collect(Collectors.toList());
         //查子表
@@ -533,19 +556,19 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         for (Map<String, String> dataItemMap : dataList) {
             setList(checkDetailSet,subjectMap,dataItemMap,detailDataList);
         }
-        AnswerCheckDetailListVo build = AnswerCheckDetailListVo.builder().fieldItems(fieldItems).detailDataList(detailDataList).build();
+        AnswerCheckDetailListVo build = AnswerCheckDetailListVo.builder().fieldItems(fieldItems).detailDataList(detailDataList).total(answerCheckIPage.getTotal()).build();
 //        return ResultFactory.success(build);
         return build;
     }
 
-    private void setItems(List<CheckDetailSetVo> checkDetailSet, Map<Integer, Qsubject> subjectMap, List<LinkedHashMap<String,Object>> fieldItems) {
+    private void setItems(List<CheckDetailSetVo> checkDetailSet, Map<Integer, SubjectVo> subjectMap, List<LinkedHashMap<String,Object>> fieldItems) {
         for (int i = 0; i < checkDetailSet.size(); i++) {
             LinkedHashMap<String, Object> fieldItem = Maps.newLinkedHashMap();
             ArrayList<LinkedHashMap<String,Object>> emptyList = Lists.newArrayList();
             fieldItems.add(fieldItem);
             CheckDetailSetVo checkDetailSetVo = checkDetailSet.get(i);
             Integer subjectId = checkDetailSetVo.getSubjectId();
-            Qsubject qsubject = subjectMap.get(subjectId);
+            SubjectVo qsubject = subjectMap.get(subjectId);
             if(qsubject==null){
                 continue;
             }
@@ -561,19 +584,52 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         }
     }
 
-    private void setList(List<CheckDetailSetVo> checkDetailSet, Map<Integer, Qsubject> subjectMap,Map<String, String> dataItemMap, List<LinkedHashMap<String, Object>> detailDataList) {
+    private void setList(List<CheckDetailSetVo> checkDetailSet, Map<Integer, SubjectVo> subjectMap,Map<String, String> dataItemMap, List<LinkedHashMap<String, Object>> detailDataList) {
         LinkedHashMap<String, Object> valueItem = Maps.newLinkedHashMap();
         for (int i = 0; i < checkDetailSet.size(); i++) {
             ArrayList<Object> emptyList = Lists.newArrayList();
             CheckDetailSetVo checkDetailSetVo = checkDetailSet.get(i);
             Integer subjectId = checkDetailSetVo.getSubjectId();
-            Qsubject qsubject = subjectMap.get(subjectId);
+            SubjectVo qsubject = subjectMap.get(subjectId);
             if(qsubject==null){
                 continue;
             }
             String columnName = qsubject.getColumnName();
-            if(StringUtils.isNotBlank(columnName)){
+            if("checked_dept".equals(columnName)){
                 valueItem.put(qsubject.getColumnName(),dataItemMap.get(qsubject.getColumnName()));
+                //科室填充名称
+                String depId = dataItemMap.get(qsubject.getColumnName());
+                if(StringUtils.isNotBlank(depId)){
+                    TbDep byId = tbDepService.getById(depId);
+                    valueItem.put(qsubject.getColumnName(),byId.getDepname());
+                }
+            } else if (StringUtils.isNotBlank(columnName)) {
+                valueItem.put(qsubject.getColumnName(),dataItemMap.get(qsubject.getColumnName()));
+                String value = dataItemMap.get(qsubject.getColumnName());
+                if(StringUtils.isNotBlank(value)){
+                    String subType = qsubject.getSubType();
+                    if (subType.equals(QsubjectConstant.SUB_TYPE_CHOICE)
+                            || subType.equals(QsubjectConstant.SUB_TYPE_SINGLE_CHOICE_BOX)
+                            || subType.equals(QsubjectConstant.SUB_TYPE_CHOICE_SCORE)
+                            || subType.equals(QsubjectConstant.SUB_TYPE_SINGLE_CHOICE_BOX_SCORE)) {
+                        List<Qoption> optionList = qsubject.getOptionList();
+                        Map<String, Qoption> optionMap = optionList.stream().collect(Collectors.toMap(Qoption::getOpValue, Function.identity(), (oldData, newData) -> newData));
+                        Qoption qoption = optionMap.get(value);
+                        if(qoption!=null){
+                            valueItem.put(qsubject.getColumnName(),qoption.getOpName());
+                        }
+                    }else if (subType.equals(QsubjectConstant.SUB_TYPE_MULTIPLE_CHOICE)){
+                        List<Qoption> optionList = qsubject.getOptionList();
+                        Map<String, List<Qoption>> optionMap = optionList.stream().collect(Collectors.toMap(Qoption::getOpValue, Lists::newArrayList,
+                                (List<Qoption> n1, List<Qoption> n2)->{
+                                    n1.addAll(n2);
+                                    return n1;
+                                }));
+                        String collect = optionMap.get(value).stream().map(Qoption::getOpName).collect(Collectors.joining(","));
+                        valueItem.put(qsubject.getColumnName(),collect);
+                    }
+
+                }
             }
             if(checkDetailSetVo.getChildList()!=null && !checkDetailSetVo.getChildList().isEmpty()){
                 List<LinkedHashMap<String,Object>> valueItemsFor = Lists.newArrayList();

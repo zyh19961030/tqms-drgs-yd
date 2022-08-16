@@ -1,13 +1,20 @@
 package com.qu.modules.web.service;
 
+import java.util.List;
+
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.param.*;
+import com.qu.modules.web.param.InsertSubjectParam;
+import com.qu.modules.web.param.StatisticsCheckTableParam;
+import com.qu.modules.web.param.SubjectEditParam;
+import com.qu.modules.web.param.SubjectLogicParam;
+import com.qu.modules.web.param.SubjectParam;
+import com.qu.modules.web.param.SubjectQuantityStatisticsParam;
+import com.qu.modules.web.param.SubjectSpecialLogicParam;
+import com.qu.modules.web.param.UpdateOrderNumParam;
 import com.qu.modules.web.pojo.TbUser;
 import com.qu.modules.web.vo.StatisticsCheckTableSubjectVo;
 import com.qu.modules.web.vo.SubjectVo;
-
-import java.util.List;
 
 /**
  * @Description: 题目表
@@ -46,5 +53,12 @@ public interface ISubjectService extends IService<Qsubject> {
     Qsubject querySubjectById(Integer id);
 
     List<StatisticsCheckTableSubjectVo> statisticsCheckTable(StatisticsCheckTableParam statisticsCheckTableParam);
+
+    /**
+     * 查询题目和选项根据问卷id
+     * @param questionId
+     * @return
+     */
+    List<SubjectVo> selectSubjectAndOptionByQuId(Integer questionId);
 
 }
