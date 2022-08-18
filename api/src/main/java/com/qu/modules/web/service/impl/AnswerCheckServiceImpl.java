@@ -1,14 +1,34 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.NumberUtil;
+import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.qu.constant.AnswerCheckConstant;
+import com.qu.constant.CheckDetailSetConstant;
+import com.qu.constant.QsubjectConstant;
+import com.qu.constant.QuestionConstant;
+import com.qu.modules.web.entity.*;
+import com.qu.modules.web.mapper.AnswerCheckMapper;
+import com.qu.modules.web.mapper.DynamicTableMapper;
+import com.qu.modules.web.mapper.QsubjectMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.param.*;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.pojo.JsonRootBean;
+import com.qu.modules.web.service.*;
+import com.qu.modules.web.vo.AnswerCheckDetailListVo;
+import com.qu.modules.web.vo.AnswerCheckVo;
+import com.qu.modules.web.vo.CheckDetailSetVo;
+import com.qu.modules.web.vo.SubjectVo;
+import com.qu.util.HttpClient;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultFactory;
@@ -21,49 +41,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.qu.constant.AnswerCheckConstant;
-import com.qu.constant.QsubjectConstant;
-import com.qu.constant.QuestionConstant;
-import com.qu.modules.web.entity.AnswerCheck;
-import com.qu.modules.web.entity.Qoption;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.entity.TbDep;
-import com.qu.modules.web.entity.TbUser;
-import com.qu.modules.web.mapper.AnswerCheckMapper;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.AnswerCheckAddParam;
-import com.qu.modules.web.param.AnswerCheckDetailListParam;
-import com.qu.modules.web.param.AnswerCheckListParam;
-import com.qu.modules.web.param.AnswerMiniAppParam;
-import com.qu.modules.web.param.Answers;
-import com.qu.modules.web.param.SingleDiseaseAnswer;
-import com.qu.modules.web.pojo.Data;
-import com.qu.modules.web.pojo.JsonRootBean;
-import com.qu.modules.web.service.IAnswerCheckService;
-import com.qu.modules.web.service.ICheckDetailSetService;
-import com.qu.modules.web.service.ISubjectService;
-import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.service.ITbUserService;
-import com.qu.modules.web.vo.AnswerCheckDetailListVo;
-import com.qu.modules.web.vo.AnswerCheckVo;
-import com.qu.modules.web.vo.CheckDetailSetVo;
-import com.qu.modules.web.vo.SubjectVo;
-import com.qu.util.HttpClient;
-
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.NumberUtil;
-import lombok.extern.slf4j.Slf4j;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 检查表问卷总表
@@ -563,10 +543,13 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
 
     private void setItems(List<CheckDetailSetVo> checkDetailSet, Map<Integer, SubjectVo> subjectMap, List<LinkedHashMap<String,Object>> fieldItems) {
         for (int i = 0; i < checkDetailSet.size(); i++) {
+            CheckDetailSetVo checkDetailSetVo = checkDetailSet.get(i);
+            if(!CheckDetailSetConstant.SHOW_TYPE_YES.equals(checkDetailSetVo.getShowType())){
+                continue;
+            }
             LinkedHashMap<String, Object> fieldItem = Maps.newLinkedHashMap();
             ArrayList<LinkedHashMap<String,Object>> emptyList = Lists.newArrayList();
             fieldItems.add(fieldItem);
-            CheckDetailSetVo checkDetailSetVo = checkDetailSet.get(i);
             Integer subjectId = checkDetailSetVo.getSubjectId();
             SubjectVo qsubject = subjectMap.get(subjectId);
             if(qsubject==null){
@@ -587,8 +570,11 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
     private void setList(List<CheckDetailSetVo> checkDetailSet, Map<Integer, SubjectVo> subjectMap,Map<String, String> dataItemMap, List<LinkedHashMap<String, Object>> detailDataList) {
         LinkedHashMap<String, Object> valueItem = Maps.newLinkedHashMap();
         for (int i = 0; i < checkDetailSet.size(); i++) {
-            ArrayList<Object> emptyList = Lists.newArrayList();
             CheckDetailSetVo checkDetailSetVo = checkDetailSet.get(i);
+            if(!CheckDetailSetConstant.SHOW_TYPE_YES.equals(checkDetailSetVo.getShowType())){
+                continue;
+            }
+            ArrayList<Object> emptyList = Lists.newArrayList();
             Integer subjectId = checkDetailSetVo.getSubjectId();
             SubjectVo qsubject = subjectMap.get(subjectId);
             if(qsubject==null){
