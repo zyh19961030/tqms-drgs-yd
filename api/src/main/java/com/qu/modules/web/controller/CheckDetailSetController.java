@@ -1,23 +1,31 @@
 package com.qu.modules.web.controller;
 
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.aspect.annotation.AutoLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.qu.constant.Constant;
 import com.qu.modules.web.entity.CheckDetailSet;
 import com.qu.modules.web.param.CheckDetailSetParam;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.ICheckDetailSetService;
 import com.qu.modules.web.vo.CheckDetailSetVo;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.jeecg.common.aspect.annotation.AutoLog;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 /**
  * @Description: 检查明细列设置表
@@ -28,7 +36,7 @@ import java.util.List;
 @Slf4j
 @Api(tags="检查明细列设置表")
 @RestController
-@RequestMapping("/web/checkDetailSet")
+@RequestMapping("/business/checkDetailSet")
 public class CheckDetailSetController {
 	@Autowired
 	private ICheckDetailSetService checkDetailSetService;
@@ -40,7 +48,7 @@ public class CheckDetailSetController {
 	 * @return
 	 */
 	@AutoLog(value = "检查明细列设置表-通过问卷id查询数据")
-	@ApiOperation(value="检查明细列设置表-通过问卷id查询数据", notes="检查明细列设置表-通过问卷id查询数据")
+	@ApiOperation(value="检查明细列设置表-通过问卷id查询数据", notes="检查明细列设置表-通过问卷id查询数据",response = CheckDetailSetVo.class)
 	@GetMapping(value = "/queryByQuestionId")
 	public Result<CheckDetailSetVo> queryByQuestionId(@RequestParam(name="questionId",required=true)@ApiParam("问卷id") Integer questionId, HttpServletRequest request) {
 		Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
