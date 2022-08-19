@@ -1,5 +1,13 @@
 package com.qu.modules.web.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -12,13 +20,6 @@ import com.qu.modules.web.service.ICheckDetailSetService;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.CheckDetailSetVo;
 import com.qu.modules.web.vo.SubjectVo;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @Description: 检查明细列设置表
@@ -36,6 +37,7 @@ public class CheckDetailSetServiceImpl extends ServiceImpl<CheckDetailSetMapper,
     public List<CheckDetailSetVo> queryByQuestionId(Integer questionId, String userId) {
         LambdaQueryWrapper<CheckDetailSet> lambda = new QueryWrapper<CheckDetailSet>().lambda();
         lambda.eq(CheckDetailSet::getUserId,userId).eq(CheckDetailSet::getQuestionId,questionId);
+        lambda.orderByAsc(CheckDetailSet::getSortNumber);
         List<CheckDetailSet> list = this.list(lambda);
         if(list.isEmpty()){
             //拿问卷数据
