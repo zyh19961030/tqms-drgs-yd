@@ -1,18 +1,5 @@
 package com.qu.modules.web.service.impl;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -25,24 +12,21 @@ import com.qu.modules.web.entity.Qoption;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.mapper.OptionMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.param.InsertSubjectParam;
-import com.qu.modules.web.param.LogicParam;
-import com.qu.modules.web.param.QoptionParam;
-import com.qu.modules.web.param.SpecialLogicParam;
-import com.qu.modules.web.param.StatisticsCheckTableParam;
-import com.qu.modules.web.param.SubjectEditParam;
-import com.qu.modules.web.param.SubjectLogicParam;
-import com.qu.modules.web.param.SubjectParam;
-import com.qu.modules.web.param.SubjectQuantityStatisticsParam;
-import com.qu.modules.web.param.SubjectSpecialLogicParam;
-import com.qu.modules.web.param.UpdateOrderNumParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.TbUser;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.StatisticsCheckTableSubjectVo;
 import com.qu.modules.web.vo.SubjectVo;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 题目表
@@ -263,7 +247,7 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
         //如果是分组题，计算分组题号字段
         if (subjectEditParam.getSubType() != null) {
             Map<String, String> existCache = new HashMap<>();
-            if (subjectEditParam.getSubType().equals("8")) {
+            if (subjectEditParam.getSubType().equals(QsubjectConstant.SUB_TYPE_GROUP) || subjectEditParam.getSubType().equals(QsubjectConstant.SUB_TYPE_GROUP_SCORE)) {
                 String[] gids = subjectEditParam.getGroupIds();
                 StringBuffer groupIds = new StringBuffer();
                 if (null != gids) {
