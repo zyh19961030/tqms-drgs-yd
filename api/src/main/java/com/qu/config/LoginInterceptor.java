@@ -56,8 +56,8 @@ public class LoginInterceptor implements HandlerInterceptor {
 //        if (requestUrl.indexOf(URL_REGISTER) != -1) {
 //            return true;
 //        }
-        if (requestUrl.contains(URL_MINIAPP) ) {
-//        if (requestUrl.contains(URL_MINIAPP) || requestUrl.contains(URL_ANSWER_CHECK_TEMP)) {
+//        if (requestUrl.contains(URL_MINIAPP) ) {
+        if (requestUrl.contains(URL_MINIAPP) || requestUrl.contains(URL_ANSWER_CHECK_TEMP)) {
             return true;
         }
 

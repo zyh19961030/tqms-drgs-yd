@@ -677,9 +677,9 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
     public void exportXlsDetailList(AnswerCheckDetailListParam answerCheckDetailListParam, Data data, HttpServletResponse response) {
         //查询显示列
         Integer quId = answerCheckDetailListParam.getQuId();
-        List<CheckDetailSetVo> checkDetailSet = checkDetailSetService.queryByQuestionId(quId,data.getTbUser().getId());
+//        List<CheckDetailSetVo> checkDetailSet = checkDetailSetService.queryByQuestionId(quId,data.getTbUser().getId());
         //todo temp
-//        List<CheckDetailSetVo> checkDetailSet = checkDetailSetService.queryByQuestionId(quId,"61ba396ff3884facb124ffdab37eb289");
+        List<CheckDetailSetVo> checkDetailSet = checkDetailSetService.queryByQuestionId(quId,"61ba396ff3884facb124ffdab37eb289");
         //查询题目
         List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(quId);
         Map<Integer, SubjectVo> subjectMap = subjectList.stream().collect(Collectors.toMap(SubjectVo::getId, q -> q));
@@ -689,9 +689,9 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         //数据
         LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
         lambda.eq(AnswerCheck::getQuId,answerCheckDetailListParam.getQuId());
-        lambda.eq(AnswerCheck::getCreaterDeptId,data.getTbUser().getDepId());
+//        lambda.eq(AnswerCheck::getCreaterDeptId,data.getTbUser().getDepId());
         //todo temp
-//        lambda.eq(AnswerCheck::getCreaterDeptId,"c9f3d69323e84f019bb77207b72f5c85");
+        lambda.eq(AnswerCheck::getCreaterDeptId,"c9f3d69323e84f019bb77207b72f5c85");
         lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
         String checkMonth = answerCheckDetailListParam.getCheckMonth();
         if(StringUtils.isNotBlank(checkMonth)){
