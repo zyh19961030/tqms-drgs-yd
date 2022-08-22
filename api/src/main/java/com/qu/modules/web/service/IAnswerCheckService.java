@@ -1,5 +1,9 @@
 package com.qu.modules.web.service;
 
+import javax.servlet.http.HttpServletResponse;
+
+import org.jeecg.common.api.vo.Result;
+
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.AnswerCheck;
@@ -10,7 +14,6 @@ import com.qu.modules.web.param.AnswerMiniAppParam;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.vo.AnswerCheckDetailListVo;
 import com.qu.modules.web.vo.AnswerCheckVo;
-import org.jeecg.common.api.vo.Result;
 
 /**
  * @Description: 检查表问卷总表
@@ -29,5 +32,7 @@ public interface IAnswerCheckService extends IService<AnswerCheck> {
     AnswerCheck queryById(String id);
 
     AnswerCheckDetailListVo detailList(AnswerCheckDetailListParam answerCheckDetailListParam, Data userId, Integer pageNo, Integer pageSize);
+
+    void exportXlsDetailList(AnswerCheckDetailListParam answerCheckDetailListParam, Data data, HttpServletResponse response);
 
 }

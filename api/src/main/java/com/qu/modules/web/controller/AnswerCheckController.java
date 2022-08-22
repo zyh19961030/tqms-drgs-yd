@@ -1,5 +1,18 @@
 package com.qu.modules.web.controller;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import org.jeecg.common.api.vo.Result;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.qu.constant.AnswerCheckConstant;
@@ -13,15 +26,10 @@ import com.qu.modules.web.service.IAnswerCheckService;
 import com.qu.modules.web.vo.AnswerCheckDetailListVo;
 import com.qu.modules.web.vo.AnswerCheckPageVo;
 import com.qu.modules.web.vo.AnswerCheckVo;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.jeecg.common.api.vo.Result;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 
 /**
  * @Description: 检查表问卷总表
@@ -101,10 +109,24 @@ public class AnswerCheckController {
 		 return result;
 	 }
 
+      /**
+       * 检查表_检查明细记录_导出excel
+       *
+       * @param request
+       * @param response
+       */
+      @GetMapping(value = "/exportXlsDetailList")
+      @ApiOperation(value = "检查表_检查明细记录_导出", notes = "检查表_检查明细记录_导出")
+      public void exportXlsDetailList(@Valid AnswerCheckDetailListParam answerCheckDetailListParam,HttpServletRequest request, HttpServletResponse response) {
+          Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+          answerCheckService.exportXlsDetailList(answerCheckDetailListParam, data,response);
+      }
 
 
 
-//	/**
+
+
+    //	/**
 //	  * 分页列表查询
 //	 * @param answerCheck
 //	 * @param pageNo
