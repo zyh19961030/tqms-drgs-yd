@@ -61,10 +61,10 @@ public class AnswerCheck {
 	@Excel(name = "对应子表的id，可以当主键，(子表中同字段)", width = 15)
     @ApiModelProperty(value = "对应子表的id，可以当主键，(子表中同字段)")
 	private String summaryMappingTableId;
-	/**检查时间_题目中的*/
-	@Excel(name = "检查时间_题目中的", width = 15)
-    @ApiModelProperty(value = "检查时间_题目中的")
-	private Date checkTime;
+	/**检查月份_题目中的*/
+	@Excel(name = "检查月份_题目中的", width = 15)
+    @ApiModelProperty(value = "检查月份_题目中的")
+	private String checkMonth;
 	/**被检查科室id*/
 	@Excel(name = "被检查科室id", width = 15)
     @ApiModelProperty(value = "被检查科室id")

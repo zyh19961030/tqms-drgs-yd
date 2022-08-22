@@ -1,28 +1,6 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.jeecg.common.util.UUIDGenerator;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
+import cn.hutool.core.util.NumberUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -36,39 +14,36 @@ import com.qu.constant.CheckDetailSetConstant;
 import com.qu.constant.QsubjectConstant;
 import com.qu.constant.QuestionConstant;
 import com.qu.exporter.AnswerCheckeDetailExporter;
-import com.qu.modules.web.entity.AnswerCheck;
-import com.qu.modules.web.entity.Qoption;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.entity.TbDep;
-import com.qu.modules.web.entity.TbUser;
+import com.qu.modules.web.entity.*;
 import com.qu.modules.web.mapper.AnswerCheckMapper;
 import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.AnswerCheckAddParam;
-import com.qu.modules.web.param.AnswerCheckDetailListParam;
-import com.qu.modules.web.param.AnswerCheckListParam;
-import com.qu.modules.web.param.AnswerMiniAppParam;
-import com.qu.modules.web.param.Answers;
-import com.qu.modules.web.param.SingleDiseaseAnswer;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.pojo.JsonRootBean;
-import com.qu.modules.web.service.IAnswerCheckService;
-import com.qu.modules.web.service.ICheckDetailSetService;
-import com.qu.modules.web.service.ISubjectService;
-import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.service.ITbUserService;
+import com.qu.modules.web.service.*;
 import com.qu.modules.web.vo.AnswerCheckDetailListVo;
 import com.qu.modules.web.vo.AnswerCheckVo;
 import com.qu.modules.web.vo.CheckDetailSetVo;
 import com.qu.modules.web.vo.SubjectVo;
 import com.qu.util.ExcelExportUtil;
 import com.qu.util.HttpClient;
-
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.NumberUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.util.UUIDGenerator;
+import org.joda.time.DateTime;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 检查表问卷总表
@@ -129,11 +104,11 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             lambda.eq(AnswerCheck::getAnswerStatus,answerStatus);
         }
         if(answerCheckListParam !=null && answerCheckListParam.getStartDate()!=null){
-            lambda.ge(AnswerCheck::getCheckTime, answerCheckListParam.getStartDate());
+            lambda.ge(AnswerCheck::getUpdateTime, answerCheckListParam.getStartDate());
         }
         if(answerCheckListParam !=null && answerCheckListParam.getEndDate()!=null){
             Date endDate = new DateTime(answerCheckListParam.getEndDate()).plusDays(1).toDate();
-            lambda.le(AnswerCheck::getCheckTime, endDate);
+            lambda.le(AnswerCheck::getUpdateTime, endDate);
         }
         if(answerCheckListParam !=null &&StringUtils.isNotBlank(answerCheckListParam.getDeptId())){
             lambda.eq(AnswerCheck::getCheckedDept, answerCheckListParam.getDeptId());
@@ -223,6 +198,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         answerCheck.setCreaterDeptId(creater_deptid);
         answerCheck.setCreaterDeptName(creater_deptname);
         answerCheck.setAnswerTime(date);
+        answerCheck.setUpdateTime(date);
 
         Answers[] answers = answerCheckAddParam.getAnswers();
         Map<String, String> mapCache = new HashMap<>();
@@ -233,10 +209,8 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         if(mapCache.containsKey(AnswerCheckConstant.COLUMN_NAME_CHECK_TIME)
                 && mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECK_TIME)!=null){
             String dateString = mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECK_TIME);
-            Date dateCheckTime = DateUtil.parse(dateString).toJdkDate();
-            answerCheck.setCheckTime(dateCheckTime);
+            answerCheck.setCheckMonth(dateString);
         }
-
 
         if(mapCache.containsKey(AnswerCheckConstant.COLUMN_NAME_CHECKED_DEPT)
                 && mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_DEPT)!=null){
@@ -258,7 +232,6 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             answerCheck.setCheckedPatientId(mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_PATIENT_NAME));
         }
 
-
         if(mapCache.containsKey(AnswerCheckConstant.COLUMN_NAME_CHECKED_TOTAL_SCORE)
                 && mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_TOTAL_SCORE)!=null){
             answerCheck.setTotalScore(mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_TOTAL_SCORE));
@@ -274,11 +247,9 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
 
         boolean insertOrUpdate = answerCheck.getId() != null && answerCheck.getId() != 0;
         if (insertOrUpdate) {
-            answerCheck.setUpdateTime(date);
             baseMapper.updateById(answerCheck);
         }else{
             answerCheck.setCreateTime(date);
-            answerCheck.setUpdateTime(date);
             answerCheck.setDel(AnswerCheckConstant.DEL_NORMAL);
 
             String summaryMappingTableId = UUIDGenerator.generateRandomUUIDAndCurrentTimeMillis();
@@ -525,12 +496,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
         String checkMonth = answerCheckDetailListParam.getCheckMonth();
         if(StringUtils.isNotBlank(checkMonth)){
-            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM");
-            DateTime dateTime = dateTimeFormatter.parseDateTime(checkMonth);
-            DateTime dateTimeMonthStart = dateTime.dayOfMonth().withMinimumValue();
-            DateTime dateTimeMonthEnd = dateTime.dayOfMonth().withMaximumValue();
-            lambda.ge(AnswerCheck::getCheckTime, dateTimeMonthStart.toDate());
-            lambda.le(AnswerCheck::getCheckTime, dateTimeMonthEnd.toDate());
+            lambda.eq(AnswerCheck::getCheckMonth, checkMonth);
         }
         lambda.orderByDesc(AnswerCheck::getAnswerTime);
         IPage<AnswerCheck> answerCheckIPage = this.page(page, lambda);
@@ -695,12 +661,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
         String checkMonth = answerCheckDetailListParam.getCheckMonth();
         if(StringUtils.isNotBlank(checkMonth)){
-            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM");
-            DateTime dateTime = dateTimeFormatter.parseDateTime(checkMonth);
-            DateTime dateTimeMonthStart = dateTime.dayOfMonth().withMinimumValue();
-            DateTime dateTimeMonthEnd = dateTime.dayOfMonth().withMaximumValue();
-            lambda.ge(AnswerCheck::getCheckTime, dateTimeMonthStart.toDate());
-            lambda.le(AnswerCheck::getCheckTime, dateTimeMonthEnd.toDate());
+            lambda.eq(AnswerCheck::getCheckMonth, checkMonth);
         }
         lambda.orderByDesc(AnswerCheck::getAnswerTime);
         List<AnswerCheck> answerCheckList = this.list(lambda);

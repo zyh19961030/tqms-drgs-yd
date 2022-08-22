@@ -10,7 +10,7 @@ public class AnswerCheckConstant {
     public static final Integer DEL_NORMAL = 0;
     public static final Integer DEL_DELETED = 1;
 
-    public static final String COLUMN_NAME_CHECK_TIME = "check_time";
+    public static final String COLUMN_NAME_CHECK_TIME = "check_month";
     public static final String COLUMN_NAME_CHECKED_DEPT = "checked_dept";
     public static final String COLUMN_NAME_CHECKED_DOCT = "checked_doct";
     public static final String COLUMN_NAME_CHECKED_PATIENT_ID = "checked_patient_id";
