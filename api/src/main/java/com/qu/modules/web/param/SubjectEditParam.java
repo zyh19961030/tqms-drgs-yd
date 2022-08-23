@@ -1,14 +1,16 @@
 package com.qu.modules.web.param;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import org.jeecgframework.poi.excel.annotation.Excel;
+import java.math.BigDecimal;
+import java.util.List;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.util.List;
+
+import org.jeecgframework.poi.excel.annotation.Excel;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
 @Data
 @ApiModel(value = "题目编辑入参", description = "题目编辑入参")
@@ -184,4 +186,8 @@ public class SubjectEditParam {
     @Excel(name = "针对  23.预设题目数量题型 的项目总数量", width = 15)
     @ApiModelProperty(value = "针对  23.预设题目数量题型 的项目总数量")
     private java.lang.String subjectCount;
+    /**针对  17.数据源下拉单选 的关联题目id*/
+    @Excel(name = "针对  17.数据源下拉单选 的关联题目id", width = 15)
+    @ApiModelProperty(value = "针对  17.数据源下拉单选 的关联题目id")
+    private java.lang.Integer relationSubjectId;
 }

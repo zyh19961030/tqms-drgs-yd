@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.AnswerCheck;
 import com.qu.modules.web.param.AnswerCheckAddParam;
+import com.qu.modules.web.param.AnswerCheckDetailListExportParam;
 import com.qu.modules.web.param.AnswerCheckDetailListParam;
 import com.qu.modules.web.param.AnswerCheckListParam;
 import com.qu.modules.web.param.AnswerMiniAppParam;
@@ -33,6 +34,6 @@ public interface IAnswerCheckService extends IService<AnswerCheck> {
 
     AnswerCheckDetailListVo detailList(AnswerCheckDetailListParam answerCheckDetailListParam, Data userId, Integer pageNo, Integer pageSize);
 
-    void exportXlsDetailList(AnswerCheckDetailListParam answerCheckDetailListParam, Data data, HttpServletResponse response);
+    void exportXlsDetailList(AnswerCheckDetailListExportParam answerCheckDetailListExportParam, HttpServletResponse response);
 
 }

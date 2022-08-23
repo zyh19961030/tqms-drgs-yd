@@ -13,6 +13,7 @@ import com.qu.modules.web.param.SubjectQuantityStatisticsParam;
 import com.qu.modules.web.param.SubjectSpecialLogicParam;
 import com.qu.modules.web.param.UpdateOrderNumParam;
 import com.qu.modules.web.pojo.TbUser;
+import com.qu.modules.web.vo.QsubjectIdAndNameVo;
 import com.qu.modules.web.vo.StatisticsCheckTableSubjectVo;
 import com.qu.modules.web.vo.SubjectVo;
 
@@ -47,6 +48,8 @@ public interface ISubjectService extends IService<Qsubject> {
     List<Qsubject> querySubjectByScoreCount(SubjectQuantityStatisticsParam subjectQuantityStatisticsParam);
 
     List<Qsubject> querySubjectByResultEvaluate(SubjectQuantityStatisticsParam subjectQuantityStatisticsParam);
+
+    List<QsubjectIdAndNameVo> querySubjectByDataSource(SubjectQuantityStatisticsParam subjectQuantityStatisticsParam);
 
     List<Qsubject> querySubjectByQuId(Integer id);
 

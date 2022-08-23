@@ -1,18 +1,20 @@
 package com.qu.modules.web.entity;
 
+import java.math.BigDecimal;
+
+import org.jeecgframework.poi.excel.annotation.Excel;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.jeecgframework.poi.excel.annotation.Excel;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.math.BigDecimal;
 
 /**
  * @Description: 题目表
@@ -188,8 +190,12 @@ public class Qsubject {
 	@Excel(name = "针对 19.数量统计题型 20.选择题分数求和题型 21.结果评价题型 22.数值题求和题型 选择统计题目的id集合", width = 15)
     @ApiModelProperty(value = "针对 19.数量统计题型 20.选择题分数求和题型 21.结果评价题型 22.数值题求和题型 选择统计题目的id集合")
 	private java.lang.String choiceSubjectId;
-	/**针对  23.预设题目数量题型的项目总数量*/
+	/**针对  23.预设题目数量题型 的项目总数量*/
 	@Excel(name = "针对  23.预设题目数量题型 的项目总数量", width = 15)
     @ApiModelProperty(value = "针对  23.预设题目数量题型 的项目总数量")
 	private java.lang.String subjectCount;
+    /**针对  17.数据源下拉单选 的关联题目id*/
+    @Excel(name = "针对  17.数据源下拉单选 的关联题目id", width = 15)
+    @ApiModelProperty(value = "针对  17.数据源下拉单选 的关联题目id")
+    private java.lang.Integer relationSubjectId;
 }

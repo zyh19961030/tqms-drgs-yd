@@ -31,6 +31,7 @@ import com.qu.modules.web.param.SubjectSpecialLogicParam;
 import com.qu.modules.web.param.UpdateOrderNumParam;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.ISubjectService;
+import com.qu.modules.web.vo.QsubjectIdAndNameVo;
 import com.qu.modules.web.vo.StatisticsCheckTableSubjectVo;
 import com.qu.modules.web.vo.SubjectVo;
 
@@ -234,6 +235,19 @@ public class SubjectController {
     public Result querySubjectByResultEvaluate(@RequestBody SubjectQuantityStatisticsParam subjectQuantityStatisticsParam) {
         List<Qsubject> qsubjects = subjectService.querySubjectByResultEvaluate(subjectQuantityStatisticsParam);
         return Result.ok(qsubjects);
+    }
+
+    /**
+     * 针对针对  17.数据源下拉单选 的关联题目id 的选择题目列表
+     * @param
+     * @return
+     */
+    @AutoLog(value = "针对针对  17.数据源下拉单选 的关联题目id 的选择题目列表")
+    @ApiOperation(value = "针对针对  17.数据源下拉单选 的关联题目id 的选择题目列表", notes = "针对针对  17.数据源下拉单选 的关联题目id 的选择题目列表",response = QsubjectIdAndNameVo.class)
+    @PostMapping(value = "/querySubjectByDataSource")
+    public Result<List<QsubjectIdAndNameVo>> querySubjectByDataSource(@RequestBody SubjectQuantityStatisticsParam subjectQuantityStatisticsParam) {
+        List<QsubjectIdAndNameVo> qsubjects = subjectService.querySubjectByDataSource(subjectQuantityStatisticsParam);
+        return ResultFactory.success(qsubjects);
     }
 
     /**

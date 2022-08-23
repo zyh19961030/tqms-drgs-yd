@@ -19,6 +19,7 @@ import com.qu.constant.AnswerCheckConstant;
 import com.qu.constant.Constant;
 import com.qu.modules.web.entity.AnswerCheck;
 import com.qu.modules.web.param.AnswerCheckAddParam;
+import com.qu.modules.web.param.AnswerCheckDetailListExportParam;
 import com.qu.modules.web.param.AnswerCheckDetailListParam;
 import com.qu.modules.web.param.AnswerCheckListParam;
 import com.qu.modules.web.pojo.Data;
@@ -112,14 +113,12 @@ public class AnswerCheckController {
       /**
        * 检查表_检查明细记录_导出excel
        *
-       * @param request
        * @param response
        */
       @GetMapping(value = "/exportXlsDetailList")
       @ApiOperation(value = "检查表_检查明细记录_导出", notes = "检查表_检查明细记录_导出")
-      public void exportXlsDetailList(@Valid AnswerCheckDetailListParam answerCheckDetailListParam,HttpServletRequest request, HttpServletResponse response) {
-          Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-          answerCheckService.exportXlsDetailList(answerCheckDetailListParam, data,response);
+      public void exportXlsDetailList(@Valid AnswerCheckDetailListExportParam answerCheckDetailListExportParam,HttpServletResponse response) {
+          answerCheckService.exportXlsDetailList(answerCheckDetailListExportParam, response);
       }
 
 

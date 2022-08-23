@@ -1,15 +1,17 @@
 package com.qu.modules.web.vo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.qu.modules.web.entity.Qoption;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
+import java.math.BigDecimal;
+import java.util.List;
+
 import org.jeecgframework.poi.excel.annotation.Excel;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.math.BigDecimal;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.qu.modules.web.entity.Qoption;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
 @Data
 @ApiModel(value = "SubjectVo", description = "SubjectVo")
@@ -223,6 +225,10 @@ public class SubjectVo {
     @Excel(name = "针对  23.预设题目数量题型 的项目总数量", width = 15)
     @ApiModelProperty(value = "针对  23.预设题目数量题型 的项目总数量")
     private java.lang.String subjectCount;
+    /**针对  17.数据源下拉单选 的关联题目id*/
+    @Excel(name = "针对  17.数据源下拉单选 的关联题目id", width = 15)
+    @ApiModelProperty(value = "针对  17.数据源下拉单选 的关联题目id")
+    private java.lang.Integer relationSubjectId;
 
     @ApiModelProperty(value = "分组题包含的题")
     private List<SubjectVo> subjectVoList;

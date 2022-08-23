@@ -1,5 +1,18 @@
 package com.qu.modules.web.service.impl;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -12,21 +25,25 @@ import com.qu.modules.web.entity.Qoption;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.mapper.OptionMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.param.*;
+import com.qu.modules.web.param.InsertSubjectParam;
+import com.qu.modules.web.param.LogicParam;
+import com.qu.modules.web.param.QoptionParam;
+import com.qu.modules.web.param.SpecialLogicParam;
+import com.qu.modules.web.param.StatisticsCheckTableParam;
+import com.qu.modules.web.param.SubjectEditParam;
+import com.qu.modules.web.param.SubjectLogicParam;
+import com.qu.modules.web.param.SubjectParam;
+import com.qu.modules.web.param.SubjectQuantityStatisticsParam;
+import com.qu.modules.web.param.SubjectSpecialLogicParam;
+import com.qu.modules.web.param.UpdateOrderNumParam;
 import com.qu.modules.web.pojo.TbUser;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.service.ISubjectService;
+import com.qu.modules.web.vo.QsubjectIdAndNameVo;
 import com.qu.modules.web.vo.StatisticsCheckTableSubjectVo;
 import com.qu.modules.web.vo.SubjectVo;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: 题目表
@@ -514,6 +531,24 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
                 .eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL)
                 .in(Qsubject::getSubType, QsubjectConstant.RESULT_EVALUATE_LIST);
         return qsubjectMapper.selectList(lambda);
+    }
+
+    @Override
+    public List<QsubjectIdAndNameVo> querySubjectByDataSource(SubjectQuantityStatisticsParam subjectQuantityStatisticsParam) {
+        LambdaQueryWrapper<Qsubject> lambda = new QueryWrapper<Qsubject>().lambda();
+        lambda.eq(Qsubject::getQuId,subjectQuantityStatisticsParam.getId())
+                .eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL)
+                .eq(Qsubject::getSubType, QsubjectConstant.SUB_TYPE_DEPT_USER);
+        List<Qsubject> qsubjects = qsubjectMapper.selectList(lambda);
+        if(qsubjects.isEmpty()){
+            return Lists.newArrayList();
+        }
+        List<QsubjectIdAndNameVo> resList = qsubjects.stream().map(q -> {
+            QsubjectIdAndNameVo vo = new QsubjectIdAndNameVo();
+            BeanUtils.copyProperties(q, vo);
+            return vo;
+        }).collect(Collectors.toList());
+        return resList;
     }
 
     @Override

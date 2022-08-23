@@ -1,6 +1,26 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.util.NumberUtil;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.util.UUIDGenerator;
+import org.joda.time.DateTime;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -14,36 +34,39 @@ import com.qu.constant.CheckDetailSetConstant;
 import com.qu.constant.QsubjectConstant;
 import com.qu.constant.QuestionConstant;
 import com.qu.exporter.AnswerCheckeDetailExporter;
-import com.qu.modules.web.entity.*;
+import com.qu.modules.web.entity.AnswerCheck;
+import com.qu.modules.web.entity.Qoption;
+import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.entity.TbDep;
+import com.qu.modules.web.entity.TbUser;
 import com.qu.modules.web.mapper.AnswerCheckMapper;
 import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.*;
+import com.qu.modules.web.param.AnswerCheckAddParam;
+import com.qu.modules.web.param.AnswerCheckDetailListExportParam;
+import com.qu.modules.web.param.AnswerCheckDetailListParam;
+import com.qu.modules.web.param.AnswerCheckListParam;
+import com.qu.modules.web.param.AnswerMiniAppParam;
+import com.qu.modules.web.param.Answers;
+import com.qu.modules.web.param.SingleDiseaseAnswer;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.pojo.JsonRootBean;
-import com.qu.modules.web.service.*;
+import com.qu.modules.web.service.IAnswerCheckService;
+import com.qu.modules.web.service.ICheckDetailSetService;
+import com.qu.modules.web.service.ISubjectService;
+import com.qu.modules.web.service.ITbDepService;
+import com.qu.modules.web.service.ITbUserService;
 import com.qu.modules.web.vo.AnswerCheckDetailListVo;
 import com.qu.modules.web.vo.AnswerCheckVo;
 import com.qu.modules.web.vo.CheckDetailSetVo;
 import com.qu.modules.web.vo.SubjectVo;
 import com.qu.util.ExcelExportUtil;
 import com.qu.util.HttpClient;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.jeecg.common.util.UUIDGenerator;
-import org.joda.time.DateTime;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletResponse;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import cn.hutool.core.util.NumberUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: 检查表问卷总表
@@ -539,14 +562,16 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             if(!CheckDetailSetConstant.SHOW_TYPE_YES.equals(checkDetailSetVo.getShowType())){
                 continue;
             }
+
+            Integer subjectId = checkDetailSetVo.getSubjectId();
+            SubjectVo qsubject = subjectMap.get(subjectId);
+            if(qsubject==null || QsubjectConstant.SUB_TYPE_TITLE.equals(qsubject.getSubType())){
+                continue;
+            }
+
             LinkedHashMap<String, Object> fieldItem = Maps.newLinkedHashMap();
             ArrayList<LinkedHashMap<String,Object>> emptyList = Lists.newArrayList();
             fieldItems.add(fieldItem);
-            Integer subjectId = checkDetailSetVo.getSubjectId();
-            SubjectVo qsubject = subjectMap.get(subjectId);
-            if(qsubject==null){
-                continue;
-            }
             fieldItem.put("fieldTxt",qsubject.getSubName());
             fieldItem.put("fieldId",qsubject.getColumnName());
             if(checkDetailSetVo.getChildList()!=null && !checkDetailSetVo.getChildList().isEmpty()){
@@ -576,9 +601,10 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             ArrayList<Object> emptyList = Lists.newArrayList();
             Integer subjectId = checkDetailSetVo.getSubjectId();
             SubjectVo qsubject = subjectMap.get(subjectId);
-            if(qsubject==null){
+            if(qsubject==null || QsubjectConstant.SUB_TYPE_TITLE.equals(qsubject.getSubType())){
                 continue;
             }
+
             String columnName = qsubject.getColumnName();
             if("checked_dept".equals(columnName)){
                 valueItem.put(qsubject.getColumnName(),dataItemMap.get(qsubject.getColumnName()));
@@ -640,12 +666,15 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
 
 
     @Override
-    public void exportXlsDetailList(AnswerCheckDetailListParam answerCheckDetailListParam, Data data, HttpServletResponse response) {
+    public void exportXlsDetailList(AnswerCheckDetailListExportParam answerCheckDetailListExportParam, HttpServletResponse response) {
+        String userId = answerCheckDetailListExportParam.getUserId();
+        if(StringUtils.isBlank(userId)){
+            return;
+        }
+        TbUser tbUser = tbUserService.getById(userId);
         //查询显示列
-        Integer quId = answerCheckDetailListParam.getQuId();
-//        List<CheckDetailSetVo> checkDetailSet = checkDetailSetService.queryByQuestionId(quId,data.getTbUser().getId());
-        //todo temp
-        List<CheckDetailSetVo> checkDetailSet = checkDetailSetService.queryByQuestionId(quId,"61ba396ff3884facb124ffdab37eb289");
+        Integer quId = answerCheckDetailListExportParam.getQuId();
+        List<CheckDetailSetVo> checkDetailSet = checkDetailSetService.queryByQuestionId(quId,tbUser.getId());
         //查询题目
         List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(quId);
         Map<Integer, SubjectVo> subjectMap = subjectList.stream().collect(Collectors.toMap(SubjectVo::getId, q -> q));
@@ -654,12 +683,10 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         setItems(checkDetailSet, subjectMap, fieldItems);
         //数据
         LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
-        lambda.eq(AnswerCheck::getQuId,answerCheckDetailListParam.getQuId());
-//        lambda.eq(AnswerCheck::getCreaterDeptId,data.getTbUser().getDepId());
-        //todo temp
-        lambda.eq(AnswerCheck::getCreaterDeptId,"c9f3d69323e84f019bb77207b72f5c85");
+        lambda.eq(AnswerCheck::getQuId,answerCheckDetailListExportParam.getQuId());
+        lambda.eq(AnswerCheck::getCreaterDeptId,tbUser.getDepid());
         lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
-        String checkMonth = answerCheckDetailListParam.getCheckMonth();
+        String checkMonth = answerCheckDetailListExportParam.getCheckMonth();
         if(StringUtils.isNotBlank(checkMonth)){
             lambda.eq(AnswerCheck::getCheckMonth, checkMonth);
         }
