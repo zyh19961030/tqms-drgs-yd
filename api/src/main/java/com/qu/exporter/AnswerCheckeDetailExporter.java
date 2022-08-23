@@ -11,7 +11,6 @@ import org.apache.poi.ss.util.CellRangeAddress;
 
 import com.google.common.collect.Lists;
 import com.qu.modules.web.vo.AnswerCheckDetailListVo;
-import com.qu.util.ExcelExportUtil;
 
 
 public class AnswerCheckeDetailExporter implements ExcelDataBuilder {
@@ -50,37 +49,46 @@ public class AnswerCheckeDetailExporter implements ExcelDataBuilder {
     private List<String> createTitle(HSSFSheet sheet, HSSFRow row, HSSFCell cell, List<LinkedHashMap<String, Object>> fieldItems) {
         row = sheet.createRow(0);
         List<String> keyList = Lists.newArrayList();
+        int regionCol = 0;
+
         for (int i = 0; i < fieldItems.size(); i++) {
             Object fieldChildListObj = fieldItems.get(i).get("fieldChildList");
             if(fieldChildListObj==null){
-                ExcelExportUtil.fillInCell(row, cell, i, fieldItems.get(i).getOrDefault("fieldTxt","").toString());
+//                ExcelExportUtil.fillInCell(row, cell, regionCol, fieldItems.get(i).getOrDefault("fieldTxt","").toString());
+                cell = row.createCell(regionCol);
+                cell.setCellValue(fieldItems.get(i).getOrDefault("fieldTxt","").toString());
 
-                CellRangeAddress region = new CellRangeAddress(0, 1, i, i);
+                CellRangeAddress region = new CellRangeAddress(0, 1, regionCol, regionCol);
                 sheet.addMergedRegion(region);
                 keyList.add(fieldItems.get(i).getOrDefault("fieldId","").toString());
+                regionCol++;
             }else{
                 List<LinkedHashMap<String,Object>> fieldChildList = (List<LinkedHashMap<String,Object>>)fieldChildListObj;
                 if(fieldChildList.isEmpty()){
-                    ExcelExportUtil.fillInCell(row, cell, i, fieldItems.get(i).getOrDefault("fieldTxt","").toString());
+//                    ExcelExportUtil.fillInCell(row, cell, regionCol, fieldItems.get(i).getOrDefault("fieldTxt","").toString());
+                    cell = row.createCell(regionCol);
+                    cell.setCellValue(fieldItems.get(i).getOrDefault("fieldTxt","").toString());
 
-                    CellRangeAddress region = new CellRangeAddress(0, 1, i, i);
+                    CellRangeAddress region = new CellRangeAddress(0, 1, regionCol, regionCol);
                     sheet.addMergedRegion(region);
                     keyList.add(fieldItems.get(i).getOrDefault("fieldId","").toString());
+                    regionCol++;
                 }else{
-                    cell = row.createCell(i);
+                    cell = row.createCell(regionCol);
                     cell.setCellValue(fieldItems.get(i).getOrDefault("fieldTxt","").toString());
 
                     //合并单元格
                     int size = fieldChildList.size();
-                    CellRangeAddress region = new CellRangeAddress(0, 0, i, i+size-1);
+                    CellRangeAddress region = new CellRangeAddress(0, 0, regionCol, regionCol+size-1);
                     sheet.addMergedRegion(region);
-
-                    row = sheet.createRow(1);
+                    regionCol = regionCol+size;
+                    HSSFRow twoRow = sheet.createRow(1);
                     for (int j = 0; j < fieldChildList.size(); j++) {
                         LinkedHashMap<String, Object> stringObjectLinkedHashMap = fieldChildList.get(j);
-                        cell = row.createCell(i+j);
+                        cell = twoRow.createCell(i+j);
                         cell.setCellValue(stringObjectLinkedHashMap.getOrDefault("fieldTxt","").toString());
-                        keyList.add(fieldItems.get(i).getOrDefault("fieldId","").toString());
+
+                        keyList.add(stringObjectLinkedHashMap.getOrDefault("fieldId","").toString());
                     }
 
                 }
