@@ -75,14 +75,19 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
         }
 
         BeanUtils.copyProperties(subjectParam, subject);
-        Map<String, Object> param = new HashMap<>();
-        param.put("quId", subjectParam.getQuId());
-        param.put("columnName", subjectParam.getColumnName());
-        param.put("del", QsubjectConstant.DEL_NORMAL);
-        int colCount = qsubjectMapper.selectColumnNameCount(param);
-        if (colCount > 0) {//字段重复
-            return null;
+
+        String columnName = subjectParam.getColumnName();
+        if(StringUtils.isNotBlank(columnName)){
+            LambdaQueryWrapper<Qsubject> lambda = new QueryWrapper<Qsubject>().lambda();
+            lambda.eq(Qsubject::getQuId,subjectParam.getQuId())
+                    .eq(Qsubject::getColumnName,columnName)
+                    .eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
+            Integer integer = qsubjectMapper.selectCount(lambda);
+            if (integer > 0) {//字段重复
+                return null;
+            }
         }
+
         //计算题号
         Integer subSumCount = qsubjectMapper.selectSumCount(subjectParam.getQuId());
         subject.setOrderNum(subSumCount + 1);
@@ -158,13 +163,16 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
             subject.setColumnTypeDatabase(conversionColumnType(insertSubjectParam.getColumnType()));
         }
         BeanUtils.copyProperties(insertSubjectParam, subject);
-        Map<String, Object> param = new HashMap<>();
-        param.put("quId", insertSubjectParam.getQuId());
-        param.put("columnName", insertSubjectParam.getColumnName());
-        param.put("del", QsubjectConstant.DEL_NORMAL);
-        int colCount = qsubjectMapper.selectColumnNameCount(param);
-        if (colCount > 0) {//字段重复
-            return null;
+        String columnName = insertSubjectParam.getColumnName();
+        if(StringUtils.isNotBlank(columnName)){
+            LambdaQueryWrapper<Qsubject> lambda = new QueryWrapper<Qsubject>().lambda();
+            lambda.eq(Qsubject::getQuId,insertSubjectParam.getQuId())
+                    .eq(Qsubject::getColumnName,columnName)
+                    .eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
+            Integer integer = qsubjectMapper.selectCount(lambda);
+            if (integer > 0) {//字段重复
+                return null;
+            }
         }
 
         //计算题号

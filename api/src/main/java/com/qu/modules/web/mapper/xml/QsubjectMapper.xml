@@ -14,10 +14,6 @@
         select * from qsubject where group_ids like  CONCAT('%',#{subId},'%')  and qu_id = (select qu_id from qsubject where id = #{subId}) limit 1
     </select>
 
-    <select id="selectColumnNameCount" parameterType="java.util.Map" resultType="java.lang.Integer">
-        select count(1) from qsubject where qu_id = #{quId} and column_name = #{columnName} and del = #{del}
-    </select>
-
     <select id="selectGroupQsubjectByQuId" parameterType="java.util.Map" resultType="com.qu.modules.web.entity.Qsubject">
         select * from qsubject where qu_id = #{quId} and sub_type = '8' <![CDATA[ and id <> #{subId} ]]>
     </select>

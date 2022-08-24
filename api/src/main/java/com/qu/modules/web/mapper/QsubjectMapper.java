@@ -20,8 +20,6 @@ public interface QsubjectMapper extends BaseMapper<Qsubject> {
 
     Qsubject selectIdByGroupIdsLike(Integer subId);
 
-    int selectColumnNameCount(Map<String, Object> param);
-
     List<Qsubject> selectGroupQsubjectByQuId(Map<String, Object> groupParam);
 
     List<Qsubject> selectPersonSubjectByQuId(Integer id);
