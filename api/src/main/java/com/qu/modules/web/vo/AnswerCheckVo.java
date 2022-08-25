@@ -25,6 +25,9 @@ public class AnswerCheckVo {
     @ApiModelProperty(value = "被检查科室id")
     private String checkedDept;
 
+    @ApiModelProperty(value = "检查月份")
+    private String checkMonth;
+
     @ApiModelProperty(value = "被检查科室名称")
     private String checkedDeptName;
 
