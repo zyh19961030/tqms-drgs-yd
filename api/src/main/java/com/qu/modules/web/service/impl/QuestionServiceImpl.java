@@ -1,18 +1,5 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -23,43 +10,27 @@ import com.qu.constant.Constant;
 import com.qu.constant.QoptionConstant;
 import com.qu.constant.QsubjectConstant;
 import com.qu.constant.QuestionConstant;
-import com.qu.modules.web.entity.Qoption;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.entity.TbDep;
-import com.qu.modules.web.entity.TqmsQuotaCategory;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.OptionMapper;
-import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam;
-import com.qu.modules.web.param.QuestionAgainReleaseParam;
-import com.qu.modules.web.param.QuestionCheckParam;
-import com.qu.modules.web.param.QuestionEditParam;
-import com.qu.modules.web.param.QuestionParam;
-import com.qu.modules.web.param.UpdateCategoryIdParam;
-import com.qu.modules.web.param.UpdateDeptIdsParam;
-import com.qu.modules.web.param.UpdateWriteFrequencyIdsParam;
+import com.qu.event.DeleteCheckDetailSetEvent;
+import com.qu.modules.web.entity.*;
+import com.qu.modules.web.mapper.*;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.TbUser;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
-import com.qu.modules.web.vo.QuestionAndCategoryVo;
-import com.qu.modules.web.vo.QuestionCheckVo;
-import com.qu.modules.web.vo.QuestionMiniAppPageVo;
-import com.qu.modules.web.vo.QuestionMonthQuarterYearCreateListVo;
-import com.qu.modules.web.vo.QuestionPageVo;
-import com.qu.modules.web.vo.QuestionPatientCreateListVo;
-import com.qu.modules.web.vo.QuestionStatisticsCheckVo;
-import com.qu.modules.web.vo.QuestionVo;
-import com.qu.modules.web.vo.SubjectVo;
-import com.qu.modules.web.vo.ViewNameVo;
+import com.qu.modules.web.vo.*;
 import com.qu.util.DeptUtil;
 import com.qu.util.IntegerUtil;
 import com.qu.util.StringUtil;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 问卷表
@@ -88,6 +59,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Autowired
     private ITbDepService tbDepService;
+
+    @Resource
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public Question saveQuestion(QuestionParam questionParam, TbUser tbUser) {
@@ -230,6 +204,10 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             question = questionMapper.selectById(questionEditParam.getId());
             //如果是已发布，建表
             if (question.getQuStatus() == 1) {
+
+                DeleteCheckDetailSetEvent event = new DeleteCheckDetailSetEvent(this, question.getId());
+                applicationEventPublisher.publishEvent(event);
+
                 StringBuffer sql = new StringBuffer();
                 sql.append("CREATE TABLE `" + question.getTableName() + "` (");
                 sql.append("`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',");
@@ -580,6 +558,10 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     public Boolean againRelease(QuestionAgainReleaseParam questionAgainreleaseParam) {
         try {
             Question question = questionMapper.selectById(questionAgainreleaseParam.getId());
+
+            DeleteCheckDetailSetEvent event = new DeleteCheckDetailSetEvent(this, question.getId());
+            applicationEventPublisher.publishEvent(event);
+
             StringBuffer sql = new StringBuffer();
             sql.append("ALTER TABLE `" + question.getTableName() + "` ");
             List<Qsubject> subjectList = subjectMapper.selectBatchIds(questionAgainreleaseParam.getSubjectIds());
