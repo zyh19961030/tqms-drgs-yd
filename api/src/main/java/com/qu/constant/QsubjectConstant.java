@@ -1,8 +1,8 @@
 package com.qu.constant;
 
-import com.google.common.collect.Lists;
-
 import java.util.List;
+
+import com.google.common.collect.Lists;
 
 public class QsubjectConstant {
 
@@ -21,6 +21,7 @@ public class QsubjectConstant {
 	public static final String SUB_TYPE_DEPT_USER = "18";
 	public static final String SUB_TYPE_QUANTITY_STATISTICS = "19";
 	public static final String SUB_TYPE_SCORE_COUNT = "20";
+	public static final String SUB_TYPE_RESULT_EVALUATE = "21";
 	//是否开启痕迹 改0:不开启1:开启
 	public static final Integer MARK_OPEN = 1;
 	public static final Integer MARK_CLOSE = 0;
