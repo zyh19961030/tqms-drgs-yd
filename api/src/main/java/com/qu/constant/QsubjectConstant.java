@@ -24,7 +24,8 @@ public class QsubjectConstant {
 	//是否开启痕迹 改0:不开启1:开启
 	public static final Integer MARK_OPEN = 1;
 	public static final Integer MARK_CLOSE = 0;
-	public static final String MARK_LENGTH = "500";
+	public static final String MARK_LENGTH = "0";
+	public static final String MARK_TYPE = "TEXT";
 
 
     public static final Integer DEL_NORMAL = 0;
