@@ -90,7 +90,12 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
 
         //计算题号
         Integer subSumCount = qsubjectMapper.selectSumCount(subjectParam.getQuId());
-        subject.setOrderNum(subSumCount + 1);
+        if(subSumCount==null){
+            subject.setOrderNum(1);
+        }else{
+            subject.setOrderNum(subSumCount + 1);
+        }
+
         //如果是分组题，计算分组题号字段
         if (subjectParam.getSubType().equals(QsubjectConstant.SUB_TYPE_GROUP) || subjectParam.getSubType().equals(QsubjectConstant.SUB_TYPE_GROUP_SCORE)) {
             String[] gids = subjectParam.getGroupIds();
