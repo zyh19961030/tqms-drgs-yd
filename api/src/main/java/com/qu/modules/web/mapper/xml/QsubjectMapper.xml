@@ -3,7 +3,7 @@
 <mapper namespace="com.qu.modules.web.mapper.QsubjectMapper">
 
     <select id="selectSumCount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
-        select count(1) from qsubject where qu_id = #{quId} and del = 0
+        select max(order_num) from qsubject where qu_id = #{quId} and del = 0
     </select>
 
     <select id="selectSubjectByQuId" parameterType="java.lang.Integer" resultType="com.qu.modules.web.entity.Qsubject">
