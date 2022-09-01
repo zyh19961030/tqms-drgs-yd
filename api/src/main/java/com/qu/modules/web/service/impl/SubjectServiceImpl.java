@@ -551,7 +551,7 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
         LambdaQueryWrapper<Qsubject> lambda = new QueryWrapper<Qsubject>().lambda();
         lambda.eq(Qsubject::getQuId,subjectQuantityStatisticsParam.getId())
                 .eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL)
-                .eq(Qsubject::getSubType, QsubjectConstant.SUB_TYPE_DEPT_USER);
+                .eq(Qsubject::getSubType, QsubjectConstant.SUB_TYPE_HOSPITAL_USER);
         List<Qsubject> qsubjects = qsubjectMapper.selectList(lambda);
         if(qsubjects.isEmpty()){
             return Lists.newArrayList();

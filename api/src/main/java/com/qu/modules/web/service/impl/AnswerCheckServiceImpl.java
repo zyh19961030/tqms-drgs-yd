@@ -640,6 +640,14 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
                         if(qoption!=null){
                             valueItem.put(qsubject.getColumnName(),qoption.getOpName());
                         }
+                    }else if (QsubjectConstant.SUB_TYPE_HOSPITAL_USER.equals(subType)){
+                        String s = dataItemMap.get(qsubject.getColumnName());
+                        if(StringUtils.isNotBlank(s)){
+                            TbUser tbUser = tbUserService.getById(s);
+                            if(tbUser!=null){
+                                valueItem.put(qsubject.getColumnName(),tbUser.getUsername());
+                            }
+                        }
                     }else if (QsubjectConstant.SUB_TYPE_RESULT_EVALUATE.equals(subType)){
                         List<Qoption> optionList = qsubject.getOptionList();
                         Map<String, Qoption> optionMap = optionList.stream().collect(Collectors.toMap(Qoption::getAnswerValue, Function.identity(), (oldData, newData) -> newData));

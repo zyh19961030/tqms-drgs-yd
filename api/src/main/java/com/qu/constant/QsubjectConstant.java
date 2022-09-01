@@ -18,7 +18,7 @@ public class QsubjectConstant {
 	public static final String SUB_TYPE_TITLE = "9";
 	public static final String SUB_TYPE_CHOICE_SCORE = "13";
 	public static final String SUB_TYPE_SINGLE_CHOICE_BOX_SCORE = "14";
-	public static final String SUB_TYPE_DEPT_USER = "18";
+	public static final String SUB_TYPE_HOSPITAL_USER = "18";
 	public static final String SUB_TYPE_QUANTITY_STATISTICS = "19";
 	public static final String SUB_TYPE_SCORE_COUNT = "20";
 	public static final String SUB_TYPE_RESULT_EVALUATE = "21";
