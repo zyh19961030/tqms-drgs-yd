@@ -7,26 +7,31 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
+import com.qu.constant.QoptionConstant;
+import com.qu.constant.QsubjectConstant;
 import com.qu.constant.QuestionConstant;
-import com.qu.modules.web.entity.Answer;
-import com.qu.modules.web.entity.QSingleDiseaseTake;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.mapper.AnswerMapper;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.entity.*;
+import com.qu.modules.web.mapper.*;
 import com.qu.modules.web.param.AdminPrivateParam;
+import com.qu.modules.web.param.AdminPrivateUpdateOptionValueParam;
 import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
 import com.qu.modules.web.service.IAdminPrivateService;
+import com.qu.modules.web.service.IOptionService;
 import com.qu.util.PriceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -37,6 +42,14 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
 
     @Resource
     private QuestionMapper questionMapper;
+
+    @Resource
+    private QsubjectMapper qsubjectMapper;
+
+    @Resource
+    private OptionMapper optionMapper;
+    @Autowired
+    private IOptionService optionService;
 
     @Resource
     private QSingleDiseaseTakeMapper qSingleDiseaseTakeMapper;
@@ -237,5 +250,60 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
             }
         }
         return true;
+    }
+
+    @Override
+    public Result updateOptionValue(AdminPrivateUpdateOptionValueParam adminPrivateUpdateOptionValueParam) {
+        //查出来所有的单病种表
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+//        lambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
+        lambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_CHECK);
+        lambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
+        lambda.eq(Question::getQuName, adminPrivateUpdateOptionValueParam.getTableName());
+//        lambda.ge(Question::getId,98);
+        List<Question> questionList = questionMapper.selectList(lambda);
+        if(questionList.isEmpty()){
+            return ResultFactory.fail("未找到相关查检表，请确认该检查表类型设置为检查表");
+        }
+
+        for (Question question : questionList) {
+            //查出来所有题
+            LambdaQueryWrapper<Qsubject> qsubjectLambdaQueryWrapper = new QueryWrapper<Qsubject>().lambda();
+            qsubjectLambdaQueryWrapper.eq(Qsubject::getQuId,question.getId())
+                    .eq(Qsubject::getSubType,QsubjectConstant.SUB_TYPE_CHOICE_SCORE)
+                    .eq(Qsubject::getDel, QsubjectConstant.DEL_NORMAL);
+            List<Qsubject> subjectList = qsubjectMapper.selectList(qsubjectLambdaQueryWrapper);
+            List<Integer> subjectIdList = subjectList.stream().map(Qsubject::getId).collect(Collectors.toList());
+            //查出来所有选项有 是 并且分值大于0
+            LambdaQueryWrapper<Qoption> qoptionLambdaQueryWrapper = new QueryWrapper<Qoption>().lambda();
+            qoptionLambdaQueryWrapper.in(Qoption::getSubId,subjectIdList);
+            qoptionLambdaQueryWrapper.eq(Qoption::getDel, QoptionConstant.DEL_NORMAL);
+            qoptionLambdaQueryWrapper.eq(Qoption::getOpName,"否");
+            qoptionLambdaQueryWrapper.eq(Qoption::getOpValue,"n");
+            qoptionLambdaQueryWrapper.ge(Qoption::getOptionScore,1);
+            List<Qoption> qoptions = optionMapper.selectList(qoptionLambdaQueryWrapper);
+            ArrayList<Qoption> optionUpdateList = Lists.newArrayList();
+            for (Qoption qoption : qoptions) {
+                LambdaQueryWrapper<Qoption> qoptionLambda = new QueryWrapper<Qoption>().lambda();
+                qoptionLambda.eq(Qoption::getSubId,qoption.getSubId());
+                qoptionLambda.eq(Qoption::getDel, QoptionConstant.DEL_NORMAL);
+                qoptionLambda.eq(Qoption::getOpName,"是");
+                qoptionLambda.eq(Qoption::getOpValue,"y");
+//                qoptionLambdaQueryWrapper.ge(Qoption::getOptionScore,1);
+                List<Qoption> optionListYes = optionMapper.selectList(qoptionLambda);
+                if(optionListYes.isEmpty()){
+                    continue;
+                }
+                Qoption optionYes = optionListYes.get(0);
+                BigDecimal optionScoreYes = optionYes.getOptionScore();
+                BigDecimal optionScoreNo = qoption.getOptionScore();
+                qoption.setOptionScore(optionScoreYes);
+                optionYes.setOptionScore(optionScoreNo);
+                optionUpdateList.add(qoption);
+                optionUpdateList.add(optionYes);
+            }
+            optionService.updateBatchById(optionUpdateList);
+        }
+        return ResultFactory.success();
     }
 }

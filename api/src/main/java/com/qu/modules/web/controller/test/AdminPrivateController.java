@@ -2,6 +2,7 @@ package com.qu.modules.web.controller.test;
 
 import com.alibaba.fastjson.JSON;
 import com.qu.modules.web.param.AdminPrivateParam;
+import com.qu.modules.web.param.AdminPrivateUpdateOptionValueParam;
 import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
 import com.qu.modules.web.service.IAdminPrivateService;
 import io.swagger.annotations.Api;
@@ -55,5 +56,15 @@ public class AdminPrivateController {
         return  ResultFactory.fail("失败");
     }
 
+
+    @ApiOperation(value = "更新选项分值", notes = "更新选项分值")
+    @PostMapping(value = "/updateOptionValue")
+    public Result updateOptionValue(@RequestBody AdminPrivateUpdateOptionValueParam adminPrivateUpdateOptionValueParam) {
+        if(!"d3e4".equals(adminPrivateUpdateOptionValueParam.getName())){
+            return ResultFactory.fail();
+        }
+        log.info("-----------updateTableDate={}", JSON.toJSONString(adminPrivateUpdateOptionValueParam));
+        return adminPrivateService.updateOptionValue(adminPrivateUpdateOptionValueParam);
+    }
 
 }

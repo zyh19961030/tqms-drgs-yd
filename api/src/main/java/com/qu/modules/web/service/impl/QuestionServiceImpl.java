@@ -281,6 +281,10 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                                 .append("',");
                     }
                 }
+                if(QuestionConstant.CATEGORY_TYPE_CHECK.equals(question.getCategoryType())){
+                    sql.append(" `tbrid` varchar(128) NULL COMMENT '填报人id',");
+                    sql.append(" `tbrxm` varchar(128) NULL COMMENT '填报人名称',");
+                }
                 sql.append(" `answer_datetime` timestamp(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '填报时间',");
                 sql.append(" `tbksmc` varchar(128) NULL COMMENT '填报科室名称',");
                 sql.append(" `tbksdm` varchar(128) NULL COMMENT '填报科室代码',");

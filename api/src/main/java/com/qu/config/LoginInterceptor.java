@@ -1,21 +1,21 @@
 package com.qu.config;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
+import com.qu.constant.Constant;
+import com.qu.modules.web.pojo.JsonRootBean;
+import com.qu.util.HttpClient;
+import com.qu.util.StringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.alibaba.fastjson.JSON;
-import com.qu.constant.Constant;
-import com.qu.modules.web.pojo.JsonRootBean;
-import com.qu.util.HttpClient;
-import com.qu.util.StringUtil;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * 登录拦截器
@@ -29,8 +29,8 @@ public class LoginInterceptor implements HandlerInterceptor {
     private static final String URL_LOGIN = "/login";
 
     private static final String URL_REGISTER = "/register";
-    private static final String URL_MINIAPP = "/web/miniapp";
-    private static final String URL_ANSWER_CHECK_TEMP = "/answerCheck/exportXlsDetailList";
+    private static final List<String> URL_LIST = Lists.newArrayList("/web/miniapp","/answerCheck/exportXlsDetailList","/j/admin");
+
 
     @Value("${system.tokenUrl}")
     private String tokenUrl;
@@ -57,9 +57,12 @@ public class LoginInterceptor implements HandlerInterceptor {
 //            return true;
 //        }
 //        if (requestUrl.contains(URL_MINIAPP) ) {
-        if (requestUrl.contains(URL_MINIAPP) || requestUrl.contains(URL_ANSWER_CHECK_TEMP)) {
-            return true;
+        for (String s : URL_LIST) {
+            if (requestUrl.contains(s)) {
+                return true;
+            }
         }
+
 
         String token = request.getHeader("token");
         if (StringUtil.isEmpty(token)) {
