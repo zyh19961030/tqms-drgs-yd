@@ -259,7 +259,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
 //        lambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
         lambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_CHECK);
         lambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
-        lambda.eq(Question::getQuName, adminPrivateUpdateOptionValueParam.getTableName());
+        lambda.eq(Question::getTableName, adminPrivateUpdateOptionValueParam.getTableName());
 //        lambda.ge(Question::getId,98);
         List<Question> questionList = questionMapper.selectList(lambda);
         if(questionList.isEmpty()){
@@ -278,29 +278,29 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
             LambdaQueryWrapper<Qoption> qoptionLambdaQueryWrapper = new QueryWrapper<Qoption>().lambda();
             qoptionLambdaQueryWrapper.in(Qoption::getSubId,subjectIdList);
             qoptionLambdaQueryWrapper.eq(Qoption::getDel, QoptionConstant.DEL_NORMAL);
-            qoptionLambdaQueryWrapper.eq(Qoption::getOpName,"否");
-            qoptionLambdaQueryWrapper.eq(Qoption::getOpValue,"n");
-            qoptionLambdaQueryWrapper.ge(Qoption::getOptionScore,1);
+            qoptionLambdaQueryWrapper.eq(Qoption::getOpName,"是");
+            qoptionLambdaQueryWrapper.eq(Qoption::getOpValue,"y");
+            qoptionLambdaQueryWrapper.gt(Qoption::getOptionScore,0);
             List<Qoption> qoptions = optionMapper.selectList(qoptionLambdaQueryWrapper);
             ArrayList<Qoption> optionUpdateList = Lists.newArrayList();
             for (Qoption qoption : qoptions) {
                 LambdaQueryWrapper<Qoption> qoptionLambda = new QueryWrapper<Qoption>().lambda();
                 qoptionLambda.eq(Qoption::getSubId,qoption.getSubId());
                 qoptionLambda.eq(Qoption::getDel, QoptionConstant.DEL_NORMAL);
-                qoptionLambda.eq(Qoption::getOpName,"是");
-                qoptionLambda.eq(Qoption::getOpValue,"y");
+                qoptionLambda.eq(Qoption::getOpName,"否");
+                qoptionLambda.eq(Qoption::getOpValue,"n");
 //                qoptionLambdaQueryWrapper.ge(Qoption::getOptionScore,1);
-                List<Qoption> optionListYes = optionMapper.selectList(qoptionLambda);
-                if(optionListYes.isEmpty()){
+                List<Qoption> optionListNo = optionMapper.selectList(qoptionLambda);
+                if(optionListNo.isEmpty()){
                     continue;
                 }
-                Qoption optionYes = optionListYes.get(0);
-                BigDecimal optionScoreYes = optionYes.getOptionScore();
-                BigDecimal optionScoreNo = qoption.getOptionScore();
-                qoption.setOptionScore(optionScoreYes);
-                optionYes.setOptionScore(optionScoreNo);
+                Qoption optionNo = optionListNo.get(0);
+                BigDecimal optionScoreNo = optionNo.getOptionScore();
+                BigDecimal optionScoreYes = qoption.getOptionScore();
+                qoption.setOptionScore(optionScoreNo);
+                optionNo.setOptionScore(optionScoreYes);
                 optionUpdateList.add(qoption);
-                optionUpdateList.add(optionYes);
+                optionUpdateList.add(optionNo);
             }
             optionService.updateBatchById(optionUpdateList);
         }
