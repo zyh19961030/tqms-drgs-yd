@@ -50,6 +50,8 @@ public interface IQuestionService extends IService<Question> {
 
     void updateWriteFrequencyIdsParam(UpdateWriteFrequencyIdsParam updateWriteFrequencyIdsParam);
 
+    void updateQuestionIcon(UpdateQuestionIconParam updateQuestionIconParam);
+
     List<QuestionPatientCreateListVo> patientCreateList(String name, String deptId);
 
     List<QuestionMonthQuarterYearCreateListVo> monthQuarterYearCreateList(String type, String deptId);
@@ -67,5 +69,6 @@ public interface IQuestionService extends IService<Question> {
      * @return
      */
     List<SubjectVo> queryQuestionSubjectById(Integer id);
+
 
 }

@@ -671,6 +671,22 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     }
 
     @Override
+    public void updateQuestionIcon(UpdateQuestionIconParam updateQuestionIconParam) {
+        Integer[] quIds = updateQuestionIconParam.getQuId();
+        String url = updateQuestionIconParam.getUrl();
+        if (quIds != null && StringUtils.isNotBlank(url)) {
+            //更新
+            for (Integer qid : quIds) {
+                Question question = new Question();
+                question.setId(qid);
+                question.setIcon(url);
+                question.setUpdateTime(new Date());
+                questionMapper.updateById(question);
+            }
+        }
+    }
+
+    @Override
     public List<QuestionPatientCreateListVo> patientCreateList(String name, String deptId) {
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
         if(StringUtils.isNotBlank(name)){

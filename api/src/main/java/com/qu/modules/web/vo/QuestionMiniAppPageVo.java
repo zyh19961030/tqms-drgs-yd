@@ -13,4 +13,7 @@ public class QuestionMiniAppPageVo {
     /**问卷名称*/
     @ApiModelProperty(value = "问卷名称")
     private java.lang.String quName;
+    /**图标*/
+    @ApiModelProperty(value = "图标")
+    private String icon;
 }
