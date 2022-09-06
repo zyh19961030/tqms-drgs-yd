@@ -274,6 +274,18 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
             subject.setColumnTypeDatabase(conversionColumnType(subjectEditParam.getColumnType()));
         }
         BeanUtils.copyProperties(subjectEditParam, subject);
+        String columnName = subjectEditParam.getColumnName();
+        if(StringUtils.isNotBlank(columnName)){
+            LambdaQueryWrapper<Qsubject> lambda = new QueryWrapper<Qsubject>().lambda();
+            lambda.eq(Qsubject::getQuId,subjectEditParam.getQuId())
+                    .eq(Qsubject::getColumnName,columnName)
+                    .ne(Qsubject::getId,subjectEditParam.getId())
+                    .eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
+            Integer integer = qsubjectMapper.selectCount(lambda);
+            if (integer > 0) {//字段重复
+                return null;
+            }
+        }
         //如果是分组题，计算分组题号字段
         if (subjectEditParam.getSubType() != null) {
             Map<String, String> existCache = new HashMap<>();
