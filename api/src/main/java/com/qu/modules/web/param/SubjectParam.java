@@ -184,4 +184,8 @@ public class SubjectParam {
     @Excel(name = "针对  17.数据源下拉单选 的关联题目id", width = 15)
     @ApiModelProperty(value = "针对  17.数据源下拉单选 的关联题目id")
     private java.lang.Integer relationSubjectId;
+    /**统计规则(针对 19.数量统计题型) 0按答案 1按分值*/
+    @Excel(name = "统计规则(针对 19.数量统计题型) 0按答案 1按分值", width = 15)
+    @ApiModelProperty(value = "统计规则(针对 19.数量统计题型) 0按答案 1按分值")
+    private java.lang.Integer statisticalRules;
 }
