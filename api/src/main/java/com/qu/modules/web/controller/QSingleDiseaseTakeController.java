@@ -23,11 +23,17 @@ import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultFactory;
 import org.jeecg.common.aspect.annotation.AutoLog;
+import org.jeecgframework.poi.excel.def.NormalExcelConstants;
+import org.jeecgframework.poi.excel.entity.ExportParams;
+import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -366,6 +372,41 @@ public class QSingleDiseaseTakeController {
     }
 
     /**
+     * 科室单病种上报统计(科室单病种数量统计_科室筛选)查询_导出
+     */
+    @AutoLog(value = "科室单病种上报统计(科室单病种数量统计_科室筛选)查询_导出")
+    @ApiOperation(value = "科室单病种上报统计(科室单病种数量统计_科室筛选)查询_导出", notes = "科室单病种上报统计(科室单病种数量统计_科室筛选)查询_导出", response = QSingleDiseaseTakeReportStatisticPageVo.class)
+    @GetMapping(value = "/allSingleDiseaseReportStatisticByDeptExport")
+    public ModelAndView allSingleDiseaseReportStatisticByDeptExport(@Validated QSingleDiseaseTakeReportStatisticByDeptParam qSingleDiseaseTakeReportStatisticByDeptParam,
+                                                                                                 HttpServletRequest request) {
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String deptId = data.getDeps().get(0).getId();
+        String type = data.getDeps().get(0).getType();
+        QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam qSingleDiseaseTakeStatisticAnalysisByDeptConditionParam = new QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam();
+        List <TbDep> tbDepList = questionService.singleDiseaseStatisticAnalysisByDeptCondition(qSingleDiseaseTakeStatisticAnalysisByDeptConditionParam,deptId,type);
+        List<String> deptIdList = tbDepList.stream().map(TbDep::getId).distinct().collect(Collectors.toList());
+
+        List<QSingleDiseaseTakeReportStatisticVo> exportList = Lists.newArrayList();
+        for (int i = 0; ; i++) {
+            QSingleDiseaseTakeReportStatisticPageVo list = qSingleDiseaseStatisticDeptService.allSingleDiseaseReportStatisticByDept(qSingleDiseaseTakeReportStatisticByDeptParam, i+1, 500,deptIdList);
+            List<QSingleDiseaseTakeReportStatisticVo> qSingleDiseaseTakeList = list.getQSingleDiseaseTakeList();
+            if(qSingleDiseaseTakeList.isEmpty()){
+                break;
+            }
+            exportList.addAll(qSingleDiseaseTakeList);
+        }
+        String fileName = String.valueOf(System.currentTimeMillis());
+        ModelAndView mv = new ModelAndView(new JeecgEntityExcelView());
+        //导出文件名称
+        mv.addObject(NormalExcelConstants.FILE_NAME, fileName);
+        mv.addObject(NormalExcelConstants.CLASS, QSingleDiseaseTakeReportStatisticVo.class);
+        mv.addObject(NormalExcelConstants.PARAMS, new ExportParams("单病种上报统计列表", "导出信息"));
+        mv.addObject(NormalExcelConstants.DATA_LIST, exportList);
+        return mv;
+    }
+
+
+    /**
      * 科室单病种上报统计(科室单病种数量统计_科室筛选)-点击某个病种-科室筛选条件
      */
     @AutoLog(value = "科室单病种上报统计(科室单病种数量统计_科室筛选)-点击某个病种-科室筛选条件")
@@ -464,6 +505,37 @@ public class QSingleDiseaseTakeController {
         result.setSuccess(true);
         result.setResult(list);
         return result;
+    }
+
+    /**
+     * 全院单病种上报统计(全院单病种数量统计_单病种筛选)查询_导出
+     */
+    @AutoLog(value = "全院单病种上报统计(全院单病种数量统计_单病种筛选)查询_导出")
+    @ApiOperation(value = "全院单病种上报统计(全院单病种数量统计_单病种筛选)查询_导出", notes = "全院单病种上报统计(全院单病种数量统计_单病种筛选)查询_导出",response = QSingleDiseaseTakeReportStatisticPageVo.class)
+    @GetMapping(value = "/allSingleDiseaseReportStatisticExport")
+    public ModelAndView allSingleDiseaseReportStatisticExport(@Validated QSingleDiseaseTakeReportStatisticParam qSingleDiseaseTakeReportStatisticParam,
+                                                                                           HttpServletRequest request) {
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String deptId = data.getDeps().get(0).getId();
+        String type = data.getDeps().get(0).getType();
+
+        List<QSingleDiseaseTakeReportStatisticVo> exportList = Lists.newArrayList();
+        for (int i = 0; ; i++) {
+            QSingleDiseaseTakeReportStatisticPageVo list = qSingleDiseaseStatisticHospitalService.allSingleDiseaseReportStatistic(qSingleDiseaseTakeReportStatisticParam, i+1, 500,deptId,type);
+            List<QSingleDiseaseTakeReportStatisticVo> qSingleDiseaseTakeList = list.getQSingleDiseaseTakeList();
+            if(qSingleDiseaseTakeList.isEmpty()){
+                break;
+            }
+            exportList.addAll(qSingleDiseaseTakeList);
+        }
+        String fileName = String.valueOf(System.currentTimeMillis());
+        ModelAndView mv = new ModelAndView(new JeecgEntityExcelView());
+        //导出文件名称
+        mv.addObject(NormalExcelConstants.FILE_NAME, fileName);
+        mv.addObject(NormalExcelConstants.CLASS, QSingleDiseaseTakeReportStatisticVo.class);
+        mv.addObject(NormalExcelConstants.PARAMS, new ExportParams("全院单病种上报统计列表", "导出信息"));
+        mv.addObject(NormalExcelConstants.DATA_LIST, exportList);
+        return mv;
     }
 
     /**
@@ -717,6 +789,25 @@ public class QSingleDiseaseTakeController {
         result.setSuccess(true);
         result.setResult(resList);
         return result;
+    }
+
+    /**
+     * 菜单-新增-科室数量统计列表-导出
+     */
+    @AutoLog(value = "菜单-新增-科室数量统计列表-导出")
+    @ApiOperation(value = "菜单-新增-科室数量统计列表-导出", notes = "菜单-新增-科室数量统计列表-导出",response = DepartmentQuantityStatisticsVo.class)
+    @GetMapping(value = "/departmentQuantityStatisticsExport")
+    public ModelAndView departmentQuantityStatisticsExport(
+            @Validated DepartmentQuantityStatisticsParam departmentQuantityStatisticsParam, HttpServletResponse response) throws IOException {
+        List<DepartmentQuantityStatisticsVo> exportList = qSingleDiseaseTakeService.departmentQuantityStatistics(departmentQuantityStatisticsParam);
+        String fileName = String.valueOf(System.currentTimeMillis());
+        ModelAndView mv = new ModelAndView(new JeecgEntityExcelView());
+        //导出文件名称
+        mv.addObject(NormalExcelConstants.FILE_NAME, fileName);
+        mv.addObject(NormalExcelConstants.CLASS, DepartmentQuantityStatisticsVo.class);
+        mv.addObject(NormalExcelConstants.PARAMS, new ExportParams("科室数量统计列表", "导出信息"));
+        mv.addObject(NormalExcelConstants.DATA_LIST, exportList);
+        return mv;
     }
 
 

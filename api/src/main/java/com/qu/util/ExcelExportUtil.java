@@ -1,20 +1,12 @@
 package com.qu.util;
 
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFDataFormat;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import com.qu.exporter.ExcelDataBuilder;
+import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.Workbook;
 
-import com.qu.exporter.ExcelDataBuilder;
+import javax.servlet.http.HttpServletResponse;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 
 /**
  * Excel导出工具
@@ -79,7 +71,7 @@ public class ExcelExportUtil {
         font.setFontHeightInPoints((short) 20); //字体高度
         font.setColor(HSSFFont.COLOR_RED); //字体颜色
         font.setFontName("黑体"); //字体
-        font.setBold(true);
+        font.setBoldweight((short) 5);
         font.setItalic(true); //是否使用斜体
 
         //设置单元格类型

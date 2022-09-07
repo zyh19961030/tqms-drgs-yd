@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jeecgframework.poi.excel.annotation.Excel;
 
 @Data
 @Builder
@@ -19,24 +20,31 @@ public class DepartmentQuantityStatisticsVo {
     private String tqmsDept;
 
     @ApiModelProperty(value = "科室名称")
+    @Excel(name = "科室名称")
     private String deptName;
 
     @ApiModelProperty(value = "需上报")
+    @Excel(name = "需上报")
     private Integer needReportCount;
 
     @ApiModelProperty(value = "未上报")
+    @Excel(name = "未上报")
     private Integer notReportCount;
 
     @ApiModelProperty(value = "科室上报待审核")
+    @Excel(name = "科室上报待审核")
     private Integer uploadWaitCheckCount;
 
     @ApiModelProperty(value = "科室提交率")
+    @Excel(name = "科室提交率")
     private String uploadWaitCheckRate;
 
     @ApiModelProperty(value = "已上报")
+    @Excel(name = "已上报")
     private Integer completeReportCount;
 
     @ApiModelProperty(value = "上报率")
+    @Excel(name = "上报率")
     private String completeReportRate;
 
 }
