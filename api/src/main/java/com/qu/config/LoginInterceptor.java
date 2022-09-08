@@ -1,21 +1,24 @@
 package com.qu.config;
 
-import com.alibaba.fastjson.JSON;
-import com.google.common.collect.Lists;
-import com.qu.constant.Constant;
-import com.qu.modules.web.pojo.JsonRootBean;
-import com.qu.util.HttpClient;
-import com.qu.util.StringUtil;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.jeecg.common.api.vo.Result;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.List;
+import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
+import com.qu.constant.Constant;
+import com.qu.modules.web.pojo.JsonRootBean;
+import com.qu.util.HttpClient;
+import com.qu.util.StringUtil;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 登录拦截器
@@ -29,7 +32,10 @@ public class LoginInterceptor implements HandlerInterceptor {
     private static final String URL_LOGIN = "/login";
 
     private static final String URL_REGISTER = "/register";
-    private static final List<String> URL_LIST = Lists.newArrayList("/web/miniapp","/answerCheck/exportXlsDetailList","/j/admin");
+    private static final List<String> URL_LIST = Lists.newArrayList("/web/miniapp","/answerCheck/exportXlsDetailList","/j/admin",
+            "/business/qSingleDiseaseTake/departmentQuantityStatisticsExport",
+            "/business/qSingleDiseaseTake/allSingleDiseaseReportStatisticByDeptExport",
+            "/business/qSingleDiseaseTake/allSingleDiseaseReportStatisticExport");
 
 
     @Value("${system.tokenUrl}")

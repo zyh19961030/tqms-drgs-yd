@@ -1,24 +1,11 @@
 package com.qu.modules.web.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.qu.constant.Constant;
-import com.qu.constant.QSingleDiseaseTakeConstant;
-import com.qu.modules.web.entity.TbDep;
-import com.qu.modules.web.param.*;
-import com.qu.modules.web.pojo.Data;
-import com.qu.modules.web.pojo.Deps;
-import com.qu.modules.web.service.IQSingleDiseaseStatisticDeptService;
-import com.qu.modules.web.service.IQSingleDiseaseStatisticHospitalService;
-import com.qu.modules.web.service.IQSingleDiseaseTakeService;
-import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.vo.*;
-import com.qu.util.DeptUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import lombok.extern.slf4j.Slf4j;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultFactory;
@@ -26,17 +13,84 @@ import org.jeecg.common.aspect.annotation.AutoLog;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
 import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.qu.constant.Constant;
+import com.qu.constant.QSingleDiseaseTakeConstant;
+import com.qu.modules.web.entity.TbDep;
+import com.qu.modules.web.entity.TbUser;
+import com.qu.modules.web.param.DepartmentQuantityStatisticsParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeNumberListParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportQuantityRankingParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticByDeptExportParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticByDeptParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticDeptPermutationParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticExportParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewLineParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewPieParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticSummaryParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisByDeptParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeStatisticDepartmentComparisonChartParam;
+import com.qu.modules.web.param.SingleDiseaseAnswerNavigationParam;
+import com.qu.modules.web.param.SingleDiseaseAnswerParam;
+import com.qu.modules.web.param.SingleDiseaseExamineRecordParam;
+import com.qu.modules.web.param.SingleDiseaseRejectParam;
+import com.qu.modules.web.param.SingleDiseaseWaitUploadParam;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.pojo.Deps;
+import com.qu.modules.web.service.IQSingleDiseaseStatisticDeptService;
+import com.qu.modules.web.service.IQSingleDiseaseStatisticHospitalService;
+import com.qu.modules.web.service.IQSingleDiseaseTakeService;
+import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.service.ITbDepService;
+import com.qu.modules.web.service.ITbUserService;
+import com.qu.modules.web.vo.DepartmentQuantityStatisticsVo;
+import com.qu.modules.web.vo.QSingleDiseaseNameVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeNumberVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportQuantityRankingVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptPermutationVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewLineVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewPieVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticSummaryVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticTrendVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticAnalysisTableVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticAnalysisVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDepartmentComparisonChartVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDepartmentComparisonVo;
+import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
+import com.qu.modules.web.vo.ReportFailureRecordParameterPageVo;
+import com.qu.modules.web.vo.ReportFailureRecordParameterVo;
+import com.qu.modules.web.vo.SingleDiseaseAnswerNavigationVo;
+import com.qu.modules.web.vo.SingleDiseaseReportCountVo;
+import com.qu.modules.web.vo.WorkbenchReminderVo;
+import com.qu.util.DeptUtil;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: 单病种总表
@@ -60,6 +114,12 @@ public class QSingleDiseaseTakeController {
 
     @Autowired
     private IQuestionService questionService;
+
+    @Autowired
+    private ITbUserService tbUserService;
+
+    @Autowired
+    private ITbDepService tbDepService;
 
 
     /**
@@ -377,15 +437,25 @@ public class QSingleDiseaseTakeController {
     @AutoLog(value = "科室单病种上报统计(科室单病种数量统计_科室筛选)查询_导出")
     @ApiOperation(value = "科室单病种上报统计(科室单病种数量统计_科室筛选)查询_导出", notes = "科室单病种上报统计(科室单病种数量统计_科室筛选)查询_导出", response = QSingleDiseaseTakeReportStatisticPageVo.class)
     @GetMapping(value = "/allSingleDiseaseReportStatisticByDeptExport")
-    public ModelAndView allSingleDiseaseReportStatisticByDeptExport(@Validated QSingleDiseaseTakeReportStatisticByDeptParam qSingleDiseaseTakeReportStatisticByDeptParam,
-                                                                                                 HttpServletRequest request) {
-        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        String deptId = data.getDeps().get(0).getId();
-        String type = data.getDeps().get(0).getType();
+    public ModelAndView allSingleDiseaseReportStatisticByDeptExport(@Validated QSingleDiseaseTakeReportStatisticByDeptExportParam qSingleDiseaseTakeReportStatisticByDeptExportParam) {
+
+        String userId = qSingleDiseaseTakeReportStatisticByDeptExportParam.getUserId();
+        TbUser tbUser = tbUserService.getById(userId);
+        if(StringUtils.isBlank(userId)  || tbUser==null){
+            return null;
+        }
+        TbDep tbDep = tbDepService.getById(tbUser.getDepid());
+        if(tbDep==null){
+            return null;
+        }
+        String deptId = tbDep.getId();
+        String type = tbDep.getType();
         QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam qSingleDiseaseTakeStatisticAnalysisByDeptConditionParam = new QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam();
         List <TbDep> tbDepList = questionService.singleDiseaseStatisticAnalysisByDeptCondition(qSingleDiseaseTakeStatisticAnalysisByDeptConditionParam,deptId,type);
         List<String> deptIdList = tbDepList.stream().map(TbDep::getId).distinct().collect(Collectors.toList());
 
+        QSingleDiseaseTakeReportStatisticByDeptParam qSingleDiseaseTakeReportStatisticByDeptParam = new QSingleDiseaseTakeReportStatisticByDeptParam();
+        BeanUtils.copyProperties(qSingleDiseaseTakeReportStatisticByDeptExportParam,qSingleDiseaseTakeReportStatisticByDeptParam);
         List<QSingleDiseaseTakeReportStatisticVo> exportList = Lists.newArrayList();
         for (int i = 0; ; i++) {
             QSingleDiseaseTakeReportStatisticPageVo list = qSingleDiseaseStatisticDeptService.allSingleDiseaseReportStatisticByDept(qSingleDiseaseTakeReportStatisticByDeptParam, i+1, 500,deptIdList);
@@ -513,12 +583,20 @@ public class QSingleDiseaseTakeController {
     @AutoLog(value = "全院单病种上报统计(全院单病种数量统计_单病种筛选)查询_导出")
     @ApiOperation(value = "全院单病种上报统计(全院单病种数量统计_单病种筛选)查询_导出", notes = "全院单病种上报统计(全院单病种数量统计_单病种筛选)查询_导出",response = QSingleDiseaseTakeReportStatisticPageVo.class)
     @GetMapping(value = "/allSingleDiseaseReportStatisticExport")
-    public ModelAndView allSingleDiseaseReportStatisticExport(@Validated QSingleDiseaseTakeReportStatisticParam qSingleDiseaseTakeReportStatisticParam,
-                                                                                           HttpServletRequest request) {
-        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        String deptId = data.getDeps().get(0).getId();
-        String type = data.getDeps().get(0).getType();
-
+    public ModelAndView allSingleDiseaseReportStatisticExport(@Validated QSingleDiseaseTakeReportStatisticExportParam qSingleDiseaseTakeReportStatisticExportParam) {
+        String userId = qSingleDiseaseTakeReportStatisticExportParam.getUserId();
+        TbUser tbUser = tbUserService.getById(userId);
+        if(StringUtils.isBlank(userId)  || tbUser==null){
+            return null;
+        }
+        TbDep tbDep = tbDepService.getById(tbUser.getDepid());
+        if(tbDep==null){
+            return null;
+        }
+        String deptId = tbDep.getId();
+        String type = tbDep.getType();
+        QSingleDiseaseTakeReportStatisticParam qSingleDiseaseTakeReportStatisticParam = new QSingleDiseaseTakeReportStatisticParam();
+        BeanUtils.copyProperties(qSingleDiseaseTakeReportStatisticExportParam,qSingleDiseaseTakeReportStatisticParam);
         List<QSingleDiseaseTakeReportStatisticVo> exportList = Lists.newArrayList();
         for (int i = 0; ; i++) {
             QSingleDiseaseTakeReportStatisticPageVo list = qSingleDiseaseStatisticHospitalService.allSingleDiseaseReportStatistic(qSingleDiseaseTakeReportStatisticParam, i+1, 500,deptId,type);
@@ -798,7 +876,7 @@ public class QSingleDiseaseTakeController {
     @ApiOperation(value = "菜单-新增-科室数量统计列表-导出", notes = "菜单-新增-科室数量统计列表-导出",response = DepartmentQuantityStatisticsVo.class)
     @GetMapping(value = "/departmentQuantityStatisticsExport")
     public ModelAndView departmentQuantityStatisticsExport(
-            @Validated DepartmentQuantityStatisticsParam departmentQuantityStatisticsParam, HttpServletResponse response) throws IOException {
+            @Validated DepartmentQuantityStatisticsParam departmentQuantityStatisticsParam){
         List<DepartmentQuantityStatisticsVo> exportList = qSingleDiseaseTakeService.departmentQuantityStatistics(departmentQuantityStatisticsParam);
         String fileName = String.valueOf(System.currentTimeMillis());
         ModelAndView mv = new ModelAndView(new JeecgEntityExcelView());
