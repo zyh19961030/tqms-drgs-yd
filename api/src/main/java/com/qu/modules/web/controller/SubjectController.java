@@ -113,6 +113,10 @@ public class SubjectController {
         Result<SubjectVo> result = new Result<SubjectVo>();
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
         SubjectVo subjectVo = subjectService.updateQsubjectById(subjectEditParam,data.getTbUser());
+        if(subjectVo==null){
+            result.error500("修改失败,字段名重复!");
+            return result;
+        }
         result.setResult(subjectVo);
         result.success("修改成功!");
         return result;
