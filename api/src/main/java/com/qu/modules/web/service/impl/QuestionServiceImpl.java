@@ -1,70 +1,37 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
-import com.qu.constant.Constant;
-import com.qu.constant.QoptionConstant;
-import com.qu.constant.QsubjectConstant;
-import com.qu.constant.QuestionConstant;
+import com.qu.constant.*;
 import com.qu.event.DeleteCheckDetailSetEvent;
-import com.qu.modules.web.entity.Qoption;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.entity.TbDep;
-import com.qu.modules.web.entity.TqmsQuotaCategory;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.OptionMapper;
-import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam;
-import com.qu.modules.web.param.QuestionAgainReleaseParam;
-import com.qu.modules.web.param.QuestionCheckParam;
-import com.qu.modules.web.param.QuestionEditParam;
-import com.qu.modules.web.param.QuestionParam;
-import com.qu.modules.web.param.UpdateCategoryIdParam;
-import com.qu.modules.web.param.UpdateDeptIdsParam;
-import com.qu.modules.web.param.UpdateQuestionIconParam;
-import com.qu.modules.web.param.UpdateWriteFrequencyIdsParam;
+import com.qu.modules.web.entity.*;
+import com.qu.modules.web.mapper.*;
+import com.qu.modules.web.param.*;
+import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.pojo.TbUser;
+import com.qu.modules.web.service.IQuestionCheckedDeptService;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
-import com.qu.modules.web.vo.QuestionAndCategoryVo;
-import com.qu.modules.web.vo.QuestionCheckVo;
-import com.qu.modules.web.vo.QuestionMiniAppPageVo;
-import com.qu.modules.web.vo.QuestionMonthQuarterYearCreateListVo;
-import com.qu.modules.web.vo.QuestionPageVo;
-import com.qu.modules.web.vo.QuestionPatientCreateListVo;
-import com.qu.modules.web.vo.QuestionStatisticsCheckVo;
-import com.qu.modules.web.vo.QuestionVo;
-import com.qu.modules.web.vo.SubjectVo;
-import com.qu.modules.web.vo.ViewNameVo;
+import com.qu.modules.web.service.ITbInspectStatsTemplateDepService;
+import com.qu.modules.web.vo.*;
 import com.qu.util.DeptUtil;
 import com.qu.util.IntegerUtil;
 import com.qu.util.StringUtil;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 问卷表
@@ -93,6 +60,12 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Autowired
     private ITbDepService tbDepService;
+
+    @Autowired
+    private ITbInspectStatsTemplateDepService tbInspectStatsTemplateDepService;
+
+    @Autowired
+    private IQuestionCheckedDeptService questionCheckedDeptService;
 
     @Resource
     private ApplicationEventPublisher applicationEventPublisher;
@@ -402,7 +375,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
 
     @Override
-    public IPage<QuestionCheckVo> checkQuestionList(QuestionCheckParam questionCheckParam, Integer pageNo, Integer pageSize) {
+    public IPage<QuestionCheckVo> checkQuestionList(QuestionCheckParam questionCheckParam, Integer pageNo, Integer pageSize, String deptId) {
         Page<Question> page = new Page<>(pageNo, pageSize);
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
         String quName = questionCheckParam.getQuName();
@@ -412,6 +385,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
         lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
         lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+        lambda.like(Question::getDeptIds,deptId);
         IPage<Question> iPage = this.page(page,lambda);
 
         List<Question> questionList = iPage.getRecords();
@@ -430,7 +404,6 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         questionCheckPageVoPage.setTotal(iPage.getTotal());
         return questionCheckPageVoPage;
     }
-
 
     @Override
     public List<QuestionStatisticsCheckVo> statisticsCheckList(QuestionCheckParam questionCheckParam) {
@@ -454,6 +427,186 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         }).collect(Collectors.toList());
 
         return statisticsCheckList;
+    }
+
+    @Override
+    public List<CheckQuestionHistoryStatisticVo> checkQuestionHistoryStatisticList(String deptId) {
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+        lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
+        lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+        lambda.like(Question::getSeeDeptIds,deptId);
+        List<Question> list = this.list(lambda);
+        if(list.isEmpty()){
+            return Lists.newArrayList();
+        }
+
+        List<String> questionIds = list.stream().map(q-> String.valueOf(q.getId())).collect(Collectors.toList());
+        //查询是否显示后面三个类型
+        List<TbInspectStatsTemplateDep> templateDepList= tbInspectStatsTemplateDepService.selectByQuestionIds(deptId,questionIds);
+        Map<String, ArrayList<TbInspectStatsTemplateDep>> templateDepMap = templateDepList.stream().collect(
+                Collectors.toMap(TbInspectStatsTemplateDep::getQuId, Lists::newArrayList, (ArrayList<TbInspectStatsTemplateDep> k1, ArrayList<TbInspectStatsTemplateDep> k2) -> {
+            k1.addAll(k2);
+            return k1;
+        }));
+
+        List<CheckQuestionHistoryStatisticVo> checkQuestionHistoryStatisticVos = list.stream().map(q -> {
+            CheckQuestionHistoryStatisticVo vo = new CheckQuestionHistoryStatisticVo();
+            BeanUtils.copyProperties(q,vo);
+            ArrayList<TbInspectStatsTemplateDep> tbInspectStatsTemplateDepList = templateDepMap.get(String.valueOf(q.getId()));
+            vo.setDeptStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_NO);
+            vo.setDefectStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_NO);
+            vo.setCategoryStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_NO);
+            if(tbInspectStatsTemplateDepList!=null && !tbInspectStatsTemplateDepList.isEmpty()){
+                for (TbInspectStatsTemplateDep tbInspectStatsTemplateDep : tbInspectStatsTemplateDepList) {
+                    if(TbInspectStatsTemplateDepConstant.TYPE_DEPT.equals(tbInspectStatsTemplateDep.getType())){
+                        vo.setDeptStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_YES);
+                    }else if(TbInspectStatsTemplateDepConstant.TYPE_DEFECT.equals(tbInspectStatsTemplateDep.getType())){
+                        vo.setDefectStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_YES);
+                    }else if(TbInspectStatsTemplateDepConstant.TYPE_CATEGORY.equals(tbInspectStatsTemplateDep.getType())){
+                        vo.setCategoryStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_YES);
+                    }
+                }
+            }
+            return vo;
+        }).collect(Collectors.toList());
+        return checkQuestionHistoryStatisticVos;
+    }
+
+    @Override
+    public List<CheckQuestionParameterSetListVo> checkQuestionParameterSetList(String deptId) {
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+        lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
+        lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+        lambda.like(Question::getDeptIds,deptId);
+        List<Question> list = this.list(lambda);
+        if(list.isEmpty()){
+            return Lists.newArrayList();
+        }
+
+        List<String> questionIds = list.stream().map(q-> String.valueOf(q.getId())).collect(Collectors.toList());
+        //查询是否显示 设置统计图形
+        List<TbInspectStatsTemplateDep> templateDepList= tbInspectStatsTemplateDepService.selectDeptStatisticsByQuestionIds(deptId,questionIds);
+        Map<String, ArrayList<TbInspectStatsTemplateDep>> templateDepMap = templateDepList.stream().collect(
+                Collectors.toMap(TbInspectStatsTemplateDep::getQuId, Lists::newArrayList, (ArrayList<TbInspectStatsTemplateDep> k1, ArrayList<TbInspectStatsTemplateDep> k2) -> {
+                    k1.addAll(k2);
+                    return k1;
+                }));
+
+        return list.stream().map(q -> {
+            CheckQuestionParameterSetListVo vo = new CheckQuestionParameterSetListVo();
+            BeanUtils.copyProperties(q,vo);
+            ArrayList<TbInspectStatsTemplateDep> tbInspectStatsTemplateDepList = templateDepMap.get(String.valueOf(q.getId()));
+            vo.setStatisticsChartShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_NO);
+            if(tbInspectStatsTemplateDepList!=null && !tbInspectStatsTemplateDepList.isEmpty()){
+                vo.setStatisticsChartShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_YES);
+            }
+            return vo;
+        }).collect(Collectors.toList());
+
+    }
+
+    @Override
+    public List<CheckQuestionHistoryStatisticDeptListDeptVo> checkQuestionHistoryStatisticInspectedDeptList(CheckQuestionHistoryStatisticDeptListParam deptListParam, Data data) {
+        String type = data.getDeps().get(0).getType();
+        Integer quId = deptListParam.getQuId();
+        List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectByQuId(quId);
+        if(questionCheckedDeptList.isEmpty()){
+            return Lists.newArrayList();
+        }
+        List<String> deptIdList = questionCheckedDeptList.stream().map(QuestionCheckedDept::getDeptId).collect(Collectors.toList());
+        LambdaQueryWrapper<TbDep> tbDepLambda = new QueryWrapper<TbDep>().lambda();
+        tbDepLambda.eq(TbDep::getIsdelete, Constant.IS_DELETE_NO);
+        tbDepLambda.in(TbDep::getId,deptIdList);
+        if(DeptUtil.isStaff(type)){
+            //职能科室-上级督查 返回被检查科室关联表
+        }else{
+            //临床科室-上级督查 返回被检查科室关联表中的自己
+            String deptId = data.getDeps().get(0).getId();
+            tbDepLambda.eq(TbDep::getId,deptId);
+        }
+        List<TbDep> list = tbDepService.list(tbDepLambda);
+        List<CheckQuestionHistoryStatisticDeptListDeptVo> resList = list.stream().map(dep -> {
+            CheckQuestionHistoryStatisticDeptListDeptVo vo = new CheckQuestionHistoryStatisticDeptListDeptVo();
+            BeanUtils.copyProperties(dep, vo);
+            return vo;
+        }).collect(Collectors.toList());
+        return resList;
+    }
+
+    @Override
+    public List<CheckQuestionHistoryStatisticDeptListDeptVo> checkQuestionHistoryStatisticDeptList(CheckQuestionHistoryStatisticDeptListParam deptListParam, Data data) {
+        Integer quId = deptListParam.getQuId();
+        Question byId = this.getById(quId);
+        ArrayList<CheckQuestionHistoryStatisticDeptListDeptVo> emptyList = Lists.newArrayList();
+        if(byId==null){
+            return emptyList;
+        }
+        String deptIds = byId.getDeptIds();
+        if(StringUtils.isNotBlank(deptIds)){
+            return emptyList;
+        }
+        ArrayList<String> deptIdList = Lists.newArrayList(deptIds.split(","));
+        if(CollectionUtil.isEmpty(deptIdList)){
+            return emptyList;
+        }
+        String type = data.getDeps().get(0).getType();
+        LambdaQueryWrapper<TbDep> tbDepLambda = new QueryWrapper<TbDep>().lambda();
+        tbDepLambda.eq(TbDep::getType, Constant.DEPT_STAFF);
+//        if(DeptUtil.isStaff(type)){
+//            //职能科室-上级督查 返回被检查科室关联表
+//        }else{
+//            //临床科室-上级督查
+//            String deptId = data.getDeps().get(0).getId();
+//            tbDepLambda.eq(TbDep::getId,deptId);
+//        }
+        tbDepLambda.eq(TbDep::getIsdelete, Constant.IS_DELETE_NO);
+        tbDepLambda.in(TbDep::getId,deptIdList);
+        List<TbDep> list = tbDepService.list(tbDepLambda);
+        List<CheckQuestionHistoryStatisticDeptListDeptVo> resList = list.stream().map(dep -> {
+            CheckQuestionHistoryStatisticDeptListDeptVo vo = new CheckQuestionHistoryStatisticDeptListDeptVo();
+            BeanUtils.copyProperties(dep, vo);
+            return vo;
+        }).collect(Collectors.toList());
+        return resList;
+    }
+
+    @Override
+    public List<CheckQuestionHistoryStatisticDeptListDeptVo> checkQuestionHistoryStatisticSelfDeptList(CheckQuestionHistoryStatisticDeptListParam deptListParam, Data data) {
+        Integer quId = deptListParam.getQuId();
+        Question byId = this.getById(quId);
+        ArrayList<CheckQuestionHistoryStatisticDeptListDeptVo> emptyList = Lists.newArrayList();
+        if(byId==null){
+            return emptyList;
+        }
+        String deptIds = byId.getDeptIds();
+        if(StringUtils.isNotBlank(deptIds)){
+            return emptyList;
+        }
+        ArrayList<String> deptIdList = Lists.newArrayList(deptIds.split(","));
+        if(CollectionUtil.isEmpty(deptIdList)){
+            return emptyList;
+        }
+        String type = data.getDeps().get(0).getType();
+        LambdaQueryWrapper<TbDep> tbDepLambda = new QueryWrapper<TbDep>().lambda();
+        tbDepLambda.and(w->w.eq(TbDep::getType, Constant.DEPT_CLINICAL).or().eq(TbDep::getType, Constant.DEP_MEDICAL_TECH));
+        if(DeptUtil.isStaff(type)){
+            //职能科室-科室自查
+        }else{
+            //临床科室-科室自查
+            String deptId = data.getDeps().get(0).getId();
+            tbDepLambda.eq(TbDep::getId,deptId);
+        }
+        tbDepLambda.eq(TbDep::getIsdelete, Constant.IS_DELETE_NO);
+        tbDepLambda.in(TbDep::getId,deptIdList);
+        List<TbDep> list = tbDepService.list(tbDepLambda);
+        List<CheckQuestionHistoryStatisticDeptListDeptVo> resList = list.stream().map(dep -> {
+            CheckQuestionHistoryStatisticDeptListDeptVo vo = new CheckQuestionHistoryStatisticDeptListDeptVo();
+            BeanUtils.copyProperties(dep, vo);
+            return vo;
+        }).collect(Collectors.toList());
+        return resList;
     }
 
     @Override
@@ -496,6 +649,32 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                 questionMapper.updateById(question);
             }
         }
+    }
+
+
+
+    @Override
+    public void updateCheckedDeptIdsParam(UpdateCheckedDeptIdsParam updateCheckedDeptIdsParam) {
+        Integer quId = updateCheckedDeptIdsParam.getQuId();
+        Question byId = this.getById(quId);
+        if(byId==null){
+            return;
+        }
+
+        String[] deptIds = updateCheckedDeptIdsParam.getDeptIds();
+
+        Date date = new Date();
+        ArrayList<QuestionCheckedDept> addList = Lists.newArrayList();
+        for (String deptId : deptIds) {
+            QuestionCheckedDept questionCheckedDept = new QuestionCheckedDept();
+            questionCheckedDept.setQuId(quId);
+            questionCheckedDept.setDeptId(deptId);
+            questionCheckedDept.setCreateTime(date);
+            questionCheckedDept.setUpdateTime(date);
+            questionCheckedDept.setType(QuestionCheckedDeptConstant.TYPE_CHECKED_DEPT);
+            addList.add(questionCheckedDept);
+        }
+        questionCheckedDeptService.saveBatch(addList);
     }
 
     @Override

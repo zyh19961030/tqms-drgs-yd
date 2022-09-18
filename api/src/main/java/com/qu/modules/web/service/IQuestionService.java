@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.entity.TbDep;
 import com.qu.modules.web.param.*;
+import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.pojo.TbUser;
 import com.qu.modules.web.vo.*;
 
@@ -32,13 +33,48 @@ public interface IQuestionService extends IService<Question> {
 
     QuestionPageVo questionFillInList(QuestionParam questionParam, Integer pageNo, Integer pageSize);
 
-    IPage<QuestionCheckVo> checkQuestionList(QuestionCheckParam questionParam, Integer pageNo, Integer pageSize);
+    IPage<QuestionCheckVo> checkQuestionList(QuestionCheckParam questionParam, Integer pageNo, Integer pageSize,String deptId);
 
     List<QuestionStatisticsCheckVo> statisticsCheckList(QuestionCheckParam questionParam);
+
+    List<CheckQuestionHistoryStatisticVo> checkQuestionHistoryStatisticList(String deptId);
+
+    /**
+     * 检查管理_参数设置列表
+     * @param deptId
+     * @return
+     */
+    List<CheckQuestionParameterSetListVo> checkQuestionParameterSetList(String deptId);
+
+    /**
+     * 检查管理_历史统计列表_上级督查_填报记录和检查明细_被检查科室筛选条件
+     * @param deptListParam
+     * @param data
+     * @return
+     */
+    List<CheckQuestionHistoryStatisticDeptListDeptVo> checkQuestionHistoryStatisticInspectedDeptList(CheckQuestionHistoryStatisticDeptListParam deptListParam, Data data);
+
+    /**
+     * 检查管理_历史统计列表_上级督查_填报记录和检查明细_检查科室筛选条件
+     * @param deptListParam
+     * @param data
+     * @return
+     */
+    List<CheckQuestionHistoryStatisticDeptListDeptVo> checkQuestionHistoryStatisticDeptList(CheckQuestionHistoryStatisticDeptListParam deptListParam, Data data);
+
+    /**
+     * 检查管理_历史统计列表_科室自查_填报记录和检查明细_自查科室筛选条件
+     * @param deptListParam
+     * @param data
+     * @return
+     */
+    List<CheckQuestionHistoryStatisticDeptListDeptVo> checkQuestionHistoryStatisticSelfDeptList(CheckQuestionHistoryStatisticDeptListParam deptListParam, Data data);
 
     void updateDeptIdsParam(UpdateDeptIdsParam updateDeptIdsParam);
 
     void updateSeeDeptIdsParam(UpdateDeptIdsParam updateDeptIdsParam);
+
+    void updateCheckedDeptIdsParam(UpdateCheckedDeptIdsParam updateCheckedDeptIdsParam);
 
     QuestionVo queryPersonById(Integer id);
 
@@ -69,6 +105,5 @@ public interface IQuestionService extends IService<Question> {
      * @return
      */
     List<SubjectVo> queryQuestionSubjectById(Integer id);
-
 
 }

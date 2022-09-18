@@ -19,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -202,9 +203,11 @@ public class QuestionController {
     public Result<QuestionCheckVo> checkQuestionList(QuestionCheckParam questionCheckParam,
                                                     @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                     @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
-                                                    HttpServletRequest req) {
+                                                    HttpServletRequest request) {
         Result<QuestionCheckVo> result = new Result<>();
-        IPage<QuestionCheckVo> questionCheckPageVoIPage = questionService.checkQuestionList(questionCheckParam, pageNo, pageSize);
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String deptId = data.getDeps().get(0).getId();
+        IPage<QuestionCheckVo> questionCheckPageVoIPage = questionService.checkQuestionList(questionCheckParam, pageNo, pageSize,deptId);
         result.setSuccess(true);
         result.setResult(questionCheckPageVoIPage);
         return result;
@@ -218,6 +221,67 @@ public class QuestionController {
         List<QuestionStatisticsCheckVo> checkVoList = questionService.statisticsCheckList(questionCheckParam);
         result.setSuccess(true);
         result.setResult(checkVoList);
+        return result;
+    }
+
+    @ApiOperation(value = "检查管理_历史统计列表", notes = "检查管理_历史统计列表")
+    @GetMapping(value = "/checkQuestionHistoryStatisticList")
+    public Result<CheckQuestionHistoryStatisticVo> checkQuestionHistoryStatisticList(HttpServletRequest request) {
+        Result<CheckQuestionHistoryStatisticVo> result = new Result<>();
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String deptId = data.getDeps().get(0).getId();
+        List<CheckQuestionHistoryStatisticVo> questionCheckPageVoIPage = questionService.checkQuestionHistoryStatisticList(deptId);
+        result.setSuccess(true);
+        result.setResult(questionCheckPageVoIPage);
+        return result;
+    }
+
+
+    @ApiOperation(value = "检查管理_参数设置列表", notes = "检查管理_参数设置列表")
+    @GetMapping(value = "/checkQuestionParameterSetList")
+    public Result<CheckQuestionParameterSetListVo> checkQuestionParameterSetList(HttpServletRequest request) {
+        Result<CheckQuestionParameterSetListVo> result = new Result<>();
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String deptId = data.getDeps().get(0).getId();
+        List<CheckQuestionParameterSetListVo> questionCheckPageVoIPage = questionService.checkQuestionParameterSetList(deptId);
+        result.setSuccess(true);
+        result.setResult(questionCheckPageVoIPage);
+        return result;
+    }
+
+    @ApiOperation(value = "检查管理_历史统计列表_上级督查_填报记录和检查明细_被检查科室筛选条件(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计列表_上级督查_填报记录和检查明细_被检查科室筛选条件(职能科室和临床科室同一个接口)")
+    @GetMapping(value = "/checkQuestionHistoryStatisticInspectedDeptList")
+    public Result<CheckQuestionHistoryStatisticDeptListDeptVo> checkQuestionHistoryStatisticInspectedDeptList(@Valid CheckQuestionHistoryStatisticDeptListParam deptListParam,
+                                                                                         HttpServletRequest request) {
+        Result<CheckQuestionHistoryStatisticDeptListDeptVo> result = new Result<>();
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        List<CheckQuestionHistoryStatisticDeptListDeptVo> deptList = questionService.checkQuestionHistoryStatisticInspectedDeptList(deptListParam,data);
+        result.setSuccess(true);
+        result.setResult(deptList);
+        return result;
+    }
+
+    @ApiOperation(value = "检查管理_历史统计列表_上级督查_填报记录和检查明细_检查科室筛选条件(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计列表_上级督查_填报记录和检查明细_检查科室筛选条件(职能科室和临床科室同一个接口)")
+    @GetMapping(value = "/checkQuestionHistoryStatisticDeptList")
+    public Result<CheckQuestionHistoryStatisticDeptListDeptVo> checkQuestionHistoryStatisticDeptList(@Valid CheckQuestionHistoryStatisticDeptListParam deptListParam,
+                                                                                                     HttpServletRequest request) {
+        Result<CheckQuestionHistoryStatisticDeptListDeptVo> result = new Result<>();
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        List<CheckQuestionHistoryStatisticDeptListDeptVo> deptList = questionService.checkQuestionHistoryStatisticDeptList(deptListParam,data);
+        result.setSuccess(true);
+        result.setResult(deptList);
+        return result;
+    }
+
+    @ApiOperation(value = "检查管理_历史统计列表_科室自查_填报记录和检查明细_自查科室筛选条件(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计列表_科室自查_填报记录和检查明细_自查科室筛选条件(职能科室和临床科室同一个接口)")
+    @GetMapping(value = "/checkQuestionHistoryStatisticSelfDeptList")
+    public Result<CheckQuestionHistoryStatisticDeptListDeptVo> checkQuestionHistoryStatisticSelfDeptList(@Valid CheckQuestionHistoryStatisticDeptListParam deptListParam,
+                                                                                                     HttpServletRequest request) {
+        Result<CheckQuestionHistoryStatisticDeptListDeptVo> result = new Result<>();
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        List<CheckQuestionHistoryStatisticDeptListDeptVo> deptList = questionService.checkQuestionHistoryStatisticSelfDeptList(deptListParam,data);
+        result.setSuccess(true);
+        result.setResult(deptList);
         return result;
     }
 
@@ -236,6 +300,16 @@ public class QuestionController {
     public Result<Boolean> updateSeeDeptIdsParam(@RequestBody UpdateDeptIdsParam updateDeptIdsParam) {
         Result<Boolean> result = new Result<Boolean>();
         questionService.updateSeeDeptIdsParam(updateDeptIdsParam);
+        result.setResult(true);
+        result.success("更新成功！");
+        return result;
+    }
+
+    @ApiOperation(value = "参数设置_设被检科室接口", notes = "批量更新问卷权限_设被检科室接口")
+    @PostMapping(value = "/updateCheckedDeptIdsParam")
+    public Result<Boolean> updateCheckedDeptIdsParam(@RequestBody UpdateCheckedDeptIdsParam updateCheckedDeptIdsParam) {
+        Result<Boolean> result = new Result<Boolean>();
+        questionService.updateCheckedDeptIdsParam(updateCheckedDeptIdsParam);
         result.setResult(true);
         result.success("更新成功！");
         return result;

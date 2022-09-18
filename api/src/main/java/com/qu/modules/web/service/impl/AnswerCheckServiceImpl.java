@@ -1,26 +1,6 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.jeecg.common.util.UUIDGenerator;
-import org.joda.time.DateTime;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
+import cn.hutool.core.util.NumberUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -34,44 +14,41 @@ import com.qu.constant.CheckDetailSetConstant;
 import com.qu.constant.QsubjectConstant;
 import com.qu.constant.QuestionConstant;
 import com.qu.exporter.AnswerCheckeDetailExporter;
-import com.qu.modules.web.entity.AnswerCheck;
-import com.qu.modules.web.entity.Qoption;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.entity.TbDep;
-import com.qu.modules.web.entity.TbUser;
+import com.qu.modules.web.entity.*;
 import com.qu.modules.web.mapper.AnswerCheckMapper;
 import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.AnswerCheckAddParam;
-import com.qu.modules.web.param.AnswerCheckDetailListExportParam;
-import com.qu.modules.web.param.AnswerCheckDetailListParam;
-import com.qu.modules.web.param.AnswerCheckListParam;
-import com.qu.modules.web.param.AnswerMiniAppParam;
-import com.qu.modules.web.param.Answers;
-import com.qu.modules.web.param.SingleDiseaseAnswer;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.pojo.JsonRootBean;
-import com.qu.modules.web.service.IAnswerCheckService;
-import com.qu.modules.web.service.ICheckDetailSetService;
-import com.qu.modules.web.service.ISubjectService;
-import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.service.ITbUserService;
-import com.qu.modules.web.vo.AnswerCheckDetailListVo;
-import com.qu.modules.web.vo.AnswerCheckVo;
-import com.qu.modules.web.vo.CheckDetailSetVo;
-import com.qu.modules.web.vo.SubjectVo;
+import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListExportRequest;
+import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListRequest;
+import com.qu.modules.web.request.CheckQuestionHistoryStatisticRecordListRequest;
+import com.qu.modules.web.service.*;
+import com.qu.modules.web.vo.*;
 import com.qu.util.ExcelExportUtil;
 import com.qu.util.HttpClient;
-
-import cn.hutool.core.util.NumberUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.util.UUIDGenerator;
+import org.joda.time.DateTime;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 检查表问卷总表
  * @Author: jeecg-boot
- * @Date:   2022-07-30
+ * @Date: 2022-07-30
  * @Version: V1.0
  */
 @Slf4j
@@ -101,46 +78,50 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
     @Autowired
     private ISubjectService subjectService;
 
+    @Autowired
+    private IQuestionCheckedDeptService questionCheckedDeptService;
+
 
     @Override
     public IPage<AnswerCheckVo> checkQuestionFillInList(AnswerCheckListParam answerCheckListParam, Integer pageNo, Integer pageSize, Integer answerStatus) {
         Page<AnswerCheck> page = new Page<>(pageNo, pageSize);
 
         LambdaQueryWrapper<Question> questionLambdaQueryWrapper = new QueryWrapper<Question>().lambda();
-        questionLambdaQueryWrapper.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
-        questionLambdaQueryWrapper.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+        questionLambdaQueryWrapper.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
+        questionLambdaQueryWrapper.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
         questionLambdaQueryWrapper.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_CHECK);
-        if(answerCheckListParam !=null && StringUtils.isNotBlank(answerCheckListParam.getQuName())){
+        if (answerCheckListParam != null && StringUtils.isNotBlank(answerCheckListParam.getQuName())) {
             questionLambdaQueryWrapper.like(Question::getQuName, answerCheckListParam.getQuName());
+        }
+        if (answerCheckListParam != null && StringUtils.isNotBlank(answerCheckListParam.getDeptId())) {
+            questionLambdaQueryWrapper.like(Question::getDeptIds, answerCheckListParam.getDeptId());
         }
         List<Question> questionList = questionMapper.selectList(questionLambdaQueryWrapper);
         List<Integer> questionSearchIdList = questionList.stream().map(Question::getId).distinct().collect(Collectors.toList());
-        if(questionSearchIdList.isEmpty()){
+        if (questionSearchIdList.isEmpty()) {
             return new Page<>();
         }
 
         LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
-        if(!questionSearchIdList.isEmpty()){
-            lambda.in(AnswerCheck::getQuId,questionSearchIdList);
+        if (!questionSearchIdList.isEmpty()) {
+            lambda.in(AnswerCheck::getQuId, questionSearchIdList);
         }
-        if(answerStatus!=null){
-            lambda.eq(AnswerCheck::getAnswerStatus,answerStatus);
+        if (answerStatus != null) {
+            lambda.eq(AnswerCheck::getAnswerStatus, answerStatus);
         }
-        if(answerCheckListParam !=null && answerCheckListParam.getStartDate()!=null){
+        if (answerCheckListParam != null && answerCheckListParam.getStartDate() != null) {
             lambda.ge(AnswerCheck::getUpdateTime, answerCheckListParam.getStartDate());
         }
-        if(answerCheckListParam !=null && answerCheckListParam.getEndDate()!=null){
+        if (answerCheckListParam != null && answerCheckListParam.getEndDate() != null) {
             Date endDate = new DateTime(answerCheckListParam.getEndDate()).plusDays(1).toDate();
             lambda.le(AnswerCheck::getUpdateTime, endDate);
         }
-        if(answerCheckListParam !=null &&StringUtils.isNotBlank(answerCheckListParam.getDeptId())){
-            lambda.eq(AnswerCheck::getCheckedDept, answerCheckListParam.getDeptId());
-        }
+
 
         lambda.orderByDesc(AnswerCheck::getAnswerTime);
         IPage<AnswerCheck> answerCheckIPage = this.page(page, lambda);
         List<AnswerCheck> answerCheckList = answerCheckIPage.getRecords();
-        if(answerCheckList.isEmpty()){
+        if (answerCheckList.isEmpty()) {
             return new Page<>();
         }
 
@@ -149,17 +130,93 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         Map<Integer, Question> questionMap = answerQuestionList.stream().collect(Collectors.toMap(Question::getId, q -> q));
         List<AnswerCheckVo> answerCheckVoList = answerCheckList.stream().map(answerCheck -> {
             AnswerCheckVo answerCheckVo = new AnswerCheckVo();
-            BeanUtils.copyProperties(answerCheck,answerCheckVo);
+            BeanUtils.copyProperties(answerCheck, answerCheckVo);
             answerCheckVo.setQuName(questionMap.get(answerCheck.getQuId()).getQuName());
             return answerCheckVo;
         }).collect(Collectors.toList());
 
-        IPage<AnswerCheckVo> answerCheckPage = new Page<>(pageNo,pageSize);
+        IPage<AnswerCheckVo> answerCheckPage = new Page<>(pageNo, pageSize);
         answerCheckPage.setTotal(answerCheckIPage.getTotal());
         answerCheckPage.setRecords(answerCheckVoList);
         return answerCheckPage;
     }
 
+    @Override
+    public IPage<CheckQuestionHistoryStatisticRecordListVo> checkQuestionHistoryStatisticRecordList(CheckQuestionHistoryStatisticRecordListRequest recordListRequest, Integer pageNo, Integer pageSize) {
+        Page<AnswerCheck> page = new Page<>(pageNo, pageSize);
+
+        LambdaQueryWrapper<Question> questionLambdaQueryWrapper = new QueryWrapper<Question>().lambda();
+        questionLambdaQueryWrapper.eq(Question::getId, recordListRequest.getQuId());
+        questionLambdaQueryWrapper.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
+        questionLambdaQueryWrapper.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
+        questionLambdaQueryWrapper.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_CHECK);
+        String deptId = recordListRequest.getDeptId();
+        if (StringUtils.isNotBlank(deptId)) {
+            questionLambdaQueryWrapper.like(Question::getDeptIds, deptId);
+        }
+        List<Question> questionList = questionMapper.selectList(questionLambdaQueryWrapper);
+        List<Integer> questionSearchIdList = questionList.stream().map(Question::getId).distinct().collect(Collectors.toList());
+        if (questionSearchIdList.isEmpty()) {
+            return new Page<>();
+        }
+        String checkedDeptId = recordListRequest.getCheckedDeptId();
+        if (StringUtils.isNotBlank(checkedDeptId)) {
+            //被检查科室
+            List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectByQuIdAndDeptId(recordListRequest.getQuId(), checkedDeptId);
+            if (questionCheckedDeptList.isEmpty()) {
+                return new Page<>();
+            }
+        }
+
+        LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
+        lambda.in(AnswerCheck::getQuId, questionSearchIdList);
+        lambda.eq(AnswerCheck::getAnswerStatus, AnswerCheckConstant.ANSWER_STATUS_RELEASE);
+
+        if (recordListRequest.getStartDate() != null) {
+            lambda.ge(AnswerCheck::getUpdateTime, recordListRequest.getStartDate());
+        }
+
+        if (recordListRequest.getEndDate() != null) {
+            Date endDate = new DateTime(recordListRequest.getEndDate()).plusDays(1).toDate();
+            lambda.le(AnswerCheck::getUpdateTime, endDate);
+        }
+
+        if (StringUtils.isNotBlank(checkedDeptId)) {
+            lambda.eq(AnswerCheck::getCheckedDept, checkedDeptId);
+        }
+
+        if (StringUtils.isNotBlank(deptId)) {
+            lambda.le(AnswerCheck::getCreaterDeptId, deptId);
+        }
+
+        String selfDeptId = recordListRequest.getSelfDeptId();
+        if (StringUtils.isNotBlank(selfDeptId)) {
+            lambda.eq(AnswerCheck::getCheckedDept, selfDeptId);
+            lambda.le(AnswerCheck::getCreaterDeptId, selfDeptId);
+        }
+
+        lambda.orderByDesc(AnswerCheck::getAnswerTime);
+        IPage<AnswerCheck> answerCheckIPage = this.page(page, lambda);
+        List<AnswerCheck> answerCheckList = answerCheckIPage.getRecords();
+        if (answerCheckList.isEmpty()) {
+            return new Page<>();
+        }
+
+        List<Integer> questionIdList = answerCheckList.stream().map(AnswerCheck::getQuId).distinct().collect(Collectors.toList());
+        List<Question> answerQuestionList = questionMapper.selectBatchIds(questionIdList);
+        Map<Integer, Question> questionMap = answerQuestionList.stream().collect(Collectors.toMap(Question::getId, q -> q));
+        List<CheckQuestionHistoryStatisticRecordListVo> answerCheckVoList = answerCheckList.stream().map(answerCheck -> {
+            CheckQuestionHistoryStatisticRecordListVo vo = new CheckQuestionHistoryStatisticRecordListVo();
+            BeanUtils.copyProperties(answerCheck, vo);
+            vo.setQuName(questionMap.get(answerCheck.getQuId()).getQuName());
+            return vo;
+        }).collect(Collectors.toList());
+
+        IPage<CheckQuestionHistoryStatisticRecordListVo> answerCheckPage = new Page<>(pageNo, pageSize);
+        answerCheckPage.setTotal(answerCheckIPage.getTotal());
+        answerCheckPage.setRecords(answerCheckVoList);
+        return answerCheckPage;
+    }
 
     @Override
     public Result answer(String cookie, AnswerCheckAddParam answerCheckAddParam) {
@@ -186,12 +243,12 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
     public Result answerByMiniApp(AnswerMiniAppParam answerMiniAppParam) {
         String userId = answerMiniAppParam.getUserId();
         TbUser tbUser = tbUserService.getById(userId);
-        if(StringUtils.isBlank(userId)  || tbUser==null){
+        if (StringUtils.isBlank(userId) || tbUser == null) {
             return ResultFactory.error("userId参数错误");
         }
         AnswerCheckAddParam answerCheckAddParam = new AnswerCheckAddParam();
-        BeanUtils.copyProperties(answerMiniAppParam,answerCheckAddParam);
-        if(answerMiniAppParam.getId()!=null && NumberUtil.isNumber(answerMiniAppParam.getId())){
+        BeanUtils.copyProperties(answerMiniAppParam, answerCheckAddParam);
+        if (answerMiniAppParam.getId() != null && NumberUtil.isNumber(answerMiniAppParam.getId())) {
             answerCheckAddParam.setId(Integer.parseInt(answerMiniAppParam.getId()));
         }
         TbDep tbDep = tbDepService.getById(tbUser.getDepid());
@@ -200,20 +257,20 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
 
     private Result getResult(AnswerCheckAddParam answerCheckAddParam, String creater, String creater_name, String creater_deptid, String creater_deptname) {
         AnswerCheck answerCheck = this.getById(answerCheckAddParam.getId());
-        if(answerCheck==null){
+        if (answerCheck == null) {
             answerCheck = new AnswerCheck();
-        }else{
-            if(answerCheck.getAnswerStatus().equals(1)){
+        } else {
+            if (answerCheck.getAnswerStatus().equals(1)) {
                 return ResultFactory.error("该记录已提交,无法更改。");
             }
         }
         //插入总表
         answerCheck.setQuId(answerCheckAddParam.getQuId());
-        answerCheck.setAnswerJson( JSON.toJSONString(answerCheckAddParam.getAnswers()));
+        answerCheck.setAnswerJson(JSON.toJSONString(answerCheckAddParam.getAnswers()));
         Integer status = answerCheckAddParam.getStatus();
         answerCheck.setAnswerStatus(status);
         Date date = new Date();
-        if(status.equals(AnswerCheckConstant.ANSWER_STATUS_RELEASE)){
+        if (status.equals(AnswerCheckConstant.ANSWER_STATUS_RELEASE)) {
             answerCheck.setSubmitTime(date);
         }
         answerCheck.setCreater(creater);
@@ -229,41 +286,41 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             mapCache.put(a.getSubColumnName(), a.getSubValue());
         }
 
-        if(mapCache.containsKey(AnswerCheckConstant.COLUMN_NAME_CHECK_TIME)
-                && mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECK_TIME)!=null){
+        if (mapCache.containsKey(AnswerCheckConstant.COLUMN_NAME_CHECK_TIME)
+                && mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECK_TIME) != null) {
             String dateString = mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECK_TIME);
             answerCheck.setCheckMonth(dateString);
         }
 
-        if(mapCache.containsKey(AnswerCheckConstant.COLUMN_NAME_CHECKED_DEPT)
-                && mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_DEPT)!=null){
+        if (mapCache.containsKey(AnswerCheckConstant.COLUMN_NAME_CHECKED_DEPT)
+                && mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_DEPT) != null) {
             answerCheck.setCheckedDept(mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_DEPT));
         }
 
-        if(mapCache.containsKey(AnswerCheckConstant.COLUMN_NAME_CHECKED_DOCT)
-                && mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_DOCT)!=null){
+        if (mapCache.containsKey(AnswerCheckConstant.COLUMN_NAME_CHECKED_DOCT)
+                && mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_DOCT) != null) {
             answerCheck.setCheckedDoct(mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_DOCT));
         }
 
-        if(mapCache.containsKey(AnswerCheckConstant.COLUMN_NAME_CHECKED_PATIENT_ID)
-                && mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_PATIENT_ID)!=null){
+        if (mapCache.containsKey(AnswerCheckConstant.COLUMN_NAME_CHECKED_PATIENT_ID)
+                && mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_PATIENT_ID) != null) {
             answerCheck.setCheckedPatientId(mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_PATIENT_ID));
         }
 
-        if(mapCache.containsKey(AnswerCheckConstant.COLUMN_NAME_CHECKED_PATIENT_NAME)
-                && mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_PATIENT_NAME)!=null){
+        if (mapCache.containsKey(AnswerCheckConstant.COLUMN_NAME_CHECKED_PATIENT_NAME)
+                && mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_PATIENT_NAME) != null) {
             answerCheck.setCheckedPatientId(mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_PATIENT_NAME));
         }
 
-        if(mapCache.containsKey(AnswerCheckConstant.COLUMN_NAME_CHECKED_TOTAL_SCORE)
-                && mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_TOTAL_SCORE)!=null){
+        if (mapCache.containsKey(AnswerCheckConstant.COLUMN_NAME_CHECKED_TOTAL_SCORE)
+                && mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_TOTAL_SCORE) != null) {
             answerCheck.setTotalScore(mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_TOTAL_SCORE));
         }
 
-        if(mapCache.containsKey(AnswerCheckConstant.COLUMN_NAME_CHECKED_PASS_STATUS)
-                && mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_PASS_STATUS)!=null){
+        if (mapCache.containsKey(AnswerCheckConstant.COLUMN_NAME_CHECKED_PASS_STATUS)
+                && mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_PASS_STATUS) != null) {
             String s = mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_PASS_STATUS);
-            if(StringUtils.isNotBlank(s) && NumberUtil.isNumber(s)){
+            if (StringUtils.isNotBlank(s) && NumberUtil.isNumber(s)) {
                 answerCheck.setPassStatus(Integer.parseInt(s));
             }
         }
@@ -271,7 +328,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         boolean insertOrUpdate = answerCheck.getId() != null && answerCheck.getId() != 0;
         if (insertOrUpdate) {
             baseMapper.updateById(answerCheck);
-        }else{
+        } else {
             answerCheck.setCreateTime(date);
             answerCheck.setDel(AnswerCheckConstant.DEL_NORMAL);
 
@@ -292,8 +349,8 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
                     String subType = qsubjectDynamicTable.getSubType();
                     Integer del = qsubjectDynamicTable.getDel();
                     if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
-                            || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null
-                            /*|| StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))*/  ) {
+                            || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName()) == null
+                        /*|| StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))*/) {
                         continue;
                     }
                     sqlAns.append("`");
@@ -307,7 +364,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
 
                     if (QsubjectConstant.MARK_OPEN.equals(qsubjectDynamicTable.getMark())) {
                         String columnNameMark = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark");
-                        if(StringUtils.isNotBlank(columnNameMark)){
+                        if (StringUtils.isNotBlank(columnNameMark)) {
                             sqlAns.append("`");
                             sqlAns.append(qsubjectDynamicTable.getColumnName());
                             sqlAns.append("_mark");
@@ -319,7 +376,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
                             sqlAns.append(",");
                         }
                         String columnNameMarkImg = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark_img");
-                        if(StringUtils.isNotBlank(columnNameMarkImg)){
+                        if (StringUtils.isNotBlank(columnNameMarkImg)) {
                             sqlAns.append("`");
                             sqlAns.append(qsubjectDynamicTable.getColumnName());
                             sqlAns.append("_mark_img");
@@ -346,7 +403,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
                 sqlAns.append("'");
                 log.info("answerCheck-----update sqlAns:{}", sqlAns.toString());
                 dynamicTableMapper.updateDynamicTable(sqlAns.toString());
-            }else{
+            } else {
                 sqlAns.append("insert into `" + question.getTableName() + "` (");
 
                 List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerCheckAddParam.getQuId());
@@ -355,8 +412,8 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
                     String subType = qsubjectDynamicTable.getSubType();
                     Integer del = qsubjectDynamicTable.getDel();
                     if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
-                            || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null
-                            || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName())) ) {
+                            || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName()) == null
+                            || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
                         continue;
                     }
 
@@ -368,7 +425,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
 
                     if (QsubjectConstant.MARK_OPEN.equals(qsubjectDynamicTable.getMark())) {
                         String columnNameMark = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark");
-                        if(StringUtils.isNotBlank(columnNameMark)){
+                        if (StringUtils.isNotBlank(columnNameMark)) {
                             sqlAns.append("`");
                             sqlAns.append(qsubject.getColumnName());
                             sqlAns.append("_mark");
@@ -377,7 +434,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
                         }
 
                         String columnNameMarkImg = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark_img");
-                        if(StringUtils.isNotBlank(columnNameMarkImg)){
+                        if (StringUtils.isNotBlank(columnNameMarkImg)) {
                             sqlAns.append("`");
                             sqlAns.append(qsubject.getColumnName());
                             sqlAns.append("_mark_img");
@@ -397,7 +454,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
                     String subType = qsubjectDynamicTable.getSubType();
                     Integer del = qsubjectDynamicTable.getDel();
                     if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
-                            || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null
+                            || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName()) == null
                             || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
                         continue;
                     }
@@ -408,14 +465,14 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
 
                     if (QsubjectConstant.MARK_OPEN.equals(qsubjectDynamicTable.getMark())) {
                         String columnNameMark = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark");
-                        if(StringUtils.isNotBlank(columnNameMark)){
+                        if (StringUtils.isNotBlank(columnNameMark)) {
                             sqlAns.append("'");
                             sqlAns.append(columnNameMark);
                             sqlAns.append("',");
                         }
 
                         String columnNameMarkImg = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark_img");
-                        if(StringUtils.isNotBlank(columnNameMarkImg)){
+                        if (StringUtils.isNotBlank(columnNameMarkImg)) {
                             sqlAns.append("'");
                             sqlAns.append(columnNameMarkImg);
                             sqlAns.append("',");
@@ -445,7 +502,6 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
     }
 
 
-
     @Override
     public AnswerCheck queryById(String id) {
         AnswerCheck answerCheck = this.getById(id);
@@ -456,7 +512,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         String answerJson = (String) answerCheck.getAnswerJson();
         List<SingleDiseaseAnswer> singleDiseaseAnswerList = JSON.parseArray(answerJson, SingleDiseaseAnswer.class);
         Map<String, SingleDiseaseAnswer> mapCache = new HashMap<>();
-        if(singleDiseaseAnswerList!=null && !singleDiseaseAnswerList.isEmpty()){
+        if (singleDiseaseAnswerList != null && !singleDiseaseAnswerList.isEmpty()) {
             for (SingleDiseaseAnswer a : singleDiseaseAnswerList) {
                 mapCache.put(a.getSubColumnName(), a);
             }
@@ -470,22 +526,22 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             sqlAns.append("` where summary_mapping_table_id ='");
             sqlAns.append(answerCheck.getSummaryMappingTableId());
             sqlAns.append("'");
-            Map<String,String> map = dynamicTableMapper.selectDynamicTableColumn(sqlAns.toString());
+            Map<String, String> map = dynamicTableMapper.selectDynamicTableColumn(sqlAns.toString());
 //            String s = "select * from q_single_disease_take where id =20 ";
 //            Map<String, String> map = dynamicTableMapper.selectDynamicTableColumn(s);
-            if(map==null){
+            if (map == null) {
                 return answerCheck;
             }
             for (Map.Entry<String, String> entry : map.entrySet()) {
                 QueryWrapper<Qsubject> wrapper = new QueryWrapper<Qsubject>();
-                if("id".equals(entry.getKey())){
+                if ("id".equals(entry.getKey())) {
                     continue;
                 }
                 wrapper.eq("column_name", entry.getKey());
                 wrapper.eq("qu_id", question.getId());
                 wrapper.eq("del", "0");
                 Qsubject qsubject = qsubjectMapper.selectOne(wrapper);
-                if(qsubject==null){
+                if (qsubject == null) {
                     continue;
                 }
                 SingleDiseaseAnswer singleDiseaseAnswer = new SingleDiseaseAnswer();
@@ -494,7 +550,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
                 mapCache.put(qsubject.getColumnName(), singleDiseaseAnswer);
             }
             List<SingleDiseaseAnswer> resList = new ArrayList<>(mapCache.values());
-            answerCheck.setAnswerJson( JSON.toJSONString(resList));
+            answerCheck.setAnswerJson(JSON.toJSONString(resList));
         }
 
         return answerCheck;
@@ -505,38 +561,38 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         String depId = data.getTbUser().getDepId();
         //查询显示列
         Integer quId = answerCheckDetailListParam.getQuId();
-        List<CheckDetailSetVo> checkDetailSet = checkDetailSetService.queryByQuestionId(quId,data.getTbUser().getId());
+        List<CheckDetailSetVo> checkDetailSet = checkDetailSetService.queryByQuestionId(quId, data.getTbUser().getId());
         //查询题目
         List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(quId);
         Map<Integer, SubjectVo> subjectMap = subjectList.stream().collect(Collectors.toMap(SubjectVo::getId, q -> q));
         //表头
-        List<LinkedHashMap<String,Object>> fieldItems = Lists.newArrayList();
+        List<LinkedHashMap<String, Object>> fieldItems = Lists.newArrayList();
         setItems(checkDetailSet, subjectMap, fieldItems);
         //数据
         Page<AnswerCheck> page = new Page<>(pageNo, pageSize);
         LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
-        lambda.eq(AnswerCheck::getQuId,answerCheckDetailListParam.getQuId());
+        lambda.eq(AnswerCheck::getQuId, answerCheckDetailListParam.getQuId());
         //科室权限
         LambdaQueryWrapper<Question> questionLambda = new QueryWrapper<Question>().lambda();
-        questionLambda.eq(Question::getId,answerCheckDetailListParam.getQuId());
-        questionLambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
-        questionLambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
-        questionLambda.like(Question::getDeptIds,depId);
-        questionLambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+        questionLambda.eq(Question::getId, answerCheckDetailListParam.getQuId());
+        questionLambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
+        questionLambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_CHECK);
+        questionLambda.like(Question::getDeptIds, depId);
+        questionLambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
         List<Question> questionList = questionMapper.selectList(questionLambda);
-        if(questionList.isEmpty()){
-            lambda.and(w->w.eq(AnswerCheck::getCreaterDeptId, depId).or().eq(AnswerCheck::getCheckedDept, depId));
+        if (questionList.isEmpty()) {
+            lambda.and(w -> w.eq(AnswerCheck::getCreaterDeptId, depId).or().eq(AnswerCheck::getCheckedDept, depId));
         }
         lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
         String checkMonth = answerCheckDetailListParam.getCheckMonth();
-        if(StringUtils.isNotBlank(checkMonth)){
+        if (StringUtils.isNotBlank(checkMonth)) {
             lambda.eq(AnswerCheck::getCheckMonth, checkMonth);
         }
         lambda.orderByDesc(AnswerCheck::getAnswerTime);
         IPage<AnswerCheck> answerCheckIPage = this.page(page, lambda);
         List<AnswerCheck> answerCheckList = answerCheckIPage.getRecords();
-        List<LinkedHashMap<String,Object>> detailDataList = Lists.newArrayList();
-        if(answerCheckList.isEmpty()){
+        List<LinkedHashMap<String, Object>> detailDataList = Lists.newArrayList();
+        if (answerCheckList.isEmpty()) {
 //            return ResultFactory.success(AnswerCheckDetailListVo.builder().fieldItems(fieldItems).detailDataList(detailDataList).total(0).build());
             return AnswerCheckDetailListVo.builder().fieldItems(fieldItems).detailDataList(detailDataList).total(0).build();
         }
@@ -568,38 +624,52 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         return build;
     }
 
-    private void setItems(List<CheckDetailSetVo> checkDetailSet, Map<Integer, SubjectVo> subjectMap, List<LinkedHashMap<String,Object>> fieldItems) {
+    private void setItems(List<CheckDetailSetVo> checkDetailSet, Map<Integer, SubjectVo> subjectMap, List<LinkedHashMap<String, Object>> fieldItems) {
+        LinkedHashMap<String, Object> fieldItemCheckDept = Maps.newLinkedHashMap();
+        fieldItems.add(fieldItemCheckDept);
+        fieldItemCheckDept.put("fieldTxt", "检查科室");
+        fieldItemCheckDept.put("fieldId", "checkDept");
+
+        ArrayList<LinkedHashMap<String, Object>> emptyList = Lists.newArrayList();
         for (int i = 0; i < checkDetailSet.size(); i++) {
             CheckDetailSetVo checkDetailSetVo = checkDetailSet.get(i);
-            if(!CheckDetailSetConstant.SHOW_TYPE_YES.equals(checkDetailSetVo.getShowType())){
+            if (!CheckDetailSetConstant.SHOW_TYPE_YES.equals(checkDetailSetVo.getShowType())) {
                 continue;
             }
 
             Integer subjectId = checkDetailSetVo.getSubjectId();
             SubjectVo qsubject = subjectMap.get(subjectId);
-            if(qsubject==null || QsubjectConstant.SUB_TYPE_TITLE.equals(qsubject.getSubType())){
+            if (qsubject == null || QsubjectConstant.SUB_TYPE_TITLE.equals(qsubject.getSubType())) {
                 continue;
             }
 
             LinkedHashMap<String, Object> fieldItem = Maps.newLinkedHashMap();
-            ArrayList<LinkedHashMap<String,Object>> emptyList = Lists.newArrayList();
+
             fieldItems.add(fieldItem);
-            fieldItem.put("fieldTxt",qsubject.getSubName());
-            fieldItem.put("fieldId",qsubject.getColumnName());
-            if(checkDetailSetVo.getChildList()!=null && !checkDetailSetVo.getChildList().isEmpty()){
-                List<LinkedHashMap<String,Object>> fieldItemsFor = Lists.newArrayList();
-                fieldItem.put("fieldChildList",fieldItemsFor);
+            fieldItem.put("fieldTxt", qsubject.getSubName());
+            fieldItem.put("fieldId", qsubject.getColumnName());
+            if (checkDetailSetVo.getChildList() != null && !checkDetailSetVo.getChildList().isEmpty()) {
+                List<LinkedHashMap<String, Object>> fieldItemsFor = Lists.newArrayList();
+                fieldItem.put("fieldChildList", fieldItemsFor);
                 setItems(checkDetailSetVo.getChildList(), subjectMap, fieldItemsFor);
-            }else{
-                fieldItem.put("fieldChildList",emptyList);
+            } else {
+                fieldItem.put("fieldChildList", emptyList);
             }
         }
     }
 
     private LinkedHashMap<String, Object> setList(List<CheckDetailSetVo> checkDetailSet, Map<Integer, SubjectVo> subjectMap, Map<String, String> dataItemMap,
-                         Map<String, AnswerCheck> answerCheckMap) {
+                                                  Map<String, AnswerCheck> answerCheckMap) {
         LinkedHashMap<String, Object> valueItem = Maps.newLinkedHashMap();
         AnswerCheck answerCheck = answerCheckMap.get(dataItemMap.get("summary_mapping_table_id"));
+
+        //检查科室填充名称
+        String tbksdm = dataItemMap.get("tbksdm");
+        if (StringUtils.isNotBlank(tbksdm)) {
+            TbDep byId = tbDepService.getById(tbksdm);
+            valueItem.put("checkDept", byId.getDepname());
+        }
+
         if (answerCheck == null) {
             valueItem.put("detailDataId", null);
         } else {
@@ -607,28 +677,28 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         }
         for (int i = 0; i < checkDetailSet.size(); i++) {
             CheckDetailSetVo checkDetailSetVo = checkDetailSet.get(i);
-            if(!CheckDetailSetConstant.SHOW_TYPE_YES.equals(checkDetailSetVo.getShowType())){
+            if (!CheckDetailSetConstant.SHOW_TYPE_YES.equals(checkDetailSetVo.getShowType())) {
                 continue;
             }
             Integer subjectId = checkDetailSetVo.getSubjectId();
             SubjectVo qsubject = subjectMap.get(subjectId);
-            if(qsubject==null || QsubjectConstant.SUB_TYPE_TITLE.equals(qsubject.getSubType())){
+            if (qsubject == null || QsubjectConstant.SUB_TYPE_TITLE.equals(qsubject.getSubType())) {
                 continue;
             }
 
             String columnName = qsubject.getColumnName();
-            if("checked_dept".equals(columnName)){
-                valueItem.put(qsubject.getColumnName(),dataItemMap.get(qsubject.getColumnName()));
+            if ("checked_dept".equals(columnName)) {
+                valueItem.put(qsubject.getColumnName(), dataItemMap.get(qsubject.getColumnName()));
                 //科室填充名称
                 String depId = dataItemMap.get(qsubject.getColumnName());
-                if(StringUtils.isNotBlank(depId)){
+                if (StringUtils.isNotBlank(depId)) {
                     TbDep byId = tbDepService.getById(depId);
-                    valueItem.put(qsubject.getColumnName(),byId.getDepname());
+                    valueItem.put(qsubject.getColumnName(), byId.getDepname());
                 }
             } else if (StringUtils.isNotBlank(columnName)) {
-                valueItem.put(qsubject.getColumnName(),dataItemMap.get(qsubject.getColumnName()));
+                valueItem.put(qsubject.getColumnName(), dataItemMap.get(qsubject.getColumnName()));
                 String value = dataItemMap.get(qsubject.getColumnName());
-                if(StringUtils.isNotBlank(value)){
+                if (StringUtils.isNotBlank(value)) {
                     String subType = qsubject.getSubType();
                     if (QsubjectConstant.SUB_TYPE_CHOICE.equals(subType)
                             || QsubjectConstant.SUB_TYPE_SINGLE_CHOICE_BOX.equals(subType)
@@ -637,54 +707,54 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
                         List<Qoption> optionList = qsubject.getOptionList();
                         Map<String, Qoption> optionMap = optionList.stream().collect(Collectors.toMap(Qoption::getOpValue, Function.identity(), (oldData, newData) -> newData));
                         Qoption qoption = optionMap.get(value);
-                        if(qoption!=null){
-                            valueItem.put(qsubject.getColumnName(),qoption.getOpName());
+                        if (qoption != null) {
+                            valueItem.put(qsubject.getColumnName(), qoption.getOpName());
                         }
-                    }else if (QsubjectConstant.SUB_TYPE_HOSPITAL_USER.equals(subType)){
+                    } else if (QsubjectConstant.SUB_TYPE_HOSPITAL_USER.equals(subType)) {
                         String s = dataItemMap.get(qsubject.getColumnName());
-                        if(StringUtils.isNotBlank(s)){
+                        if (StringUtils.isNotBlank(s)) {
                             TbUser tbUser = tbUserService.getById(s);
-                            if(tbUser!=null){
-                                valueItem.put(qsubject.getColumnName(),tbUser.getUsername());
+                            if (tbUser != null) {
+                                valueItem.put(qsubject.getColumnName(), tbUser.getUsername());
                             }
                         }
-                    }else if (QsubjectConstant.SUB_TYPE_RESULT_EVALUATE.equals(subType)){
+                    } else if (QsubjectConstant.SUB_TYPE_RESULT_EVALUATE.equals(subType)) {
                         List<Qoption> optionList = qsubject.getOptionList();
                         Map<String, Qoption> optionMap = optionList.stream().collect(Collectors.toMap(Qoption::getAnswerValue, Function.identity(), (oldData, newData) -> newData));
                         Qoption qoption = optionMap.get(value);
-                        if(qoption!=null){
-                            valueItem.put(qsubject.getColumnName(),qoption.getAnswerName());
+                        if (qoption != null) {
+                            valueItem.put(qsubject.getColumnName(), qoption.getAnswerName());
                         }
-                    }else if (QsubjectConstant.SUB_TYPE_MULTIPLE_CHOICE.equals(subType)){
+                    } else if (QsubjectConstant.SUB_TYPE_MULTIPLE_CHOICE.equals(subType)) {
                         List<Qoption> optionList = qsubject.getOptionList();
                         Map<String, List<Qoption>> optionMap = optionList.stream().collect(Collectors.toMap(Qoption::getOpValue, Lists::newArrayList,
-                                (List<Qoption> n1, List<Qoption> n2)->{
+                                (List<Qoption> n1, List<Qoption> n2) -> {
                                     n1.addAll(n2);
                                     return n1;
                                 }));
-                        if(value.contains("$")){
+                        if (value.contains("$")) {
                             List<String> valueList = Lists.newArrayList(value.split("\\$"));
-                            StringBuffer collect =new StringBuffer();
+                            StringBuffer collect = new StringBuffer();
                             for (String o : valueList) {
                                 collect.append(optionMap.get(o).stream().map(Qoption::getOpName).collect(Collectors.joining(",")));
                                 collect.append(",");
                             }
                             collect.delete(collect.length() - 1, collect.length());
-                            valueItem.put(qsubject.getColumnName(),collect);
-                        }else{
+                            valueItem.put(qsubject.getColumnName(), collect);
+                        } else {
                             String collect = optionMap.get(value).stream().map(Qoption::getOpName).collect(Collectors.joining(","));
-                            valueItem.put(qsubject.getColumnName(),collect);
+                            valueItem.put(qsubject.getColumnName(), collect);
                         }
                     }
 
                 }
             }
-            if(checkDetailSetVo.getChildList()!=null && !checkDetailSetVo.getChildList().isEmpty()){
+            if (checkDetailSetVo.getChildList() != null && !checkDetailSetVo.getChildList().isEmpty()) {
 //                List<LinkedHashMap<String,Object>> valueItemsFor = Lists.newArrayList();
 //                valueItem.put("fieldChildList",valueItemsFor);
                 LinkedHashMap<String, Object> stringObjectLinkedHashMap = setList(checkDetailSetVo.getChildList(), subjectMap, dataItemMap, answerCheckMap);
                 valueItem.putAll(stringObjectLinkedHashMap);
-            }else{
+            } else {
 //                valueItem.put("fieldChildList",emptyList);
             }
         }
@@ -695,42 +765,42 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
     @Override
     public void exportXlsDetailList(AnswerCheckDetailListExportParam answerCheckDetailListExportParam, HttpServletResponse response) {
         String userId = answerCheckDetailListExportParam.getUserId();
-        if(StringUtils.isBlank(userId)){
+        if (StringUtils.isBlank(userId)) {
             return;
         }
         TbUser tbUser = tbUserService.getById(userId);
         String depId = tbUser.getDepid();
         //查询显示列
         Integer quId = answerCheckDetailListExportParam.getQuId();
-        List<CheckDetailSetVo> checkDetailSet = checkDetailSetService.queryByQuestionId(quId,tbUser.getId());
+        List<CheckDetailSetVo> checkDetailSet = checkDetailSetService.queryByQuestionId(quId, tbUser.getId());
         //查询题目
         List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(quId);
         Map<Integer, SubjectVo> subjectMap = subjectList.stream().collect(Collectors.toMap(SubjectVo::getId, q -> q));
         //表头
-        List<LinkedHashMap<String,Object>> fieldItems = Lists.newArrayList();
+        List<LinkedHashMap<String, Object>> fieldItems = Lists.newArrayList();
         setItems(checkDetailSet, subjectMap, fieldItems);
         //数据
         LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
-        lambda.eq(AnswerCheck::getQuId,answerCheckDetailListExportParam.getQuId());
+        lambda.eq(AnswerCheck::getQuId, answerCheckDetailListExportParam.getQuId());
         //科室权限
         LambdaQueryWrapper<Question> questionLambda = new QueryWrapper<Question>().lambda();
-        questionLambda.eq(Question::getId,answerCheckDetailListExportParam.getQuId());
-        questionLambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
-        questionLambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
-        questionLambda.like(Question::getDeptIds,depId);
-        questionLambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+        questionLambda.eq(Question::getId, answerCheckDetailListExportParam.getQuId());
+        questionLambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
+        questionLambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_CHECK);
+        questionLambda.like(Question::getDeptIds, depId);
+        questionLambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
         List<Question> questionList = questionMapper.selectList(questionLambda);
-        if(questionList.isEmpty()){
-            lambda.and(w->w.eq(AnswerCheck::getCreaterDeptId, depId).or().eq(AnswerCheck::getCheckedDept, depId));
+        if (questionList.isEmpty()) {
+            lambda.and(w -> w.eq(AnswerCheck::getCreaterDeptId, depId).or().eq(AnswerCheck::getCheckedDept, depId));
         }
         lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
         String checkMonth = answerCheckDetailListExportParam.getCheckMonth();
-        if(StringUtils.isNotBlank(checkMonth)){
+        if (StringUtils.isNotBlank(checkMonth)) {
             lambda.eq(AnswerCheck::getCheckMonth, checkMonth);
         }
         lambda.orderByDesc(AnswerCheck::getAnswerTime);
         List<AnswerCheck> answerCheckList = this.list(lambda);
-        List<LinkedHashMap<String,Object>> detailDataList = Lists.newArrayList();
+        List<LinkedHashMap<String, Object>> detailDataList = Lists.newArrayList();
         if (!answerCheckList.isEmpty()) {
             List<String> summaryMappingTableIdList = answerCheckList.stream().map(AnswerCheck::getSummaryMappingTableId).collect(Collectors.toList());
             Map<String, AnswerCheck> answerCheckMap = answerCheckList.stream().collect(Collectors.toMap(AnswerCheck::getSummaryMappingTableId, a -> a));
@@ -761,4 +831,205 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         AnswerCheckeDetailExporter builder = new AnswerCheckeDetailExporter();
         ExcelExportUtil.export(response, builder, result);
     }
+
+
+    @Override
+    public AnswerCheckDetailListVo checkQuestionHistoryStatisticDetailList(CheckQuestionHistoryStatisticDetailListRequest listRequest, Data data, Integer pageNo, Integer pageSize) {
+        //查询显示列
+        Integer quId = listRequest.getQuId();
+        List<CheckDetailSetVo> checkDetailSet = checkDetailSetService.queryByQuestionId(quId, data.getTbUser().getId());
+        //查询题目
+        List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(quId);
+        Map<Integer, SubjectVo> subjectMap = subjectList.stream().collect(Collectors.toMap(SubjectVo::getId, q -> q));
+        //表头
+        List<LinkedHashMap<String, Object>> fieldItems = Lists.newArrayList();
+        setItems(checkDetailSet, subjectMap, fieldItems);
+        //数据
+        Page<AnswerCheck> page = new Page<>(pageNo, pageSize);
+
+        LambdaQueryWrapper<Question> questionLambdaQueryWrapper = new QueryWrapper<Question>().lambda();
+        questionLambdaQueryWrapper.eq(Question::getId, listRequest.getQuId());
+        questionLambdaQueryWrapper.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
+        questionLambdaQueryWrapper.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
+        questionLambdaQueryWrapper.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_CHECK);
+        String deptId = listRequest.getDeptId();
+        if (StringUtils.isNotBlank(deptId)) {
+            questionLambdaQueryWrapper.like(Question::getDeptIds, deptId);
+        }
+        List<Question> questionList = questionMapper.selectList(questionLambdaQueryWrapper);
+        List<Integer> questionSearchIdList = questionList.stream().map(Question::getId).distinct().collect(Collectors.toList());
+        List<LinkedHashMap<String, Object>> detailDataList = Lists.newArrayList();
+        if (questionSearchIdList.isEmpty()) {
+            return AnswerCheckDetailListVo.builder().fieldItems(fieldItems).detailDataList(detailDataList).total(0).build();
+        }
+        String checkedDeptId = listRequest.getCheckedDeptId();
+        if (StringUtils.isNotBlank(checkedDeptId)) {
+            //被检查科室
+            List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectByQuIdAndDeptId(listRequest.getQuId(), checkedDeptId);
+            if (questionCheckedDeptList.isEmpty()) {
+                return AnswerCheckDetailListVo.builder().fieldItems(fieldItems).detailDataList(detailDataList).total(0).build();
+            }
+        }
+
+        LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
+        lambda.eq(AnswerCheck::getAnswerStatus, AnswerCheckConstant.ANSWER_STATUS_RELEASE);
+        lambda.eq(AnswerCheck::getQuId, listRequest.getQuId());
+        if (StringUtils.isNotBlank(checkedDeptId)) {
+            lambda.eq(AnswerCheck::getCheckedDept, checkedDeptId);
+        }
+
+        if (StringUtils.isNotBlank(deptId)) {
+            lambda.le(AnswerCheck::getCreaterDeptId, deptId);
+        }
+
+        String selfDeptId = listRequest.getSelfDeptId();
+        if (StringUtils.isNotBlank(selfDeptId)) {
+            lambda.eq(AnswerCheck::getCheckedDept, selfDeptId);
+            lambda.le(AnswerCheck::getCreaterDeptId, selfDeptId);
+        }
+        lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
+        String checkMonth = listRequest.getCheckMonth();
+        if (StringUtils.isNotBlank(checkMonth)) {
+            lambda.eq(AnswerCheck::getCheckMonth, checkMonth);
+        }
+        lambda.orderByDesc(AnswerCheck::getAnswerTime);
+        IPage<AnswerCheck> answerCheckIPage = this.page(page, lambda);
+        List<AnswerCheck> answerCheckList = answerCheckIPage.getRecords();
+
+        if (answerCheckList.isEmpty()) {
+//            return ResultFactory.success(AnswerCheckDetailListVo.builder().fieldItems(fieldItems).detailDataList(detailDataList).total(0).build());
+            return AnswerCheckDetailListVo.builder().fieldItems(fieldItems).detailDataList(detailDataList).total(0).build();
+        }
+        List<String> summaryMappingTableIdList = answerCheckList.stream().map(AnswerCheck::getSummaryMappingTableId).collect(Collectors.toList());
+        Map<String, AnswerCheck> answerCheckMap = answerCheckList.stream().collect(Collectors.toMap(AnswerCheck::getSummaryMappingTableId, a -> a));
+        //查子表
+        Question question = questionMapper.selectById(quId);
+        StringBuffer sqlSelect = new StringBuffer();
+        sqlSelect.append("select * from `");
+        sqlSelect.append(question.getTableName());
+        sqlSelect.append("`");
+        sqlSelect.append(" where summary_mapping_table_id in (");
+        for (String summaryMappingTableId : summaryMappingTableIdList) {
+            sqlSelect.append("'");
+            sqlSelect.append(summaryMappingTableId);
+            sqlSelect.append("'");
+            sqlSelect.append(",");
+        }
+        sqlSelect.delete(sqlSelect.length() - 1, sqlSelect.length());
+        sqlSelect.append(")");
+        List<Map<String, String>> dataList = dynamicTableMapper.selectDynamicTableColumnList(sqlSelect.toString());
+//        Map<String, Map<String,String>> dataMap = dataList.stream().collect(Collectors.toMap(m-> m.get("summary_mapping_table_id"), m -> m));
+        for (Map<String, String> dataItemMap : dataList) {
+            LinkedHashMap<String, Object> stringObjectLinkedHashMap = setList(checkDetailSet, subjectMap, dataItemMap, answerCheckMap);
+            detailDataList.add(stringObjectLinkedHashMap);
+        }
+        AnswerCheckDetailListVo build = AnswerCheckDetailListVo.builder().fieldItems(fieldItems).detailDataList(detailDataList).total(answerCheckIPage.getTotal()).build();
+//        return ResultFactory.success(build);
+        return build;
+    }
+
+
+    @Override
+    public void exportXlsCheckQuestionHistoryStatisticDetailList(CheckQuestionHistoryStatisticDetailListExportRequest exportRequest, HttpServletResponse response) {
+        String userId = exportRequest.getUserId();
+        if (StringUtils.isBlank(userId)) {
+            return;
+        }
+        TbUser tbUser = tbUserService.getById(userId);
+        String depId = tbUser.getDepid();
+        //查询显示列
+        Integer quId = exportRequest.getQuId();
+        List<CheckDetailSetVo> checkDetailSet = checkDetailSetService.queryByQuestionId(quId, tbUser.getId());
+        //查询题目
+        List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(quId);
+        Map<Integer, SubjectVo> subjectMap = subjectList.stream().collect(Collectors.toMap(SubjectVo::getId, q -> q));
+        //表头
+        List<LinkedHashMap<String, Object>> fieldItems = Lists.newArrayList();
+        setItems(checkDetailSet, subjectMap, fieldItems);
+        //数据
+        LambdaQueryWrapper<Question> questionLambdaQueryWrapper = new QueryWrapper<Question>().lambda();
+        questionLambdaQueryWrapper.eq(Question::getId, exportRequest.getQuId());
+        questionLambdaQueryWrapper.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
+        questionLambdaQueryWrapper.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
+        questionLambdaQueryWrapper.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_CHECK);
+        String deptId = exportRequest.getDeptId();
+        if (StringUtils.isNotBlank(deptId)) {
+            questionLambdaQueryWrapper.like(Question::getDeptIds, deptId);
+        }
+        List<Question> questionList = questionMapper.selectList(questionLambdaQueryWrapper);
+        List<Integer> questionSearchIdList = questionList.stream().map(Question::getId).distinct().collect(Collectors.toList());
+        List<LinkedHashMap<String, Object>> detailDataList = Lists.newArrayList();
+        if (questionSearchIdList.isEmpty()) {
+            AnswerCheckDetailListVo result = AnswerCheckDetailListVo.builder().fieldItems(fieldItems).detailDataList(detailDataList).build();
+            AnswerCheckeDetailExporter builder = new AnswerCheckeDetailExporter();
+            ExcelExportUtil.export(response, builder, result);
+            return;
+        }
+        String checkedDeptId = exportRequest.getCheckedDeptId();
+        if (StringUtils.isNotBlank(checkedDeptId)) {
+            //被检查科室
+            List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectByQuIdAndDeptId(exportRequest.getQuId(), checkedDeptId);
+            if (questionCheckedDeptList.isEmpty()) {
+                AnswerCheckDetailListVo result = AnswerCheckDetailListVo.builder().fieldItems(fieldItems).detailDataList(detailDataList).build();
+                AnswerCheckeDetailExporter builder = new AnswerCheckeDetailExporter();
+                ExcelExportUtil.export(response, builder, result);
+                return;
+            }
+        }
+
+        LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
+        lambda.eq(AnswerCheck::getAnswerStatus, AnswerCheckConstant.ANSWER_STATUS_RELEASE);
+        lambda.eq(AnswerCheck::getQuId, exportRequest.getQuId());
+        if (StringUtils.isNotBlank(checkedDeptId)) {
+            lambda.eq(AnswerCheck::getCheckedDept, checkedDeptId);
+        }
+
+        if (StringUtils.isNotBlank(deptId)) {
+            lambda.le(AnswerCheck::getCreaterDeptId, deptId);
+        }
+
+        String selfDeptId = exportRequest.getSelfDeptId();
+        if (StringUtils.isNotBlank(selfDeptId)) {
+            lambda.eq(AnswerCheck::getCheckedDept, selfDeptId);
+            lambda.le(AnswerCheck::getCreaterDeptId, selfDeptId);
+        }
+        lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
+        String checkMonth = exportRequest.getCheckMonth();
+        if (StringUtils.isNotBlank(checkMonth)) {
+            lambda.eq(AnswerCheck::getCheckMonth, checkMonth);
+        }
+        lambda.orderByDesc(AnswerCheck::getAnswerTime);
+        List<AnswerCheck> answerCheckList = this.list(lambda);
+        if (!answerCheckList.isEmpty()) {
+            List<String> summaryMappingTableIdList = answerCheckList.stream().map(AnswerCheck::getSummaryMappingTableId).collect(Collectors.toList());
+            Map<String, AnswerCheck> answerCheckMap = answerCheckList.stream().collect(Collectors.toMap(AnswerCheck::getSummaryMappingTableId, a -> a));
+            //查子表
+            Question question = questionMapper.selectById(quId);
+            StringBuffer sqlSelect = new StringBuffer();
+            sqlSelect.append("select * from `");
+            sqlSelect.append(question.getTableName());
+            sqlSelect.append("`");
+            sqlSelect.append(" where summary_mapping_table_id in (");
+            for (String summaryMappingTableId : summaryMappingTableIdList) {
+                sqlSelect.append("'");
+                sqlSelect.append(summaryMappingTableId);
+                sqlSelect.append("'");
+                sqlSelect.append(",");
+            }
+            sqlSelect.delete(sqlSelect.length() - 1, sqlSelect.length());
+            sqlSelect.append(")");
+            List<Map<String, String>> dataList = dynamicTableMapper.selectDynamicTableColumnList(sqlSelect.toString());
+//          Map<String, Map<String,String>> dataMap = dataList.stream().collect(Collectors.toMap(m-> m.get("summary_mapping_table_id"), m -> m));
+            for (Map<String, String> dataItemMap : dataList) {
+                LinkedHashMap<String, Object> stringObjectLinkedHashMap = setList(checkDetailSet, subjectMap, dataItemMap, answerCheckMap);
+                detailDataList.add(stringObjectLinkedHashMap);
+            }
+//          fieldItems   detailDataList
+            AnswerCheckDetailListVo result = AnswerCheckDetailListVo.builder().fieldItems(fieldItems).detailDataList(detailDataList).build();
+            AnswerCheckeDetailExporter builder = new AnswerCheckeDetailExporter();
+            ExcelExportUtil.export(response, builder, result);
+        }
+    }
+
+
 }

@@ -1,36 +1,28 @@
 package com.qu.modules.web.controller;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
-import org.jeecg.common.api.vo.Result;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.qu.constant.AnswerCheckConstant;
 import com.qu.constant.Constant;
 import com.qu.modules.web.entity.AnswerCheck;
-import com.qu.modules.web.param.AnswerCheckAddParam;
-import com.qu.modules.web.param.AnswerCheckDetailListExportParam;
-import com.qu.modules.web.param.AnswerCheckDetailListParam;
-import com.qu.modules.web.param.AnswerCheckListParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListExportRequest;
+import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListRequest;
+import com.qu.modules.web.request.CheckQuestionHistoryStatisticRecordListRequest;
 import com.qu.modules.web.service.IAnswerCheckService;
-import com.qu.modules.web.vo.AnswerCheckDetailListVo;
-import com.qu.modules.web.vo.AnswerCheckPageVo;
-import com.qu.modules.web.vo.AnswerCheckVo;
-
+import com.qu.modules.web.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.jeecg.common.api.vo.Result;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 /**
  * @Description: 检查表问卷总表
@@ -51,9 +43,13 @@ public class AnswerCheckController {
 	 @GetMapping(value = "/checkQuestionFillInList")
 	 public Result<AnswerCheckPageVo> checkQuestionFillInList(@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
 			 @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
-			 HttpServletRequest req) {
+			 HttpServletRequest request) {
 		 Result<AnswerCheckPageVo> result = new Result<AnswerCheckPageVo>();
-		 IPage<AnswerCheckVo> answerPageVo = answerCheckService.checkQuestionFillInList(null, pageNo, pageSize, AnswerCheckConstant.ANSWER_STATUS_DRAFT);
+		 AnswerCheckListParam answerCheckListParam = new AnswerCheckListParam();
+		 Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+		 String deptId = data.getDeps().get(0).getId();
+		 answerCheckListParam.setDeptId(deptId);
+		 IPage<AnswerCheckVo> answerPageVo = answerCheckService.checkQuestionFillInList(answerCheckListParam, pageNo, pageSize, AnswerCheckConstant.ANSWER_STATUS_DRAFT);
 		 result.setSuccess(true);
 		 result.setResult(answerPageVo);
 		 return result;
@@ -64,13 +60,46 @@ public class AnswerCheckController {
 	 public Result<AnswerCheckPageVo> checkQuestionRecordList(AnswerCheckListParam answerCheckListParam,
 															  @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
 															  @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
-															  HttpServletRequest req) {
+															  HttpServletRequest request) {
 		 Result<AnswerCheckPageVo> result = new Result<AnswerCheckPageVo>();
+		 Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+		 String deptId = data.getDeps().get(0).getId();
+		 answerCheckListParam.setDeptId(deptId);
 		 IPage<AnswerCheckVo> answerPageVo = answerCheckService.checkQuestionFillInList(answerCheckListParam,pageNo, pageSize, AnswerCheckConstant.ANSWER_STATUS_RELEASE);
 		 result.setSuccess(true);
 		 result.setResult(answerPageVo);
 		 return result;
 	 }
+
+	@ApiOperation(value = "检查表管理_历史统计_上级督查_填报记录分页列表(职能科室和临床科室同一个接口)", notes = "检查表管理_历史统计_上级督查_填报记录分页列表(职能科室和临床科室同一个接口)")
+	@GetMapping(value = "/checkQuestionHistoryStatisticRecordList")
+	public Result<CheckQuestionHistoryStatisticRecordListPageVo> checkQuestionHistoryStatisticRecordList(@Valid CheckQuestionHistoryStatisticRecordListParam recordListParam,
+																										 @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+																										 @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+																										 HttpServletRequest request) {
+		Result<CheckQuestionHistoryStatisticRecordListPageVo> result = new Result<CheckQuestionHistoryStatisticRecordListPageVo>();
+		CheckQuestionHistoryStatisticRecordListRequest listRequest = new CheckQuestionHistoryStatisticRecordListRequest();
+		BeanUtils.copyProperties(recordListParam,listRequest);
+		IPage<CheckQuestionHistoryStatisticRecordListVo> answerPageVo = answerCheckService.checkQuestionHistoryStatisticRecordList(listRequest,pageNo, pageSize);
+		result.setSuccess(true);
+		result.setResult(answerPageVo);
+		return result;
+	}
+
+	@ApiOperation(value = "检查表管理_历史统计_科室自查_填报记录分页列表(职能科室和临床科室同一个接口)", notes = "检查表管理_历史统计_科室自查_填报记录分页列表(职能科室和临床科室同一个接口)")
+	@GetMapping(value = "/checkQuestionHistoryStatisticDeptRecordList")
+	public Result<CheckQuestionHistoryStatisticRecordListPageVo> checkQuestionHistoryStatisticDeptRecordList(@Valid CheckQuestionHistoryStatisticDeptRecordListParam deptRecordListParam,
+																										 @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+																										 @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+																										 HttpServletRequest request) {
+		Result<CheckQuestionHistoryStatisticRecordListPageVo> result = new Result<CheckQuestionHistoryStatisticRecordListPageVo>();
+		CheckQuestionHistoryStatisticRecordListRequest listRequest = new CheckQuestionHistoryStatisticRecordListRequest();
+		BeanUtils.copyProperties(deptRecordListParam,listRequest);
+		IPage<CheckQuestionHistoryStatisticRecordListVo> answerPageVo = answerCheckService.checkQuestionHistoryStatisticRecordList(listRequest,pageNo, pageSize);
+		result.setSuccess(true);
+		result.setResult(answerPageVo);
+		return result;
+	}
 
 	 @ApiOperation(value = "答题", notes = "答题")
 	 @PostMapping(value = "/answer")
@@ -110,6 +139,40 @@ public class AnswerCheckController {
 		 return result;
 	 }
 
+	@ApiOperation(value = "检查管理_历史统计_上级督查_明细表格分页列表(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计_上级督查_明细表格分页列表(职能科室和临床科室同一个接口)",response = AnswerCheckDetailListVo.class)
+	@GetMapping(value = "/checkQuestionHistoryStatisticDetailList")
+	public Result<AnswerCheckDetailListVo> checkQuestionHistoryStatisticDetailList(@Valid CheckQuestionHistoryStatisticDetailListParam detailListParam,
+													  @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+													  @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+													  HttpServletRequest request) {
+		Result<AnswerCheckDetailListVo> result = new Result<>();
+		Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+		CheckQuestionHistoryStatisticDetailListRequest listRequest = new CheckQuestionHistoryStatisticDetailListRequest();
+		BeanUtils.copyProperties(detailListParam,listRequest);
+		AnswerCheckDetailListVo vo =  answerCheckService.checkQuestionHistoryStatisticDetailList(listRequest, data, pageNo, pageSize);
+		result.setSuccess(true);
+		result.setResult(vo);
+		return result;
+	}
+
+	@ApiOperation(value = "检查管理_历史统计_科室自查_明细表格分页列表(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计_科室自查_明细表格分页列表(职能科室和临床科室同一个接口)",response = AnswerCheckDetailListVo.class)
+	@GetMapping(value = "/checkQuestionHistoryStatisticDeptDetailList")
+	public Result<AnswerCheckDetailListVo> checkQuestionHistoryStatisticDeptDetailList(@Valid CheckQuestionHistoryStatisticDeptDetailListParam deptDetailListParam,
+																				   @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+																				   @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+																				   HttpServletRequest request) {
+		Result<AnswerCheckDetailListVo> result = new Result<>();
+		Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+		CheckQuestionHistoryStatisticDetailListRequest listRequest = new CheckQuestionHistoryStatisticDetailListRequest();
+		BeanUtils.copyProperties(deptDetailListParam,listRequest);
+		AnswerCheckDetailListVo vo =  answerCheckService.checkQuestionHistoryStatisticDetailList(listRequest, data, pageNo, pageSize);
+		result.setSuccess(true);
+		result.setResult(vo);
+		return result;
+	}
+
+
+
       /**
        * 检查表_检查明细记录_导出excel
        *
@@ -121,6 +184,32 @@ public class AnswerCheckController {
           answerCheckService.exportXlsDetailList(answerCheckDetailListExportParam, response);
       }
 
+
+	/**
+	 * 检查管理_历史统计_上级督查_明细表格分页列表_导出(职能科室和临床科室同一个接口)
+	 *
+	 * @param response
+	 */
+	@GetMapping(value = "/exportXlsCheckQuestionHistoryStatisticDetailList")
+	@ApiOperation(value = "检查管理_历史统计_上级督查_明细表格分页列表_导出(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计_上级督查_明细表格分页列表_导出(职能科室和临床科室同一个接口)")
+	public void exportXlsCheckQuestionHistoryStatisticDetailList(@Valid CheckQuestionHistoryStatisticDetailListExportParam detailListExportParam,HttpServletResponse response) {
+		CheckQuestionHistoryStatisticDetailListExportRequest exportRequest = new CheckQuestionHistoryStatisticDetailListExportRequest();
+		BeanUtils.copyProperties(detailListExportParam,exportRequest);
+		answerCheckService.exportXlsCheckQuestionHistoryStatisticDetailList(exportRequest, response);
+	}
+
+	/**
+	 * 检查管理_历史统计_科室自查_明细表格分页列表_导出(职能科室和临床科室同一个接口)
+	 *
+	 * @param response
+	 */
+	@GetMapping(value = "/exportXlsCheckQuestionHistoryStatisticDeptDetailList")
+	@ApiOperation(value = "检查管理_历史统计_科室自查_明细表格分页列表_导出(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计_科室自查_明细表格分页列表_导出(职能科室和临床科室同一个接口)")
+	public void exportXlsCheckQuestionHistoryStatisticDeptDetailList(@Valid CheckQuestionHistoryStatisticDeptDetailListExportParam deptDetailListExportParam,HttpServletResponse response) {
+		CheckQuestionHistoryStatisticDetailListExportRequest exportRequest = new CheckQuestionHistoryStatisticDetailListExportRequest();
+		BeanUtils.copyProperties(deptDetailListExportParam,exportRequest);
+		answerCheckService.exportXlsCheckQuestionHistoryStatisticDetailList(exportRequest, response);
+	}
 
 
 
