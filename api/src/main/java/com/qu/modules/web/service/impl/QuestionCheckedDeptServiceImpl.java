@@ -22,7 +22,7 @@ import com.qu.modules.web.service.IQuestionCheckedDeptService;
 public class QuestionCheckedDeptServiceImpl extends ServiceImpl<QuestionCheckedDeptMapper, QuestionCheckedDept> implements IQuestionCheckedDeptService {
 
     @Override
-    public List<QuestionCheckedDept> selectByQuId(Integer quId) {
+    public List<QuestionCheckedDept> selectCheckedDeptByQuId(Integer quId) {
         LambdaQueryWrapper<QuestionCheckedDept> tbDepLambda = new QueryWrapper<QuestionCheckedDept>().lambda();
         tbDepLambda.eq(QuestionCheckedDept::getQuId, quId);
         tbDepLambda.eq(QuestionCheckedDept::getType, QuestionCheckedDeptConstant.TYPE_CHECKED_DEPT);
@@ -31,7 +31,7 @@ public class QuestionCheckedDeptServiceImpl extends ServiceImpl<QuestionCheckedD
 
 
     @Override
-    public List<QuestionCheckedDept> selectByQuIdAndDeptId(Integer quId, String checkedDeptId) {
+    public List<QuestionCheckedDept> selectCheckedDeptByQuIdAndDeptId(Integer quId, String checkedDeptId) {
         LambdaQueryWrapper<QuestionCheckedDept> tbDepLambda = new QueryWrapper<QuestionCheckedDept>().lambda();
         tbDepLambda.eq(QuestionCheckedDept::getQuId, quId);
         tbDepLambda.eq(QuestionCheckedDept::getDeptId, checkedDeptId);
@@ -39,5 +39,11 @@ public class QuestionCheckedDeptServiceImpl extends ServiceImpl<QuestionCheckedD
         return this.list(tbDepLambda);
     }
 
-
+    @Override
+    public void deleteCheckedDeptByQuId(Integer quId) {
+        LambdaQueryWrapper<QuestionCheckedDept> tbDepLambda = new QueryWrapper<QuestionCheckedDept>().lambda();
+        tbDepLambda.eq(QuestionCheckedDept::getQuId, quId);
+        tbDepLambda.eq(QuestionCheckedDept::getType, QuestionCheckedDeptConstant.TYPE_CHECKED_DEPT);
+        this.remove(tbDepLambda);
+    }
 }

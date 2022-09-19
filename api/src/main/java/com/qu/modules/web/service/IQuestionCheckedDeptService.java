@@ -1,9 +1,9 @@
 package com.qu.modules.web.service;
 
-import com.qu.modules.web.entity.QuestionCheckedDept;
-import com.baomidou.mybatisplus.extension.service.IService;
-
 import java.util.List;
+
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.qu.modules.web.entity.QuestionCheckedDept;
 
 /**
  * @Description: 问卷被检查科室关联表
@@ -13,8 +13,10 @@ import java.util.List;
  */
 public interface IQuestionCheckedDeptService extends IService<QuestionCheckedDept> {
 
-    List<QuestionCheckedDept> selectByQuId(Integer quId);
+    List<QuestionCheckedDept> selectCheckedDeptByQuId(Integer quId);
 
-    List<QuestionCheckedDept> selectByQuIdAndDeptId(Integer quId, String checkedDeptId);
+    List<QuestionCheckedDept> selectCheckedDeptByQuIdAndDeptId(Integer quId, String checkedDeptId);
+
+    void deleteCheckedDeptByQuId(Integer quId);
 
 }

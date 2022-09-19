@@ -559,7 +559,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     public List<CheckQuestionHistoryStatisticDeptListDeptVo> checkQuestionHistoryStatisticInspectedDeptList(CheckQuestionHistoryStatisticDeptListParam deptListParam, Data data) {
         String type = data.getDeps().get(0).getType();
         Integer quId = deptListParam.getQuId();
-        List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectByQuId(quId);
+        List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByQuId(quId);
         if(questionCheckedDeptList.isEmpty()){
             return Lists.newArrayList();
         }
@@ -722,6 +722,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             questionCheckedDept.setType(QuestionCheckedDeptConstant.TYPE_CHECKED_DEPT);
             addList.add(questionCheckedDept);
         }
+        questionCheckedDeptService.deleteCheckedDeptByQuId(quId);
         questionCheckedDeptService.saveBatch(addList);
     }
 
@@ -733,7 +734,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             return Lists.newArrayList();
         }
 
-        List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectByQuId(quId);
+        List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByQuId(quId);
         return questionCheckedDeptList.stream().map(QuestionCheckedDept::getDeptId).collect(Collectors.toList());
     }
 
