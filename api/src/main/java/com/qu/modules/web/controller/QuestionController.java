@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultBetter;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -257,8 +258,8 @@ public class QuestionController {
 
     @ApiOperation(value = "检查管理_历史统计列表", notes = "检查管理_历史统计列表")
     @GetMapping(value = "/checkQuestionHistoryStatisticList")
-    public Result<CheckQuestionHistoryStatisticVo> checkQuestionHistoryStatisticList(HttpServletRequest request) {
-        Result<CheckQuestionHistoryStatisticVo> result = new Result<>();
+    public ResultBetter<List<CheckQuestionHistoryStatisticVo>> checkQuestionHistoryStatisticList(HttpServletRequest request) {
+        ResultBetter<List<CheckQuestionHistoryStatisticVo>> result = new ResultBetter<>();
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
         String deptId = data.getDeps().get(0).getId();
         List<CheckQuestionHistoryStatisticVo> questionCheckPageVoIPage = questionService.checkQuestionHistoryStatisticList(deptId);
@@ -270,8 +271,8 @@ public class QuestionController {
 
     @ApiOperation(value = "检查管理_参数设置列表", notes = "检查管理_参数设置列表")
     @GetMapping(value = "/checkQuestionParameterSetList")
-    public Result<CheckQuestionParameterSetListVo> checkQuestionParameterSetList(HttpServletRequest request) {
-        Result<CheckQuestionParameterSetListVo> result = new Result<>();
+    public ResultBetter<List<CheckQuestionParameterSetListVo>> checkQuestionParameterSetList(HttpServletRequest request) {
+        ResultBetter<List<CheckQuestionParameterSetListVo>> result = new ResultBetter<>();
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
         String deptId = data.getDeps().get(0).getId();
         List<CheckQuestionParameterSetListVo> questionCheckPageVoIPage = questionService.checkQuestionParameterSetList(deptId);
@@ -282,9 +283,9 @@ public class QuestionController {
 
     @ApiOperation(value = "检查管理_历史统计列表_上级督查_填报记录和检查明细_被检查科室筛选条件(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计列表_上级督查_填报记录和检查明细_被检查科室筛选条件(职能科室和临床科室同一个接口)")
     @GetMapping(value = "/checkQuestionHistoryStatisticInspectedDeptList")
-    public Result<CheckQuestionHistoryStatisticDeptListDeptVo> checkQuestionHistoryStatisticInspectedDeptList(@Valid CheckQuestionHistoryStatisticDeptListParam deptListParam,
+    public ResultBetter<List<CheckQuestionHistoryStatisticDeptListDeptVo>> checkQuestionHistoryStatisticInspectedDeptList(@Valid CheckQuestionHistoryStatisticDeptListParam deptListParam,
                                                                                          HttpServletRequest request) {
-        Result<CheckQuestionHistoryStatisticDeptListDeptVo> result = new Result<>();
+        ResultBetter<List<CheckQuestionHistoryStatisticDeptListDeptVo>> result = new ResultBetter<>();
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
         List<CheckQuestionHistoryStatisticDeptListDeptVo> deptList = questionService.checkQuestionHistoryStatisticInspectedDeptList(deptListParam,data);
         result.setSuccess(true);
@@ -294,9 +295,9 @@ public class QuestionController {
 
     @ApiOperation(value = "检查管理_历史统计列表_上级督查_填报记录和检查明细_检查科室筛选条件(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计列表_上级督查_填报记录和检查明细_检查科室筛选条件(职能科室和临床科室同一个接口)")
     @GetMapping(value = "/checkQuestionHistoryStatisticDeptList")
-    public Result<CheckQuestionHistoryStatisticDeptListDeptVo> checkQuestionHistoryStatisticDeptList(@Valid CheckQuestionHistoryStatisticDeptListParam deptListParam,
+    public ResultBetter<List<CheckQuestionHistoryStatisticDeptListDeptVo>> checkQuestionHistoryStatisticDeptList(@Valid CheckQuestionHistoryStatisticDeptListParam deptListParam,
                                                                                                      HttpServletRequest request) {
-        Result<CheckQuestionHistoryStatisticDeptListDeptVo> result = new Result<>();
+        ResultBetter<List<CheckQuestionHistoryStatisticDeptListDeptVo>> result = new ResultBetter<>();
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
         List<CheckQuestionHistoryStatisticDeptListDeptVo> deptList = questionService.checkQuestionHistoryStatisticDeptList(deptListParam,data);
         result.setSuccess(true);
@@ -306,9 +307,9 @@ public class QuestionController {
 
     @ApiOperation(value = "检查管理_历史统计列表_科室自查_填报记录和检查明细_自查科室筛选条件(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计列表_科室自查_填报记录和检查明细_自查科室筛选条件(职能科室和临床科室同一个接口)")
     @GetMapping(value = "/checkQuestionHistoryStatisticSelfDeptList")
-    public Result<CheckQuestionHistoryStatisticDeptListDeptVo> checkQuestionHistoryStatisticSelfDeptList(@Valid CheckQuestionHistoryStatisticDeptListParam deptListParam,
+    public ResultBetter<List<CheckQuestionHistoryStatisticDeptListDeptVo>> checkQuestionHistoryStatisticSelfDeptList(@Valid CheckQuestionHistoryStatisticDeptListParam deptListParam,
                                                                                                      HttpServletRequest request) {
-        Result<CheckQuestionHistoryStatisticDeptListDeptVo> result = new Result<>();
+        ResultBetter<List<CheckQuestionHistoryStatisticDeptListDeptVo>> result = new ResultBetter<>();
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
         List<CheckQuestionHistoryStatisticDeptListDeptVo> deptList = questionService.checkQuestionHistoryStatisticSelfDeptList(deptListParam,data);
         result.setSuccess(true);
