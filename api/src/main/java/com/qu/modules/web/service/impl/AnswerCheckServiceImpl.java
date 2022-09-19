@@ -210,6 +210,11 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             lambda.le(AnswerCheck::getUpdateTime, endDate);
         }
 
+        String checkMonth = recordListRequest.getCheckMonth();
+        if(StringUtils.isNotBlank(checkMonth)){
+            lambda.eq(AnswerCheck::getCheckMonth, checkMonth);
+        }
+
         if (StringUtils.isNotBlank(checkedDeptId)) {
             lambda.eq(AnswerCheck::getCheckedDept, checkedDeptId);
         }
