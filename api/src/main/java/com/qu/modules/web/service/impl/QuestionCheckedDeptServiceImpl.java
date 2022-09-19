@@ -1,14 +1,16 @@
 package com.qu.modules.web.service.impl;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.qu.constant.QuestionCheckedDeptConstant;
 import com.qu.modules.web.entity.QuestionCheckedDept;
 import com.qu.modules.web.mapper.QuestionCheckedDeptMapper;
 import com.qu.modules.web.service.IQuestionCheckedDeptService;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * @Description: 问卷被检查科室关联表
@@ -23,6 +25,7 @@ public class QuestionCheckedDeptServiceImpl extends ServiceImpl<QuestionCheckedD
     public List<QuestionCheckedDept> selectByQuId(Integer quId) {
         LambdaQueryWrapper<QuestionCheckedDept> tbDepLambda = new QueryWrapper<QuestionCheckedDept>().lambda();
         tbDepLambda.eq(QuestionCheckedDept::getQuId, quId);
+        tbDepLambda.eq(QuestionCheckedDept::getType, QuestionCheckedDeptConstant.TYPE_CHECKED_DEPT);
         return this.list(tbDepLambda);
     }
 
@@ -32,6 +35,7 @@ public class QuestionCheckedDeptServiceImpl extends ServiceImpl<QuestionCheckedD
         LambdaQueryWrapper<QuestionCheckedDept> tbDepLambda = new QueryWrapper<QuestionCheckedDept>().lambda();
         tbDepLambda.eq(QuestionCheckedDept::getQuId, quId);
         tbDepLambda.eq(QuestionCheckedDept::getDeptId, checkedDeptId);
+        tbDepLambda.eq(QuestionCheckedDept::getType, QuestionCheckedDeptConstant.TYPE_CHECKED_DEPT);
         return this.list(tbDepLambda);
     }
 

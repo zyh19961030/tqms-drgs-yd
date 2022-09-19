@@ -1,27 +1,58 @@
 package com.qu.modules.web.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.qu.constant.Constant;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.param.*;
-import com.qu.modules.web.pojo.Data;
-import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.vo.*;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.qu.constant.Constant;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.param.CheckQuestionHistoryStatisticDeptListParam;
+import com.qu.modules.web.param.QuestionAgainReleaseParam;
+import com.qu.modules.web.param.QuestionCheckParam;
+import com.qu.modules.web.param.QuestionEditParam;
+import com.qu.modules.web.param.QuestionParam;
+import com.qu.modules.web.param.SelectCheckedDeptIdsParam;
+import com.qu.modules.web.param.UpdateCategoryIdParam;
+import com.qu.modules.web.param.UpdateCheckedDeptIdsParam;
+import com.qu.modules.web.param.UpdateDeptIdsParam;
+import com.qu.modules.web.param.UpdateQuestionIconParam;
+import com.qu.modules.web.param.UpdateWriteFrequencyIdsParam;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.vo.CheckQuestionHistoryStatisticDeptListDeptVo;
+import com.qu.modules.web.vo.CheckQuestionHistoryStatisticVo;
+import com.qu.modules.web.vo.CheckQuestionParameterSetListVo;
+import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
+import com.qu.modules.web.vo.QuestionCheckProject;
+import com.qu.modules.web.vo.QuestionCheckVo;
+import com.qu.modules.web.vo.QuestionMonthQuarterYearCreateListVo;
+import com.qu.modules.web.vo.QuestionPageVo;
+import com.qu.modules.web.vo.QuestionPatientCreateListVo;
+import com.qu.modules.web.vo.QuestionStatisticsCheckVo;
+import com.qu.modules.web.vo.QuestionVo;
+import com.qu.modules.web.vo.ViewNameVo;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: 问卷表
@@ -305,15 +336,27 @@ public class QuestionController {
         return result;
     }
 
-    @ApiOperation(value = "参数设置_设被检科室接口", notes = "批量更新问卷权限_设被检科室接口")
+    @ApiOperation(value = "参数设置_设被检科室接口", notes = "参数设置_设被检科室接口")
     @PostMapping(value = "/updateCheckedDeptIdsParam")
-    public Result<Boolean> updateCheckedDeptIdsParam(@RequestBody UpdateCheckedDeptIdsParam updateCheckedDeptIdsParam) {
+    public Result<Boolean> updateCheckedDeptIdsParam(@RequestBody @Valid UpdateCheckedDeptIdsParam updateCheckedDeptIdsParam) {
         Result<Boolean> result = new Result<Boolean>();
         questionService.updateCheckedDeptIdsParam(updateCheckedDeptIdsParam);
         result.setResult(true);
         result.success("更新成功！");
         return result;
     }
+
+
+    @ApiOperation(value = "参数设置_设被检科室接口_回显", notes = "参数设置_设被检科室接口_回显")
+    @PostMapping(value = "/selectCheckedDeptIdsParam")
+    public Result<String> selectCheckedDeptIdsParam(@RequestBody @Valid SelectCheckedDeptIdsParam selectCheckedDeptIdsParam) {
+        Result<String> result = new Result<String>();
+        List<String> deptIdList = questionService.selectCheckedDeptIdsParam(selectCheckedDeptIdsParam);
+        result.setResult(deptIdList);
+        result.success("更新成功！");
+        return result;
+    }
+
 
 
     @ApiOperation(value = "设置分类", notes = "设置分类")
