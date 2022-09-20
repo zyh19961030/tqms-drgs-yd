@@ -1,5 +1,21 @@
 package com.qu.modules.web.controller;
 
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
+import org.jeecg.common.api.vo.ResultBetter;
+import org.jeecg.common.aspect.annotation.AutoLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.qu.modules.web.param.TbDeptGroupAddParam;
 import com.qu.modules.web.service.ITbDeptGroupService;
 import com.qu.modules.web.vo.TbDeptGroupAddVo;
@@ -7,14 +23,6 @@ import com.qu.modules.web.vo.TbDeptGroupListVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.jeecg.common.api.vo.ResultBetter;
-import org.jeecg.common.aspect.annotation.AutoLog;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.util.List;
 
 /**
  * @Description: 分组管理表
@@ -25,7 +33,7 @@ import java.util.List;
 @Slf4j
 @Api(tags="分组管理表")
 @RestController
-@RequestMapping("/web/tbDeptGroup")
+@RequestMapping("/business/tbDeptGroup")
 public class TbDeptGroupController {
 	@Autowired
 	private ITbDeptGroupService tbDeptGroupService;

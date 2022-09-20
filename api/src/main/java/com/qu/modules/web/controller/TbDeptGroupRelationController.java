@@ -1,9 +1,10 @@
 package com.qu.modules.web.controller;
 
-import io.swagger.annotations.Api;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.annotations.Api;
+import lombok.extern.slf4j.Slf4j;
 
  /**
  * @Description: 分组管理与科室关联表
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @Api(tags="分组管理与科室关联表")
 @RestController
-@RequestMapping("/web/tbDeptGroupRelation")
+@RequestMapping("/business/tbDeptGroupRelation")
 public class TbDeptGroupRelationController {
 //	@Autowired
 //	private ITbDeptGroupRelationService tbDeptGroupRelationService;

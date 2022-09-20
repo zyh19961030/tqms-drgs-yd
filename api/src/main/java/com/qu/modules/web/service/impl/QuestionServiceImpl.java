@@ -578,6 +578,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         List<CheckQuestionHistoryStatisticDeptListDeptVo> resList = list.stream().map(dep -> {
             CheckQuestionHistoryStatisticDeptListDeptVo vo = new CheckQuestionHistoryStatisticDeptListDeptVo();
             BeanUtils.copyProperties(dep, vo);
+            vo.setDepartmentId(dep.getId());
+            vo.setDepartmentName(dep.getDepname());
             return vo;
         }).collect(Collectors.toList());
         return resList;
@@ -592,7 +594,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             return emptyList;
         }
         String deptIds = byId.getDeptIds();
-        if(StringUtils.isNotBlank(deptIds)){
+        if(StringUtils.isBlank(deptIds)){
             return emptyList;
         }
         ArrayList<String> deptIdList = Lists.newArrayList(deptIds.split(","));
@@ -615,6 +617,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         List<CheckQuestionHistoryStatisticDeptListDeptVo> resList = list.stream().map(dep -> {
             CheckQuestionHistoryStatisticDeptListDeptVo vo = new CheckQuestionHistoryStatisticDeptListDeptVo();
             BeanUtils.copyProperties(dep, vo);
+            vo.setDepartmentId(dep.getId());
+            vo.setDepartmentName(dep.getDepname());
             return vo;
         }).collect(Collectors.toList());
         return resList;
@@ -629,7 +633,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             return emptyList;
         }
         String deptIds = byId.getDeptIds();
-        if(StringUtils.isNotBlank(deptIds)){
+        if(StringUtils.isBlank(deptIds)){
             return emptyList;
         }
         ArrayList<String> deptIdList = Lists.newArrayList(deptIds.split(","));
@@ -652,6 +656,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         List<CheckQuestionHistoryStatisticDeptListDeptVo> resList = list.stream().map(dep -> {
             CheckQuestionHistoryStatisticDeptListDeptVo vo = new CheckQuestionHistoryStatisticDeptListDeptVo();
             BeanUtils.copyProperties(dep, vo);
+            vo.setDepartmentId(dep.getId());
+            vo.setDepartmentName(dep.getDepname());
             return vo;
         }).collect(Collectors.toList());
         return resList;
