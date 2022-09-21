@@ -229,13 +229,13 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         }
 
         if (StringUtils.isNotBlank(deptId)) {
-            lambda.le(AnswerCheck::getCreaterDeptId, deptId);
+            lambda.eq(AnswerCheck::getCreaterDeptId, deptId);
         }
 
         String selfDeptId = recordListRequest.getSelfDeptId();
         if (StringUtils.isNotBlank(selfDeptId)) {
             lambda.eq(AnswerCheck::getCheckedDept, selfDeptId);
-            lambda.le(AnswerCheck::getCreaterDeptId, selfDeptId);
+            lambda.eq(AnswerCheck::getCreaterDeptId, selfDeptId);
         }
 
         lambda.orderByDesc(AnswerCheck::getAnswerTime);
@@ -932,13 +932,13 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         }
 
         if (StringUtils.isNotBlank(deptId)) {
-            lambda.le(AnswerCheck::getCreaterDeptId, deptId);
+            lambda.eq(AnswerCheck::getCreaterDeptId, deptId);
         }
 
         String selfDeptId = listRequest.getSelfDeptId();
         if (StringUtils.isNotBlank(selfDeptId)) {
             lambda.eq(AnswerCheck::getCheckedDept, selfDeptId);
-            lambda.le(AnswerCheck::getCreaterDeptId, selfDeptId);
+            lambda.eq(AnswerCheck::getCreaterDeptId, selfDeptId);
         }
         lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
         String checkMonth = listRequest.getCheckMonth();
@@ -1038,13 +1038,13 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         }
 
         if (StringUtils.isNotBlank(deptId)) {
-            lambda.le(AnswerCheck::getCreaterDeptId, deptId);
+            lambda.eq(AnswerCheck::getCreaterDeptId, deptId);
         }
 
         String selfDeptId = exportRequest.getSelfDeptId();
         if (StringUtils.isNotBlank(selfDeptId)) {
             lambda.eq(AnswerCheck::getCheckedDept, selfDeptId);
-            lambda.le(AnswerCheck::getCreaterDeptId, selfDeptId);
+            lambda.eq(AnswerCheck::getCreaterDeptId, selfDeptId);
         }
         lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
         String checkMonth = exportRequest.getCheckMonth();
