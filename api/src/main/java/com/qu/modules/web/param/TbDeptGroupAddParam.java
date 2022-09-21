@@ -1,14 +1,15 @@
 package com.qu.modules.web.param;
 
+import java.util.List;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import java.util.List;
 
 /**
  * @Description: 分组管理表
@@ -25,7 +26,6 @@ public class TbDeptGroupAddParam {
 
 	/**id*/
 	@ApiModelProperty(value = "id,添加为空，修改必传")
-	@NotBlank(message = "id")
 	private String id;
 
 	/**分组名称*/
