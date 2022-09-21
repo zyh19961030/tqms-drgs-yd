@@ -157,10 +157,19 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         List<Integer> questionIdList = answerCheckList.stream().map(AnswerCheck::getQuId).distinct().collect(Collectors.toList());
         List<Question> answerQuestionList = questionMapper.selectBatchIds(questionIdList);
         Map<Integer, Question> questionMap = answerQuestionList.stream().collect(Collectors.toMap(Question::getId, q -> q));
+
+        List<String> checkedDeptIdList = answerCheckList.stream().map(AnswerCheck::getCheckedDept).distinct().collect(Collectors.toList());
+        List<TbDep> checkedDeptList = tbDepService.listByIdList(checkedDeptIdList);
+        Map<String, TbDep> checkedDeptListMap = checkedDeptList.stream().collect(Collectors.toMap(TbDep::getId, t -> t));
+
         List<AnswerCheckVo> answerCheckVoList = answerCheckList.stream().map(answerCheck -> {
             AnswerCheckVo answerCheckVo = new AnswerCheckVo();
             BeanUtils.copyProperties(answerCheck, answerCheckVo);
             answerCheckVo.setQuName(questionMap.get(answerCheck.getQuId()).getQuName());
+            TbDep tbDep = checkedDeptListMap.get(answerCheck.getCheckedDept());
+            if(tbDep!=null){
+                answerCheckVo.setCheckedDeptName(tbDep.getDepname());
+            }
             return answerCheckVo;
         }).collect(Collectors.toList());
 
@@ -239,10 +248,20 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         List<Integer> questionIdList = answerCheckList.stream().map(AnswerCheck::getQuId).distinct().collect(Collectors.toList());
         List<Question> answerQuestionList = questionMapper.selectBatchIds(questionIdList);
         Map<Integer, Question> questionMap = answerQuestionList.stream().collect(Collectors.toMap(Question::getId, q -> q));
+
+        List<String> checkedDeptIdList = answerCheckList.stream().map(AnswerCheck::getCheckedDept).distinct().collect(Collectors.toList());
+        List<TbDep> checkedDeptList = tbDepService.listByIdList(checkedDeptIdList);
+        Map<String, TbDep> checkedDeptListMap = checkedDeptList.stream().collect(Collectors.toMap(TbDep::getId, t -> t));
+
         List<CheckQuestionHistoryStatisticRecordListVo> answerCheckVoList = answerCheckList.stream().map(answerCheck -> {
             CheckQuestionHistoryStatisticRecordListVo vo = new CheckQuestionHistoryStatisticRecordListVo();
             BeanUtils.copyProperties(answerCheck, vo);
             vo.setQuName(questionMap.get(answerCheck.getQuId()).getQuName());
+            TbDep tbDep = checkedDeptListMap.get(answerCheck.getCheckedDept());
+            if(tbDep!=null){
+                vo.setCheckedDeptName(tbDep.getDepname());
+            }
+
             return vo;
         }).collect(Collectors.toList());
 
