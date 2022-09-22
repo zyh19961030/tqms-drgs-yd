@@ -2,6 +2,7 @@ package com.qu.modules.web.controller.miniapp;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.qu.modules.web.param.AnswerMiniAppParam;
+import com.qu.modules.web.param.QuestionCheckedDepParam;
 import com.qu.modules.web.service.IAnswerCheckService;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.QuestionMiniAppPageVo;
@@ -86,15 +87,15 @@ public class QuestionMiniAppController {
     /**
      * 通过视图查询数据
      *
-     * @param viewName
+     * @param depParam
      * @return
      */
     @AutoLog(value = "问卷表-通过视图查询数据")
     @ApiOperation(value = "问卷表-通过视图查询数据", notes = "问卷表-通过视图查询数据")
     @GetMapping(value = "/queryByViewName")
-    public Result<QuestionVo> queryByViewName(@RequestParam(name = "viewName", required = true) String viewName) {
+    public Result<QuestionVo> queryByViewName(QuestionCheckedDepParam depParam) {
         Result<QuestionVo> result = new Result<QuestionVo>();
-        List<ViewNameVo> queryByViewNameList = questionService.queryByViewName(viewName);
+        List<ViewNameVo> queryByViewNameList = questionService.queryByViewName(depParam);
         result.setResult(queryByViewNameList);
         result.setSuccess(true);
         return result;
