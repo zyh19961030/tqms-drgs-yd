@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @Api(tags="题库选项表")
 @RestController
-@RequestMapping("/web/qoptionlib")
+@RequestMapping("/business/qoptionlib")
 public class QoptionlibController {
 	@Autowired
 	private IQoptionlibService qoptionlibService;

@@ -3,6 +3,7 @@ package com.qu.modules.web.controller.miniapp;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.qu.modules.web.param.AnswerMiniAppParam;
 import com.qu.modules.web.param.QuestionCheckedDepParam;
+import com.qu.modules.web.param.QuestionQueryByIdParam;
 import com.qu.modules.web.service.IAnswerCheckService;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.QuestionMiniAppPageVo;
@@ -17,6 +18,7 @@ import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -65,6 +67,23 @@ public class QuestionMiniAppController {
     public Result<QuestionVo> queryById(@RequestParam(name = "id", required = true) Integer id) {
         Result<QuestionVo> result = new Result<QuestionVo>();
         QuestionVo questionVo = questionService.queryById(id);
+        result.setResult(questionVo);
+        result.setSuccess(true);
+        return result;
+    }
+
+    /**
+     * 单病种_通过id查询
+     *
+     * @param param
+     * @return
+     */
+    @AutoLog(value = "单病种_通过id查询")
+    @ApiOperation(value = "单病种_通过id查询", notes = "单病种_通过id查询")
+    @GetMapping(value = "/singleDiseaseQueryById")
+    public Result<QuestionVo> singleDiseaseQueryById(@Valid QuestionQueryByIdParam param) {
+        Result<QuestionVo> result = new Result<QuestionVo>();
+        QuestionVo questionVo = questionService.singleDiseaseQueryById(param);
         result.setResult(questionVo);
         result.setSuccess(true);
         return result;

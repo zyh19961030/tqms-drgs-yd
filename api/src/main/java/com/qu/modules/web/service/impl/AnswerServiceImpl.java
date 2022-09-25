@@ -14,11 +14,11 @@ import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.mapper.AnswerMapper;
 import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
 import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IAnswerService;
+import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.*;
 import com.qu.util.HttpClient;
 import lombok.extern.slf4j.Slf4j;
@@ -44,8 +44,11 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
     @Autowired
     private AnswerMapper answerMapper;
 
+//    @Autowired
+//    private QsubjectMapper qsubjectMapper;
+
     @Autowired
-    private QsubjectMapper qsubjectMapper;
+    private ISubjectService subjectService;
 
     @Autowired
     private QuestionMapper questionMapper;
@@ -166,7 +169,8 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         if (question != null) {
             if (insertOrUpdate) {
                 sqlAns.append("update `" + question.getTableName() + "` set ");
-                List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
+//                List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
+                List<Qsubject> subjectList = subjectService.selectSubjectByQuId(answerParam.getQuId());
                 for (int i = 0; i < subjectList.size(); i++) {
                     Qsubject qsubjectDynamicTable = subjectList.get(i);
                     String subType = qsubjectDynamicTable.getSubType();
@@ -200,7 +204,8 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
             }else{
                 sqlAns.append("insert into `" + question.getTableName() + "` (");
 
-                List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
+//                List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
+                List<Qsubject> subjectList = subjectService.selectSubjectByQuId(answerParam.getQuId());
                 for (int i = 0; i < subjectList.size(); i++) {
                     Qsubject qsubjectDynamicTable = subjectList.get(i);
                     String subType = qsubjectDynamicTable.getSubType();
@@ -580,7 +585,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
                 wrapper.eq("column_name", entry.getKey());
                 wrapper.eq("qu_id", question.getId());
                 wrapper.eq("del", "0");
-                Qsubject qsubject = qsubjectMapper.selectOne(wrapper);
+                Qsubject qsubject = subjectService.getOne(wrapper);
                 if(qsubject==null){
                     continue;
                 }

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @Api(tags="问卷被检查科室关联表")
 @RestController
-@RequestMapping("/web/questionCheckedDept")
+@RequestMapping("/business/questionCheckedDept")
 public class QuestionCheckedDeptController {
 //	@Autowired
 //	private IQuestionCheckedDeptService questionCheckedDeptService;

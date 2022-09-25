@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 
 @Component
-public class AdminOperateLogEventListener implements ApplicationListener<DeleteCheckDetailSetEvent> {
+public class DeleteCheckDetailSetEventListener implements ApplicationListener<DeleteCheckDetailSetEvent> {
 
     @Resource
     private ICheckDetailSetService checkDetailSetService;

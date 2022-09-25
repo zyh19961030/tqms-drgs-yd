@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @Api(tags="单病种统计院级表")
 @RestController
-@RequestMapping("/web/qSingleDiseaseStatisticHospital")
+@RequestMapping("/business/qSingleDiseaseStatisticHospital")
 public class QSingleDiseaseStatisticHospitalController {
 	@Autowired
 	private IQSingleDiseaseStatisticHospitalService qSingleDiseaseStatisticHospitalService;

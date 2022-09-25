@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @Api(tags="分类表")
 @RestController
-@RequestMapping("/web/tqmsQuotaCategory")
+@RequestMapping("/business/tqmsQuotaCategory")
 public class TqmsQuotaCategoryController {
 	@Autowired
 	private ITqmsQuotaCategoryService tqmsQuotaCategoryService;

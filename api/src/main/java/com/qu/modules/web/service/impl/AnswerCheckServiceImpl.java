@@ -288,8 +288,14 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
                 return ResultFactory.error("该记录已提交,无法更改。");
             }
         }
+        Integer quId = answerCheckAddParam.getQuId();
+        Question question = questionMapper.selectById(quId);
+        if (question == null || QuestionConstant.DEL_DELETED.equals(question.getDel())) {
+            return ResultFactory.error("问卷不存在,无法保存。");
+        }
         //插入总表
-        answerCheck.setQuId(answerCheckAddParam.getQuId());
+        answerCheck.setQuId(quId);
+        answerCheck.setQuestionVersion(question.getQuestionVersion());
         answerCheck.setAnswerJson(JSON.toJSONString(answerCheckAddParam.getAnswers()));
         Integer status = answerCheckAddParam.getStatus();
         answerCheck.setAnswerStatus(status);
@@ -362,164 +368,163 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         }
         //插入子表
         StringBuffer sqlAns = new StringBuffer();
-        Question question = questionMapper.selectById(answerCheckAddParam.getQuId());
-        if (question != null) {
-            if (insertOrUpdate) {
+        if (insertOrUpdate) {
 
-                sqlAns.append("update `" + question.getTableName() + "` set ");
-                List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerCheckAddParam.getQuId());
-                for (int i = 0; i < subjectList.size(); i++) {
-                    Qsubject qsubjectDynamicTable = subjectList.get(i);
-                    String subType = qsubjectDynamicTable.getSubType();
-                    Integer del = qsubjectDynamicTable.getDel();
-                    if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
-                            || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName()) == null
-                        /*|| StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))*/) {
-                        continue;
+            sqlAns.append("update `" + question.getTableName() + "` set ");
+//            List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(quId);
+            List<Qsubject> subjectList = subjectService.selectSubjectByQuId(quId);
+            for (int i = 0; i < subjectList.size(); i++) {
+                Qsubject qsubjectDynamicTable = subjectList.get(i);
+                String subType = qsubjectDynamicTable.getSubType();
+                Integer del = qsubjectDynamicTable.getDel();
+                if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                        || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName()) == null
+                    /*|| StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))*/) {
+                    continue;
+                }
+                sqlAns.append("`");
+                sqlAns.append(qsubjectDynamicTable.getColumnName());
+                sqlAns.append("`");
+                sqlAns.append("=");
+                sqlAns.append("'");
+                sqlAns.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
+                sqlAns.append("'");
+                sqlAns.append(",");
+
+                if (QsubjectConstant.MARK_OPEN.equals(qsubjectDynamicTable.getMark())) {
+                    String columnNameMark = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark");
+                    if (StringUtils.isNotBlank(columnNameMark)) {
+                        sqlAns.append("`");
+                        sqlAns.append(qsubjectDynamicTable.getColumnName());
+                        sqlAns.append("_mark");
+                        sqlAns.append("`");
+                        sqlAns.append("=");
+                        sqlAns.append("'");
+                        sqlAns.append(columnNameMark);
+                        sqlAns.append("'");
+                        sqlAns.append(",");
                     }
-                    sqlAns.append("`");
-                    sqlAns.append(qsubjectDynamicTable.getColumnName());
-                    sqlAns.append("`");
-                    sqlAns.append("=");
-                    sqlAns.append("'");
-                    sqlAns.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
-                    sqlAns.append("'");
-                    sqlAns.append(",");
-
-                    if (QsubjectConstant.MARK_OPEN.equals(qsubjectDynamicTable.getMark())) {
-                        String columnNameMark = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark");
-                        if (StringUtils.isNotBlank(columnNameMark)) {
-                            sqlAns.append("`");
-                            sqlAns.append(qsubjectDynamicTable.getColumnName());
-                            sqlAns.append("_mark");
-                            sqlAns.append("`");
-                            sqlAns.append("=");
-                            sqlAns.append("'");
-                            sqlAns.append(columnNameMark);
-                            sqlAns.append("'");
-                            sqlAns.append(",");
-                        }
-                        String columnNameMarkImg = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark_img");
-                        if (StringUtils.isNotBlank(columnNameMarkImg)) {
-                            sqlAns.append("`");
-                            sqlAns.append(qsubjectDynamicTable.getColumnName());
-                            sqlAns.append("_mark_img");
-                            sqlAns.append("`");
-                            sqlAns.append("=");
-                            sqlAns.append("'");
-                            sqlAns.append(columnNameMarkImg);
-                            sqlAns.append("'");
-                            sqlAns.append(",");
-                        }
-
+                    String columnNameMarkImg = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark_img");
+                    if (StringUtils.isNotBlank(columnNameMarkImg)) {
+                        sqlAns.append("`");
+                        sqlAns.append(qsubjectDynamicTable.getColumnName());
+                        sqlAns.append("_mark_img");
+                        sqlAns.append("`");
+                        sqlAns.append("=");
+                        sqlAns.append("'");
+                        sqlAns.append(columnNameMarkImg);
+                        sqlAns.append("'");
+                        sqlAns.append(",");
                     }
 
                 }
-                sqlAns.append("`tbksmc`='");
-                sqlAns.append(creater_deptname);
-                sqlAns.append("',");
-                sqlAns.append("`tbksdm`='");
-                sqlAns.append(creater_deptid);
-                sqlAns.append("'");
-//                    sqlAns.delete(sqlAns.length()-1,sqlAns.length());
-                sqlAns.append(" where summary_mapping_table_id = '");
-                sqlAns.append(answerCheck.getSummaryMappingTableId());
-                sqlAns.append("'");
-                log.info("answerCheck-----update sqlAns:{}", sqlAns.toString());
-                dynamicTableMapper.updateDynamicTable(sqlAns.toString());
-            } else {
-                sqlAns.append("insert into `" + question.getTableName() + "` (");
 
-                List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerCheckAddParam.getQuId());
-                for (int i = 0; i < subjectList.size(); i++) {
-                    Qsubject qsubjectDynamicTable = subjectList.get(i);
-                    String subType = qsubjectDynamicTable.getSubType();
-                    Integer del = qsubjectDynamicTable.getDel();
-                    if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
-                            || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName()) == null
-                            || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
-                        continue;
-                    }
-
-                    Qsubject qsubject = subjectList.get(i);
-                    sqlAns.append("`");
-                    sqlAns.append(qsubject.getColumnName());
-                    sqlAns.append("`");
-                    sqlAns.append(",");
-
-                    if (QsubjectConstant.MARK_OPEN.equals(qsubjectDynamicTable.getMark())) {
-                        String columnNameMark = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark");
-                        if (StringUtils.isNotBlank(columnNameMark)) {
-                            sqlAns.append("`");
-                            sqlAns.append(qsubject.getColumnName());
-                            sqlAns.append("_mark");
-                            sqlAns.append("`");
-                            sqlAns.append(",");
-                        }
-
-                        String columnNameMarkImg = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark_img");
-                        if (StringUtils.isNotBlank(columnNameMarkImg)) {
-                            sqlAns.append("`");
-                            sqlAns.append(qsubject.getColumnName());
-                            sqlAns.append("_mark_img");
-                            sqlAns.append("`");
-                            sqlAns.append(",");
-                        }
-
-                    }
-                }
-                sqlAns.append("`tbksmc`,");
-                sqlAns.append("`tbksdm`,");
-                sqlAns.append("`summary_mapping_table_id`");
-//                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
-                sqlAns.append(") values (");
-                for (int i = 0; i < subjectList.size(); i++) {
-                    Qsubject qsubjectDynamicTable = subjectList.get(i);
-                    String subType = qsubjectDynamicTable.getSubType();
-                    Integer del = qsubjectDynamicTable.getDel();
-                    if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
-                            || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName()) == null
-                            || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
-                        continue;
-                    }
-                    sqlAns.append("'");
-                    sqlAns.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
-                    sqlAns.append("',");
-
-
-                    if (QsubjectConstant.MARK_OPEN.equals(qsubjectDynamicTable.getMark())) {
-                        String columnNameMark = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark");
-                        if (StringUtils.isNotBlank(columnNameMark)) {
-                            sqlAns.append("'");
-                            sqlAns.append(columnNameMark);
-                            sqlAns.append("',");
-                        }
-
-                        String columnNameMarkImg = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark_img");
-                        if (StringUtils.isNotBlank(columnNameMarkImg)) {
-                            sqlAns.append("'");
-                            sqlAns.append(columnNameMarkImg);
-                            sqlAns.append("',");
-                        }
-                    }
-                }
-                sqlAns.append("'");
-                sqlAns.append(creater_deptname);
-                sqlAns.append("',");
-
-                sqlAns.append("'");
-                sqlAns.append(creater_deptid);
-                sqlAns.append("',");
-
-                sqlAns.append("'");
-                sqlAns.append(answerCheck.getSummaryMappingTableId());
-                sqlAns.append("'");
-//                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
-
-                sqlAns.append(")");
-                log.info("answerCheck-----insert sqlAns:{}", sqlAns.toString());
-                dynamicTableMapper.insertDynamicTable(sqlAns.toString());
             }
+            sqlAns.append("`tbksmc`='");
+            sqlAns.append(creater_deptname);
+            sqlAns.append("',");
+            sqlAns.append("`tbksdm`='");
+            sqlAns.append(creater_deptid);
+            sqlAns.append("'");
+//                    sqlAns.delete(sqlAns.length()-1,sqlAns.length());
+            sqlAns.append(" where summary_mapping_table_id = '");
+            sqlAns.append(answerCheck.getSummaryMappingTableId());
+            sqlAns.append("'");
+            log.info("answerCheck-----update sqlAns:{}", sqlAns.toString());
+            dynamicTableMapper.updateDynamicTable(sqlAns.toString());
+        } else {
+            sqlAns.append("insert into `" + question.getTableName() + "` (");
+
+//            List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(quId);
+            List<Qsubject> subjectList = subjectService.selectSubjectByQuId(quId);
+            for (int i = 0; i < subjectList.size(); i++) {
+                Qsubject qsubjectDynamicTable = subjectList.get(i);
+                String subType = qsubjectDynamicTable.getSubType();
+                Integer del = qsubjectDynamicTable.getDel();
+                if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                        || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName()) == null
+                        || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
+                    continue;
+                }
+
+                Qsubject qsubject = subjectList.get(i);
+                sqlAns.append("`");
+                sqlAns.append(qsubject.getColumnName());
+                sqlAns.append("`");
+                sqlAns.append(",");
+
+                if (QsubjectConstant.MARK_OPEN.equals(qsubjectDynamicTable.getMark())) {
+                    String columnNameMark = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark");
+                    if (StringUtils.isNotBlank(columnNameMark)) {
+                        sqlAns.append("`");
+                        sqlAns.append(qsubject.getColumnName());
+                        sqlAns.append("_mark");
+                        sqlAns.append("`");
+                        sqlAns.append(",");
+                    }
+
+                    String columnNameMarkImg = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark_img");
+                    if (StringUtils.isNotBlank(columnNameMarkImg)) {
+                        sqlAns.append("`");
+                        sqlAns.append(qsubject.getColumnName());
+                        sqlAns.append("_mark_img");
+                        sqlAns.append("`");
+                        sqlAns.append(",");
+                    }
+
+                }
+            }
+            sqlAns.append("`tbksmc`,");
+            sqlAns.append("`tbksdm`,");
+            sqlAns.append("`summary_mapping_table_id`");
+//                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
+            sqlAns.append(") values (");
+            for (int i = 0; i < subjectList.size(); i++) {
+                Qsubject qsubjectDynamicTable = subjectList.get(i);
+                String subType = qsubjectDynamicTable.getSubType();
+                Integer del = qsubjectDynamicTable.getDel();
+                if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                        || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName()) == null
+                        || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
+                    continue;
+                }
+                sqlAns.append("'");
+                sqlAns.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
+                sqlAns.append("',");
+
+
+                if (QsubjectConstant.MARK_OPEN.equals(qsubjectDynamicTable.getMark())) {
+                    String columnNameMark = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark");
+                    if (StringUtils.isNotBlank(columnNameMark)) {
+                        sqlAns.append("'");
+                        sqlAns.append(columnNameMark);
+                        sqlAns.append("',");
+                    }
+
+                    String columnNameMarkImg = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark_img");
+                    if (StringUtils.isNotBlank(columnNameMarkImg)) {
+                        sqlAns.append("'");
+                        sqlAns.append(columnNameMarkImg);
+                        sqlAns.append("',");
+                    }
+                }
+            }
+            sqlAns.append("'");
+            sqlAns.append(creater_deptname);
+            sqlAns.append("',");
+
+            sqlAns.append("'");
+            sqlAns.append(creater_deptid);
+            sqlAns.append("',");
+
+            sqlAns.append("'");
+            sqlAns.append(answerCheck.getSummaryMappingTableId());
+            sqlAns.append("'");
+//                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
+
+            sqlAns.append(")");
+            log.info("answerCheck-----insert sqlAns:{}", sqlAns.toString());
+            dynamicTableMapper.insertDynamicTable(sqlAns.toString());
         }
 
         return ResultFactory.success();

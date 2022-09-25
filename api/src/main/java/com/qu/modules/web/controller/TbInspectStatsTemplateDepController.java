@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @Api(tags="科室检查统计模板")
 @RestController
-@RequestMapping("/web/tbInspectStatsTemplateDep")
+@RequestMapping("/business/tbInspectStatsTemplateDep")
 public class TbInspectStatsTemplateDepController {
 	@Autowired
 	private ITbInspectStatsTemplateDepService tbInspectStatsTemplateDepService;

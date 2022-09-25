@@ -19,6 +19,7 @@ import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
 import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.service.ITbDepService;
 import com.qu.modules.web.vo.*;
 import com.qu.util.*;
@@ -60,8 +61,11 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     @Autowired
     private QSingleDiseaseStatisticDeptMapper qSingleDiseaseStatisticDeptMapper;
 
+//    @Autowired
+//    private QsubjectMapper qsubjectMapper;
+
     @Autowired
-    private QsubjectMapper qsubjectMapper;
+    private ISubjectService subjectService;
 
     @Autowired
     private QuestionMapper questionMapper;
@@ -604,7 +608,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaPatientName.eq(Qsubject::getColumnName,"xm");
         lambdaPatientName.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         lambdaPatientName.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
-        Qsubject qsubject = qsubjectMapper.selectOne(lambdaPatientName);
+        Qsubject qsubject = subjectService.getOne(lambdaPatientName);
         if(qsubject!=null){
             String patientName = mapCache.get(qsubject.getColumnName());
             qSingleDiseaseTake.setPatientName(patientName);
@@ -614,7 +618,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaHospitalInNo.eq(Qsubject::getColumnName,"caseId");
         lambdaHospitalInNo.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         lambdaHospitalInNo.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
-        qsubject = qsubjectMapper.selectOne(lambdaHospitalInNo);
+        qsubject = subjectService.getOne(lambdaHospitalInNo);
         if(qsubject!=null){
             String hospitalInNo = mapCache.get(qsubject.getColumnName());
             qSingleDiseaseTake.setHospitalInNo(hospitalInNo);
@@ -624,7 +628,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaPatientGender.eq(Qsubject::getColumnName,"CM-0-2-1-2");
         lambdaPatientGender.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         lambdaPatientGender.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
-        qsubject = qsubjectMapper.selectOne(lambdaPatientGender);
+        qsubject = subjectService.getOne(lambdaPatientGender);
         if(qsubject!=null){
             qSingleDiseaseTake.setPatientGender(mapCache.get(qsubject.getColumnName()));
         }
@@ -633,7 +637,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaBirthday.eq(Qsubject::getColumnName,"CM-0-2-1-1");
         lambdaBirthday.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         lambdaBirthday.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
-        qsubject = qsubjectMapper.selectOne(lambdaBirthday);
+        qsubject = subjectService.getOne(lambdaBirthday);
         if(qsubject!=null){
             String birthday = mapCache.get(qsubject.getColumnName());
             if(StringUtils.isNotBlank(birthday)){
@@ -645,7 +649,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaInTime.eq(Qsubject::getColumnName,"CM-0-2-4-1");
         lambdaInTime.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         lambdaInTime.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
-        qsubject = qsubjectMapper.selectOne(lambdaInTime);
+        qsubject = subjectService.getOne(lambdaInTime);
         if(qsubject!=null){
             String dateInTimeString = mapCache.get(qsubject.getColumnName());
             if(StringUtils.isNotBlank(dateInTimeString)){
@@ -658,7 +662,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaOutTime.eq(Qsubject::getColumnName,"CM-0-2-4-2");
         lambdaOutTime.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         lambdaOutTime.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
-        qsubject = qsubjectMapper.selectOne(lambdaOutTime);
+        qsubject = subjectService.getOne(lambdaOutTime);
         if(qsubject!=null){
             String dateOutTimeString = mapCache.get(qsubject.getColumnName());
             if(StringUtils.isNotBlank(dateOutTimeString)){
@@ -671,7 +675,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaDoctor.eq(Qsubject::getColumnName,"CM-0-1-1-3");
         lambdaDoctor.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         lambdaDoctor.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
-        qsubject = qsubjectMapper.selectOne(lambdaDoctor);
+        qsubject = subjectService.getOne(lambdaDoctor);
         if (qsubject != null) {
             qSingleDiseaseTake.setDoctorName(mapCache.get(qsubject.getColumnName()));
         }
@@ -680,7 +684,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaIdCard.eq(Qsubject::getColumnName,"IDCard");
         lambdaIdCard.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         lambdaIdCard.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
-        qsubject = qsubjectMapper.selectOne(lambdaIdCard);
+        qsubject = subjectService.getOne(lambdaIdCard);
         if(qsubject!=null){
             qSingleDiseaseTake.setIdCard(mapCache.get(qsubject.getColumnName()));
         }
@@ -689,7 +693,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 //        lambdaInHospitalDay.eq(Qsubject::getColumnName,"CM-4-1");
 //        lambdaInHospitalDay.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
 //        lambdaInHospitalDay.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
-//        qsubject = qsubjectMapper.selectOne(lambdaInHospitalDay);
+//        qsubject = subjectService.getOne(lambdaInHospitalDay);
 //        if (qsubject != null) {
 //            String inHospitalDayString = mapCache.get(qsubject.getColumnName());
 //            if(StringUtils.isNotBlank(inHospitalDayString)){
@@ -705,7 +709,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaInHospitalFee.eq(Qsubject::getColumnName,"CM-6-1");
         lambdaInHospitalFee.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         lambdaInHospitalFee.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
-        qsubject = qsubjectMapper.selectOne(lambdaInHospitalFee);
+        qsubject = subjectService.getOne(lambdaInHospitalFee);
         if(qsubject!=null){
             String inHospitalFee = mapCache.get(qsubject.getColumnName());
             if(StringUtils.isNotBlank(inHospitalFee)){
@@ -718,7 +722,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaWesternMedicineFee.eq(Qsubject::getColumnName,"CM-6-18");
         lambdaWesternMedicineFee.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         lambdaWesternMedicineFee.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
-        qsubject = qsubjectMapper.selectOne(lambdaWesternMedicineFee);
+        qsubject = subjectService.getOne(lambdaWesternMedicineFee);
         Integer westernMedicineFee=0;
         if(qsubject!=null){
             String westernMedicineFeeString = mapCache.get(qsubject.getColumnName())==null?"0":mapCache.get(qsubject.getColumnName());
@@ -729,7 +733,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaChineseMedicineFee.eq(Qsubject::getColumnName,"CM-6-20");
         lambdaChineseMedicineFee.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         lambdaChineseMedicineFee.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
-        qsubject = qsubjectMapper.selectOne(lambdaChineseMedicineFee);
+        qsubject = subjectService.getOne(lambdaChineseMedicineFee);
         Integer chineseMedicineFee=0;
         if(qsubject!=null){
             String chineseMedicineFeeString = mapCache.get(qsubject.getColumnName())==null?"0":mapCache.get(qsubject.getColumnName());
@@ -740,7 +744,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaChineseHerbalMedicineFee.eq(Qsubject::getColumnName,"CM-6-21");
         lambdaChineseHerbalMedicineFee.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         lambdaChineseHerbalMedicineFee.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
-        qsubject = qsubjectMapper.selectOne(lambdaChineseHerbalMedicineFee);
+        qsubject = subjectService.getOne(lambdaChineseHerbalMedicineFee);
         Integer chineseHerbalMedicineFee=0;
         if(qsubject!=null){
             String chineseHerbalMedicineFeeString = mapCache.get(qsubject.getColumnName())==null?"0":mapCache.get(qsubject.getColumnName());
@@ -752,7 +756,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaOperationTreatmentFee.eq(Qsubject::getColumnName,"CM-6-13");
         lambdaOperationTreatmentFee.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         lambdaOperationTreatmentFee.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
-        qsubject = qsubjectMapper.selectOne(lambdaOperationTreatmentFee);
+        qsubject = subjectService.getOne(lambdaOperationTreatmentFee);
         if(qsubject!=null){
             String operationTreatmentFeeString = mapCache.get(qsubject.getColumnName());
             if(StringUtils.isNotBlank(operationTreatmentFeeString)){
@@ -764,7 +768,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaDisposableConsumable.eq(Qsubject::getColumnName,"CM-6-29");
         lambdaDisposableConsumable.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         lambdaDisposableConsumable.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
-        qsubject = qsubjectMapper.selectOne(lambdaDisposableConsumable);
+        qsubject = subjectService.getOne(lambdaDisposableConsumable);
         Integer operationDisposableMaterialFee=0;
         if(qsubject!=null){
             String operationDisposableMaterialFeeString = mapCache.get(qsubject.getColumnName())==null?"0":mapCache.get(qsubject.getColumnName());
@@ -775,7 +779,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaExaminationDisposableConsumable.eq(Qsubject::getColumnName,"CM-6-27");
         lambdaExaminationDisposableConsumable.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         lambdaExaminationDisposableConsumable.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
-        qsubject = qsubjectMapper.selectOne(lambdaExaminationDisposableConsumable);
+        qsubject = subjectService.getOne(lambdaExaminationDisposableConsumable);
         Integer examinationDisposableMaterialFee=0;
         if(qsubject!=null){
             String examinationDisposableMaterialFeeString = mapCache.get(qsubject.getColumnName())==null?"0":mapCache.get(qsubject.getColumnName());
@@ -786,7 +790,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         lambdaTreatmentDisposableConsumable.eq(Qsubject::getColumnName,"CM-6-28");
         lambdaTreatmentDisposableConsumable.eq(Qsubject::getQuId,singleDiseaseAnswerParam.getQuId());
         lambdaTreatmentDisposableConsumable.eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
-        qsubject = qsubjectMapper.selectOne(lambdaTreatmentDisposableConsumable);
+        qsubject = subjectService.getOne(lambdaTreatmentDisposableConsumable);
         Integer treatmentDisposableMaterialFee=0;
         if(qsubject!=null){
             String treatmentDisposableMaterialFeeString = mapCache.get(qsubject.getColumnName())==null?"0":mapCache.get(qsubject.getColumnName());
@@ -815,7 +819,8 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         StringBuffer sqlAns = new StringBuffer();
         if (insertOrUpdate) {
             sqlAns.append("update `" + question.getTableName() + "` set ");
-            List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(singleDiseaseAnswerParam.getQuId());
+//            List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(singleDiseaseAnswerParam.getQuId());
+            List<Qsubject> subjectList = subjectService.selectSubjectByQuId(singleDiseaseAnswerParam.getQuId());
             for (int i = 0; i < subjectList.size(); i++) {
                 Qsubject qsubjectDynamicTable = subjectList.get(i);
                 String subType = qsubjectDynamicTable.getSubType();
@@ -849,7 +854,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         }else {
             sqlAns.append("insert into `" + question.getTableName() + "` (");
 
-            List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(singleDiseaseAnswerParam.getQuId());
+            List<Qsubject> subjectList = subjectService.selectSubjectByQuId(singleDiseaseAnswerParam.getQuId());
             for (int i = 0; i < subjectList.size(); i++) {
                 Qsubject qsubjectDynamicTable = subjectList.get(i);
                 String subType = qsubjectDynamicTable.getSubType();
@@ -952,7 +957,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                 wrapper.eq("column_name", entry.getKey());
                 wrapper.eq("qu_id", question.getId());
                 wrapper.eq("del", "0");
-                Qsubject qsubject = qsubjectMapper.selectOne(wrapper);
+                Qsubject qsubject = subjectService.getOne(wrapper);
                 if(qsubject==null){
                     continue;
                 }
@@ -1193,7 +1198,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         LambdaQueryWrapper<Qsubject> qsubjectQueryWrapper = new QueryWrapper<Qsubject>().lambda();
         qsubjectQueryWrapper.in(Qsubject::getQuId, questionIds);
         qsubjectQueryWrapper.eq(Qsubject::getDel, "0");
-        List<Qsubject> qsubjectList = qsubjectMapper.selectList(qsubjectQueryWrapper);
+        List<Qsubject> qsubjectList = subjectService.list(qsubjectQueryWrapper);
 
         Map<String, Qsubject> qsubjectMap= Maps.newConcurrentMap();
         qsubjectList.forEach(q->{
@@ -1498,7 +1503,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         qsubjectLambdaQueryWrapper.eq(Qsubject::getSubType, QsubjectConstant.SUB_TYPE_GROUP);
         qsubjectLambdaQueryWrapper.eq(Qsubject::getDel, QsubjectConstant.DEL_NORMAL);
         qsubjectLambdaQueryWrapper.orderByAsc(Qsubject::getOrderNum);
-        List<Qsubject> qsubjectList = qsubjectMapper.selectList(qsubjectLambdaQueryWrapper);
+        List<Qsubject> qsubjectList = subjectService.list(qsubjectLambdaQueryWrapper);
 
 //        QSingleDiseaseTake qSingleDiseaseTake = this.getById(id);
 //        Map<String, String> mapCache = new HashMap<>();
@@ -1523,7 +1528,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 //            lambda.in(Qsubject::getId, qsubjectIds);
 //            lambda.eq(Qsubject::getDel, QsubjectConstant.DEL_NORMAL);
 //            lambda.ne(Qsubject::getSubType, QsubjectConstant.SUB_TYPE_TITLE);
-//            List<Qsubject> qsubjects = qsubjectMapper.selectList(lambda);
+//            List<Qsubject> qsubjects = subjectService.list(lambda);
 //            AtomicReference<Integer> alreadyAnswerCount = new AtomicReference<>(0);
 //            AtomicReference<Integer> notAnswerCount = new AtomicReference<>(0);
 //            qsubjects.forEach(q -> {

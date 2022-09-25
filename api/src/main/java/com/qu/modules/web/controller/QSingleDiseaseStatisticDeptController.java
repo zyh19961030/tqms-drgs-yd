@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @Api(tags="单病种统计表")
 @RestController
-@RequestMapping("/web/qSingleDiseaseStatistic")
+@RequestMapping("/business/qSingleDiseaseStatistic")
 public class QSingleDiseaseStatisticDeptController {
 	@Autowired
 	private IQSingleDiseaseStatisticDeptService qSingleDiseaseStatisticService;

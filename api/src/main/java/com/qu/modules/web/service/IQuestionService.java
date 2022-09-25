@@ -23,6 +23,8 @@ public interface IQuestionService extends IService<Question> {
 
     QuestionVo queryById(Integer id);
 
+    QuestionVo singleDiseaseQueryById(QuestionQueryByIdParam param);
+
     List<ViewNameVo> queryByViewName(QuestionCheckedDepParam viewName);
 
     Question updateQuestionById(QuestionEditParam questionEditParam, TbUser tbUser);

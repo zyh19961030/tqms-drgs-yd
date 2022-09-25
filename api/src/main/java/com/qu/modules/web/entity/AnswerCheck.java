@@ -1,18 +1,16 @@
 package com.qu.modules.web.entity;
 
-import java.util.Date;
-
-import org.jeecgframework.poi.excel.annotation.Excel;
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.jeecgframework.poi.excel.annotation.Excel;
+
+import java.util.Date;
 
 /**
  * @Description: 检查表问卷总表
@@ -115,4 +113,8 @@ public class AnswerCheck {
 	@Excel(name = "0:正常1:已删除", width = 15)
     @ApiModelProperty(value = "0:正常1:已删除")
 	private Integer del;
+	/**问卷版本*/
+	@Excel(name = "问卷版本", width = 15)
+	@ApiModelProperty(value = "问卷版本")
+	private java.lang.Integer questionVersion;
 }

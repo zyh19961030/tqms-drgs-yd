@@ -98,4 +98,8 @@ public class Question {
 	@Excel(name = "填报频次 0患者登记表 1月度汇总表 2季度汇总表 3年度汇总表", width = 15)
     @ApiModelProperty(value = "填报频次 0患者登记表 1月度汇总表 2季度汇总表 3年度汇总表")
 	private java.lang.Integer writeFrequency;
+    /**问卷版本*/
+	@Excel(name = "问卷版本", width = 15)
+    @ApiModelProperty(value = "问卷版本")
+	private java.lang.Integer questionVersion;
 }

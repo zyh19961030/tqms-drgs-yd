@@ -9,15 +9,15 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.qu.constant.*;
 import com.qu.event.DeleteCheckDetailSetEvent;
+import com.qu.event.QuestionVersionEvent;
 import com.qu.modules.web.entity.*;
-import com.qu.modules.web.mapper.*;
+import com.qu.modules.web.mapper.DynamicTableMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
 import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.pojo.TbUser;
-import com.qu.modules.web.service.IQuestionCheckedDeptService;
-import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.service.ITbInspectStatsTemplateDepService;
+import com.qu.modules.web.service.*;
 import com.qu.modules.web.vo.*;
 import com.qu.util.DeptUtil;
 import com.qu.util.IntegerUtil;
@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -46,11 +47,15 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     @Autowired
     private QuestionMapper questionMapper;
 
-    @Autowired
-    private QsubjectMapper subjectMapper;
+//    @Autowired
+//    private QsubjectMapper subjectMapper;
+
+    @Lazy
+    @Resource
+    private ISubjectService subjectService;
 
     @Autowired
-    private OptionMapper optionMapper;
+    private IOptionService optionService;
 
     @Autowired
     private DynamicTableMapper dynamicTableMapper;
@@ -66,6 +71,18 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Autowired
     private IQuestionCheckedDeptService questionCheckedDeptService;
+
+    @Autowired
+    private IAnswerCheckService answerCheckService;
+
+    @Autowired
+    private IQuestionVersionService questionVersionService;
+
+    @Autowired
+    private IQsubjectVersionService qsubjectVersionService;
+
+    @Autowired
+    private IQoptionVersionService qoptionVersionService;
 
     @Resource
     private ApplicationEventPublisher applicationEventPublisher;
@@ -84,6 +101,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             question.setCreateTime(date);
             question.setUpdater(userId);
             question.setUpdateTime(date);
+            question.setQuestionVersion(QuestionConstant.QUESTION_VERSION_DEFAULT);
             questionMapper.insert(question);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -100,17 +118,14 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             return questionVo;
         }
         BeanUtils.copyProperties(question, questionVo);
-        List<Qsubject> subjectList = subjectMapper.selectSubjectByQuId(id);
+//        List<Qsubject> subjectList = subjectMapper.selectSubjectByQuId(id);
+        List<Qsubject> subjectList = subjectService.selectSubjectByQuId(id);
         if(subjectList.isEmpty()){
             return questionVo;
         }
 
-        List<Integer> collect = subjectList.stream().map(Qsubject::getId).distinct().collect(Collectors.toList());
-        LambdaQueryWrapper<Qoption> lambda = new QueryWrapper<Qoption>().lambda();
-        lambda.in(Qoption::getSubId,collect);
-        lambda.in(Qoption::getDel, QoptionConstant.DEL_NORMAL);
-        lambda.orderByAsc(Qoption::getOpOrder);
-        List<Qoption> qoptions = optionMapper.selectList(lambda);
+        List<Integer> subjectIdList = subjectList.stream().map(Qsubject::getId).distinct().collect(Collectors.toList());
+        List<Qoption> qoptions = optionService.selectBySubjectList(subjectIdList);
 
         Map<Integer, ArrayList<Qoption>> optionMap = qoptions.stream().collect(Collectors.toMap(Qoption::getSubId, Lists::newArrayList, (ArrayList<Qoption> k1, ArrayList<Qoption> k2) -> {
             k1.addAll(k2);
@@ -122,11 +137,107 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         for (Qsubject subject : subjectList) {
             SubjectVo subjectVo = new SubjectVo();
             BeanUtils.copyProperties(subject, subjectVo);
-//                List<Qoption> qoptionList = optionMapper.selectQoptionBySubId(subject.getId());
             ArrayList<Qoption> qoptionsList = optionMap.get(subject.getId());
             subjectVo.setOptionList(qoptionsList==null?optionEmptyList:qoptionsList);
             subjectVoList.add(subjectVo);
         }
+        assembleSubject(questionVo, subjectVoList);
+
+        return questionVo;
+    }
+
+    @Override
+    public QuestionVo singleDiseaseQueryById(QuestionQueryByIdParam param) {
+        QuestionVo questionVo = new QuestionVo();
+        Integer quId = param.getQuId();
+        Integer answerCheckId = param.getAnswerCheckId();
+        Question question = questionMapper.selectById(quId);
+        if (question == null) {
+            return questionVo;
+        }
+        AnswerCheck answerCheck = answerCheckService.getById(answerCheckId);
+        if (answerCheck == null) {
+            return questionVo;
+        }
+        List<SubjectVo> subjectVoList = Lists.newArrayList();
+        Integer questionVersionNumber = question.getQuestionVersion();
+        //查询历史问卷版本
+        Integer answerCheckQuestionVersionNumber = answerCheck.getQuestionVersion();
+        //判断数据问卷版本是不是最新的版本
+        if (answerCheckQuestionVersionNumber==null || answerCheckQuestionVersionNumber.equals(questionVersionNumber)) {
+            //最新版本取question表
+            BeanUtils.copyProperties(question, questionVo);
+            questionVo.setQuestionVersion(question.getQuestionVersion());
+            questionVo.setQuestionVersionData(answerCheck.getQuestionVersion());
+
+//            List<Qsubject> subjectList = subjectMapper.selectSubjectByQuId(quId);
+            List<Qsubject> subjectList = subjectService.selectSubjectByQuId(quId);
+            if (subjectList.isEmpty()) {
+                return questionVo;
+            }
+            List<Integer> subjectIdList = subjectList.stream().map(Qsubject::getId).distinct().collect(Collectors.toList());
+            List<Qoption> qoptions = optionService.selectBySubjectList(subjectIdList);
+            Map<Integer, ArrayList<Qoption>> optionMap = qoptions.stream().collect(Collectors.toMap(Qoption::getSubId, Lists::newArrayList, (ArrayList<Qoption> k1, ArrayList<Qoption> k2) -> {
+                k1.addAll(k2);
+                return k1;
+            }));
+
+            ArrayList<Qoption> optionEmptyList = Lists.newArrayList();
+            for (Qsubject subject : subjectList) {
+                SubjectVo subjectVo = new SubjectVo();
+                BeanUtils.copyProperties(subject, subjectVo);
+                ArrayList<Qoption> qoptionsList = optionMap.get(subject.getId());
+                subjectVo.setOptionList(qoptionsList == null ? optionEmptyList : qoptionsList);
+                subjectVoList.add(subjectVo);
+            }
+        } else {
+            //历史版本取question_version表
+            QuestionVersion questionVersion = questionVersionService.selectByQuestionAndVersion(quId, answerCheckQuestionVersionNumber);
+            if (questionVersion == null) {
+                return questionVo;
+            }
+
+            BeanUtils.copyProperties(questionVersion, questionVo);
+            questionVo.setId(questionVersion.getQuId());
+            questionVo.setQuestionVersion(question.getQuestionVersion());
+            questionVo.setQuestionVersionData(answerCheck.getQuestionVersion());
+
+            String questionVersionId = questionVersion.getId();
+            List<QsubjectVersion> subjectVersionList = qsubjectVersionService.selectSubjectVersionByQuIdAndVersion(quId, questionVersionId);
+            if (subjectVersionList.isEmpty()) {
+                return questionVo;
+            }
+
+            List<Integer> subjectVersionIdList = subjectVersionList.stream().map(QsubjectVersion::getSubjectId).distinct().collect(Collectors.toList());
+            List<QoptionVersion> qoptionVersions = qoptionVersionService.selectOptionVersionByQuIdAndVersion(questionVersionId, subjectVersionIdList);
+
+            Map<Integer, ArrayList<Qoption>> optionMap = qoptionVersions.stream().collect(Collectors.toMap(QoptionVersion::getSubjectId, qoptionVersion -> {
+                        Qoption qoption = new Qoption();
+                        BeanUtils.copyProperties(qoptionVersion, qoption);
+                        qoption.setId(qoptionVersion.getOptionId());
+                        return Lists.newArrayList(qoption);
+                    },
+                    (ArrayList<Qoption> k1, ArrayList<Qoption> k2) -> {
+                        k1.addAll(k2);
+                        return k1;
+                    }));
+            ArrayList<Qoption> optionEmptyList = Lists.newArrayList();
+            for (QsubjectVersion subjectVersion : subjectVersionList) {
+                SubjectVo subjectVo = new SubjectVo();
+                BeanUtils.copyProperties(subjectVersion, subjectVo);
+                subjectVo.setId(subjectVersion.getSubjectId());
+
+                ArrayList<Qoption> qoptionsList = optionMap.get(subjectVersion.getSubjectId());
+                subjectVo.setOptionList(qoptionsList == null ? optionEmptyList : qoptionsList);
+                subjectVoList.add(subjectVo);
+            }
+        }
+        assembleSubject(questionVo, subjectVoList);
+
+        return questionVo;
+    }
+
+    private void assembleSubject(QuestionVo questionVo, List<SubjectVo> subjectVoList) {
         //开始组装分组题逻辑
         //先缓存
         Map<Integer, SubjectVo> mapCache = new HashMap<>();
@@ -178,9 +289,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             }
         }
         questionVo.setSubjectVoList(subjectVoList);
-
-        return questionVo;
     }
+
 
     @Override
     public List<ViewNameVo> queryByViewName(QuestionCheckedDepParam param) {
@@ -229,7 +339,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                 StringBuffer sql = new StringBuffer();
                 sql.append("CREATE TABLE `" + question.getTableName() + "` (");
                 sql.append("`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',");
-                List<Qsubject> subjectList = subjectMapper.selectSubjectByQuId(questionEditParam.getId());
+//                List<Qsubject> subjectList = subjectMapper.selectSubjectByQuId(questionEditParam.getId());
+                List<Qsubject> subjectList = subjectService.selectSubjectByQuId(questionEditParam.getId());
                 for (Qsubject qsubject : subjectList) {
                     Integer limitWords = qsubject.getLimitWords();
                     if(limitWords==null || limitWords==0){
@@ -314,6 +425,10 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                     sql.append(") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
                 }
                 dynamicTableMapper.createDynamicTable(sql.toString());
+
+                //保存问卷版本
+                QuestionVersionEvent questionVersionEvent = new QuestionVersionEvent(this, question.getId());
+                applicationEventPublisher.publishEvent(questionVersionEvent);
             }
         } catch (Exception e) {
             question = null;
@@ -713,12 +828,13 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         try {
             Question question = questionMapper.selectById(id);
             BeanUtils.copyProperties(question, questionVo);
-            List<Qsubject> subjectList = subjectMapper.selectPersonSubjectByQuId(id);
+//            List<Qsubject> subjectList = subjectMapper.selectPersonSubjectByQuId(id);
+            List<Qsubject> subjectList = subjectService.selectPersonSubjectByQuId(id);
             List<SubjectVo> subjectVoList = new ArrayList<>();
             for (Qsubject subject : subjectList) {
                 SubjectVo subjectVo = new SubjectVo();
                 BeanUtils.copyProperties(subject, subjectVo);
-                List<Qoption> qoptionList = optionMapper.selectQoptionBySubId(subject.getId());
+                List<Qoption> qoptionList = optionService.queryOptionBySubId(subject.getId());
                 subjectVo.setOptionList(qoptionList);
                 subjectVoList.add(subjectVo);
             }
@@ -805,14 +921,17 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     public Boolean againRelease(QuestionAgainReleaseParam questionAgainreleaseParam) {
         try {
             Question question = questionMapper.selectById(questionAgainreleaseParam.getId());
+            question.setQuestionVersion(question.getQuestionVersion()+1);
+            this.updateById(question);
 
             DeleteCheckDetailSetEvent event = new DeleteCheckDetailSetEvent(this, question.getId());
             applicationEventPublisher.publishEvent(event);
 
             StringBuffer sql = new StringBuffer();
             sql.append("ALTER TABLE `" + question.getTableName() + "` ");
-            List<Qsubject> subjectList = subjectMapper.selectBatchIds(questionAgainreleaseParam.getSubjectIds());
-             for (Qsubject qsubject : subjectList) {
+//            List<Qsubject> subjectList = subjectMapper.selectBatchIds(questionAgainreleaseParam.getSubjectIds());
+            Collection<Qsubject> subjectList = subjectService.listByIds(questionAgainreleaseParam.getSubjectIds());
+            for (Qsubject qsubject : subjectList) {
                 sql.append(" ADD COLUMN ");
 
                 Integer limitWords = qsubject.getLimitWords();
@@ -884,6 +1003,11 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             sql.delete(sql.length()-1,sql.length());
             sql.append(" ; ");
             dynamicTableMapper.createDynamicTable(sql.toString());
+
+            //保存问卷版本
+            QuestionVersionEvent questionVersionEvent = new QuestionVersionEvent(this, question.getId());
+            applicationEventPublisher.publishEvent(questionVersionEvent);
+
             return true;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -1055,7 +1179,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         if(question==null){
             return null;
         }
-        List<Qsubject> subjectList = subjectMapper.selectSubjectByQuId(id);
+//        List<Qsubject> subjectList = subjectMapper.selectSubjectByQuId(id);
+        List<Qsubject> subjectList = subjectService.selectSubjectByQuId(id);
         if(subjectList.isEmpty()){
             return null;
         }

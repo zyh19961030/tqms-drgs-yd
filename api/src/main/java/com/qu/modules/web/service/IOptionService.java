@@ -16,4 +16,11 @@ public interface IOptionService extends IService<Qoption> {
     //根据问题id查询答案
     List<Qoption> queryOptionBySubId(Integer subId);
 
+    /**
+     * 根据题目idList查询数据
+     * @param subjectIdList
+     * @return
+     */
+    List<Qoption> selectBySubjectList(List<Integer> subjectIdList);
+
 }

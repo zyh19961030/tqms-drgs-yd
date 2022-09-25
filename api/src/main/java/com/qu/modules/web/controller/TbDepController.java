@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @Api(tags="科室表")
 @RestController
-@RequestMapping("/web/tbDep")
+@RequestMapping("/business/tbDep")
 public class TbDepController {
 	@Autowired
 	private ITbDepService tbDepService;

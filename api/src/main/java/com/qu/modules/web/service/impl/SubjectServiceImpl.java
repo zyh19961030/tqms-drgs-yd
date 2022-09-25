@@ -1,18 +1,5 @@
 package com.qu.modules.web.service.impl;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -25,25 +12,23 @@ import com.qu.modules.web.entity.Qoption;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.mapper.OptionMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.param.InsertSubjectParam;
-import com.qu.modules.web.param.LogicParam;
-import com.qu.modules.web.param.QoptionParam;
-import com.qu.modules.web.param.SpecialLogicParam;
-import com.qu.modules.web.param.StatisticsCheckTableParam;
-import com.qu.modules.web.param.SubjectEditParam;
-import com.qu.modules.web.param.SubjectLogicParam;
-import com.qu.modules.web.param.SubjectParam;
-import com.qu.modules.web.param.SubjectQuantityStatisticsParam;
-import com.qu.modules.web.param.SubjectSpecialLogicParam;
-import com.qu.modules.web.param.UpdateOrderNumParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.TbUser;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.QsubjectIdAndNameVo;
 import com.qu.modules.web.vo.StatisticsCheckTableSubjectVo;
 import com.qu.modules.web.vo.SubjectVo;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 题目表
@@ -61,6 +46,7 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
     @Autowired
     private OptionMapper optionMapper;
 
+    @Lazy
     @Autowired
     private IQuestionService questionService;
 
@@ -628,7 +614,7 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
 
     @Override
     public List<SubjectVo> selectSubjectAndOptionByQuId(Integer questionId) {
-        List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(questionId);
+        List<Qsubject> subjectList = this.selectSubjectByQuId(questionId);
         if(subjectList.isEmpty()){
             return Lists.newArrayList();
         }
@@ -650,11 +636,20 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
         for (Qsubject subject : subjectList) {
             SubjectVo subjectVo = new SubjectVo();
             BeanUtils.copyProperties(subject, subjectVo);
-            //                List<Qoption> qoptionList = optionMapper.selectQoptionBySubId(subject.getId());
             ArrayList<Qoption> qoptionsList = optionMap.get(subject.getId());
             subjectVo.setOptionList(qoptionsList==null?optionEmptyList:qoptionsList);
             subjectVoList.add(subjectVo);
         }
         return subjectVoList;
+    }
+
+    @Override
+    public List<Qsubject> selectSubjectByQuId(Integer quId) {
+        return qsubjectMapper.selectSubjectByQuId(quId);
+    }
+
+    @Override
+    public List<Qsubject> selectPersonSubjectByQuId(Integer quId) {
+        return qsubjectMapper.selectPersonSubjectByQuId(quId);
     }
 }

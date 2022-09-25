@@ -13,6 +13,7 @@ public class QuestionConstant {
 	public static final Integer WRITE_FREQUENCY_YEAR = 3;
 	public static final List<Integer> WRITE_FREQUENCY_MONTH_QUARTER_YEAR = Lists.newArrayList(1,2,3);
 
+	public static final Integer QUESTION_VERSION_DEFAULT = 100;
 	public static final Integer DEL_NORMAL = 0;
 	public static final Integer DEL_DELETED = 1;
 	public static final Integer QU_STATUS_DRAFT = 0;

@@ -142,17 +142,34 @@ public class QuestionController {
     }
 
     /**
-     * 通过id查询
+     * 普通问卷_通过id查询
      *
      * @param id
      * @return
      */
-    @AutoLog(value = "问卷表-通过id查询")
-    @ApiOperation(value = "问卷表-通过id查询", notes = "问卷表-通过id查询")
+    @AutoLog(value = "普通问卷_通过id查询")
+    @ApiOperation(value = "普通问卷_通过id查询", notes = "普通问卷_通过id查询")
     @GetMapping(value = "/queryById")
     public Result<QuestionVo> queryById(@RequestParam(name = "id", required = true) Integer id) {
         Result<QuestionVo> result = new Result<QuestionVo>();
         QuestionVo questionVo = questionService.queryById(id);
+        result.setResult(questionVo);
+        result.setSuccess(true);
+        return result;
+    }
+
+    /**
+     * 单病种_通过id查询
+     *
+     * @param param
+     * @return
+     */
+    @AutoLog(value = "单病种_通过id查询")
+    @ApiOperation(value = "单病种_通过id查询", notes = "单病种_通过id查询")
+    @GetMapping(value = "/singleDiseaseQueryById")
+    public Result<QuestionVo> singleDiseaseQueryById(@Valid QuestionQueryByIdParam param) {
+        Result<QuestionVo> result = new Result<QuestionVo>();
+        QuestionVo questionVo = questionService.singleDiseaseQueryById(param);
         result.setResult(questionVo);
         result.setSuccess(true);
         return result;
