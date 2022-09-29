@@ -80,9 +80,15 @@ public interface IQuestionService extends IService<Question> {
 
     List<String> selectCheckedDeptIdsParam(SelectCheckedDeptIdsParam selectCheckedDeptIdsParam);
 
+    void updateResponsibilityUserIdsParam(UpdateResponsibilityUserIdsParam param);
+
+    List<String> selectResponsibilityUserIdsParam(SelectResponsibilityUserIdsParam param);
+
     QuestionVo queryPersonById(Integer id);
 
     void updateCategoryIdParam(UpdateCategoryIdParam updateCategoryIdParam);
+
+    void updateTemplateIdIdParam(UpdateTemplateIdParam param);
 
     Boolean againRelease(QuestionAgainReleaseParam questionAgainreleaseParam);
 

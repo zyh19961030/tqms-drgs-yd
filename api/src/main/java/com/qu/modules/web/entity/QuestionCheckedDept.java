@@ -51,8 +51,8 @@ public class QuestionCheckedDept {
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "更新时间")
 	private Date updateTime;
-	/**类型 1被检查科室*/
-	@Excel(name = "类型 1被检查科室", width = 15)
-    @ApiModelProperty(value = "类型 1被检查科室")
+	/**类型 1被检查科室 2责任人(dept_id为userId)*/
+	@Excel(name = "类型 1被检查科室 2责任人(dept_id为userId)", width = 15)
+    @ApiModelProperty(value = "类型 1被检查科室 2责任人(dept_id为userId)")
 	private Integer type;
 }

@@ -1,9 +1,5 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -11,6 +7,9 @@ import com.qu.constant.QuestionCheckedDeptConstant;
 import com.qu.modules.web.entity.QuestionCheckedDept;
 import com.qu.modules.web.mapper.QuestionCheckedDeptMapper;
 import com.qu.modules.web.service.IQuestionCheckedDeptService;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @Description: 问卷被检查科室关联表
@@ -22,10 +21,10 @@ import com.qu.modules.web.service.IQuestionCheckedDeptService;
 public class QuestionCheckedDeptServiceImpl extends ServiceImpl<QuestionCheckedDeptMapper, QuestionCheckedDept> implements IQuestionCheckedDeptService {
 
     @Override
-    public List<QuestionCheckedDept> selectCheckedDeptByQuId(Integer quId) {
+    public List<QuestionCheckedDept> selectCheckedDeptByQuId(Integer quId, Integer type) {
         LambdaQueryWrapper<QuestionCheckedDept> tbDepLambda = new QueryWrapper<QuestionCheckedDept>().lambda();
         tbDepLambda.eq(QuestionCheckedDept::getQuId, quId);
-        tbDepLambda.eq(QuestionCheckedDept::getType, QuestionCheckedDeptConstant.TYPE_CHECKED_DEPT);
+        tbDepLambda.eq(QuestionCheckedDept::getType, type);
         return this.list(tbDepLambda);
     }
 
@@ -40,10 +39,10 @@ public class QuestionCheckedDeptServiceImpl extends ServiceImpl<QuestionCheckedD
     }
 
     @Override
-    public void deleteCheckedDeptByQuId(Integer quId) {
+    public void deleteCheckedDeptByQuId(Integer quId,Integer type) {
         LambdaQueryWrapper<QuestionCheckedDept> tbDepLambda = new QueryWrapper<QuestionCheckedDept>().lambda();
         tbDepLambda.eq(QuestionCheckedDept::getQuId, quId);
-        tbDepLambda.eq(QuestionCheckedDept::getType, QuestionCheckedDeptConstant.TYPE_CHECKED_DEPT);
+        tbDepLambda.eq(QuestionCheckedDept::getType, type);
         this.remove(tbDepLambda);
     }
 }

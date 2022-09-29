@@ -637,7 +637,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     public List<CheckQuestionHistoryStatisticDeptListDeptVo> checkQuestionHistoryStatisticInspectedDeptList(CheckQuestionHistoryStatisticDeptListParam deptListParam, Data data) {
         String type = data.getDeps().get(0).getType();
         Integer quId = deptListParam.getQuId();
-        List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByQuId(quId);
+        List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByQuId(quId,QuestionCheckedDeptConstant.TYPE_CHECKED_DEPT );
         if(questionCheckedDeptList.isEmpty()){
             return Lists.newArrayList();
         }
@@ -806,7 +806,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             questionCheckedDept.setType(QuestionCheckedDeptConstant.TYPE_CHECKED_DEPT);
             addList.add(questionCheckedDept);
         }
-        questionCheckedDeptService.deleteCheckedDeptByQuId(quId);
+        questionCheckedDeptService.deleteCheckedDeptByQuId(quId,QuestionCheckedDeptConstant.TYPE_CHECKED_DEPT);
         questionCheckedDeptService.saveBatch(addList);
     }
 
@@ -818,7 +818,44 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             return Lists.newArrayList();
         }
 
-        List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByQuId(quId);
+        List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByQuId(quId, QuestionCheckedDeptConstant.TYPE_CHECKED_DEPT);
+        return questionCheckedDeptList.stream().map(QuestionCheckedDept::getDeptId).collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateResponsibilityUserIdsParam(UpdateResponsibilityUserIdsParam param) {
+        Integer quId = param.getQuId();
+        Question byId = this.getById(quId);
+        if(byId==null){
+            return;
+        }
+
+        String[] userIds = param.getUserIds();
+
+        Date date = new Date();
+        ArrayList<QuestionCheckedDept> addList = Lists.newArrayList();
+        for (String userId : userIds) {
+            QuestionCheckedDept questionCheckedDept = new QuestionCheckedDept();
+            questionCheckedDept.setQuId(quId);
+            questionCheckedDept.setDeptId(userId);
+            questionCheckedDept.setCreateTime(date);
+            questionCheckedDept.setUpdateTime(date);
+            questionCheckedDept.setType(QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
+            addList.add(questionCheckedDept);
+        }
+        questionCheckedDeptService.deleteCheckedDeptByQuId(quId,QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
+        questionCheckedDeptService.saveBatch(addList);
+    }
+
+    @Override
+    public List<String> selectResponsibilityUserIdsParam(SelectResponsibilityUserIdsParam param) {
+        Integer quId = param.getQuId();
+        Question byId = this.getById(quId);
+        if(byId==null || AnswerConstant.DEL_DELETED.equals(byId.getDel())){
+            return Lists.newArrayList();
+        }
+
+        List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByQuId(quId,QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER );
         return questionCheckedDeptList.stream().map(QuestionCheckedDept::getDeptId).collect(Collectors.toList());
     }
 
@@ -915,6 +952,19 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                 questionMapper.updateById(question);
             }
         }
+    }
+
+    @Override
+    public void updateTemplateIdIdParam(UpdateTemplateIdParam param) {
+        Integer quId = param.getQuId();
+        String templateId = param.getTemplateId();
+        Question byId = this.getById(quId);
+        if(byId==null){
+            return;
+        }
+        byId.setTemplateId(templateId);
+        byId.setUpdateTime(new Date());
+        this.updateById(byId);
     }
 
     @Override

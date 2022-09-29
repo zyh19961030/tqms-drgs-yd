@@ -1,61 +1,28 @@
 package com.qu.modules.web.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.qu.constant.Constant;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.param.*;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.vo.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultBetter;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.qu.constant.Constant;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.param.CheckQuestionHistoryStatisticDeptListParam;
-import com.qu.modules.web.param.QuestionAgainReleaseParam;
-import com.qu.modules.web.param.QuestionCheckParam;
-import com.qu.modules.web.param.QuestionCheckedDepParam;
-import com.qu.modules.web.param.QuestionEditParam;
-import com.qu.modules.web.param.QuestionParam;
-import com.qu.modules.web.param.QuestionQueryByIdParam;
-import com.qu.modules.web.param.SelectCheckedDeptIdsParam;
-import com.qu.modules.web.param.UpdateCategoryIdParam;
-import com.qu.modules.web.param.UpdateCheckedDeptIdsParam;
-import com.qu.modules.web.param.UpdateDeptIdsParam;
-import com.qu.modules.web.param.UpdateQuestionIconParam;
-import com.qu.modules.web.param.UpdateWriteFrequencyIdsParam;
-import com.qu.modules.web.pojo.Data;
-import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.vo.CheckQuestionHistoryStatisticDeptListDeptVo;
-import com.qu.modules.web.vo.CheckQuestionHistoryStatisticVo;
-import com.qu.modules.web.vo.CheckQuestionParameterSetListVo;
-import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
-import com.qu.modules.web.vo.QuestionCheckProject;
-import com.qu.modules.web.vo.QuestionCheckVo;
-import com.qu.modules.web.vo.QuestionMonthQuarterYearCreateListVo;
-import com.qu.modules.web.vo.QuestionPageVo;
-import com.qu.modules.web.vo.QuestionPatientCreateListVo;
-import com.qu.modules.web.vo.QuestionStatisticsCheckVo;
-import com.qu.modules.web.vo.QuestionVo;
-import com.qu.modules.web.vo.ViewNameVo;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Description: 问卷表
@@ -377,6 +344,26 @@ public class QuestionController {
         return result;
     }
 
+    @ApiOperation(value = "参数设置_设置责任人", notes = "参数设置_设置责任人")
+    @PostMapping(value = "/updateResponsibilityUserIdsParam")
+    public Result<Boolean> updateResponsibilityUserIdsParam(@RequestBody @Valid UpdateResponsibilityUserIdsParam updateResponsibilityUserIdsParam) {
+        Result<Boolean> result = new Result<Boolean>();
+        questionService.updateResponsibilityUserIdsParam(updateResponsibilityUserIdsParam);
+        result.setResult(true);
+        result.success("设置成功！");
+        return result;
+    }
+
+
+    @ApiOperation(value = "参数设置_设置责任人_回显", notes = "参数设置_设置责任人_回显")
+    @PostMapping(value = "/selectResponsibilityUserIdsParam")
+    public Result<String> selectResponsibilityUserIdsParam(@RequestBody @Valid SelectResponsibilityUserIdsParam selectResponsibilityUserIdsParam) {
+        Result<String> result = new Result<String>();
+        List<String> deptIdList = questionService.selectResponsibilityUserIdsParam(selectResponsibilityUserIdsParam);
+        result.setResult(deptIdList);
+        result.success("成功！");
+        return result;
+    }
 
 
     @ApiOperation(value = "设置分类", notes = "设置分类")
@@ -388,6 +375,18 @@ public class QuestionController {
         result.success("更新成功！");
         return result;
     }
+
+
+    @ApiOperation(value = "设置匹配模板", notes = "设置匹配模板")
+    @PostMapping(value = "/updateTemplateIdIdParam")
+    public Result<Boolean> updateTemplateIdIdParam(@RequestBody @Valid UpdateTemplateIdParam param) {
+        Result<Boolean> result = new Result<Boolean>();
+        questionService.updateTemplateIdIdParam(param);
+        result.setResult(true);
+        result.success("更新成功！");
+        return result;
+    }
+
 
     /**
      * 根据输入内容搜索问卷

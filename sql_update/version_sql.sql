@@ -107,3 +107,13 @@ CREATE TABLE `tqmsn`.`qoption_version`  (
                                      `current_create_time` datetime(0) NULL DEFAULT NULL COMMENT '当前创建时间',
                                      PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '选项版本表' ROW_FORMAT = Dynamic;
+
+#2022.9.29
+ALTER TABLE `tqmsn`.`question`
+    ADD COLUMN `template_id` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '关联模板id_查检表文件' AFTER `question_version`;
+
+INSERT INTO `tqmsn`.`tb_data`(`id`, `code`, `creator`, `createTime`, `dataType`, `keyValue`, `parientId`, `remark`, `status`, `updator`, `updateTIme`, `value`) VALUES ('ed7b8ed104af4963a55c359e4929106e', NULL, 'admin', '2022-09-29 23:56:07', 'questionCheckCategory', '0', NULL, '查检表问卷设置分类', 'open', NULL, NULL, '医疗');
+INSERT INTO `tqmsn`.`tb_data`(`id`, `code`, `creator`, `createTime`, `dataType`, `keyValue`, `parientId`, `remark`, `status`, `updator`, `updateTIme`, `value`) VALUES ('3801840aa1ce4912bc9fb0efef58bd47', NULL, 'admin', '2022-09-29 23:56:07', 'questionCheckCategory', '0', NULL, '查检表问卷设置分类', 'open', NULL, NULL, '护理');
+INSERT INTO `tqmsn`.`tb_data`(`id`, `code`, `creator`, `createTime`, `dataType`, `keyValue`, `parientId`, `remark`, `status`, `updator`, `updateTIme`, `value`) VALUES ('abcb99878b8545a9a57d6bd274c18937', NULL, 'admin', '2022-09-29 23:56:07', 'questionCheckCategory', '0', NULL, '查检表问卷设置分类', 'open', NULL, NULL, '院感');
+INSERT INTO `tqmsn`.`tb_data`(`id`, `code`, `creator`, `createTime`, `dataType`, `keyValue`, `parientId`, `remark`, `status`, `updator`, `updateTIme`, `value`) VALUES ('3830bde219db494ab018c4ba5c1df4b1', NULL, 'admin', '2022-09-29 23:56:07', 'questionCheckCategory', '0', NULL, '查检表问卷设置分类', 'open', NULL, NULL, '药事-护理');
+INSERT INTO `tqmsn`.`tb_data`(`id`, `code`, `creator`, `createTime`, `dataType`, `keyValue`, `parientId`, `remark`, `status`, `updator`, `updateTIme`, `value`) VALUES ('64fd224ca0314317819fd0f05c246191', NULL, 'admin', '2022-09-29 23:56:07', 'questionCheckCategory', '0', NULL, '查检表问卷设置分类', 'open', NULL, NULL, '药事-医疗');
