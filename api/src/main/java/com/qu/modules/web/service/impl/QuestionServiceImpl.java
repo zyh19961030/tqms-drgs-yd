@@ -525,9 +525,6 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         List<TqmsQuotaCategory> quotaCategoryList = tqmsQuotaCategoryMapper.selectList(queryWrapper);
         Map<Long, String> quotaCategoryMap = quotaCategoryList.stream().collect(Collectors.toMap(TqmsQuotaCategory::getCategoryId, TqmsQuotaCategory::getCategoryName, (k1, k2) -> k1));
 
-//        Integer i = 9;
-//        i.longValue()
-
         Map<String, Object> params = new HashMap<>();
         params.put("quName", questionParam.getQuName());
         params.put("quDesc", questionParam.getQuDesc());
@@ -536,10 +533,18 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         int total = questionMapper.queryPageListCount(params);
         List<QuestionAndCategoryVo> questionList = questionMapper.queryPageList(params);
         for (QuestionAndCategoryVo questionAndCategoryVo : questionList) {
-            String categoryId = questionAndCategoryVo.getCategoryId();
-            if (StringUtils.isNotBlank(categoryId)) {
-                questionAndCategoryVo.setCategoryName(quotaCategoryMap.get(Long.parseLong(categoryId)));
+            if(QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE.equals(questionAndCategoryVo.getCategoryType())){
+                String categoryId = questionAndCategoryVo.getCategoryId();
+                if (StringUtils.isNotBlank(categoryId)) {
+                    questionAndCategoryVo.setCategoryName(quotaCategoryMap.get(Long.parseLong(categoryId)));
+                }
+            }else if(QuestionConstant.CATEGORY_TYPE_CHECK.equals(questionAndCategoryVo.getCategoryType())){
+                //todo 分类名称
+
+
+
             }
+
         }
         questionAndCategoryPageVo.setTotal(total);
         questionAndCategoryPageVo.setQuestionList(questionList);
