@@ -10,7 +10,7 @@ public class UpdateCategoryIdParam {
     @ApiModelProperty(value = "问卷id")
     private Integer[] quId;
     @ApiModelProperty(value = "分类id")
-    private Integer[] categoryId;
+    private String[] categoryId;
     @ApiModelProperty(value = "分类类型：0其他 1单病种")
     private Integer categoryType;
 }
