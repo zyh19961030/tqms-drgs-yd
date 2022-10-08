@@ -1,16 +1,28 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
+import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
+import com.qu.constant.*;
+import com.qu.event.DeleteCheckDetailSetEvent;
+import com.qu.event.QuestionVersionEvent;
+import com.qu.modules.web.entity.*;
+import com.qu.modules.web.mapper.DynamicTableMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
+import com.qu.modules.web.param.*;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.pojo.TbUser;
+import com.qu.modules.web.service.*;
+import com.qu.modules.web.vo.*;
+import com.qu.util.DeptUtil;
+import com.qu.util.IntegerUtil;
+import com.qu.util.StringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,83 +30,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.google.common.collect.Lists;
-import com.qu.constant.AnswerConstant;
-import com.qu.constant.Constant;
-import com.qu.constant.QsubjectConstant;
-import com.qu.constant.QuestionCheckedDeptConstant;
-import com.qu.constant.QuestionConstant;
-import com.qu.constant.TbInspectStatsTemplateDepConstant;
-import com.qu.event.DeleteCheckDetailSetEvent;
-import com.qu.event.QuestionVersionEvent;
-import com.qu.modules.web.entity.AnswerCheck;
-import com.qu.modules.web.entity.Qoption;
-import com.qu.modules.web.entity.QoptionVersion;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.QsubjectVersion;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.entity.QuestionCheckedDept;
-import com.qu.modules.web.entity.QuestionVersion;
-import com.qu.modules.web.entity.TbDep;
-import com.qu.modules.web.entity.TbInspectStatsTemplateDep;
-import com.qu.modules.web.entity.TqmsQuotaCategory;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
-import com.qu.modules.web.param.CheckQuestionHistoryStatisticDeptListParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam;
-import com.qu.modules.web.param.QuestionAgainReleaseParam;
-import com.qu.modules.web.param.QuestionCheckParam;
-import com.qu.modules.web.param.QuestionCheckedDepParam;
-import com.qu.modules.web.param.QuestionEditParam;
-import com.qu.modules.web.param.QuestionParam;
-import com.qu.modules.web.param.QuestionQueryByIdParam;
-import com.qu.modules.web.param.SelectCheckedDeptIdsParam;
-import com.qu.modules.web.param.SelectResponsibilityUserIdsParam;
-import com.qu.modules.web.param.UpdateCategoryIdParam;
-import com.qu.modules.web.param.UpdateCheckedDeptIdsParam;
-import com.qu.modules.web.param.UpdateDeptIdsParam;
-import com.qu.modules.web.param.UpdateQuestionIconParam;
-import com.qu.modules.web.param.UpdateResponsibilityUserIdsParam;
-import com.qu.modules.web.param.UpdateTemplateIdParam;
-import com.qu.modules.web.param.UpdateWriteFrequencyIdsParam;
-import com.qu.modules.web.pojo.Data;
-import com.qu.modules.web.pojo.TbUser;
-import com.qu.modules.web.service.IAnswerCheckService;
-import com.qu.modules.web.service.IOptionService;
-import com.qu.modules.web.service.IQoptionVersionService;
-import com.qu.modules.web.service.IQsubjectVersionService;
-import com.qu.modules.web.service.IQuestionCheckedDeptService;
-import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.service.IQuestionVersionService;
-import com.qu.modules.web.service.ISubjectService;
-import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.service.ITbInspectStatsTemplateDepService;
-import com.qu.modules.web.vo.CheckQuestionHistoryStatisticDeptListDeptVo;
-import com.qu.modules.web.vo.CheckQuestionHistoryStatisticVo;
-import com.qu.modules.web.vo.CheckQuestionParameterSetListVo;
-import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
-import com.qu.modules.web.vo.QuestionAndCategoryVo;
-import com.qu.modules.web.vo.QuestionCheckVo;
-import com.qu.modules.web.vo.QuestionMiniAppPageVo;
-import com.qu.modules.web.vo.QuestionMonthQuarterYearCreateListVo;
-import com.qu.modules.web.vo.QuestionPageVo;
-import com.qu.modules.web.vo.QuestionPatientCreateListVo;
-import com.qu.modules.web.vo.QuestionStatisticsCheckVo;
-import com.qu.modules.web.vo.QuestionVo;
-import com.qu.modules.web.vo.SubjectVo;
-import com.qu.modules.web.vo.ViewNameVo;
-import com.qu.util.DeptUtil;
-import com.qu.util.IntegerUtil;
-import com.qu.util.StringUtil;
-
-import cn.hutool.core.collection.CollectionUtil;
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Resource;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 问卷表
@@ -148,6 +86,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Resource
     private ApplicationEventPublisher applicationEventPublisher;
+
+    @Autowired
+	private ITbDataService tbDataService;
 
     @Override
     public Question saveQuestion(QuestionParam questionParam, TbUser tbUser) {
@@ -525,6 +466,10 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         List<TqmsQuotaCategory> quotaCategoryList = tqmsQuotaCategoryMapper.selectList(queryWrapper);
         Map<Long, String> quotaCategoryMap = quotaCategoryList.stream().collect(Collectors.toMap(TqmsQuotaCategory::getCategoryId, TqmsQuotaCategory::getCategoryName, (k1, k2) -> k1));
 
+
+        List<TbData> dataList = tbDataService.selectByDataType(TbDataConstant.DATA_TYPE_QUESTION_CHECK_CATEGORY);
+        Map<String, String> dataMap = dataList.stream().collect(Collectors.toMap(TbData::getId, TbData::getValue, (k1, k2) -> k1));
+
         Map<String, Object> params = new HashMap<>();
         params.put("quName", questionParam.getQuName());
         params.put("quDesc", questionParam.getQuDesc());
@@ -533,18 +478,14 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         int total = questionMapper.queryPageListCount(params);
         List<QuestionAndCategoryVo> questionList = questionMapper.queryPageList(params);
         for (QuestionAndCategoryVo questionAndCategoryVo : questionList) {
-            if(QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE.equals(questionAndCategoryVo.getCategoryType())){
-                String categoryId = questionAndCategoryVo.getCategoryId();
-                if (StringUtils.isNotBlank(categoryId)) {
+            String categoryId = questionAndCategoryVo.getCategoryId();
+            if (StringUtils.isNotBlank(categoryId)) {
+                if(QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE.equals(questionAndCategoryVo.getCategoryType())){
                     questionAndCategoryVo.setCategoryName(quotaCategoryMap.get(Long.parseLong(categoryId)));
+                }else if(QuestionConstant.CATEGORY_TYPE_CHECK.equals(questionAndCategoryVo.getCategoryType())){
+                    questionAndCategoryVo.setCategoryName(dataMap.get(categoryId));
                 }
-            }else if(QuestionConstant.CATEGORY_TYPE_CHECK.equals(questionAndCategoryVo.getCategoryType())){
-                //todo 分类名称
-
-
-
             }
-
         }
         questionAndCategoryPageVo.setTotal(total);
         questionAndCategoryPageVo.setQuestionList(questionList);
