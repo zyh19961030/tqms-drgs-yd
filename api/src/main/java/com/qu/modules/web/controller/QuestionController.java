@@ -224,8 +224,7 @@ public class QuestionController {
                                                     HttpServletRequest request) {
         Result<QuestionCheckVo> result = new Result<>();
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        String deptId = data.getDeps().get(0).getId();
-        IPage<QuestionCheckVo> questionCheckPageVoIPage = questionService.checkQuestionList(questionCheckParam, pageNo, pageSize,deptId);
+        IPage<QuestionCheckVo> questionCheckPageVoIPage = questionService.checkQuestionList(questionCheckParam, pageNo, pageSize,data);
         result.setSuccess(true);
         result.setResult(questionCheckPageVoIPage);
         return result;
@@ -247,8 +246,7 @@ public class QuestionController {
     public ResultBetter<List<CheckQuestionHistoryStatisticVo>> checkQuestionHistoryStatisticList(HttpServletRequest request) {
         ResultBetter<List<CheckQuestionHistoryStatisticVo>> result = new ResultBetter<>();
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        String deptId = data.getDeps().get(0).getId();
-        List<CheckQuestionHistoryStatisticVo> questionCheckPageVoIPage = questionService.checkQuestionHistoryStatisticList(deptId);
+        List<CheckQuestionHistoryStatisticVo> questionCheckPageVoIPage = questionService.checkQuestionHistoryStatisticList(data);
         result.setSuccess(true);
         result.setResult(questionCheckPageVoIPage);
         return result;

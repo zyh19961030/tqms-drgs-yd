@@ -35,11 +35,11 @@ public interface IQuestionService extends IService<Question> {
 
     QuestionPageVo questionFillInList(QuestionParam questionParam, Integer pageNo, Integer pageSize);
 
-    IPage<QuestionCheckVo> checkQuestionList(QuestionCheckParam questionParam, Integer pageNo, Integer pageSize,String deptId);
+    IPage<QuestionCheckVo> checkQuestionList(QuestionCheckParam questionParam, Integer pageNo, Integer pageSize,Data data);
 
     List<QuestionStatisticsCheckVo> statisticsCheckList(QuestionCheckParam questionParam);
 
-    List<CheckQuestionHistoryStatisticVo> checkQuestionHistoryStatisticList(String deptId);
+    List<CheckQuestionHistoryStatisticVo> checkQuestionHistoryStatisticList(Data data);
 
     /**
      * 检查管理_参数设置列表

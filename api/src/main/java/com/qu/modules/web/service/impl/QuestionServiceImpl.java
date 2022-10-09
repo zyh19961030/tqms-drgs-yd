@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 @Service
 public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> implements IQuestionService {
 
-    @Autowired
+    @Resource
     private QuestionMapper questionMapper;
 
 //    @Autowired
@@ -57,10 +57,10 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     @Autowired
     private IOptionService optionService;
 
-    @Autowired
+    @Resource
     private DynamicTableMapper dynamicTableMapper;
 
-    @Autowired
+    @Resource
     private TqmsQuotaCategoryMapper tqmsQuotaCategoryMapper;
 
     @Autowired
@@ -509,7 +509,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
 
     @Override
-    public IPage<QuestionCheckVo> checkQuestionList(QuestionCheckParam questionCheckParam, Integer pageNo, Integer pageSize, String deptId) {
+    public IPage<QuestionCheckVo> checkQuestionList(QuestionCheckParam questionCheckParam, Integer pageNo, Integer pageSize, Data data) {
+        String deptId = data.getDeps().get(0).getId();
         Page<Question> page = new Page<>(pageNo, pageSize);
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
         String quName = questionCheckParam.getQuName();
@@ -520,6 +521,44 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
         lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
         lambda.like(Question::getDeptIds,deptId);
+        //判断角色
+        String roleId = data.getRole().getRoleId();
+        if(Constant.ROLE_ID_LCKS_ZR.equals(roleId)){
+            lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YL).or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_YL));
+        }else if(Constant.ROLE_ID_LCKS_YL_ZKY.equals(roleId) ){
+            lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YL).or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_YL));
+            //分配给自己的查检表
+            String userId = data.getTbUser().getId();
+            List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByDeptId(userId,QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
+            if(questionCheckedDeptList.isEmpty()){
+                return new Page<>();
+            }
+            List<Integer> quIdList = questionCheckedDeptList.stream().map(QuestionCheckedDept::getQuId).distinct().collect(Collectors.toList());
+            if(quIdList.isEmpty()){
+                return new Page<>();
+            }
+            lambda.in(Question::getId,quIdList);
+        }else if(Constant.ROLE_ID_LCKS_HSZ.equals(roleId)){
+            lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_HL)
+                    .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YG)
+                    .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_HL));
+        }else if( Constant.ROLE_ID_LCKS_HL_ZKY.equals(roleId) ){
+            //分配给自己的查检表
+            lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_HL)
+                    .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YG)
+                    .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_HL));
+            String userId = data.getTbUser().getId();
+            List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByDeptId(userId,QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
+            if(questionCheckedDeptList.isEmpty()){
+                return new Page<>();
+            }
+            List<Integer> quIdList = questionCheckedDeptList.stream().map(QuestionCheckedDept::getQuId).distinct().collect(Collectors.toList());
+            if(quIdList.isEmpty()){
+                return new Page<>();
+            }
+            lambda.in(Question::getId,quIdList);
+        }
+
         IPage<Question> iPage = this.page(page,lambda);
 
         List<Question> questionList = iPage.getRecords();
@@ -564,12 +603,24 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     }
 
     @Override
-    public List<CheckQuestionHistoryStatisticVo> checkQuestionHistoryStatisticList(String deptId) {
+    public List<CheckQuestionHistoryStatisticVo> checkQuestionHistoryStatisticList(Data data) {
+        String deptId = data.getDeps().get(0).getId();
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
         lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
         lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
         lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
         lambda.like(Question::getSeeDeptIds,deptId);
+
+        //判断角色
+        String roleId = data.getRole().getRoleId();
+        if(Constant.ROLE_ID_LCKS_ZR.equals(roleId) || Constant.ROLE_ID_LCKS_YL_ZKY.equals(roleId) ){
+            lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YL).or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_YL));
+        }else if(Constant.ROLE_ID_LCKS_HSZ.equals(roleId) || Constant.ROLE_ID_LCKS_HL_ZKY.equals(roleId) ){
+            lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_HL)
+                    .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YG)
+                    .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_HL));
+        }
+
         List<Question> list = this.list(lambda);
         if(list.isEmpty()){
             return Lists.newArrayList();

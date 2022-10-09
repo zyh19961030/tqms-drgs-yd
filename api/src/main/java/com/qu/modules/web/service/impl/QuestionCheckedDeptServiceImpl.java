@@ -28,6 +28,14 @@ public class QuestionCheckedDeptServiceImpl extends ServiceImpl<QuestionCheckedD
         return this.list(tbDepLambda);
     }
 
+    @Override
+    public List<QuestionCheckedDept> selectCheckedDeptByDeptId(String deptId, Integer type) {
+        LambdaQueryWrapper<QuestionCheckedDept> tbDepLambda = new QueryWrapper<QuestionCheckedDept>().lambda();
+        tbDepLambda.eq(QuestionCheckedDept::getDeptId, deptId);
+        tbDepLambda.eq(QuestionCheckedDept::getType, type);
+        return this.list(tbDepLambda);
+    }
+
 
     @Override
     public List<QuestionCheckedDept> selectCheckedDeptByQuIdAndDeptId(Integer quId, String checkedDeptId) {
