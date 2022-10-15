@@ -32,6 +32,8 @@ import com.qu.util.HttpClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.jeecg.common.api.vo.ResultBetterFactory;
 import org.jeecg.common.api.vo.ResultFactory;
 import org.jeecg.common.util.UUIDGenerator;
 import org.joda.time.DateTime;
@@ -1071,5 +1073,19 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         }
     }
 
-
+    @Override
+    public ResultBetter checkQuestionRecordDelete(AnswerCheckDeleteParam param, String userId) {
+        Integer id = param.getId();
+        AnswerCheck byId = this.getById(id);
+        if(byId==null || AnswerCheckConstant.DEL_DELETED.equals(byId.getDel())){
+            return ResultBetterFactory.fail("记录错误");
+        }
+        if(byId.getCreater().equals(userId)){
+            byId.setDel(AnswerCheckConstant.DEL_DELETED);
+            byId.setUpdateTime(new Date());
+            this.updateById(byId);
+            return ResultBetterFactory.success();
+        }
+        return ResultBetterFactory.fail("不是记录创建人，无法删除");
+    }
 }

@@ -12,6 +12,7 @@ import com.qu.modules.web.vo.AnswerCheckDetailListVo;
 import com.qu.modules.web.vo.AnswerCheckVo;
 import com.qu.modules.web.vo.CheckQuestionHistoryStatisticRecordListVo;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultBetter;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -56,5 +57,7 @@ public interface IAnswerCheckService extends IService<AnswerCheck> {
 
 
     void exportXlsCheckQuestionHistoryStatisticDetailList(CheckQuestionHistoryStatisticDetailListExportRequest exportRequest, HttpServletResponse response);
+
+    ResultBetter checkQuestionRecordDelete(AnswerCheckDeleteParam param, String userId);
 
 }

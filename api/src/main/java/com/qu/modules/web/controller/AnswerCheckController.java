@@ -1,35 +1,11 @@
 package com.qu.modules.web.controller;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultBetter;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.qu.constant.AnswerCheckConstant;
 import com.qu.constant.Constant;
 import com.qu.modules.web.entity.AnswerCheck;
-import com.qu.modules.web.param.AnswerCheckAddParam;
-import com.qu.modules.web.param.AnswerCheckDetailListExportParam;
-import com.qu.modules.web.param.AnswerCheckDetailListParam;
-import com.qu.modules.web.param.AnswerCheckListParam;
-import com.qu.modules.web.param.CheckQuestionHistoryStatisticDeptDetailListExportParam;
-import com.qu.modules.web.param.CheckQuestionHistoryStatisticDeptDetailListParam;
-import com.qu.modules.web.param.CheckQuestionHistoryStatisticDeptRecordListParam;
-import com.qu.modules.web.param.CheckQuestionHistoryStatisticDetailListExportParam;
-import com.qu.modules.web.param.CheckQuestionHistoryStatisticDetailListParam;
-import com.qu.modules.web.param.CheckQuestionHistoryStatisticRecordListParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListExportRequest;
 import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListRequest;
@@ -39,10 +15,18 @@ import com.qu.modules.web.vo.AnswerCheckDetailListVo;
 import com.qu.modules.web.vo.AnswerCheckPageVo;
 import com.qu.modules.web.vo.AnswerCheckVo;
 import com.qu.modules.web.vo.CheckQuestionHistoryStatisticRecordListVo;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 /**
  * @Description: 检查表问卷总表
@@ -119,6 +103,14 @@ public class AnswerCheckController {
 		result.setSuccess(true);
 		result.setResult(answerPageVo);
 		return result;
+	}
+
+	@ApiOperation(value = "检查表管理_历史统计_上级督查/科室自查_填报记录分页列表_删除接口", notes = "检查表管理_历史统计_科室自查_填报记录分页列表(职能科室和临床科室同一个接口)")
+	@GetMapping(value = "/checkQuestionRecordDelete")
+	public ResultBetter checkQuestionRecordDelete(@Valid AnswerCheckDeleteParam param,
+												  HttpServletRequest request) {
+		Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+		return answerCheckService.checkQuestionRecordDelete(param, data.getTbUser().getId());
 	}
 
 	 @ApiOperation(value = "答题", notes = "答题")
