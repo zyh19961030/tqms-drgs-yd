@@ -1,6 +1,28 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.util.NumberUtil;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.jeecg.common.api.vo.ResultBetterFactory;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.util.UUIDGenerator;
+import org.joda.time.DateTime;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -14,38 +36,46 @@ import com.qu.constant.CheckDetailSetConstant;
 import com.qu.constant.QsubjectConstant;
 import com.qu.constant.QuestionConstant;
 import com.qu.exporter.AnswerCheckeDetailExporter;
-import com.qu.modules.web.entity.*;
+import com.qu.modules.web.entity.AnswerCheck;
+import com.qu.modules.web.entity.Qoption;
+import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.entity.QuestionCheckedDept;
+import com.qu.modules.web.entity.TbDep;
+import com.qu.modules.web.entity.TbUser;
 import com.qu.modules.web.mapper.AnswerCheckMapper;
 import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.*;
+import com.qu.modules.web.param.AnswerCheckAddParam;
+import com.qu.modules.web.param.AnswerCheckDeleteParam;
+import com.qu.modules.web.param.AnswerCheckDetailListExportParam;
+import com.qu.modules.web.param.AnswerCheckDetailListParam;
+import com.qu.modules.web.param.AnswerCheckListParam;
+import com.qu.modules.web.param.AnswerMiniAppParam;
+import com.qu.modules.web.param.Answers;
+import com.qu.modules.web.param.SingleDiseaseAnswer;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListExportRequest;
 import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListRequest;
 import com.qu.modules.web.request.CheckQuestionHistoryStatisticRecordListRequest;
-import com.qu.modules.web.service.*;
-import com.qu.modules.web.vo.*;
+import com.qu.modules.web.service.IAnswerCheckService;
+import com.qu.modules.web.service.ICheckDetailSetService;
+import com.qu.modules.web.service.IQuestionCheckedDeptService;
+import com.qu.modules.web.service.ISubjectService;
+import com.qu.modules.web.service.ITbDepService;
+import com.qu.modules.web.service.ITbUserService;
+import com.qu.modules.web.vo.AnswerCheckDetailListVo;
+import com.qu.modules.web.vo.AnswerCheckVo;
+import com.qu.modules.web.vo.CheckDetailSetVo;
+import com.qu.modules.web.vo.CheckQuestionHistoryStatisticRecordListVo;
+import com.qu.modules.web.vo.SubjectVo;
 import com.qu.util.ExcelExportUtil;
 import com.qu.util.HttpClient;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultBetter;
-import org.jeecg.common.api.vo.ResultBetterFactory;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.jeecg.common.util.UUIDGenerator;
-import org.joda.time.DateTime;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletResponse;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import cn.hutool.core.util.NumberUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: 检查表问卷总表
@@ -105,6 +135,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         }
 
         LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
+        lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
         if (!questionSearchIdList.isEmpty()) {
             lambda.in(AnswerCheck::getQuId, questionSearchIdList);
         }
@@ -182,6 +213,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
         lambda.in(AnswerCheck::getQuId, questionSearchIdList);
         lambda.eq(AnswerCheck::getAnswerStatus, AnswerCheckConstant.ANSWER_STATUS_RELEASE);
+        lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
 
         if (recordListRequest.getStartDate() != null) {
             lambda.ge(AnswerCheck::getUpdateTime, recordListRequest.getStartDate());
@@ -536,7 +568,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
     @Override
     public AnswerCheck queryById(String id) {
         AnswerCheck answerCheck = this.getById(id);
-        if (answerCheck == null) {
+        if(answerCheck==null || AnswerCheckConstant.DEL_DELETED.equals(answerCheck.getDel())){
             return null;
         }
 
