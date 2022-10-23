@@ -36,7 +36,8 @@ public class LoginInterceptor implements HandlerInterceptor {
             "/answerCheck/exportXlsCheckQuestionHistoryStatisticDetailList",
             "/business/qSingleDiseaseTake/departmentQuantityStatisticsExport",
             "/business/qSingleDiseaseTake/allSingleDiseaseReportStatisticByDeptExport",
-            "/business/qSingleDiseaseTake/allSingleDiseaseReportStatisticExport");
+            "/business/qSingleDiseaseTake/allSingleDiseaseReportStatisticExport",
+            "/business/questionTemp/copyTemp");
 
 
     @Value("${system.tokenUrl}")
