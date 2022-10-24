@@ -306,4 +306,33 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         }
         return ResultFactory.success();
     }
+
+    @Override
+    public Result updateTableAddDel(AdminPrivateUpdateTableDrugFeeParam param) {
+        //查出来所有的单病种表
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        lambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
+//        lambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+        lambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
+        lambda.ge(Question::getId,164);
+        List<Question> questionList = questionMapper.selectList(lambda);
+        if(questionList.isEmpty()){
+            return ResultFactory.fail("未找到需要更新的问卷");
+        }
+        StringBuilder sqlSelect = new StringBuilder();
+        for (Question question : questionList) {
+            String tableName = question.getTableName();
+            if(StringUtils.isBlank(tableName)){
+                continue;
+            }
+            sqlSelect.setLength(0);
+            //ALTER TABLE `drgs_stk` ADD COLUMN `del` tinyint(4) NULL DEFAULT 0 COMMENT '0:正常1:已删除' AFTER `summary_mapping_table_id`;
+            sqlSelect.append("ALTER TABLE `");
+            sqlSelect.append(tableName);
+            sqlSelect.append("` ADD COLUMN `del` tinyint(4) NULL DEFAULT 0 COMMENT '0:正常1:已删除' AFTER `summary_mapping_table_id`");
+            dynamicTableMapper.createDynamicTable(sqlSelect.toString());
+        }
+
+        return ResultFactory.success();
+    }
 }

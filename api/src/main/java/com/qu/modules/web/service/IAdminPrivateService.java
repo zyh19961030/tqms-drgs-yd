@@ -16,4 +16,5 @@ public interface IAdminPrivateService extends IService<Answer> {
 
     Result updateOptionValue(AdminPrivateUpdateOptionValueParam adminPrivateUpdateOptionValueParam);
 
+    Result updateTableAddDel(AdminPrivateUpdateTableDrugFeeParam param);
 }
