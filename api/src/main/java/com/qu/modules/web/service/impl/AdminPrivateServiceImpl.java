@@ -15,6 +15,7 @@ import com.qu.modules.web.entity.*;
 import com.qu.modules.web.mapper.*;
 import com.qu.modules.web.param.AdminPrivateParam;
 import com.qu.modules.web.param.AdminPrivateUpdateOptionValueParam;
+import com.qu.modules.web.param.AdminPrivateUpdateTableAddDelFeeParam;
 import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
 import com.qu.modules.web.service.IAdminPrivateService;
 import com.qu.modules.web.service.IOptionService;
@@ -308,13 +309,20 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
     }
 
     @Override
-    public Result updateTableAddDel(AdminPrivateUpdateTableDrugFeeParam param) {
+    public Result updateTableAddDel(AdminPrivateUpdateTableAddDelFeeParam param) {
         //查出来所有的单病种表
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
         lambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
 //        lambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
         lambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
-        lambda.ge(Question::getId,164);
+        Integer quId = param.getQuId();
+        if(quId!=null && !quId.equals(-1)){
+            lambda.ge(Question::getId,quId);
+        }
+        if(quId!=null && quId.equals(-1)){
+            lambda.lt(Question::getId,164);
+        }
+
         List<Question> questionList = questionMapper.selectList(lambda);
         if(questionList.isEmpty()){
             return ResultFactory.fail("未找到需要更新的问卷");
