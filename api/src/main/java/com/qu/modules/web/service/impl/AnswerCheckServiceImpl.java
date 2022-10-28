@@ -591,7 +591,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
 
     @Override
     public AnswerCheckDetailListVo detailList(AnswerCheckDetailListParam answerCheckDetailListParam, Data data, Integer pageNo, Integer pageSize) {
-        String depId = data.getTbUser().getDepId();
+        String depId = data.getDeps().get(0).getId();
         //查询显示列
         Integer quId = answerCheckDetailListParam.getQuId();
         List<CheckDetailSetVo> checkDetailSet = checkDetailSetService.queryByQuestionId(quId, data.getTbUser().getId());
