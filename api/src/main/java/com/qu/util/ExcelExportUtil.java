@@ -1,12 +1,20 @@
 package com.qu.util;
 
-import com.qu.exporter.ExcelDataBuilder;
-import org.apache.poi.hssf.usermodel.*;
-import org.apache.poi.ss.usermodel.Workbook;
-
-import javax.servlet.http.HttpServletResponse;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
+
+import com.qu.exporter.ExcelDataBuilder;
 
 /**
  * Excel导出工具
@@ -63,7 +71,7 @@ public class ExcelExportUtil {
         HSSFDataFormat format = workbook.createDataFormat();
 
         //创建行
-        HSSFRow row = sheet.createRow(1);
+//        HSSFRow row = sheet.createRow(1);
 
         //设置字体
         HSSFFont font = workbook.createFont();
@@ -83,7 +91,7 @@ public class ExcelExportUtil {
 //        HSSFCell cell = null;
 
         //构造数据
-        builder.build(sheet, row, data);
+        builder.build(sheet, data);
 //
 //        for (int i = 0; i < 10; i++) {
 //            row = sheet.createRow(i);
