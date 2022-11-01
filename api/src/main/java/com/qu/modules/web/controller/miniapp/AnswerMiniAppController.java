@@ -3,6 +3,7 @@ package com.qu.modules.web.controller.miniapp;
 import javax.servlet.http.HttpServletRequest;
 
 import org.jeecg.common.api.vo.Result;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.qu.modules.web.entity.AnswerCheck;
 import com.qu.modules.web.param.AnswerCheckListParam;
+import com.qu.modules.web.request.AnswerCheckListRequest;
 import com.qu.modules.web.service.IAnswerCheckService;
 import com.qu.modules.web.vo.AnswerCheckPageVo;
 import com.qu.modules.web.vo.AnswerCheckVo;
@@ -37,7 +39,9 @@ public class AnswerMiniAppController {
                                                              @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                              HttpServletRequest req) {
         Result<AnswerCheckPageVo> result = new Result<AnswerCheckPageVo>();
-        IPage<AnswerCheckVo> answerPageVo = answerCheckService.checkQuestionFillInList(answerCheckListParam,pageNo, pageSize, null);
+        AnswerCheckListRequest listRequest = new AnswerCheckListRequest();
+        BeanUtils.copyProperties(answerCheckListParam,listRequest);
+        IPage<AnswerCheckVo> answerPageVo = answerCheckService.checkQuestionFillInList(listRequest,pageNo, pageSize, null);
         result.setSuccess(true);
         result.setResult(answerPageVo);
         return result;

@@ -1,4 +1,4 @@
-package com.qu.modules.web.param;
+package com.qu.modules.web.request;
 
 import java.util.Date;
 
@@ -11,8 +11,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
-@ApiModel(value="AnswerCheckParam入参", description="AnswerCheckParam入参")
-public class AnswerCheckListParam {
+@ApiModel(value="AnswerCheckListRequest", description="AnswerCheckListRequest")
+public class AnswerCheckListRequest {
 
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd")
@@ -29,5 +29,11 @@ public class AnswerCheckListParam {
 
     @ApiModelProperty(value = "被检查科室id")
     private String deptId;
+
+    @ApiModelProperty(value = "用户科室id")
+    private String userDeptId;
+
+    @ApiModelProperty(value = "用户id")
+    private String userId;
 
 }
