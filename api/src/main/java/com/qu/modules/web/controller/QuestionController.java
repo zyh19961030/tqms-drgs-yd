@@ -124,6 +124,23 @@ public class QuestionController {
     }
 
     /**
+     * 生成溯源表
+     *
+     * @param idParam  traceability
+     * @return
+     */
+    @AutoLog(value = "问卷表-生成溯源表")
+    @ApiOperation(value = "问卷表-生成溯源表", notes = "问卷表-生成溯源表")
+    @PostMapping(value = "/generateTraceability")
+    public Result<Boolean> generateTraceability(@Valid @RequestBody IdParam idParam) {
+        Result<Boolean> result = new Result<Boolean>();
+        Boolean flag = questionService.generateTraceability(idParam.getId());
+        result.setResult(flag);
+        result.success("生成溯源表成功!");
+        return result;
+    }
+
+    /**
      * 通过id删除
      *
      * @param id

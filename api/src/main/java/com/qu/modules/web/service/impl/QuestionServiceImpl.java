@@ -1126,6 +1126,86 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     }
 
     @Override
+    public Boolean generateTraceability(String id) {
+        try {
+            Question question = questionMapper.selectById(id);
+            if (question == null || QuestionConstant.DEL_DELETED.equals(question.getDel())) {
+                return false;
+            }
+
+            StringBuffer sql = new StringBuffer();
+            sql.append("CREATE TABLE `" + question.getTableName() + "_sy` (");
+            sql.append("`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',");
+//                List<Qsubject> subjectList = subjectMapper.selectSubjectByQuId(questionEditParam.getId());
+            List<Qsubject> subjectList = subjectService.selectSubjectByQuId(question.getId());
+            for (Qsubject qsubject : subjectList) {
+//                Integer limitWords = qsubject.getLimitWords();
+//                if(limitWords==null || limitWords==0){
+//                    limitWords=50;
+//                }
+                String subType = qsubject.getSubType();
+                Integer del = qsubject.getDel();
+                if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType) || QuestionConstant.DEL_DELETED.equals(del)) {
+                    continue;
+                }
+                sql.append("`")
+                        .append(qsubject.getColumnName())
+                        .append("` text(0) COMMENT '")
+                        .append(qsubject.getId())
+                        .append("',");
+
+                if (QsubjectConstant.MARK_OPEN.equals(qsubject.getMark())) {
+                    sql.append("`")
+                            .append(qsubject.getColumnName())
+                            .append("_mark")
+                            .append("` ")
+                            .append(QsubjectConstant.MARK_TYPE)
+                            .append("(")
+                            .append(QsubjectConstant.MARK_LENGTH)
+                            .append(") COMMENT '")
+                            .append(qsubject.getId())
+                            .append("的痕迹")
+                            .append("',");
+                    sql.append("`")
+                            .append(qsubject.getColumnName())
+                            .append("_mark_img")
+                            .append("` ")
+                            .append(QsubjectConstant.MARK_TYPE)
+                            .append("(")
+                            .append(QsubjectConstant.MARK_LENGTH)
+                            .append(") COMMENT '")
+                            .append(qsubject.getId())
+                            .append("的痕迹图片")
+                            .append("',");
+                }
+            }
+            if(QuestionConstant.CATEGORY_TYPE_CHECK.equals(question.getCategoryType())){
+                sql.append(" `tbrid` varchar(128) NULL COMMENT '填报人id',");
+                sql.append(" `tbrxm` varchar(128) NULL COMMENT '填报人名称',");
+            }
+            sql.append(" `answer_datetime` timestamp(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '填报时间',");
+            sql.append(" `tbksmc` varchar(128) NULL COMMENT '填报科室名称',");
+            sql.append(" `tbksdm` varchar(128) NULL COMMENT '填报科室代码',");
+            sql.append(" `summary_mapping_table_id` varchar(128) NULL COMMENT '对应总表的id，可以当主键',");
+            sql.append(" `del` tinyint(4) NULL DEFAULT 0 COMMENT '0:正常1:已删除',");
+            sql.append(" PRIMARY KEY (`id`)");
+            if(subjectList.size()>=50){
+                sql.append(") ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+            }else{
+                sql.append(") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+            }
+            dynamicTableMapper.createDynamicTable(sql.toString());
+            question.setTraceabilityStatus(QuestionConstant.TRACEABILITY_STATUS_GENERATED);
+            this.updateById(question);
+            return true;
+
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return false;
+    }
+
+    @Override
     public List<Question> queryQuestionByInput(String name) {
         List<Question> questions = questionMapper.queryQuestionByInput(name);
         return questions;

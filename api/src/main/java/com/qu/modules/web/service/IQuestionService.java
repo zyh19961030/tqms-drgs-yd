@@ -92,6 +92,8 @@ public interface IQuestionService extends IService<Question> {
 
     Boolean againRelease(QuestionAgainReleaseParam questionAgainreleaseParam);
 
+    Boolean generateTraceability(String id);
+
     List<Question> queryQuestionByInput(String name);
 
     void updateWriteFrequencyIdsParam(UpdateWriteFrequencyIdsParam updateWriteFrequencyIdsParam);

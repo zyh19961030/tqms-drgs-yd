@@ -106,4 +106,8 @@ public class Question {
 	@Excel(name = "关联模板id_查检表文件", width = 15)
 	@ApiModelProperty(value = "关联模板id_查检表文件")
 	private java.lang.String templateId;
+	/**溯源状态 1未生成 2已生成*/
+	@Excel(name = "溯源状态 1未生成 2已生成", width = 15)
+	@ApiModelProperty(value = "溯源状态 1未生成 2已生成")
+	private java.lang.Integer traceabilityStatus;
 }

@@ -27,6 +27,9 @@ public class QuestionConstant {
 	public static final String SUB_TYPE_GROUP = "8";
 	public static final String SUB_TYPE_TITLE = "9";
 
+	public static final Integer TRACEABILITY_STATUS_NO_GENERATE = 1;
+	public static final Integer TRACEABILITY_STATUS_GENERATED = 2;
+
 
 
 
