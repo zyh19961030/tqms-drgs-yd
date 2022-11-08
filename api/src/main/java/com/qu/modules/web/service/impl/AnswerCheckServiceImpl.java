@@ -315,8 +315,15 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         if (answerMiniAppParam.getId() != null && NumberUtil.isNumber(answerMiniAppParam.getId())) {
             answerCheckAddParam.setId(Integer.parseInt(answerMiniAppParam.getId()));
         }
-        TbDep tbDep = tbDepService.getById(tbUser.getDepid());
-        return getResult(answerCheckAddParam, tbUser.getId(), tbUser.getUsername(), tbUser.getDepid(), tbDep.getDepname());
+        String deptId = answerMiniAppParam.getDeptId();
+        TbDep tbDep;
+        if (StringUtils.isNotBlank(deptId)) {
+            tbDep = tbDepService.getById(deptId);
+        } else {
+            tbDep = tbDepService.getById(tbUser.getDepid());
+        }
+
+        return getResult(answerCheckAddParam, tbUser.getId(), tbUser.getUsername(), tbDep.getId(), tbDep.getDepname());
     }
 
     private Result getResult(AnswerCheckAddParam answerCheckAddParam, String creater, String creater_name, String creater_deptid, String creater_deptname) {

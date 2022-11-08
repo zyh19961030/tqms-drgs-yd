@@ -11,6 +11,8 @@ public class AnswerMiniAppParam {
     private String id;
     @ApiModelProperty(value = "用户id")
     private String userId;
+    @ApiModelProperty(value = "当前登录科室id")
+    private String deptId;
     @ApiModelProperty(value = "问卷id")
     private Integer quId;
     @ApiModelProperty(value = "状态 阶段性保存传0,提交传1")
