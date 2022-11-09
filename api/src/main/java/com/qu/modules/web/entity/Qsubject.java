@@ -1,20 +1,18 @@
 package com.qu.modules.web.entity;
 
-import java.math.BigDecimal;
-
-import org.jeecgframework.poi.excel.annotation.Excel;
-import org.springframework.format.annotation.DateTimeFormat;
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.jeecgframework.poi.excel.annotation.Excel;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.math.BigDecimal;
 
 /**
  * @Description: 题目表
@@ -46,9 +44,9 @@ public class Qsubject {
 	@Excel(name = "题目名称", width = 15)
     @ApiModelProperty(value = "题目名称")
 	private java.lang.String subName;
-	/**题目类型 1.单选   2.多选   3.日期   4.时间  5.下拉框    6.单行文本   7.多行文本  8.分组框  9.提示标题 10.日期选择器-月 11.日期选择器-季度 12.日期选择器-年 13.单选题（带分值、带附件） 14.下拉单选题（带分值、带附件） 15.分值型分组框 16.满意度评价题 17.科室选择改为数据源下拉单选 18.医院人员选择 19.数量统计题型 20.选择题分数求和题型 21.结果评价题型 22.数值题求和题型 23.预设题目数量题型*/
-	@Excel(name = "题目类型 1.单选   2.多选   3.日期   4.时间  5.下拉框    6.单行文本   7.多行文本  8.分组框  9.提示标题 10.日期选择器-月 11.日期选择器-季度 12.日期选择器-年 13.单选题（带分值、带附件） 14.下拉单选题（带分值、带附件） 15.分值型分组框 16.满意度评价题 17.科室选择改为数据源下拉单选 18.医院人员选择 19.数量统计题型 20.选择题分数求和题型 21.结果评价题型 22.数值题求和题型 23.预设题目数量题型", width = 15)
-    @ApiModelProperty(value = "题目类型 1.单选   2.多选   3.日期   4.时间  5.下拉框    6.单行文本   7.多行文本  8.分组框  9.提示标题 10.日期选择器-月 11.日期选择器-季度 12.日期选择器-年 13.单选题（带分值、带附件） 14.下拉单选题（带分值、带附件） 15.分值型分组框 16.满意度评价题 17.科室选择改为数据源下拉单选 18.医院人员选择 19.数量统计题型 20.选择题分数求和题型 21.结果评价题型 22.数值题求和题型 23.预设题目数量题型")
+	/**题目类型 1.单选   2.多选   3.日期   4.时间  5.下拉框    6.单行文本   7.多行文本  8.分组框  9.提示标题 10.日期选择器-月 11.日期选择器-季度 12.日期选择器-年 13.单选题（带分值、带附件） 14.下拉单选题（带分值、带附件） 15.分值型分组框 16.满意度评价题 17.科室选择改为数据源下拉单选 18.医院人员选择 19.数量统计题型 20.选择题分数求和题型 21.结果评价题型 22.数值题求和题型 23.预设题目数量题型  24.签名题型*/
+	@Excel(name = "题目类型 1.单选   2.多选   3.日期   4.时间  5.下拉框    6.单行文本   7.多行文本  8.分组框  9.提示标题 10.日期选择器-月 11.日期选择器-季度 12.日期选择器-年 13.单选题（带分值、带附件） 14.下拉单选题（带分值、带附件） 15.分值型分组框 16.满意度评价题 17.科室选择改为数据源下拉单选 18.医院人员选择 19.数量统计题型 20.选择题分数求和题型 21.结果评价题型 22.数值题求和题型 23.预设题目数量题型  24.签名题型", width = 15)
+    @ApiModelProperty(value = "题目类型 1.单选   2.多选   3.日期   4.时间  5.下拉框    6.单行文本   7.多行文本  8.分组框  9.提示标题 10.日期选择器-月 11.日期选择器-季度 12.日期选择器-年 13.单选题（带分值、带附件） 14.下拉单选题（带分值、带附件） 15.分值型分组框 16.满意度评价题 17.科室选择改为数据源下拉单选 18.医院人员选择 19.数量统计题型 20.选择题分数求和题型 21.结果评价题型 22.数值题求和题型 23.预设题目数量题型  24.签名题型")
 	private java.lang.String subType;
 	/**是否为必填 0:非必填 1:必填*/
 	@Excel(name = "是否为必填 0:非必填 1:必填", width = 15)
