@@ -1,8 +1,8 @@
 package com.qu.constant;
 
-import java.util.List;
-
 import com.google.common.collect.Lists;
+
+import java.util.List;
 
 public class QSingleDiseaseTakeConstant {
 
@@ -18,6 +18,10 @@ public class QSingleDiseaseTakeConstant {
 	public static final String DATE_TYPE_YEARLY = "yearly";
 	public static final String DATE_TYPE_MONTHLY = "monthly";
 	public static final String DATE_TYPE_DAILY = "daily";
+
+
+	public static final Integer DEL_NORMAL = 0;
+	public static final Integer DEL_DELETED = 1;
 
 	public static final Integer REPORT_STATUS_NO_NEED = 0;
 

@@ -106,7 +106,7 @@ public class QuestionVersion {
 	/**问卷版本*/
 	@Excel(name = "问卷版本", width = 15)
     @ApiModelProperty(value = "问卷版本")
-	private Integer questionVersion;
+	private String questionVersion;
 	/**当前创建时间*/
 	@Excel(name = "当前创建时间", width = 20, format = "yyyy-MM-dd HH:mm:ss")
 	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")

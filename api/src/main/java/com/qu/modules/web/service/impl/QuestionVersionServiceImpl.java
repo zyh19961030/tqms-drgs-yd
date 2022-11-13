@@ -21,7 +21,7 @@ import java.util.List;
 public class QuestionVersionServiceImpl extends ServiceImpl<QuestionVersionMapper, QuestionVersion> implements IQuestionVersionService {
 
     @Override
-    public QuestionVersion selectByQuestionAndVersion(Integer quId, Integer questionVersionNumber) {
+    public QuestionVersion selectByQuestionAndVersion(Integer quId, String questionVersionNumber) {
         LambdaQueryWrapper<QuestionVersion> lambda = new QueryWrapper<QuestionVersion>().lambda();
         lambda.in(QuestionVersion::getQuId,quId);
         lambda.in(QuestionVersion::getQuestionVersion, questionVersionNumber);

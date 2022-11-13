@@ -124,4 +124,8 @@ public class Answer {
     @Excel(name = "填报的月/季度/年", width = 15)
     @ApiModelProperty(value = "填报的月/季度/年")
     private java.lang.String questionAnswerTime;
+    /**问卷版本*/
+    @Excel(name = "问卷版本", width = 15)
+    @ApiModelProperty(value = "问卷版本")
+    private java.lang.String questionVersion;
 }

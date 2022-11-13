@@ -1,65 +1,28 @@
 package com.qu.modules.web.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.qu.constant.Constant;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.param.*;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.vo.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultBetter;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.qu.constant.Constant;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.param.CheckQuestionHistoryStatisticDeptListParam;
-import com.qu.modules.web.param.IdParam;
-import com.qu.modules.web.param.QuestionAgainReleaseParam;
-import com.qu.modules.web.param.QuestionCheckParam;
-import com.qu.modules.web.param.QuestionCheckedDepParam;
-import com.qu.modules.web.param.QuestionEditParam;
-import com.qu.modules.web.param.QuestionParam;
-import com.qu.modules.web.param.QuestionQueryByIdParam;
-import com.qu.modules.web.param.SelectCheckedDeptIdsParam;
-import com.qu.modules.web.param.SelectResponsibilityUserIdsParam;
-import com.qu.modules.web.param.UpdateCategoryIdParam;
-import com.qu.modules.web.param.UpdateCheckedDeptIdsParam;
-import com.qu.modules.web.param.UpdateDeptIdsParam;
-import com.qu.modules.web.param.UpdateQuestionIconParam;
-import com.qu.modules.web.param.UpdateResponsibilityUserIdsParam;
-import com.qu.modules.web.param.UpdateTemplateIdParam;
-import com.qu.modules.web.param.UpdateWriteFrequencyIdsParam;
-import com.qu.modules.web.pojo.Data;
-import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.vo.CheckQuestionHistoryStatisticDeptListDeptVo;
-import com.qu.modules.web.vo.CheckQuestionHistoryStatisticVo;
-import com.qu.modules.web.vo.CheckQuestionParameterSetListVo;
-import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
-import com.qu.modules.web.vo.QuestionCheckProject;
-import com.qu.modules.web.vo.QuestionCheckVo;
-import com.qu.modules.web.vo.QuestionMonthQuarterYearCreateListVo;
-import com.qu.modules.web.vo.QuestionPageVo;
-import com.qu.modules.web.vo.QuestionPatientCreateListVo;
-import com.qu.modules.web.vo.QuestionStatisticsCheckVo;
-import com.qu.modules.web.vo.QuestionVo;
-import com.qu.modules.web.vo.ViewNameVo;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Description: 问卷表
@@ -209,13 +172,47 @@ public class QuestionController {
     }
 
     /**
-     * 单病种_通过id查询
+     * 普通问卷_通过id查询_new
      *
      * @param param
      * @return
      */
-    @AutoLog(value = "单病种_通过id查询")
-    @ApiOperation(value = "单病种_通过id查询", notes = "单病种_通过id查询")
+    @AutoLog(value = "普通问卷_通过id查询_new")
+    @ApiOperation(value = "普通问卷_通过id查询_new", notes = "普通问卷_通过id查询_new")
+    @GetMapping(value = "/answerQueryById")
+    public Result<QuestionVo> answerQueryById(@Valid QuestionQueryByIdParam param) {
+        Result<QuestionVo> result = new Result<QuestionVo>();
+        QuestionVo questionVo = questionService.queryByIdNew(param);
+        result.setResult(questionVo);
+        result.setSuccess(true);
+        return result;
+    }
+
+    /**
+     * 查检表_通过id查询题目数据
+     *
+     * @param param
+     * @return
+     */
+    @AutoLog(value = "查检表_通过id查询题目数据")
+    @ApiOperation(value = "查检表_通过id查询题目数据", notes = "查检表_通过id查询题目数据")
+    @GetMapping(value = "/answerCheckQueryById")
+    public Result<QuestionVo> answerCheckQueryById(@Valid QuestionQueryByIdParam param) {
+        Result<QuestionVo> result = new Result<QuestionVo>();
+        QuestionVo questionVo = questionService.answerCheckQueryById(param);
+        result.setResult(questionVo);
+        result.setSuccess(true);
+        return result;
+    }
+
+    /**
+     * 单病种_通过id查询题目数据
+     *
+     * @param param
+     * @return
+     */
+    @AutoLog(value = "单病种_通过id查询题目数据")
+    @ApiOperation(value = "单病种_通过id查询题目数据", notes = "单病种_通过id查询题目数据")
     @GetMapping(value = "/singleDiseaseQueryById")
     public Result<QuestionVo> singleDiseaseQueryById(@Valid QuestionQueryByIdParam param) {
         Result<QuestionVo> result = new Result<QuestionVo>();

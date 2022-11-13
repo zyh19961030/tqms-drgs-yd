@@ -101,7 +101,7 @@ public class Question {
     /**问卷版本*/
 	@Excel(name = "问卷版本", width = 15)
     @ApiModelProperty(value = "问卷版本")
-	private java.lang.Integer questionVersion;
+	private java.lang.String questionVersion;
 	/**关联模板id_查检表文件*/
 	@Excel(name = "关联模板id_查检表文件", width = 15)
 	@ApiModelProperty(value = "关联模板id_查检表文件")

@@ -16,5 +16,5 @@ public class QuestionQueryByIdParam {
 
     @ApiModelProperty(value = "数据id")
     @NotNull(message = "数据id不能为空")
-    private Integer answerCheckId;
+    private Integer dataId;
 }

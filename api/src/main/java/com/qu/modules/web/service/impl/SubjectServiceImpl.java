@@ -66,8 +66,8 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
         if(StringUtils.isNotBlank(columnName)){
             LambdaQueryWrapper<Qsubject> lambda = new QueryWrapper<Qsubject>().lambda();
             lambda.eq(Qsubject::getQuId,subjectParam.getQuId())
-                    .eq(Qsubject::getColumnName,columnName)
-                    .eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
+                    .eq(Qsubject::getColumnName,columnName);
+//                    .eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
             Integer integer = qsubjectMapper.selectCount(lambda);
             if (integer > 0) {//字段重复
                 return null;
@@ -158,8 +158,8 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
         if(StringUtils.isNotBlank(columnName)){
             LambdaQueryWrapper<Qsubject> lambda = new QueryWrapper<Qsubject>().lambda();
             lambda.eq(Qsubject::getQuId,insertSubjectParam.getQuId())
-                    .eq(Qsubject::getColumnName,columnName)
-                    .eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
+                    .eq(Qsubject::getColumnName,columnName);
+//                    .eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
             Integer integer = qsubjectMapper.selectCount(lambda);
             if (integer > 0) {//字段重复
                 return null;
@@ -265,8 +265,8 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
             LambdaQueryWrapper<Qsubject> lambda = new QueryWrapper<Qsubject>().lambda();
             lambda.eq(Qsubject::getQuId,subjectEditParam.getQuId())
                     .eq(Qsubject::getColumnName,columnName)
-                    .ne(Qsubject::getId,subjectEditParam.getId())
-                    .eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
+                    .ne(Qsubject::getId,subjectEditParam.getId());
+//                    .eq(Qsubject::getDel,QsubjectConstant.DEL_NORMAL);
             Integer integer = qsubjectMapper.selectCount(lambda);
             if (integer > 0) {//字段重复
                 return null;

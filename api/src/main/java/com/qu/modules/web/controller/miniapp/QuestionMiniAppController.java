@@ -1,20 +1,5 @@
 package com.qu.modules.web.controller.miniapp;
 
-import java.util.List;
-
-import javax.validation.Valid;
-
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.jeecg.common.aspect.annotation.AutoLog;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.qu.modules.web.param.AnswerMiniAppParam;
 import com.qu.modules.web.param.QuestionCheckedDepParam;
@@ -24,10 +9,17 @@ import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.QuestionMiniAppPageVo;
 import com.qu.modules.web.vo.QuestionVo;
 import com.qu.modules.web.vo.ViewNameVo;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.aspect.annotation.AutoLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @Description: 小程序后台调用_问卷表
@@ -91,7 +83,7 @@ public class QuestionMiniAppController {
     @GetMapping(value = "/singleDiseaseQueryById")
     public Result<QuestionVo> singleDiseaseQueryById(@Valid QuestionQueryByIdParam param) {
         Result<QuestionVo> result = new Result<QuestionVo>();
-        QuestionVo questionVo = questionService.singleDiseaseQueryById(param);
+        QuestionVo questionVo = questionService.answerCheckQueryById(param);
         result.setResult(questionVo);
         result.setSuccess(true);
         return result;

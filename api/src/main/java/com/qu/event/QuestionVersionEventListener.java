@@ -8,6 +8,7 @@ import com.qu.modules.web.entity.*;
 import com.qu.modules.web.service.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 @Component
 public class QuestionVersionEventListener implements ApplicationListener<QuestionVersionEvent> {
 
+    @Lazy
     @Resource
     private IQuestionService questionService;
 

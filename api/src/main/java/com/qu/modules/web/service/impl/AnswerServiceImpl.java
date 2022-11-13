@@ -92,8 +92,14 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
                 return ResultFactory.error("该记录已提交,无法更改。");
             }
         }
+        Integer quId = answerParam.getQuId();
+        Question question = questionMapper.selectById(quId);
+        if (question == null || QuestionConstant.DEL_DELETED.equals(question.getDel())) {
+            return ResultFactory.error("问卷不存在,无法保存。");
+        }
         //插入总表
         answer.setQuId(answerParam.getQuId());
+        answer.setQuestionVersion(question.getQuestionVersion());
         answer.setAnswerJson( JSON.toJSONString(answerParam.getAnswers()));
         Integer status = answerParam.getStatus();
         answer.setAnswerStatus(status);
@@ -106,6 +112,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         answer.setCreaterDeptid(creater_deptid);
         answer.setCreaterDeptname(creater_deptname);
         answer.setAnswerTime(date);
+        answer.setQuestionVersion(question.getQuestionVersion());
 
         Answers[] answers = answerParam.getAnswers();
         Map<String, String> mapCache = new HashMap<>();
@@ -165,7 +172,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         }
         //插入子表
         StringBuffer sqlAns = new StringBuffer();
-        Question question = questionMapper.selectById(answerParam.getQuId());
+//        Question question = questionMapper.selectById(answerParam.getQuId());
         if (question != null) {
             if (insertOrUpdate) {
                 sqlAns.append("update `" + question.getTableName() + "` set ");

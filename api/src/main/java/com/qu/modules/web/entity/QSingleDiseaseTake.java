@@ -234,4 +234,12 @@ public class QSingleDiseaseTake {
 	@Excel(name = "对应子表的id，可以当主键，(子表中同字段)", width = 15)
     @ApiModelProperty(value = "对应子表的id，可以当主键，(子表中同字段)")
 	private java.lang.String summaryMappingTableId;
+	/**0:正常1:已删除*/
+	@Excel(name = "0:正常1:已删除", width = 15)
+	@ApiModelProperty(value = "0:正常1:已删除")
+	private Integer del;
+	/**问卷版本*/
+	@Excel(name = "问卷版本", width = 15)
+	@ApiModelProperty(value = "问卷版本")
+	private java.lang.String questionVersion;
 }

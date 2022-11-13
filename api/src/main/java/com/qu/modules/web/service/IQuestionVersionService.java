@@ -17,6 +17,6 @@ public interface IQuestionVersionService extends IService<QuestionVersion> {
      * @param questionVersionNumber
      * @return
      */
-    QuestionVersion selectByQuestionAndVersion(Integer quId, Integer questionVersionNumber);
+    QuestionVersion selectByQuestionAndVersion(Integer quId, String questionVersionNumber);
 
 }

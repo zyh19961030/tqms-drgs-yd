@@ -90,9 +90,9 @@ public class QuestionVo {
     private List<SubjectVo> subjectVoList;
 
     @ApiModelProperty(value = "当前问卷版本号")
-    private java.lang.Integer questionVersion;
+    private java.lang.String questionVersion;
 
     @ApiModelProperty(value = "数据当前问卷版本号")
-    private java.lang.Integer questionVersionData;
+    private java.lang.String questionVersionData;
 
 }

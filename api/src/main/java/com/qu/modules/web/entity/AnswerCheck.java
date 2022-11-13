@@ -116,5 +116,5 @@ public class AnswerCheck {
 	/**问卷版本*/
 	@Excel(name = "问卷版本", width = 15)
 	@ApiModelProperty(value = "问卷版本")
-	private java.lang.Integer questionVersion;
+	private java.lang.String questionVersion;
 }
