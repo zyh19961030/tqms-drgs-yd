@@ -1,29 +1,16 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.google.common.collect.Lists;
-import com.qu.constant.*;
-import com.qu.event.DeleteCheckDetailSetEvent;
-import com.qu.event.QuestionVersionEvent;
-import com.qu.modules.web.entity.*;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
-import com.qu.modules.web.param.*;
-import com.qu.modules.web.pojo.Data;
-import com.qu.modules.web.pojo.TbUser;
-import com.qu.modules.web.service.*;
-import com.qu.modules.web.vo.*;
-import com.qu.util.DeptUtil;
-import com.qu.util.IntegerUtil;
-import com.qu.util.StringUtil;
-import com.qu.util.VersionNumberUtil;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultFactory;
@@ -33,9 +20,93 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
+import com.qu.constant.AnswerCheckConstant;
+import com.qu.constant.AnswerConstant;
+import com.qu.constant.Constant;
+import com.qu.constant.QSingleDiseaseTakeConstant;
+import com.qu.constant.QsubjectConstant;
+import com.qu.constant.QuestionCheckedDeptConstant;
+import com.qu.constant.QuestionConstant;
+import com.qu.constant.TbDataConstant;
+import com.qu.constant.TbInspectStatsTemplateDepConstant;
+import com.qu.event.DeleteCheckDetailSetEvent;
+import com.qu.event.QuestionVersionEvent;
+import com.qu.modules.web.entity.Answer;
+import com.qu.modules.web.entity.AnswerCheck;
+import com.qu.modules.web.entity.QSingleDiseaseTake;
+import com.qu.modules.web.entity.Qoption;
+import com.qu.modules.web.entity.QoptionVersion;
+import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.entity.QsubjectVersion;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.entity.QuestionCheckedDept;
+import com.qu.modules.web.entity.QuestionVersion;
+import com.qu.modules.web.entity.TbData;
+import com.qu.modules.web.entity.TbDep;
+import com.qu.modules.web.entity.TbInspectStatsTemplateDep;
+import com.qu.modules.web.entity.TqmsQuotaCategory;
+import com.qu.modules.web.mapper.DynamicTableMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
+import com.qu.modules.web.param.CheckQuestionHistoryStatisticDeptListParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam;
+import com.qu.modules.web.param.QuestionAgainReleaseParam;
+import com.qu.modules.web.param.QuestionCheckParam;
+import com.qu.modules.web.param.QuestionCheckedDepParam;
+import com.qu.modules.web.param.QuestionEditParam;
+import com.qu.modules.web.param.QuestionParam;
+import com.qu.modules.web.param.QuestionQueryByIdParam;
+import com.qu.modules.web.param.SelectCheckedDeptIdsParam;
+import com.qu.modules.web.param.SelectResponsibilityUserIdsParam;
+import com.qu.modules.web.param.UpdateCategoryIdParam;
+import com.qu.modules.web.param.UpdateCheckedDeptIdsParam;
+import com.qu.modules.web.param.UpdateDeptIdsParam;
+import com.qu.modules.web.param.UpdateQuestionIconParam;
+import com.qu.modules.web.param.UpdateResponsibilityUserIdsParam;
+import com.qu.modules.web.param.UpdateTemplateIdParam;
+import com.qu.modules.web.param.UpdateWriteFrequencyIdsParam;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.pojo.TbUser;
+import com.qu.modules.web.service.IAnswerCheckService;
+import com.qu.modules.web.service.IAnswerService;
+import com.qu.modules.web.service.IOptionService;
+import com.qu.modules.web.service.IQSingleDiseaseTakeService;
+import com.qu.modules.web.service.IQoptionVersionService;
+import com.qu.modules.web.service.IQsubjectVersionService;
+import com.qu.modules.web.service.IQuestionCheckedDeptService;
+import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.service.IQuestionVersionService;
+import com.qu.modules.web.service.ISubjectService;
+import com.qu.modules.web.service.ITbDataService;
+import com.qu.modules.web.service.ITbDepService;
+import com.qu.modules.web.service.ITbInspectStatsTemplateDepService;
+import com.qu.modules.web.vo.CheckQuestionHistoryStatisticDeptListDeptVo;
+import com.qu.modules.web.vo.CheckQuestionHistoryStatisticVo;
+import com.qu.modules.web.vo.CheckQuestionParameterSetListVo;
+import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
+import com.qu.modules.web.vo.QuestionAndCategoryVo;
+import com.qu.modules.web.vo.QuestionCheckVo;
+import com.qu.modules.web.vo.QuestionMiniAppPageVo;
+import com.qu.modules.web.vo.QuestionMonthQuarterYearCreateListVo;
+import com.qu.modules.web.vo.QuestionPageVo;
+import com.qu.modules.web.vo.QuestionPatientCreateListVo;
+import com.qu.modules.web.vo.QuestionStatisticsCheckVo;
+import com.qu.modules.web.vo.QuestionVo;
+import com.qu.modules.web.vo.SubjectVo;
+import com.qu.modules.web.vo.ViewNameVo;
+import com.qu.util.DeptUtil;
+import com.qu.util.IntegerUtil;
+import com.qu.util.StringUtil;
+import com.qu.util.VersionNumberUtil;
+
+import cn.hutool.core.collection.CollectionUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: 问卷表
@@ -161,7 +232,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     }
 
     @Override
-    public QuestionVo queryByIdNew(QuestionQueryByIdParam param) {
+    public QuestionVo queryByIdNew(QuestionQueryByIdParam param,Integer type) {
         QuestionVo questionVo = new QuestionVo();
         Integer quId = param.getQuId();
         Integer answerCheckId = param.getDataId();
@@ -169,21 +240,124 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         if(question==null){
             return questionVo;
         }
-        Answer answer = answerService.getById(answerCheckId);
-        if (answer == null || AnswerConstant.DEL_DELETED.equals(answer.getDel())) {
-            return questionVo;
+
+        boolean dataFlag = false;
+        String answerQuestionVersionNumber = "";
+        if(type.equals(QuestionConstant.CATEGORY_TYPE_NORMAL)){
+            Answer answer = answerService.getById(answerCheckId);
+            //        if (answer == null || AnswerConstant.DEL_DELETED.equals(answer.getDel())) {
+            //            return questionVo;
+            //        }
+            if(answer==null){
+                dataFlag = true;
+            }else{
+                answerQuestionVersionNumber = answer.getQuestionVersion();
+            }
+        }else if(type.equals(QuestionConstant.CATEGORY_TYPE_CHECK)){
+            AnswerCheck answerCheck = answerCheckService.getById(answerCheckId);
+//            if (answerCheck == null || AnswerCheckConstant.DEL_DELETED.equals(answerCheck.getDel())) {
+//                return questionVo;
+//            }
+            if(answerCheck==null){
+                dataFlag = true;
+            }else{
+                answerQuestionVersionNumber = answerCheck.getQuestionVersion();
+            }
+        }else if(type.equals(QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE)){
+            QSingleDiseaseTake qSingleDiseaseTake = qSingleDiseaseTakeService.getById(answerCheckId);
+//            if (qSingleDiseaseTake == null  || QSingleDiseaseTakeConstant.DEL_DELETED.equals(qSingleDiseaseTake.getDel())) {
+//                return questionVo;
+//            }
+            if(qSingleDiseaseTake==null){
+                dataFlag = true;
+            }else{
+                answerQuestionVersionNumber = qSingleDiseaseTake.getQuestionVersion();
+            }
         }
 
-        return getQuestionVo(questionVo, question, answer.getQuestionVersion());
+        List<SubjectVo> subjectVoList = Lists.newArrayList();
+        String questionVersionNumber = question.getQuestionVersion();
+        //查询历史问卷版本
+        //判断数据问卷版本是不是最新的版本
+        if ( dataFlag || StringUtils.isBlank(answerQuestionVersionNumber) || answerQuestionVersionNumber.equals(questionVersionNumber)) {
+            //最新版本取question表
+            BeanUtils.copyProperties(question, questionVo);
+            questionVo.setQuestionVersion(question.getQuestionVersion());
+            questionVo.setQuestionVersionData(answerQuestionVersionNumber);
+
+            List<Qsubject> subjectList = subjectService.selectSubjectByQuId(quId);
+            if (subjectList.isEmpty()) {
+                return questionVo;
+            }
+            List<Integer> subjectIdList = subjectList.stream().map(Qsubject::getId).distinct().collect(Collectors.toList());
+            List<Qoption> qoptions = optionService.selectBySubjectList(subjectIdList);
+            Map<Integer, ArrayList<Qoption>> optionMap = qoptions.stream().collect(Collectors.toMap(Qoption::getSubId, Lists::newArrayList, (ArrayList<Qoption> k1, ArrayList<Qoption> k2) -> {
+                k1.addAll(k2);
+                return k1;
+            }));
+
+            ArrayList<Qoption> optionEmptyList = Lists.newArrayList();
+            for (Qsubject subject : subjectList) {
+                SubjectVo subjectVo = new SubjectVo();
+                BeanUtils.copyProperties(subject, subjectVo);
+                ArrayList<Qoption> qoptionsList = optionMap.get(subject.getId());
+                subjectVo.setOptionList(qoptionsList == null ? optionEmptyList : qoptionsList);
+                subjectVoList.add(subjectVo);
+            }
+        } else {
+            //历史版本取question_version表
+            QuestionVersion questionVersion = questionVersionService.selectByQuestionAndVersion(quId, answerQuestionVersionNumber);
+            if (questionVersion == null) {
+                return questionVo;
+            }
+
+            BeanUtils.copyProperties(questionVersion, questionVo);
+            questionVo.setId(questionVersion.getQuId());
+            questionVo.setQuestionVersion(question.getQuestionVersion());
+            questionVo.setQuestionVersionData(answerQuestionVersionNumber);
+
+            String questionVersionId = questionVersion.getId();
+            List<QsubjectVersion> subjectVersionList = qsubjectVersionService.selectSubjectVersionByQuIdAndVersion(quId, questionVersionId);
+            if (subjectVersionList.isEmpty()) {
+                return questionVo;
+            }
+
+            List<Integer> subjectVersionIdList = subjectVersionList.stream().map(QsubjectVersion::getSubjectId).distinct().collect(Collectors.toList());
+            List<QoptionVersion> qoptionVersions = qoptionVersionService.selectOptionVersionByQuIdAndVersion(questionVersionId, subjectVersionIdList);
+
+            Map<Integer, ArrayList<Qoption>> optionMap = qoptionVersions.stream().collect(Collectors.toMap(QoptionVersion::getSubjectId, qoptionVersion -> {
+                        Qoption qoption = new Qoption();
+                        BeanUtils.copyProperties(qoptionVersion, qoption);
+                        qoption.setId(qoptionVersion.getOptionId());
+                        return Lists.newArrayList(qoption);
+                    },
+                    (ArrayList<Qoption> k1, ArrayList<Qoption> k2) -> {
+                        k1.addAll(k2);
+                        return k1;
+                    }));
+            ArrayList<Qoption> optionEmptyList = Lists.newArrayList();
+            for (QsubjectVersion subjectVersion : subjectVersionList) {
+                SubjectVo subjectVo = new SubjectVo();
+                BeanUtils.copyProperties(subjectVersion, subjectVo);
+                subjectVo.setId(subjectVersion.getSubjectId());
+
+                ArrayList<Qoption> qoptionsList = optionMap.get(subjectVersion.getSubjectId());
+                subjectVo.setOptionList(qoptionsList == null ? optionEmptyList : qoptionsList);
+                subjectVoList.add(subjectVo);
+            }
+        }
+        assembleSubject(questionVo, subjectVoList);
+
+        return questionVo;
     }
 
-    private QuestionVo getQuestionVo(QuestionVo questionVo, Question question, String answerQuestionVersionNumber) {
+    private QuestionVo getQuestionVo(QuestionVo questionVo, Question question, Object answerData, String answerQuestionVersionNumber) {
         List<SubjectVo> subjectVoList = Lists.newArrayList();
         String questionVersionNumber = question.getQuestionVersion();
         Integer quId = question.getId();
         //查询历史问卷版本
         //判断数据问卷版本是不是最新的版本
-        if (answerQuestionVersionNumber == null || answerQuestionVersionNumber.equals(questionVersionNumber)) {
+        if ( answerData==null|| answerQuestionVersionNumber == null || answerQuestionVersionNumber.equals(questionVersionNumber)) {
             //最新版本取question表
             BeanUtils.copyProperties(question, questionVo);
             questionVo.setQuestionVersion(question.getQuestionVersion());
@@ -268,7 +442,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         if (answerCheck == null || AnswerCheckConstant.DEL_DELETED.equals(answerCheck.getDel())) {
             return questionVo;
         }
-        return getQuestionVo(questionVo, question, answerCheck.getQuestionVersion());
+        return getQuestionVo(questionVo, question, answerCheck, answerCheck.getQuestionVersion());
     }
 
     @Override
@@ -284,7 +458,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         if (qSingleDiseaseTake == null  || QSingleDiseaseTakeConstant.DEL_DELETED.equals(qSingleDiseaseTake.getDel())) {
             return questionVo;
         }
-        return getQuestionVo(questionVo, question, qSingleDiseaseTake.getQuestionVersion());
+        return getQuestionVo(questionVo, question, qSingleDiseaseTake, qSingleDiseaseTake.getQuestionVersion());
     }
 
     private void assembleSubject(QuestionVo questionVo, List<SubjectVo> subjectVoList) {
