@@ -17,7 +17,7 @@ import java.util.Date;
 /**
  * @Description: 用户表
  * @Author: jeecg-boot
- * @Date:   2022-08-09
+ * @Date:   2022-11-16
  * @Version: V1.0
  */
 @Data
@@ -28,7 +28,7 @@ import java.util.Date;
 public class TbUser {
     
 	/**主键ID*/
-	@TableId(type = IdType.AUTO)
+	@TableId(type = IdType.UUID)
     @ApiModelProperty(value = "主键ID")
 	private String id;
 	/**账户名称*/
@@ -75,10 +75,18 @@ public class TbUser {
 	@Excel(name = "所属医院ID（如果为平台的则为空）", width = 15)
     @ApiModelProperty(value = "所属医院ID（如果为平台的则为空）")
 	private String system;
-	/**所属科室*/
-	@Excel(name = "所属科室", width = 15)
-    @ApiModelProperty(value = "所属科室")
+	/**主岗科室*/
+	@Excel(name = "主岗科室", width = 15)
+    @ApiModelProperty(value = "主岗科室")
 	private String depid;
+	/**主岗职位id*/
+	@Excel(name = "主岗职位id", width = 15)
+    @ApiModelProperty(value = "主岗职位id")
+	private String positionid;
+	/**主岗角色id*/
+	@Excel(name = "主岗角色id", width = 15)
+    @ApiModelProperty(value = "主岗角色id")
+	private String roleid;
 	/**用户登录名*/
 	@Excel(name = "用户登录名", width = 15)
     @ApiModelProperty(value = "用户登录名")
@@ -91,4 +99,8 @@ public class TbUser {
 	@Excel(name = "用户编码", width = 15)
     @ApiModelProperty(value = "用户编码")
 	private String usercode;
+	/**职称*/
+	@Excel(name = "职称", width = 15)
+    @ApiModelProperty(value = "职称")
+	private String title;
 }

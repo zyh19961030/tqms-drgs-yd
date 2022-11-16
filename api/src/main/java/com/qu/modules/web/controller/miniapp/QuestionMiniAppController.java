@@ -57,10 +57,10 @@ public class QuestionMiniAppController {
     @AutoLog(value = "检查填报-分页列表查询")
     @ApiOperation(value = "检查填报-分页列表查询", notes = "检查填报-分页列表查询",response = QuestionMiniAppPageVo.class)
     @GetMapping(value = "/list")
-    public Result<QuestionMiniAppPageVo> queryPageList(String deptId,
+    public Result<QuestionMiniAppPageVo> queryPageList(String deptId,String userId,
                                                            @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                            @RequestParam(name = "pageSize", defaultValue = "100") Integer pageSize) {
-        IPage<QuestionMiniAppPageVo> iPage = questionService.queryPageListByMiniApp(deptId, pageNo, pageSize);
+        IPage<QuestionMiniAppPageVo> iPage = questionService.queryPageListByMiniApp(deptId, userId, pageNo, pageSize);
         return ResultFactory.success(iPage);
     }
 

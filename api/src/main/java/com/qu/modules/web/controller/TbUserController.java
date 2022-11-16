@@ -1,16 +1,14 @@
 package com.qu.modules.web.controller;
 
-import com.qu.modules.web.service.ITbUserService;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
  /**
  * @Description: 用户表
  * @Author: jeecg-boot
- * @Date:   2022-08-09
+ * @Date:   2022-11-16
  * @Version: V1.0
  */
 @Slf4j
@@ -18,9 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/business/tbUser")
 public class TbUserController {
-	@Autowired
-	private ITbUserService tbUserService;
-	
+//	@Autowired
+//	private ITbUserService tbUserService;
+//
 //	/**
 //	  * 分页列表查询
 //	 * @param tbUser
