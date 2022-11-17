@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -57,7 +58,7 @@ public class QuestionMiniAppController {
     @AutoLog(value = "检查填报-分页列表查询")
     @ApiOperation(value = "检查填报-分页列表查询", notes = "检查填报-分页列表查询",response = QuestionMiniAppPageVo.class)
     @GetMapping(value = "/list")
-    public Result<QuestionMiniAppPageVo> queryPageList(String deptId,String userId,
+    public Result<QuestionMiniAppPageVo> queryPageList(String deptId, @RequestHeader(name = "userId") String userId,
                                                            @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                            @RequestParam(name = "pageSize", defaultValue = "100") Integer pageSize) {
         IPage<QuestionMiniAppPageVo> iPage = questionService.queryPageListByMiniApp(deptId, userId, pageNo, pageSize);
