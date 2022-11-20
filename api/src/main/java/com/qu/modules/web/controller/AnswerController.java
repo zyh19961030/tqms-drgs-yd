@@ -137,13 +137,14 @@ public class AnswerController {
     @GetMapping(value = "/monthQuarterYearFillingInList")
     public Result<AnswerMonthQuarterYearFillingInAndSubmitPageVo> monthQuarterYearFillingInList(HttpServletRequest request,
                                                                                        @RequestParam(name = "type")@ApiParam("菜单月度汇总传0，定期汇总传1") String type,
+                                                                                       @RequestParam(name = "month")@ApiParam("月份") String month,
                                                                                        @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                                                        @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
         Result<AnswerMonthQuarterYearFillingInAndSubmitPageVo> result = new Result<>();
         //加科室过滤---
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
         String deptId = data.getDeps().get(0).getId();
-        AnswerMonthQuarterYearFillingInAndSubmitPageVo list = answerService.monthQuarterYearFillingInList(deptId,type, pageNo,pageSize );
+        AnswerMonthQuarterYearFillingInAndSubmitPageVo list = answerService.monthQuarterYearFillingInList(deptId,type,month, pageNo,pageSize );
         result.setSuccess(true);
         result.setResult(list);
         return result;

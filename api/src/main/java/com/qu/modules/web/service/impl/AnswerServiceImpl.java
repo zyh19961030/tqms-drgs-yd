@@ -442,12 +442,15 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
     }
 
     @Override
-    public AnswerMonthQuarterYearFillingInAndSubmitPageVo monthQuarterYearFillingInList(String deptId, String type, Integer pageNo, Integer pageSize) {
+    public AnswerMonthQuarterYearFillingInAndSubmitPageVo monthQuarterYearFillingInList(String deptId, String type, String month, Integer pageNo, Integer pageSize) {
         Page<Answer> page = new Page<>(pageNo, pageSize);
         LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
         lambda.like(Answer::getCreaterDeptid,deptId);
         lambda.eq(Answer::getAnswerStatus,AnswerConstant.ANSWER_STATUS_DRAFT);
         lambda.eq(Answer::getDel,AnswerConstant.DEL_NORMAL);
+        if(StringUtils.isNotBlank(month)){
+            lambda.eq(Answer::getQuestionAnswerTime,month);
+        }
 
         LambdaQueryWrapper<Question> questionLambdaQueryWrapper = getQuestionLambda();
         if(type.equals("0")){
