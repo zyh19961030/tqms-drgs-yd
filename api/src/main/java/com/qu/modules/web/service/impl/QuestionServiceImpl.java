@@ -762,14 +762,17 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     }
 
     @Override
-    public List<CheckQuestionHistoryStatisticVo> checkQuestionHistoryStatisticList(Data data) {
+    public List<CheckQuestionHistoryStatisticVo> checkQuestionHistoryStatisticList(QuestionCheckParam questionCheckParam, Data data) {
         String deptId = data.getDeps().get(0).getId();
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
         lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
         lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
         lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
         lambda.like(Question::getSeeDeptIds,deptId);
-
+        String quName = questionCheckParam.getQuName();
+        if(StringUtils.isNotBlank(quName)){
+            lambda.like(Question::getQuName, quName);
+        }
         //判断角色
         String roleId = data.getRole().getRoleId();
         if(Constant.ROLE_ID_LCKS_ZR.equals(roleId) || Constant.ROLE_ID_LCKS_YL_ZKY.equals(roleId) ){
@@ -818,12 +821,16 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     }
 
     @Override
-    public List<CheckQuestionParameterSetListVo> checkQuestionParameterSetList(String deptId) {
+    public List<CheckQuestionParameterSetListVo> checkQuestionParameterSetList(QuestionCheckParam questionCheckParam, String deptId) {
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
         lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
         lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
         lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
         lambda.like(Question::getDeptIds,deptId);
+        String quName = questionCheckParam.getQuName();
+        if(StringUtils.isNotBlank(quName)){
+            lambda.like(Question::getQuName, quName);
+        }
         List<Question> list = this.list(lambda);
         if(list.isEmpty()){
             return Lists.newArrayList();
