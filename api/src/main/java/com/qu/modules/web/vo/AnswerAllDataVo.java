@@ -21,7 +21,7 @@ public class AnswerAllDataVo {
     private List<LinkedHashMap<String,String>> fieldItems;
 
     @ApiModelProperty(value = "表数据")
-    private List<LinkedHashMap<String,Object>> detailDataList;
+    private List<LinkedHashMap<String,String>> detailDataList;
 
 
 }

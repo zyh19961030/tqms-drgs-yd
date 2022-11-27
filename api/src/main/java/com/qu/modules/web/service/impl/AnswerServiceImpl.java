@@ -628,11 +628,13 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
     @Override
     public ResultBetter<AnswerAllDataVo> answerAllData(String deptId, AnswerAllDataParam param) {
         //查询数据
+        Integer quId = param.getQuId();
+        Integer type = param.getType();
         LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
-        lambda.like(Answer::getCreaterDeptid, deptId);
+//        lambda.like(Answer::getCreaterDeptid, deptId);
         lambda.eq(Answer::getAnswerStatus, AnswerConstant.ANSWER_STATUS_RELEASE);
         lambda.eq(Answer::getDel, AnswerConstant.DEL_NORMAL);
-        lambda.eq(Answer::getQuId, param.getQuId());
+        lambda.eq(Answer::getQuId, quId);
         lambda.gt(Answer::getQuestionAnswerTime, param.getStartDate());
         lambda.le(Answer::getQuestionAnswerTime, param.getEndDate());
         List<Answer> answerList = this.list(lambda);
@@ -651,32 +653,57 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         setItems(param, fieldItems);
         vo.setFieldItems(fieldItems);
 
-        //处理题目
+        //数据
+        List<LinkedHashMap<String, String>> detailDataList = Lists.newArrayList();
+        vo.setDetailDataList(detailDataList);
+        //处理题目 查询题目
+        List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(quId);
+        for (SubjectVo subjectVo : subjectList) {
+            LinkedHashMap<String, String> valueItem = Maps.newLinkedHashMap();
+            detailDataList.add(valueItem);
+            valueItem.put("tb_check_project", subjectVo.getSubName());
+            valueItem.put("dataKey", subjectVo.getColumnName());
+        }
 
         //处理数据
+        List<String> summaryMappingTableIdList = answerList.stream().map(Answer::getSummaryMappingTableId).collect(Collectors.toList());
+        //查子表
+        Question question = questionMapper.selectById(quId);
+        StringBuffer sqlSelect = new StringBuffer();
+        sqlSelect.append("select * from `");
+        sqlSelect.append(question.getTableName());
+        sqlSelect.append("`");
+        sqlSelect.append(" where summary_mapping_table_id in (");
+        for (String summaryMappingTableId : summaryMappingTableIdList) {
+            sqlSelect.append("'");
+            sqlSelect.append(summaryMappingTableId);
+            sqlSelect.append("'");
+            sqlSelect.append(",");
+        }
+        sqlSelect.delete(sqlSelect.length() - 1, sqlSelect.length());
+        sqlSelect.append(")");
+        List<Map<String, String>> dataList = dynamicTableMapper.selectDynamicTableColumnList(sqlSelect.toString());
+        for (Map<String, String> dataItemMap : dataList) {
+//            public static final String COLUMN_NAME_TH_MONTH = "tb_month";
+//            public static final String COLUMN_NAME_TH_QUARTER = "tb_jidu";
+//            public static final String COLUMN_NAME_TH_YEAR = "tb_year";
+            String key=null;
+            if(type.equals(1)){
+                key = dataItemMap.get("tb_month");
+            }else if(type.equals(2)){
+                key = dataItemMap.get("tb_jidu");
+            }else if(type.equals(3)){
+                key = dataItemMap.get("tb_year");
+            }
+            for (LinkedHashMap<String, String> stringObjectLinkedHashMap : detailDataList) {
+                String dataKey = stringObjectLinkedHashMap.get("dataKey");
+                String s = dataItemMap.get(dataKey);
+                stringObjectLinkedHashMap.put(key,s);
+//                stringObjectLinkedHashMap.remove("dataKey");
+            }
+        }
 
-
-
-
-
-
-        List<Integer> questionIdList = answerList.stream().map(Answer::getQuId).distinct().collect(Collectors.toList());
-        List<Question> questionList = questionMapper.selectBatchIds(questionIdList);
-        Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, q -> q));
-
-        List<AnswerMonthQuarterYearFillingInAndSubmitVo> answerMonthQuarterYearFillingInVos = answerList.stream().map(answer -> {
-            AnswerMonthQuarterYearFillingInAndSubmitVo answerMonthQuarterYearFillingInVo = new AnswerMonthQuarterYearFillingInAndSubmitVo();
-            BeanUtils.copyProperties(answer,answerMonthQuarterYearFillingInVo);
-            answerMonthQuarterYearFillingInVo.setQuName(questionMap.get(answer.getQuId()).getQuName());
-            answerMonthQuarterYearFillingInVo.setIcon(questionMap.get(answer.getQuId()).getIcon());
-            return answerMonthQuarterYearFillingInVo;
-        }).collect(Collectors.toList());
-        res.setTotal(answerIPage.getTotal());
-        res.setAnswerPatientFillingInVos(answerMonthQuarterYearFillingInVos);
-
-
-
-        return null;
+        return ResultBetter.ok(vo);
     }
 
     private void setItems(AnswerAllDataParam param, List<LinkedHashMap<String, String>> fieldItems) {
