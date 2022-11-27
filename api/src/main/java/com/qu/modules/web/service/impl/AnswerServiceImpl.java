@@ -660,19 +660,19 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
 
 
 
-//        List<Integer> questionIdList = answerList.stream().map(Answer::getQuId).distinct().collect(Collectors.toList());
-//        List<Question> questionList = questionMapper.selectBatchIds(questionIdList);
-//        Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, q -> q));
-//
-//        List<AnswerMonthQuarterYearFillingInAndSubmitVo> answerMonthQuarterYearFillingInVos = answerList.stream().map(answer -> {
-//            AnswerMonthQuarterYearFillingInAndSubmitVo answerMonthQuarterYearFillingInVo = new AnswerMonthQuarterYearFillingInAndSubmitVo();
-//            BeanUtils.copyProperties(answer,answerMonthQuarterYearFillingInVo);
-//            answerMonthQuarterYearFillingInVo.setQuName(questionMap.get(answer.getQuId()).getQuName());
-//            answerMonthQuarterYearFillingInVo.setIcon(questionMap.get(answer.getQuId()).getIcon());
-//            return answerMonthQuarterYearFillingInVo;
-//        }).collect(Collectors.toList());
-//        res.setTotal(answerIPage.getTotal());
-//        res.setAnswerPatientFillingInVos(answerMonthQuarterYearFillingInVos);
+        List<Integer> questionIdList = answerList.stream().map(Answer::getQuId).distinct().collect(Collectors.toList());
+        List<Question> questionList = questionMapper.selectBatchIds(questionIdList);
+        Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, q -> q));
+
+        List<AnswerMonthQuarterYearFillingInAndSubmitVo> answerMonthQuarterYearFillingInVos = answerList.stream().map(answer -> {
+            AnswerMonthQuarterYearFillingInAndSubmitVo answerMonthQuarterYearFillingInVo = new AnswerMonthQuarterYearFillingInAndSubmitVo();
+            BeanUtils.copyProperties(answer,answerMonthQuarterYearFillingInVo);
+            answerMonthQuarterYearFillingInVo.setQuName(questionMap.get(answer.getQuId()).getQuName());
+            answerMonthQuarterYearFillingInVo.setIcon(questionMap.get(answer.getQuId()).getIcon());
+            return answerMonthQuarterYearFillingInVo;
+        }).collect(Collectors.toList());
+        res.setTotal(answerIPage.getTotal());
+        res.setAnswerPatientFillingInVos(answerMonthQuarterYearFillingInVos);
 
 
 

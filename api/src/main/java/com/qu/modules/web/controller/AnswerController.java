@@ -187,6 +187,19 @@ public class AnswerController {
         }
     }
 
+    /**
+     * 查看某一个登记表的筛选时间(月度、季度、年)的数据接口
+     */
+    @AutoLog(value = "查看某一个登记表的筛选时间(月度、季度、年)的数据接口")
+    @ApiOperation(value = "查看某一个登记表的筛选时间(月度、季度、年)的数据接口", notes = "查看某一个登记表的筛选时间(月度、季度、年)的数据接口")
+    @GetMapping(value = "/answerAllData")
+    public ResultBetter<AnswerAllDataVo> answerAllData(HttpServletRequest request, @Validated AnswerAllDataParam param) {
+        //加科室过滤---
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String deptId = data.getDeps().get(0).getId();
+        return answerService.answerAllData(deptId,param);
+    }
+
 
 
 
