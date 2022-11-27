@@ -15,6 +15,8 @@ public class AnswerMonthQuarterYearFillingInAndSubmitVo {
     private Integer quId;
     @ApiModelProperty(value = "问卷名称")
     private String quName;
+    @ApiModelProperty(value = "图标")
+    private String icon;
     /**修改时间*/
     @ApiModelProperty(value = "修改时间")
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
@@ -30,5 +32,7 @@ public class AnswerMonthQuarterYearFillingInAndSubmitVo {
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private java.util.Date submitTime;
+    @ApiModelProperty(value = "状态 0:可编辑1:已提交无法编辑")
+    private String answerStatus;
 
 }

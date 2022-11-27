@@ -1,12 +1,14 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.date.*;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.qu.constant.AnswerConstant;
 import com.qu.constant.QuestionConstant;
 import com.qu.modules.web.entity.Answer;
@@ -24,6 +26,8 @@ import com.qu.util.HttpClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.jeecg.common.api.vo.ResultBetterFactory;
 import org.jeecg.common.api.vo.ResultFactory;
 import org.jeecg.common.util.UUIDGenerator;
 import org.springframework.beans.BeanUtils;
@@ -123,6 +127,14 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_TH_MONTH)
                 && mapCache.get(AnswerConstant.COLUMN_NAME_TH_MONTH)!=null){
             answer.setQuestionAnswerTime(mapCache.get(AnswerConstant.COLUMN_NAME_TH_MONTH));
+        }
+        if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_TH_QUARTER)
+                && mapCache.get(AnswerConstant.COLUMN_NAME_TH_QUARTER)!=null){
+            answer.setQuestionAnswerTime(mapCache.get(AnswerConstant.COLUMN_NAME_TH_QUARTER));
+        }
+        if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_TH_YEAR)
+                && mapCache.get(AnswerConstant.COLUMN_NAME_TH_YEAR)!=null){
+            answer.setQuestionAnswerTime(mapCache.get(AnswerConstant.COLUMN_NAME_TH_YEAR));
         }
 
         if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_CASE_ID)
@@ -527,18 +539,20 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         lambda.notIn(Answer::getQuId,248);
         AnswerMonthQuarterYearFillingInAndSubmitPageVo res = new AnswerMonthQuarterYearFillingInAndSubmitPageVo();
         IPage<Answer> answerIPage = this.page(page, lambda);
-        List<Answer> questions = answerIPage.getRecords();
-        if(questions.isEmpty()){
+        List<Answer> answerList = answerIPage.getRecords();
+        if(answerList.isEmpty()){
             res.setTotal(answerIPage.getTotal());
             return res;
         }
-        List<Integer> questionIdList = questions.stream().map(Answer::getQuId).distinct().collect(Collectors.toList());
+        List<Integer> questionIdList = answerList.stream().map(Answer::getQuId).distinct().collect(Collectors.toList());
         List<Question> questionList = questionMapper.selectBatchIds(questionIdList);
         Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, q -> q));
-        List<AnswerMonthQuarterYearFillingInAndSubmitVo> answerMonthQuarterYearFillingInVos = questions.stream().map(answer -> {
+
+        List<AnswerMonthQuarterYearFillingInAndSubmitVo> answerMonthQuarterYearFillingInVos = answerList.stream().map(answer -> {
             AnswerMonthQuarterYearFillingInAndSubmitVo answerMonthQuarterYearFillingInVo = new AnswerMonthQuarterYearFillingInAndSubmitVo();
             BeanUtils.copyProperties(answer,answerMonthQuarterYearFillingInVo);
             answerMonthQuarterYearFillingInVo.setQuName(questionMap.get(answer.getQuId()).getQuName());
+            answerMonthQuarterYearFillingInVo.setIcon(questionMap.get(answer.getQuId()).getIcon());
             return answerMonthQuarterYearFillingInVo;
         }).collect(Collectors.toList());
         res.setTotal(answerIPage.getTotal());
@@ -610,4 +624,176 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
 
         return answer;
     }
+
+    @Override
+    public ResultBetter<AnswerAllDataVo> answerAllData(String deptId, AnswerAllDataParam param) {
+        //查询数据
+        LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
+        lambda.like(Answer::getCreaterDeptid, deptId);
+        lambda.eq(Answer::getAnswerStatus, AnswerConstant.ANSWER_STATUS_RELEASE);
+        lambda.eq(Answer::getDel, AnswerConstant.DEL_NORMAL);
+        lambda.eq(Answer::getQuId, param.getQuId());
+        lambda.gt(Answer::getQuestionAnswerTime, param.getStartDate());
+        lambda.le(Answer::getQuestionAnswerTime, param.getEndDate());
+        List<Answer> answerList = this.list(lambda);
+
+        if(answerList.isEmpty()){
+            return ResultBetterFactory.fail("未查到数据");
+        }
+
+        AnswerAllDataVo vo = new AnswerAllDataVo();
+        //表头
+        List<LinkedHashMap<String, String>> fieldItems = Lists.newArrayList();
+        LinkedHashMap<String, String> fieldItemCheckDept = Maps.newLinkedHashMap();
+        fieldItems.add(fieldItemCheckDept);
+        fieldItemCheckDept.put("fieldTxt", "检查项目");
+        fieldItemCheckDept.put("fieldId", "tb_check_project");
+        setItems(param, fieldItems);
+        vo.setFieldItems(fieldItems);
+
+        //处理题目
+
+        //处理数据
+
+
+
+
+
+
+//        List<Integer> questionIdList = answerList.stream().map(Answer::getQuId).distinct().collect(Collectors.toList());
+//        List<Question> questionList = questionMapper.selectBatchIds(questionIdList);
+//        Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, q -> q));
+//
+//        List<AnswerMonthQuarterYearFillingInAndSubmitVo> answerMonthQuarterYearFillingInVos = answerList.stream().map(answer -> {
+//            AnswerMonthQuarterYearFillingInAndSubmitVo answerMonthQuarterYearFillingInVo = new AnswerMonthQuarterYearFillingInAndSubmitVo();
+//            BeanUtils.copyProperties(answer,answerMonthQuarterYearFillingInVo);
+//            answerMonthQuarterYearFillingInVo.setQuName(questionMap.get(answer.getQuId()).getQuName());
+//            answerMonthQuarterYearFillingInVo.setIcon(questionMap.get(answer.getQuId()).getIcon());
+//            return answerMonthQuarterYearFillingInVo;
+//        }).collect(Collectors.toList());
+//        res.setTotal(answerIPage.getTotal());
+//        res.setAnswerPatientFillingInVos(answerMonthQuarterYearFillingInVos);
+
+
+
+        return null;
+    }
+
+    private void setItems(AnswerAllDataParam param, List<LinkedHashMap<String, String>> fieldItems) {
+        //放入表头
+        Integer type = param.getType();
+        if(type.equals(1)){
+            List<LinkedHashMap<String, String>> monthBetweenDate = getMonthBetweenDate(param.getStartDate(), param.getEndDate());
+            fieldItems.addAll(monthBetweenDate);
+        }else if(type.equals(2)){
+            List<LinkedHashMap<String, String>> quarterBetweenDate = getQuarterBetweenDate(param.getStartDate(), param.getEndDate());
+            fieldItems.addAll(quarterBetweenDate);
+        }else if(type.equals(3)){
+            List<LinkedHashMap<String, String>> yearBetweenDate = getYearBetweenDate(param.getStartDate(), param.getEndDate());
+            fieldItems.addAll(yearBetweenDate);
+        }
+    }
+
+
+    /**
+     * 获取两个日期之间的所有月份 (年月)
+     *
+     * @param startDate
+     * @param endDate
+     * @return LinkedHashMap
+     */
+    public static List<LinkedHashMap<String, String>> getMonthBetweenDate(String startDate, String endDate){
+        // 声明保存日期集合
+        List<LinkedHashMap<String, String>> list = Lists.newArrayList();
+
+        // 转化成日期类型
+        DateTime startDateTime = DateUtil.parse(startDate, DatePattern.NORM_MONTH_PATTERN);
+        DateTime endDateTime = DateUtil.parse(endDate, DatePattern.NORM_MONTH_PATTERN);
+
+        //用Calendar 进行日期比较判断
+        Calendar calendar = Calendar.getInstance();
+        while (startDateTime.getTime()<=endDateTime.getTime()){
+            LinkedHashMap<String, String> map = Maps.newLinkedHashMap();
+            list.add(map);
+            // 把日期添加到集合
+            map.put("fieldTxt", startDateTime.toString(DatePattern.NORM_MONTH_PATTERN));
+            map.put("fieldId", startDateTime.toString(DatePattern.NORM_MONTH_PATTERN));
+            // 设置日期
+            calendar.setTime(startDateTime);
+            //把日期增加
+            calendar.add(Calendar.MONTH, 1);
+            // 获取增加后的日期
+            startDateTime.setTime(calendar.getTimeInMillis());
+        }
+        return list;
+    }
+
+    /**
+     * 获取两个日期之间的所有季度
+     *
+     * @param startDate
+     * @param endDate
+     * @return LinkedHashMap
+     */
+    private List<LinkedHashMap<String, String>> getQuarterBetweenDate(String startDate, String endDate) {
+        // 声明保存日期集合
+        List<LinkedHashMap<String, String>> list = Lists.newArrayList();
+
+        // 转化成日期类型
+        DateTime dateTime = new DateTime();
+        dateTime.setField(DateField.YEAR, Integer.parseInt(startDate.substring(0,4)));
+        DateTime startDateTime = dateTime.offsetNew(DateField.MONTH, Integer.parseInt(startDate.substring(4,5)));
+        dateTime.setField(DateField.YEAR, Integer.parseInt(endDate.substring(0,4)));
+        DateTime endDateTime = dateTime.offsetNew(DateField.MONTH, Integer.parseInt(endDate.substring(4,5)));
+
+        //用Calendar 进行日期比较判断
+        final Calendar calendar = Calendar.getInstance();
+        while (startDateTime.getTime()<=endDateTime.getTime()) {
+            LinkedHashMap<String, String> map = Maps.newLinkedHashMap();
+            list.add(map);
+            // 把日期添加到集合
+            map.put("fieldTxt", String.format("%s第%s季度",startDateTime.year(),startDateTime.quarter()));
+            map.put("fieldId", CalendarUtil.yearAndQuarter(calendar));
+            // 设置日期
+            calendar.setTime(startDateTime);
+            //把日期增加
+            calendar.add(Calendar.MONTH, 3);
+            // 获取增加后的日期
+            startDateTime.setTime(calendar.getTimeInMillis());
+        }
+        return list;
+    }
+
+    /**
+     * 获取两个日期之间的所有年
+     *
+     * @param startDate
+     * @param endDate
+     * @return LinkedHashMap
+     */
+    private List<LinkedHashMap<String, String>> getYearBetweenDate(String startDate, String endDate) {
+        // 声明保存日期集合
+        List<LinkedHashMap<String, String>> list = Lists.newArrayList();
+
+        int start = Integer.parseInt(startDate);
+        int end = Integer.parseInt(endDate);
+
+        while (start<=end) {
+            LinkedHashMap<String, String> map = Maps.newLinkedHashMap();
+            list.add(map);
+            // 把日期添加到集合
+            map.put("fieldTxt", String.format("%s年",start));
+            map.put("fieldId", String.valueOf(start));
+            start++;
+        }
+        return list;
+    }
+
+
+
+
+
+
+
+
 }

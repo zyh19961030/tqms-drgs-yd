@@ -1,12 +1,11 @@
 package org.jeecg.common.api.vo;
 
-import java.io.Serializable;
-
-import org.jeecg.common.constant.CommonConstant;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.jeecg.common.constant.CommonConstant;
+
+import java.io.Serializable;
 
 /**
  *   接口返回数据格式
@@ -75,36 +74,36 @@ public class ResultBetter<T> implements Serializable {
 		this.success = true;
 	}
 
-	public static ResultBetter<Object> error(String msg) {
+	public static <T> ResultBetter<T> error(String msg) {
 		return error(CommonConstant.SC_INTERNAL_SERVER_ERROR_500, msg);
 	}
 	
-	public static ResultBetter<Object> error(int code, String msg) {
-		ResultBetter<Object> r = new ResultBetter<Object>();
+	public static <T> ResultBetter<T> error(int code, String msg) {
+		ResultBetter<T> r = new ResultBetter<T>();
 		r.setCode(code);
 		r.setMessage(msg);
 		r.setSuccess(false);
 		return r;
 	}
 	
-	public static ResultBetter<Object> ok() {
-		ResultBetter<Object> r = new ResultBetter<Object>();
+	public static <T> ResultBetter<T> ok() {
+		ResultBetter<T> r = new ResultBetter<T>();
 		r.setSuccess(true);
 		r.setCode(CommonConstant.SC_OK_200);
 		r.setMessage("成功");
 		return r;
 	}
 	
-	public static ResultBetter<Object> ok(String msg) {
-		ResultBetter<Object> r = new ResultBetter<Object>();
+	public static <T> ResultBetter<T> ok(String msg) {
+		ResultBetter<T> r = new ResultBetter<T>();
 		r.setSuccess(true);
 		r.setCode(CommonConstant.SC_OK_200);
 		r.setMessage(msg);
 		return r;
 	}
 	
-	public static ResultBetter<Object> ok(Object data) {
-		ResultBetter<Object> r = new ResultBetter<Object>();
+	public static <T> ResultBetter<T> ok(T data) {
+		ResultBetter<T> r = new ResultBetter<T>();
 		r.setSuccess(true);
 		r.setCode(CommonConstant.SC_OK_200);
 		r.setResult(data);

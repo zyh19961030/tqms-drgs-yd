@@ -3,11 +3,13 @@ package com.qu.modules.web.controller;
 import com.alibaba.fastjson.JSON;
 import com.qu.constant.Constant;
 import com.qu.modules.web.entity.Answer;
+import com.qu.modules.web.param.AnswerAllDataParam;
 import com.qu.modules.web.param.AnswerMonthQuarterYearSubmitParam;
 import com.qu.modules.web.param.AnswerParam;
 import com.qu.modules.web.param.AnswerPatientSubmitParam;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.IAnswerService;
+import com.qu.modules.web.vo.AnswerAllDataVo;
 import com.qu.modules.web.vo.AnswerMonthQuarterYearFillingInAndSubmitPageVo;
 import com.qu.modules.web.vo.AnswerPageVo;
 import com.qu.modules.web.vo.AnswerPatientFillingInAndSubmitPageVo;
@@ -16,6 +18,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultBetter;
 import org.jeecg.common.api.vo.ResultFactory;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,7 +133,7 @@ public class AnswerController {
     }
 
     /**
-     * 菜单月度汇总，定期汇总-填报中
+     * 菜单月度汇总，定期汇总-填报中  菜单月度汇总、年度汇总、季度汇总
      */
     @AutoLog(value = "菜单月度汇总，定期汇总-填报中")
     @ApiOperation(value = "菜单月度汇总，定期汇总-填报中", notes = "菜单月度汇总，定期汇总-填报中")
