@@ -194,4 +194,8 @@ public class SubjectEditParam {
     @Excel(name = "统计规则(针对 19.数量统计题型) 0按答案 1按分值", width = 15)
     @ApiModelProperty(value = "统计规则(针对 19.数量统计题型) 0按答案 1按分值")
     private java.lang.Integer statisticalRules;
+    /**痕迹是否必填   0:非必填 1:必填*/
+    @Excel(name = "痕迹是否必填   0:非必填 1:必填", width = 15)
+    @ApiModelProperty(value = "痕迹是否必填   0:非必填 1:必填")
+    private java.lang.Integer markRequire;
 }
