@@ -664,7 +664,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         lambda.eq(Answer::getAnswerStatus, AnswerConstant.ANSWER_STATUS_RELEASE);
         lambda.eq(Answer::getDel, AnswerConstant.DEL_NORMAL);
         lambda.eq(Answer::getQuId, quId);
-        lambda.gt(Answer::getQuestionAnswerTime, param.getStartDate());
+        lambda.ge(Answer::getQuestionAnswerTime, param.getStartDate());
         lambda.le(Answer::getQuestionAnswerTime, param.getEndDate());
         List<Answer> answerList = this.list(lambda);
 
