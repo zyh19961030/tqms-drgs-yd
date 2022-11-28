@@ -1,6 +1,25 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.date.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.jeecg.common.api.vo.ResultBetterFactory;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.util.UUIDGenerator;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -17,26 +36,31 @@ import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.mapper.AnswerMapper;
 import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.*;
+import com.qu.modules.web.param.AnswerAllDataParam;
+import com.qu.modules.web.param.AnswerMonthQuarterYearSubmitParam;
+import com.qu.modules.web.param.AnswerParam;
+import com.qu.modules.web.param.AnswerPatientSubmitParam;
+import com.qu.modules.web.param.Answers;
+import com.qu.modules.web.param.SingleDiseaseAnswer;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IAnswerService;
 import com.qu.modules.web.service.ISubjectService;
-import com.qu.modules.web.vo.*;
+import com.qu.modules.web.vo.AnswerAllDataVo;
+import com.qu.modules.web.vo.AnswerMonthQuarterYearFillingInAndSubmitPageVo;
+import com.qu.modules.web.vo.AnswerMonthQuarterYearFillingInAndSubmitVo;
+import com.qu.modules.web.vo.AnswerPageVo;
+import com.qu.modules.web.vo.AnswerPatientFillingInAndSubmitPageVo;
+import com.qu.modules.web.vo.AnswerPatientFillingInAndSubmitVo;
+import com.qu.modules.web.vo.AnswerVo;
+import com.qu.modules.web.vo.SubjectVo;
 import com.qu.util.HttpClient;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultBetter;
-import org.jeecg.common.api.vo.ResultBetterFactory;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.jeecg.common.util.UUIDGenerator;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import cn.hutool.core.date.CalendarUtil;
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -465,11 +489,16 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         }
 
         LambdaQueryWrapper<Question> questionLambdaQueryWrapper = getQuestionLambda();
-        if(type.equals("0")){
+        if("0".equals(type)){
             questionLambdaQueryWrapper.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_MONTH);
+        }else if("1".equals(type)){
+            questionLambdaQueryWrapper.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_QUARTER);
+        }else if("2".equals(type)){
+            questionLambdaQueryWrapper.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_YEAR);
         }else{
             questionLambdaQueryWrapper.in(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_MONTH_QUARTER_YEAR);
         }
+
         List<Question> questions = questionMapper.selectList(questionLambdaQueryWrapper);
         if(questions.isEmpty()){
             AnswerMonthQuarterYearFillingInAndSubmitPageVo res = new AnswerMonthQuarterYearFillingInAndSubmitPageVo();
