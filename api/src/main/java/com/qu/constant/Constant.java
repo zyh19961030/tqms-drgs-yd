@@ -49,5 +49,13 @@ public class Constant {
     //查检表问卷设置分类-药事-护理
     public static final String QUESTION_CHECK_CATEGORY_YS_HL = "3830bde219db494ab018c4ba5c1df4b1";
 
+    //职位code 职能科室
+    public static final String POSITION_CODE_ZNKS = "ZNKS";
+
+    //职位code 临床科室主任
+    public static final String POSITION_CODE_LCKSZR = "LCKSZR";
+
+    //职位code 临床科室护士长
+    public static final String POSITION_CODE_LCKHSZ = "LCKHSZ";
 
 }
