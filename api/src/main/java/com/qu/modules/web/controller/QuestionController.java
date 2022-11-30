@@ -1,8 +1,11 @@
 package com.qu.modules.web.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.qu.constant.Constant;
 import com.qu.constant.QuestionConstant;
+import com.qu.constant.TbDataConstant;
 import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.Data;
@@ -24,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 问卷表
@@ -524,6 +528,45 @@ public class QuestionController {
         result.setSuccess(true);
         return result;
     }
+
+    /**
+     * 检查人员管理设置列
+     */
+    @AutoLog(value = "检查人员管理设置列")
+    @ApiOperation(value = "检查人员管理设置列", notes = "检查人员管理设置列")
+    @GetMapping(value = "/setColumn")
+    public ResultBetter<List<QuestionSetColumnVo>> setColumn(HttpServletRequest request) {
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String deptId = data.getDeps().get(0).getId();
+        String userId = data.getTbUser().getId();
+
+        //职位
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        String positionCode = data.getPositions().get(0).getTbPosition().getPositionCode();
+        lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
+        lambda.like(Question::getDeptIds,deptId);
+        if (positionCode.indexOf(Constant.POSITION_CODE_ZNKS) > -1) {
+            //		 1、如果登录账号是职能科室（无论是科主任还是科室干事），都返回本科室的全部人员（除科主任以外）和本科室全部填报的查检表
+        } else if (positionCode.indexOf(Constant.POSITION_CODE_LCKSZR) > -1) {
+            //		 2、如果登录账号是临床科室主任，返回本科的全部医生（职位是LCKSZKY），和本科室全部医疗类型的能填报的查检表
+            lambda.eq(Question::getCategoryId, TbDataConstant.DATA_TYPE_QUESTION_CHECK_CATEGORY_YL);
+        } else if (positionCode.indexOf(Constant.POSITION_CODE_LCKHSZ) > -1) {
+            //		 3、如果登录账号是临床科室护士长，返回本科的全部护士（职位是LCKSZKYHL），和本科室全部护理类型的能填报的查检表
+            lambda.eq(Question::getCategoryId, TbDataConstant.DATA_TYPE_QUESTION_CHECK_CATEGORY_HL);
+        }else{
+            //		 4、其他账号登录，本页面无返回
+            return ResultBetter.ok();
+        }
+
+        List<Question> list = questionService.list(lambda);
+        List<QuestionSetColumnVo> answerCheckUserVoList = list.stream().map(user -> {
+            QuestionSetColumnVo vo = new QuestionSetColumnVo();
+            BeanUtils.copyProperties(user, vo);
+            return vo;
+        }).collect(Collectors.toList());
+        return  ResultBetter.ok(answerCheckUserVoList);
+    }
+
 
 
 
