@@ -1,12 +1,25 @@
 package com.qu.modules.web.controller;
 
-import com.qu.modules.web.service.IAnswerCheckUserSetService;
-import com.qu.modules.web.service.ITbUserService;
-import io.swagger.annotations.Api;
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
+
+import org.jeecg.common.api.vo.ResultBetter;
+import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.qu.constant.Constant;
+import com.qu.modules.web.param.AnswerCheckUserSetSaveParam;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.service.IAnswerCheckUserSetService;
+import com.qu.modules.web.service.ITbUserService;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: 检查表的检查人员设置表
@@ -25,7 +38,18 @@ public class AnswerCheckUserSetController {
 	@Autowired
 	private ITbUserService tbUserService;
 
-
+    /**
+     * 检查人员管理保存行或保存列
+     */
+    @AutoLog(value = "检查人员管理保存行或保存列")
+    @ApiOperation(value = "检查人员管理保存行或保存列", notes = "检查人员管理保存行或保存列")
+    @PostMapping(value = "/saveAnswerCheckUserSet")
+    public ResultBetter saveAnswerCheckUserSet(@RequestBody @Validated AnswerCheckUserSetSaveParam param, HttpServletRequest request) {
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String deptId = data.getDeps().get(0).getId();
+//        String userId = data.getTbUser().getId();
+        return  answerCheckUserSetService.saveAnswerCheckUserSet(param,deptId);
+    }
 
 
 
