@@ -1,13 +1,5 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.jeecg.common.api.vo.ResultBetter;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -15,14 +7,22 @@ import com.qu.constant.AnswerCheckUserSetConstant;
 import com.qu.constant.Constant;
 import com.qu.modules.web.entity.AnswerCheckUserSet;
 import com.qu.modules.web.entity.TbUser;
+import com.qu.modules.web.entity.TbUserPosition;
 import com.qu.modules.web.mapper.TbUserMapper;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.IAnswerCheckUserSetService;
+import com.qu.modules.web.service.ITbUserPositionService;
 import com.qu.modules.web.service.ITbUserService;
-import com.qu.modules.web.vo.QuestionSetColumnChooseVo;
 import com.qu.modules.web.vo.QuestionSetLineAllVo;
 import com.qu.modules.web.vo.QuestionSetLineChooseVo;
 import com.qu.modules.web.vo.QuestionSetLineVo;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 用户表
@@ -35,6 +35,9 @@ public class TbUserServiceImpl extends ServiceImpl<TbUserMapper, TbUser> impleme
 
     @Autowired
     private IAnswerCheckUserSetService answerCheckUserSetService;
+
+    @Autowired
+    private ITbUserPositionService tbUserPositionService;
 
     @Override
     public ResultBetter<QuestionSetLineVo> setLine(Data data) {
@@ -50,8 +53,8 @@ public class TbUserServiceImpl extends ServiceImpl<TbUserMapper, TbUser> impleme
             lambda.ne(TbUser::getId,userId);
         } else if (positionCode.contains(Constant.POSITION_CODE_LCKSZR)) {
             //		 2、如果登录账号是临床科室主任，返回本科的全部医生（职位是LCKSZKY），和本科室全部医疗类型的能填报的查检表
-            List<TbUserPosition> byPositionIds = tbUserPositionService.getById(Constant.POSITION_CODE_LCKSZKY);
-            List<String> userIdListByPosition = byPositionIds.stream().map(TbUserPosition::getUserId).distinct().collect(Collectors.toList());
+            List<TbUserPosition> byPositionIds = tbUserPositionService.getByPositionId(Constant.POSITION_CODE_LCKSZKY);
+            List<String> userIdListByPosition = byPositionIds.stream().map(TbUserPosition::getUserid).distinct().collect(Collectors.toList());
             lambda.in(TbUser::getId,userIdListByPosition);
             lambda.eq(TbUser::getDepid,deptId);
             LambdaQueryWrapper<TbUser> or = lambda.or();
@@ -59,8 +62,8 @@ public class TbUserServiceImpl extends ServiceImpl<TbUserMapper, TbUser> impleme
             or.eq(TbUser::getPositionid,Constant.POSITION_CODE_LCKSZKY);
         } else if (positionCode.contains(Constant.POSITION_CODE_LCKHSZ)) {
             //		 3、如果登录账号是临床科室护士长，返回本科的全部护士（职位是LCKSZKYHL），和本科室全部护理类型的能填报的查检表
-            List<TbUserPosition> byPositionIds = tbUserPositionService.getById(Constant.POSITION_CODE_LCKSZKYHL);
-            List<String> userIdListByPosition = byPositionIds.stream().map(TbUserPosition::getUserId).distinct().collect(Collectors.toList());
+            List<TbUserPosition> byPositionIds = tbUserPositionService.getByPositionId(Constant.POSITION_CODE_LCKSZKYHL);
+            List<String> userIdListByPosition = byPositionIds.stream().map(TbUserPosition::getUserid).distinct().collect(Collectors.toList());
             lambda.in(TbUser::getId,userIdListByPosition);
             lambda.eq(TbUser::getDepid,deptId);
             LambdaQueryWrapper<TbUser> or = lambda.or();
