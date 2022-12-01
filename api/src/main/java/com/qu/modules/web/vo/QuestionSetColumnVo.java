@@ -1,21 +1,22 @@
 package com.qu.modules.web.vo;
 
+import java.util.List;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Data;
-import org.jeecgframework.poi.excel.annotation.Excel;
 
 @Data
+@Builder
 @ApiModel(value = "QuestionSetColumnVo", description = "QuestionSetColumnVo")
 public class QuestionSetColumnVo {
-    @Excel(name = "主键", width = 15)
-    @ApiModelProperty(value = "主键")
-    private Integer id;
-    /**
-     * 问卷名称
-     */
-    @Excel(name = "问卷名称", width = 15)
-    @ApiModelProperty(value = "问卷名称")
-    private String quName;
+
+    @ApiModelProperty(value = "左边所有数据")
+    private List<QuestionSetColumnAllVo> allData;
+
+
+    @ApiModelProperty(value = "右边选择的id集合")
+    private List<QuestionSetColumnChooseVo> chooseData;
 
 }

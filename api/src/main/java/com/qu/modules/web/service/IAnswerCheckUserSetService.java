@@ -1,5 +1,7 @@
 package com.qu.modules.web.service;
 
+import java.util.List;
+
 import org.jeecg.common.api.vo.ResultBetter;
 
 import com.qu.modules.web.entity.AnswerCheckUserSet;
@@ -15,5 +17,10 @@ import com.qu.modules.web.param.AnswerCheckUserSetSaveParam;
 public interface IAnswerCheckUserSetService extends IService<AnswerCheckUserSet> {
 
     ResultBetter saveAnswerCheckUserSet(AnswerCheckUserSetSaveParam param, String deptId);
+
+    List<AnswerCheckUserSet> selectByDeptAndType(String deptId, Integer typeColumn);
+
+
+
 
 }

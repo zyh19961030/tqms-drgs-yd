@@ -1,16 +1,18 @@
 package com.qu.modules.web.entity;
 
+import java.util.Date;
+
+import org.jeecgframework.poi.excel.annotation.Excel;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.jeecgframework.poi.excel.annotation.Excel;
-
-import java.util.Date;
 
 /**
  * @Description: 检查表的检查人员设置表
@@ -55,4 +57,8 @@ public class AnswerCheckUserSet {
 	@Excel(name = "类型 1设置行 2设置列", width = 15)
     @ApiModelProperty(value = "类型 1设置行 2设置列")
 	private Integer type;
+	/**序号*/
+	@Excel(name = "序号", width = 15)
+    @ApiModelProperty(value = "序号")
+	private Integer sortNumber;
 }

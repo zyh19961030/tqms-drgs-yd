@@ -2,7 +2,6 @@ package com.qu.modules.web.service.impl;
 
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.jeecg.common.api.vo.ResultBetter;
 import org.springframework.stereotype.Service;
@@ -10,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
 import com.qu.constant.AnswerCheckUserSetConstant;
 import com.qu.modules.web.entity.AnswerCheckUserSet;
 import com.qu.modules.web.mapper.AnswerCheckUserSetMapper;
@@ -44,17 +44,18 @@ public class AnswerCheckUserSetServiceImpl extends ServiceImpl<AnswerCheckUserSe
 
             List<String> userIdList = param.getUserId();
             if (CollectionUtil.isNotEmpty(userIdList)) {
-                List<AnswerCheckUserSet> saveList = userIdList.stream().map(s -> {
+                List<AnswerCheckUserSet> saveList = Lists.newArrayList();
+                for (int i = 0; i < userIdList.size(); i++) {
                     AnswerCheckUserSet answerCheckUserSet = new AnswerCheckUserSet();
-
-                    answerCheckUserSet.setUserId(s);
+                    answerCheckUserSet.setUserId(userIdList.get(i));
                     answerCheckUserSet.setDeptId(deptId);
                     answerCheckUserSet.setUpdateTime(date);
                     answerCheckUserSet.setCreateTime(date);
                     answerCheckUserSet.setDel(AnswerCheckUserSetConstant.DEL_NORMAL);
                     answerCheckUserSet.setType(AnswerCheckUserSetConstant.TYPE_LINE);
-                    return answerCheckUserSet;
-                }).collect(Collectors.toList());
+                    answerCheckUserSet.setSortNumber(i+1);
+                    saveList.add(answerCheckUserSet);
+                }
                 this.saveBatch(saveList);
             }
             return ResultBetter.ok();
@@ -65,20 +66,33 @@ public class AnswerCheckUserSetServiceImpl extends ServiceImpl<AnswerCheckUserSe
 
             List<Integer> quIdList = param.getQuId();
             if (CollectionUtil.isNotEmpty(quIdList)) {
-                List<AnswerCheckUserSet> saveList = quIdList.stream().map(q -> {
+                List<AnswerCheckUserSet> saveList = Lists.newArrayList();
+                for (int i = 0; i < quIdList.size(); i++) {
                     AnswerCheckUserSet answerCheckUserSet = new AnswerCheckUserSet();
-                    answerCheckUserSet.setQuId(q);
+                    answerCheckUserSet.setQuId(quIdList.get(i));
                     answerCheckUserSet.setDeptId(deptId);
                     answerCheckUserSet.setUpdateTime(date);
                     answerCheckUserSet.setCreateTime(date);
                     answerCheckUserSet.setDel(AnswerCheckUserSetConstant.DEL_NORMAL);
                     answerCheckUserSet.setType(AnswerCheckUserSetConstant.TYPE_COLUMN);
-                    return answerCheckUserSet;
-                }).collect(Collectors.toList());
+                    answerCheckUserSet.setSortNumber(i+1);
+                    saveList.add(answerCheckUserSet);
+                }
                 this.saveBatch(saveList);
             }
             return ResultBetter.ok();
         }
         return ResultBetter.error("保存失败");
     }
+
+    @Override
+    public List<AnswerCheckUserSet> selectByDeptAndType(String deptId, Integer typeColumn) {
+        LambdaUpdateWrapper<AnswerCheckUserSet> lambda = new UpdateWrapper<AnswerCheckUserSet>().lambda();
+        lambda.eq(AnswerCheckUserSet::getDeptId,deptId);
+        lambda.eq(AnswerCheckUserSet::getType,typeColumn);
+        lambda.orderByAsc(AnswerCheckUserSet::getSortNumber);
+        return this.list(lambda);
+    }
+
+
 }
