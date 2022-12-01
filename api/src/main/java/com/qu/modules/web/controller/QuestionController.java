@@ -1,33 +1,66 @@
 package com.qu.modules.web.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.qu.constant.Constant;
-import com.qu.constant.QuestionConstant;
-import com.qu.constant.TbDataConstant;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.param.*;
-import com.qu.modules.web.pojo.Data;
-import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.vo.*;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultBetter;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.qu.constant.Constant;
+import com.qu.constant.QuestionConstant;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.param.CheckQuestionHistoryStatisticDeptListParam;
+import com.qu.modules.web.param.IdParam;
+import com.qu.modules.web.param.QuestionAgainReleaseParam;
+import com.qu.modules.web.param.QuestionCheckParam;
+import com.qu.modules.web.param.QuestionCheckedDepParam;
+import com.qu.modules.web.param.QuestionEditParam;
+import com.qu.modules.web.param.QuestionParam;
+import com.qu.modules.web.param.QuestionQueryByIdParam;
+import com.qu.modules.web.param.SelectCheckedDeptIdsParam;
+import com.qu.modules.web.param.SelectResponsibilityUserIdsParam;
+import com.qu.modules.web.param.UpdateCategoryIdParam;
+import com.qu.modules.web.param.UpdateCheckedDeptIdsParam;
+import com.qu.modules.web.param.UpdateDeptIdsParam;
+import com.qu.modules.web.param.UpdateQuestionIconParam;
+import com.qu.modules.web.param.UpdateResponsibilityUserIdsParam;
+import com.qu.modules.web.param.UpdateTemplateIdParam;
+import com.qu.modules.web.param.UpdateWriteFrequencyIdsParam;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.vo.CheckQuestionHistoryStatisticDeptListDeptVo;
+import com.qu.modules.web.vo.CheckQuestionHistoryStatisticVo;
+import com.qu.modules.web.vo.CheckQuestionParameterSetListVo;
+import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
+import com.qu.modules.web.vo.QuestionCheckProject;
+import com.qu.modules.web.vo.QuestionCheckVo;
+import com.qu.modules.web.vo.QuestionMonthQuarterYearCreateListVo;
+import com.qu.modules.web.vo.QuestionPageVo;
+import com.qu.modules.web.vo.QuestionPatientCreateListVo;
+import com.qu.modules.web.vo.QuestionStatisticsCheckVo;
+import com.qu.modules.web.vo.QuestionVo;
+import com.qu.modules.web.vo.ViewNameVo;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: 问卷表
@@ -529,43 +562,7 @@ public class QuestionController {
         return result;
     }
 
-    /**
-     * 检查人员管理设置列
-     */
-    @AutoLog(value = "检查人员管理设置列")
-    @ApiOperation(value = "检查人员管理设置列", notes = "检查人员管理设置列")
-    @GetMapping(value = "/setColumn")
-    public ResultBetter<List<QuestionSetColumnVo>> setColumn(HttpServletRequest request) {
-        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        String deptId = data.getDeps().get(0).getId();
-        String userId = data.getTbUser().getId();
 
-        //职位
-        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
-        String positionCode = data.getPositions().get(0).getTbPosition().getPositionCode();
-        lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
-        lambda.like(Question::getDeptIds,deptId);
-        if (positionCode.indexOf(Constant.POSITION_CODE_ZNKS) > -1) {
-            //		 1、如果登录账号是职能科室（无论是科主任还是科室干事），都返回本科室的全部人员（除科主任以外）和本科室全部填报的查检表
-        } else if (positionCode.indexOf(Constant.POSITION_CODE_LCKSZR) > -1) {
-            //		 2、如果登录账号是临床科室主任，返回本科的全部医生（职位是LCKSZKY），和本科室全部医疗类型的能填报的查检表
-            lambda.eq(Question::getCategoryId, TbDataConstant.DATA_TYPE_QUESTION_CHECK_CATEGORY_YL);
-        } else if (positionCode.indexOf(Constant.POSITION_CODE_LCKHSZ) > -1) {
-            //		 3、如果登录账号是临床科室护士长，返回本科的全部护士（职位是LCKSZKYHL），和本科室全部护理类型的能填报的查检表
-            lambda.eq(Question::getCategoryId, TbDataConstant.DATA_TYPE_QUESTION_CHECK_CATEGORY_HL);
-        }else{
-            //		 4、其他账号登录，本页面无返回
-            return ResultBetter.ok();
-        }
-
-        List<Question> list = questionService.list(lambda);
-        List<QuestionSetColumnVo> answerCheckUserVoList = list.stream().map(user -> {
-            QuestionSetColumnVo vo = new QuestionSetColumnVo();
-            BeanUtils.copyProperties(user, vo);
-            return vo;
-        }).collect(Collectors.toList());
-        return  ResultBetter.ok(answerCheckUserVoList);
-    }
 
 
 

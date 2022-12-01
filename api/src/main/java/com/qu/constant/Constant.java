@@ -58,4 +58,11 @@ public class Constant {
     //职位code 临床科室护士长
     public static final String POSITION_CODE_LCKHSZ = "LCKHSZ";
 
+    //职位id 临床科室质控员
+    public static final String POSITION_CODE_LCKSZKY = "80bd4043ad9345e692a39df9611a6213";
+
+    //职位id 临床科室质控员
+    public static final String POSITION_CODE_LCKSZKYHL = "b616a51307384e82aaeb747099642442";
+
+
 }

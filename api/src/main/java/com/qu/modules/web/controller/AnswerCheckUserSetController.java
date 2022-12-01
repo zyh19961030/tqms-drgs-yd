@@ -6,6 +6,7 @@ import org.jeecg.common.api.vo.ResultBetter;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,7 +16,10 @@ import com.qu.constant.Constant;
 import com.qu.modules.web.param.AnswerCheckUserSetSaveParam;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.IAnswerCheckUserSetService;
+import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.service.ITbUserService;
+import com.qu.modules.web.vo.QuestionSetColumnVo;
+import com.qu.modules.web.vo.QuestionSetLineVo;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -35,8 +39,35 @@ public class AnswerCheckUserSetController {
 	@Autowired
 	private IAnswerCheckUserSetService answerCheckUserSetService;
 
-	@Autowired
+    @Autowired
+    private IQuestionService questionService;
+
+
+    @Autowired
 	private ITbUserService tbUserService;
+
+    /**
+     * 检查人员管理设置行
+     */
+    @ApiOperation(value = "检查人员管理设置行", notes = "检查人员管理设置行")
+    @GetMapping(value = "/setLine")
+    public ResultBetter<QuestionSetLineVo> setLine(HttpServletRequest request) {
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        return  tbUserService.setLine(data);
+    }
+
+    /**
+     * 检查人员管理设置列
+     */
+    @AutoLog(value = "检查人员管理设置列")
+    @ApiOperation(value = "检查人员管理设置列", notes = "检查人员管理设置列")
+    @GetMapping(value = "/setColumn")
+    public ResultBetter<QuestionSetColumnVo> setColumn(HttpServletRequest request) {
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        return questionService.setColumn(data);
+
+    }
+
 
     /**
      * 检查人员管理保存行或保存列
