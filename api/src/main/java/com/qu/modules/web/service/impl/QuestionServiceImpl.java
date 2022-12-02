@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -1748,6 +1749,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
         lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
         lambda.like(Question::getDeptIds,deptId);
+        lambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
         if (positionCode.indexOf(Constant.POSITION_CODE_ZNKS) > -1) {
             //		 1、如果登录账号是职能科室（无论是科主任还是科室干事），都返回本科室的全部人员（除科主任以外）和本科室全部填报的查检表
         } else if (positionCode.indexOf(Constant.POSITION_CODE_LCKSZR) > -1) {
@@ -1761,18 +1763,24 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             return ResultBetter.ok();
         }
 
-        List<Question> list = this.list(lambda);
-        List<QuestionSetColumnAllVo> answerCheckUserVoList = list.stream().map(user -> {
+        List<Question> questionList = this.list(lambda);
+        List<QuestionSetColumnAllVo> answerCheckUserVoList = questionList.stream().map(user -> {
             QuestionSetColumnAllVo vo = new QuestionSetColumnAllVo();
             BeanUtils.copyProperties(user, vo);
             return vo;
         }).collect(Collectors.toList());
+        Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
         //选择的数据
         List<AnswerCheckUserSet> answerCheckUserSetList = answerCheckUserSetService.selectByDeptAndType(deptId,AnswerCheckUserSetConstant.TYPE_COLUMN);
 //        List<Integer> answerCheckUserList = answerCheckUserSetList.stream().map(AnswerCheckUserSet::getQuId).collect(Collectors.toList());
         List<QuestionSetColumnChooseVo> answerCheckUserChooseList = answerCheckUserSetList.stream().map(answerCheckUserSet -> {
             QuestionSetColumnChooseVo vo = new QuestionSetColumnChooseVo();
-            BeanUtils.copyProperties(answerCheckUserSet, vo);
+            Integer quId = answerCheckUserSet.getQuId();
+            vo.setId(quId);
+            Question question = questionMap.get(quId);
+            if(question!=null){
+                vo.setQuName(question.getQuName());
+            }
             return vo;
         }).collect(Collectors.toList());
 

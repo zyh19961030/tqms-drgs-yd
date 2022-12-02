@@ -90,6 +90,7 @@ public class AnswerCheckUserSetServiceImpl extends ServiceImpl<AnswerCheckUserSe
         LambdaUpdateWrapper<AnswerCheckUserSet> lambda = new UpdateWrapper<AnswerCheckUserSet>().lambda();
         lambda.eq(AnswerCheckUserSet::getDeptId,deptId);
         lambda.eq(AnswerCheckUserSet::getType,typeColumn);
+        lambda.eq(AnswerCheckUserSet::getDel, AnswerCheckUserSetConstant.DEL_NORMAL);
         lambda.orderByAsc(AnswerCheckUserSet::getSortNumber);
         return this.list(lambda);
     }
