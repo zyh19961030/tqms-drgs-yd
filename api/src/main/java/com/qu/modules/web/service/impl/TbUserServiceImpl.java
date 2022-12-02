@@ -1,5 +1,13 @@
 package com.qu.modules.web.service.impl;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.jeecg.common.api.vo.ResultBetter;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -16,13 +24,6 @@ import com.qu.modules.web.service.ITbUserService;
 import com.qu.modules.web.vo.QuestionSetLineAllVo;
 import com.qu.modules.web.vo.QuestionSetLineChooseVo;
 import com.qu.modules.web.vo.QuestionSetLineVo;
-import org.jeecg.common.api.vo.ResultBetter;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @Description: 用户表
@@ -76,7 +77,8 @@ public class TbUserServiceImpl extends ServiceImpl<TbUserMapper, TbUser> impleme
         List<TbUser> list = this.list(lambda);
         List<QuestionSetLineAllVo> questionSetLineAllVoList = list.stream().map(u -> {
             QuestionSetLineAllVo vo = new QuestionSetLineAllVo();
-            org.springframework.beans.BeanUtils.copyProperties(u, vo);
+            BeanUtils.copyProperties(u, vo);
+            vo.setUserName(u.getUsername());
             return vo;
         }).collect(Collectors.toList());
 
