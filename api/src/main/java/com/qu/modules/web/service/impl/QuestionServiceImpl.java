@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -1761,18 +1762,24 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             return ResultBetter.ok();
         }
 
-        List<Question> list = this.list(lambda);
-        List<QuestionSetColumnAllVo> answerCheckUserVoList = list.stream().map(user -> {
+        List<Question> questionList = this.list(lambda);
+        List<QuestionSetColumnAllVo> answerCheckUserVoList = questionList.stream().map(user -> {
             QuestionSetColumnAllVo vo = new QuestionSetColumnAllVo();
             BeanUtils.copyProperties(user, vo);
             return vo;
         }).collect(Collectors.toList());
+        Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
         //选择的数据
         List<AnswerCheckUserSet> answerCheckUserSetList = answerCheckUserSetService.selectByDeptAndType(deptId,AnswerCheckUserSetConstant.TYPE_COLUMN);
 //        List<Integer> answerCheckUserList = answerCheckUserSetList.stream().map(AnswerCheckUserSet::getQuId).collect(Collectors.toList());
         List<QuestionSetColumnChooseVo> answerCheckUserChooseList = answerCheckUserSetList.stream().map(answerCheckUserSet -> {
             QuestionSetColumnChooseVo vo = new QuestionSetColumnChooseVo();
-            BeanUtils.copyProperties(answerCheckUserSet, vo);
+            Integer quId = answerCheckUserSet.getQuId();
+            vo.setId(quId);
+            Question question = questionMap.get(quId);
+            if(question!=null){
+                vo.setQuName(question.getQuName());
+            }
             return vo;
         }).collect(Collectors.toList());
 

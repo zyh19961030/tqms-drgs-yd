@@ -10,10 +10,10 @@ public class QuestionSetColumnChooseVo {
 
     @ApiModelProperty(value = "问卷id")
     private Integer id;
-//    /**
-//     * 问卷名称
-//     */
-//    @ApiModelProperty(value = "问卷名称")
-//    private String quName;
+    /**
+     * 问卷名称
+     */
+    @ApiModelProperty(value = "问卷名称")
+    private String quName;
 
 }
