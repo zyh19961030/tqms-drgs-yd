@@ -21,9 +21,9 @@ public class QuestionSetLineChooseVo implements Serializable {
     @ApiModelProperty(value = "用户id")
     private String id;
 
-//    @ApiModelProperty(value = "账户名称")
-//    private String userName;
-//
+    @ApiModelProperty(value = "账户名称")
+    private String userName;
+
 //    @ApiModelProperty(value = "手机号")
 //    private String phone;
 //

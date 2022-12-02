@@ -1,6 +1,8 @@
 package com.qu.modules.web.service.impl;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.jeecg.common.api.vo.ResultBetter;
@@ -74,19 +76,25 @@ public class TbUserServiceImpl extends ServiceImpl<TbUserMapper, TbUser> impleme
             //		 4、其他账号登录，本页面无返回
             return ResultBetter.ok();
         }
-        List<TbUser> list = this.list(lambda);
-        List<QuestionSetLineAllVo> questionSetLineAllVoList = list.stream().map(u -> {
+        List<TbUser> tbUserList = this.list(lambda);
+        List<QuestionSetLineAllVo> questionSetLineAllVoList = tbUserList.stream().map(u -> {
             QuestionSetLineAllVo vo = new QuestionSetLineAllVo();
             BeanUtils.copyProperties(u, vo);
             vo.setUserName(u.getUsername());
             return vo;
         }).collect(Collectors.toList());
+        Map<String, TbUser> tbUserMap = tbUserList.stream().collect(Collectors.toMap(TbUser::getId, Function.identity()));
 
         //选择的数据
         List<AnswerCheckUserSet> answerCheckUserSetList = answerCheckUserSetService.selectByDeptAndType(deptId, AnswerCheckUserSetConstant.TYPE_LINE);
         List<QuestionSetLineChooseVo> answerCheckUserChooseList = answerCheckUserSetList.stream().map(answerCheckUserSet -> {
             QuestionSetLineChooseVo vo = new QuestionSetLineChooseVo();
-            BeanUtils.copyProperties(answerCheckUserSet, vo);
+            String answerCheckUserSetUserId = answerCheckUserSet.getUserId();
+            vo.setId(answerCheckUserSetUserId);
+            TbUser tbUser = tbUserMap.get(answerCheckUserSetUserId);
+            if(tbUser!=null){
+                vo.setUserName(tbUser.getUsername());
+            }
             return vo;
         }).collect(Collectors.toList());
 
