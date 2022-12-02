@@ -1749,6 +1749,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
         lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
         lambda.like(Question::getDeptIds,deptId);
+        lambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
         if (positionCode.indexOf(Constant.POSITION_CODE_ZNKS) > -1) {
             //		 1、如果登录账号是职能科室（无论是科主任还是科室干事），都返回本科室的全部人员（除科主任以外）和本科室全部填报的查检表
         } else if (positionCode.indexOf(Constant.POSITION_CODE_LCKSZR) > -1) {

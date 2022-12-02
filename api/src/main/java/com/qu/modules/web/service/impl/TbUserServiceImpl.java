@@ -76,6 +76,7 @@ public class TbUserServiceImpl extends ServiceImpl<TbUserMapper, TbUser> impleme
             //		 4、其他账号登录，本页面无返回
             return ResultBetter.ok();
         }
+        lambda.eq(TbUser::getIsdelete, Constant.IS_DELETE_NO);
         List<TbUser> tbUserList = this.list(lambda);
         List<QuestionSetLineAllVo> questionSetLineAllVoList = tbUserList.stream().map(u -> {
             QuestionSetLineAllVo vo = new QuestionSetLineAllVo();
