@@ -159,6 +159,10 @@ public class AnswerCheckUserSetServiceImpl extends ServiceImpl<AnswerCheckUserSe
                 detailDataList.add(valueItem);
                 valueItem.put("tb_user", tbUser.getUsername());
                 valueItem.put("dataKey", tbUser.getId());
+                //循环一遍问卷
+                for (Integer quId : quIdList) {
+                    valueItem.put(String.valueOf(quId), "0");
+                }
             }
         }
 
