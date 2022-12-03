@@ -1,29 +1,26 @@
 package com.qu.modules.web.controller;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.jeecg.common.api.vo.ResultBetter;
-import org.jeecg.common.aspect.annotation.AutoLog;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.qu.constant.Constant;
 import com.qu.modules.web.param.AnswerCheckUserSetSaveParam;
+import com.qu.modules.web.param.AnswerCheckUserSetSaveServiceParam;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.IAnswerCheckUserSetService;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.service.ITbUserService;
+import com.qu.modules.web.vo.AnswerCheckSetAllDataVo;
 import com.qu.modules.web.vo.QuestionSetColumnVo;
 import com.qu.modules.web.vo.QuestionSetLineVo;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.jeecg.common.aspect.annotation.AutoLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @Description: 检查表的检查人员设置表
@@ -41,7 +38,6 @@ public class AnswerCheckUserSetController {
 
     @Autowired
     private IQuestionService questionService;
-
 
     @Autowired
 	private ITbUserService tbUserService;
@@ -82,6 +78,32 @@ public class AnswerCheckUserSetController {
         return  answerCheckUserSetService.saveAnswerCheckUserSet(param,deptId);
     }
 
+     /**
+	  * 查看某科室的检查人员设置接口
+	  */
+	 @AutoLog(value = "查看某科室的检查人员设置接口")
+	 @ApiOperation(value = "查看某科室的检查人员设置接口", notes = "查看某科室的检查人员设置接口")
+	 @GetMapping(value = "/selectAnswerCheckUserSet")
+	 public ResultBetter<AnswerCheckSetAllDataVo> selectAnswerCheckUserSet(HttpServletRequest request) {
+		 //加科室过滤---
+		 Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+		 String deptId = data.getDeps().get(0).getId();
+		 return answerCheckUserSetService.selectAnswerCheckUserSet(deptId);
+	 }
+
+
+    /**
+     * 保存服务设置
+     */
+    @AutoLog(value = "保存服务设置")
+    @ApiOperation(value = "保存服务设置", notes = "保存服务设置")
+    @PostMapping(value = "/saveService")
+    public ResultBetter saveService(@RequestBody @Validated List<AnswerCheckUserSetSaveServiceParam> param, HttpServletRequest request) {
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String deptId = data.getDeps().get(0).getId();
+//        String userId = data.getTbUser().getId();
+        return  answerCheckUserSetService.saveService(param,deptId);
+    }
 
 
 

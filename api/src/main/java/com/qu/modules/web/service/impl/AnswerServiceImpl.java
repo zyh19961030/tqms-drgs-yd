@@ -684,16 +684,13 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         sqlSelect.append(")");
         List<Map<String, String>> dataList = dynamicTableMapper.selectDynamicTableColumnList(sqlSelect.toString());
         for (Map<String, String> dataItemMap : dataList) {
-//            public static final String COLUMN_NAME_TH_MONTH = "tb_month";
-//            public static final String COLUMN_NAME_TH_QUARTER = "tb_jidu";
-//            public static final String COLUMN_NAME_TH_YEAR = "tb_year";
             String key=null;
             if(type.equals(1)){
-                key = dataItemMap.get("tb_month");
+                key = dataItemMap.get(AnswerConstant.COLUMN_NAME_TH_MONTH);
             }else if(type.equals(2)){
-                key = dataItemMap.get("tb_jidu");
+                key = dataItemMap.get(AnswerConstant.COLUMN_NAME_TH_QUARTER);
             }else if(type.equals(3)){
-                key = dataItemMap.get("tb_year");
+                key = dataItemMap.get(AnswerConstant.COLUMN_NAME_TH_YEAR);
             }
             for (LinkedHashMap<String, String> stringObjectLinkedHashMap : detailDataList) {
                 String dataKey = stringObjectLinkedHashMap.get("dataKey");
