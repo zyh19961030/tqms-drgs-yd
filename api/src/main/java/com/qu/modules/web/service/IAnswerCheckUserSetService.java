@@ -1,12 +1,13 @@
 package com.qu.modules.web.service;
 
-import java.util.List;
-
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.qu.modules.web.entity.AnswerCheckUserSet;
+import com.qu.modules.web.param.AnswerCheckUserSetSaveParam;
+import com.qu.modules.web.param.AnswerCheckUserSetSaveServiceParam;
+import com.qu.modules.web.vo.AnswerCheckSetAllDataVo;
 import org.jeecg.common.api.vo.ResultBetter;
 
-import com.qu.modules.web.entity.AnswerCheckUserSet;
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.qu.modules.web.param.AnswerCheckUserSetSaveParam;
+import java.util.List;
 
 /**
  * @Description: 检查表的检查人员设置表
@@ -20,7 +21,8 @@ public interface IAnswerCheckUserSetService extends IService<AnswerCheckUserSet>
 
     List<AnswerCheckUserSet> selectByDeptAndType(String deptId, Integer typeColumn);
 
+    ResultBetter<AnswerCheckSetAllDataVo> selectAnswerCheckUserSet(String deptId);
 
-
+    ResultBetter saveService(List<AnswerCheckUserSetSaveServiceParam> param, String deptId);
 
 }

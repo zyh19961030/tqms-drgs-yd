@@ -22,35 +22,50 @@ public class QuestionCheckedDeptServiceImpl extends ServiceImpl<QuestionCheckedD
 
     @Override
     public List<QuestionCheckedDept> selectCheckedDeptByQuId(Integer quId, Integer type) {
-        LambdaQueryWrapper<QuestionCheckedDept> tbDepLambda = new QueryWrapper<QuestionCheckedDept>().lambda();
-        tbDepLambda.eq(QuestionCheckedDept::getQuId, quId);
-        tbDepLambda.eq(QuestionCheckedDept::getType, type);
-        return this.list(tbDepLambda);
+        LambdaQueryWrapper<QuestionCheckedDept> lambda = new QueryWrapper<QuestionCheckedDept>().lambda();
+        lambda.eq(QuestionCheckedDept::getQuId, quId);
+        lambda.eq(QuestionCheckedDept::getType, type);
+        return this.list(lambda);
     }
 
     @Override
     public List<QuestionCheckedDept> selectCheckedDeptByDeptId(String deptId, Integer type) {
-        LambdaQueryWrapper<QuestionCheckedDept> tbDepLambda = new QueryWrapper<QuestionCheckedDept>().lambda();
-        tbDepLambda.eq(QuestionCheckedDept::getDeptId, deptId);
-        tbDepLambda.eq(QuestionCheckedDept::getType, type);
-        return this.list(tbDepLambda);
+        LambdaQueryWrapper<QuestionCheckedDept> lambda = new QueryWrapper<QuestionCheckedDept>().lambda();
+        lambda.eq(QuestionCheckedDept::getDeptId, deptId);
+        lambda.eq(QuestionCheckedDept::getType, type);
+        return this.list(lambda);
     }
 
+    @Override
+    public List<QuestionCheckedDept> selectCheckedDeptByDeptIds(List<String> deptIdList, Integer type) {
+        LambdaQueryWrapper<QuestionCheckedDept> lambda = new QueryWrapper<QuestionCheckedDept>().lambda();
+        lambda.in(QuestionCheckedDept::getDeptId, deptIdList);
+        lambda.eq(QuestionCheckedDept::getType, type);
+        return this.list(lambda);
+    }
 
     @Override
     public List<QuestionCheckedDept> selectCheckedDeptByQuIdAndDeptId(Integer quId, String checkedDeptId) {
-        LambdaQueryWrapper<QuestionCheckedDept> tbDepLambda = new QueryWrapper<QuestionCheckedDept>().lambda();
-        tbDepLambda.eq(QuestionCheckedDept::getQuId, quId);
-        tbDepLambda.eq(QuestionCheckedDept::getDeptId, checkedDeptId);
-        tbDepLambda.eq(QuestionCheckedDept::getType, QuestionCheckedDeptConstant.TYPE_CHECKED_DEPT);
-        return this.list(tbDepLambda);
+        LambdaQueryWrapper<QuestionCheckedDept> lambda = new QueryWrapper<QuestionCheckedDept>().lambda();
+        lambda.eq(QuestionCheckedDept::getQuId, quId);
+        lambda.eq(QuestionCheckedDept::getDeptId, checkedDeptId);
+        lambda.eq(QuestionCheckedDept::getType, QuestionCheckedDeptConstant.TYPE_CHECKED_DEPT);
+        return this.list(lambda);
     }
 
     @Override
     public void deleteCheckedDeptByQuId(Integer quId,Integer type) {
-        LambdaQueryWrapper<QuestionCheckedDept> tbDepLambda = new QueryWrapper<QuestionCheckedDept>().lambda();
-        tbDepLambda.eq(QuestionCheckedDept::getQuId, quId);
-        tbDepLambda.eq(QuestionCheckedDept::getType, type);
-        this.remove(tbDepLambda);
+        LambdaQueryWrapper<QuestionCheckedDept> lambda = new QueryWrapper<QuestionCheckedDept>().lambda();
+        lambda.eq(QuestionCheckedDept::getQuId, quId);
+        lambda.eq(QuestionCheckedDept::getType, type);
+        this.remove(lambda);
+    }
+
+    @Override
+    public void deleteCheckedDeptByQuIds(List<Integer> quIdList, Integer type) {
+        LambdaQueryWrapper<QuestionCheckedDept> lambda = new QueryWrapper<QuestionCheckedDept>().lambda();
+        lambda.in(QuestionCheckedDept::getQuId, quIdList);
+        lambda.eq(QuestionCheckedDept::getType, type);
+        this.remove(lambda);
     }
 }

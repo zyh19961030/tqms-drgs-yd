@@ -1,22 +1,33 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.Date;
-import java.util.List;
-
-import org.jeecg.common.api.vo.ResultBetter;
-import org.springframework.stereotype.Service;
-
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.qu.constant.AnswerCheckUserSetConstant;
+import com.qu.constant.QuestionCheckedDeptConstant;
 import com.qu.modules.web.entity.AnswerCheckUserSet;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.entity.QuestionCheckedDept;
+import com.qu.modules.web.entity.TbUser;
 import com.qu.modules.web.mapper.AnswerCheckUserSetMapper;
 import com.qu.modules.web.param.AnswerCheckUserSetSaveParam;
+import com.qu.modules.web.param.AnswerCheckUserSetSaveServiceParam;
 import com.qu.modules.web.service.IAnswerCheckUserSetService;
+import com.qu.modules.web.service.IQuestionCheckedDeptService;
+import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.service.ITbUserService;
+import com.qu.modules.web.vo.AnswerCheckSetAllDataVo;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
 
-import cn.hutool.core.collection.CollectionUtil;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 检查表的检查人员设置表
@@ -26,6 +37,17 @@ import cn.hutool.core.collection.CollectionUtil;
  */
 @Service
 public class AnswerCheckUserSetServiceImpl extends ServiceImpl<AnswerCheckUserSetMapper, AnswerCheckUserSet> implements IAnswerCheckUserSetService {
+
+    @Lazy
+    @Autowired
+    private IQuestionService questionService;
+
+    @Lazy
+    @Autowired
+    private ITbUserService tbUserService;
+
+    @Autowired
+    private IQuestionCheckedDeptService questionCheckedDeptService;
 
     @Override
     public ResultBetter saveAnswerCheckUserSet(AnswerCheckUserSetSaveParam param, String deptId) {
@@ -95,5 +117,97 @@ public class AnswerCheckUserSetServiceImpl extends ServiceImpl<AnswerCheckUserSe
         return this.list(lambda);
     }
 
+    @Override
+    public ResultBetter<AnswerCheckSetAllDataVo> selectAnswerCheckUserSet(String deptId) {
+        //查询列
+        List<AnswerCheckUserSet> columnList = this.selectByDeptAndType(deptId,AnswerCheckUserSetConstant.TYPE_COLUMN);
+        AnswerCheckSetAllDataVo vo = new AnswerCheckSetAllDataVo();
+        //表头
+        List<LinkedHashMap<String, String>> fieldItems = Lists.newArrayList();
+        LinkedHashMap<String, String> fieldItemUser = Maps.newLinkedHashMap();
+        fieldItems.add(fieldItemUser);
+        fieldItemUser.put("fieldTxt", "人员");
+        fieldItemUser.put("fieldId", "tb_user");
+        List<Integer> quIdList = columnList.stream().map(AnswerCheckUserSet::getQuId).distinct().collect(Collectors.toList());
+        List<Question> questionList = questionService.getByIds(quIdList);
+        Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
+        for (Integer quId : quIdList) {
+            Question question = questionMap.get(quId);
+            if(question!=null){
+                LinkedHashMap<String, String> fieldItem = Maps.newLinkedHashMap();
+                fieldItems.add(fieldItem);
+                fieldItem.put("fieldTxt", question.getQuName());
+//                fieldItem.put("fieldId", String.format("column_%s",question.getId()));
+                fieldItem.put("fieldId", String.valueOf(question.getId()));
+            }
+        }
+        vo.setFieldItems(fieldItems);
 
+        //查询行
+        List<AnswerCheckUserSet> lineList = this.selectByDeptAndType(deptId,AnswerCheckUserSetConstant.TYPE_LINE);
+        //数据
+        List<LinkedHashMap<String, String>> detailDataList = Lists.newArrayList();
+        vo.setDetailDataList(detailDataList);
+
+        List<String> userIdList = lineList.stream().map(AnswerCheckUserSet::getUserId).distinct().collect(Collectors.toList());
+        List<TbUser> userList = tbUserService.getByIds(userIdList);
+        Map<String, TbUser> userMap = userList.stream().collect(Collectors.toMap(TbUser::getId, Function.identity()));
+        for (String userId : userIdList) {
+            TbUser tbUser = userMap.get(userId);
+            if(tbUser!=null){
+                LinkedHashMap<String, String> valueItem = Maps.newLinkedHashMap();
+                detailDataList.add(valueItem);
+                valueItem.put("tb_user", tbUser.getUsername());
+                valueItem.put("dataKey", tbUser.getId());
+            }
+        }
+
+        //处理数据 查询问卷的责任人
+        List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByDeptIds(userIdList, QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
+        if(CollectionUtil.isNotEmpty(questionCheckedDeptList)){
+            Map<String, List<QuestionCheckedDept>> questionCheckedDeptMap = questionCheckedDeptList.stream().collect(Collectors.toMap(QuestionCheckedDept::getDeptId, Lists::newArrayList,
+                    (List<QuestionCheckedDept> n1, List<QuestionCheckedDept> n2) -> {
+                        n1.addAll(n2);
+                        return n1;
+                    }));
+            for (LinkedHashMap<String, String> stringObjectLinkedHashMap : detailDataList) {
+                String dataKey = stringObjectLinkedHashMap.get("dataKey");
+                List<QuestionCheckedDept> checkedDeptList = questionCheckedDeptMap.get(dataKey);
+                if(CollectionUtil.isNotEmpty(checkedDeptList)){
+                    for (QuestionCheckedDept questionCheckedDept : checkedDeptList) {
+                        stringObjectLinkedHashMap.put(String.valueOf(questionCheckedDept.getQuId()),"1");
+                    }
+                }
+
+            }
+        }
+
+        return ResultBetter.ok(vo);
+    }
+
+    @Override
+    public ResultBetter saveService(List<AnswerCheckUserSetSaveServiceParam> param, String deptId) {
+        ArrayList<QuestionCheckedDept> addList = Lists.newArrayList();
+        Date date = new Date();
+        for (AnswerCheckUserSetSaveServiceParam answerCheckUserSetSaveServiceParam : param) {
+            List<String> userIdList = answerCheckUserSetSaveServiceParam.getUserId();
+            if(CollectionUtil.isNotEmpty(userIdList)){
+                for (String userId : userIdList) {
+                    QuestionCheckedDept questionCheckedDept = new QuestionCheckedDept();
+                    questionCheckedDept.setQuId(answerCheckUserSetSaveServiceParam.getQuId());
+                    questionCheckedDept.setDeptId(userId);
+                    questionCheckedDept.setCreateTime(date);
+                    questionCheckedDept.setUpdateTime(date);
+                    questionCheckedDept.setType(QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
+                    addList.add(questionCheckedDept);
+                }
+            }
+        }
+        //先删除
+        List<Integer> quIdList = param.stream().map(AnswerCheckUserSetSaveServiceParam::getQuId).distinct().collect(Collectors.toList());
+        questionCheckedDeptService.deleteCheckedDeptByQuIds(quIdList,QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
+        //保存
+        questionCheckedDeptService.saveBatch(addList);
+        return ResultBetter.ok();
+    }
 }
