@@ -1666,9 +1666,10 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         String deptId = data.getDeps().get(0).getId();
         String positionCode = data.getPositions().get(0).getTbPosition().getPositionCode();
 
-        //职位
+        //问卷
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
         lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
+        lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
         lambda.like(Question::getDeptIds,deptId);
         lambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
         if (positionCode.indexOf(Constant.POSITION_CODE_ZNKS) > -1) {
