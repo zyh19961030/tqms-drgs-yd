@@ -4,17 +4,18 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @Data
 @ApiModel(value = "AnswerCheckUserSetSaveServiceParam", description = "AnswerCheckUserSetSaveServiceParam")
 public class AnswerCheckUserSetSaveServiceParam {
-    @NotNull(message = "问卷id不能为空")
-    @ApiModelProperty(value = "问卷id")
-    private Integer quId;
 
+    @NotBlank(message = "用户idid不能为空")
     @ApiModelProperty(value = "用户id")
-    private List<String> userId;
+    private String userId;
+
+    @ApiModelProperty(value = "问卷id")
+    private List<Integer> quId;
 
 }

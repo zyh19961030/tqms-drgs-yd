@@ -194,12 +194,12 @@ public class AnswerCheckUserSetServiceImpl extends ServiceImpl<AnswerCheckUserSe
         ArrayList<QuestionCheckedDept> addList = Lists.newArrayList();
         Date date = new Date();
         for (AnswerCheckUserSetSaveServiceParam answerCheckUserSetSaveServiceParam : param) {
-            List<String> userIdList = answerCheckUserSetSaveServiceParam.getUserId();
-            if(CollectionUtil.isNotEmpty(userIdList)){
-                for (String userId : userIdList) {
+            List<Integer> quIdList = answerCheckUserSetSaveServiceParam.getQuId();
+            if(CollectionUtil.isNotEmpty(quIdList)){
+                for (Integer quId : quIdList) {
                     QuestionCheckedDept questionCheckedDept = new QuestionCheckedDept();
-                    questionCheckedDept.setQuId(answerCheckUserSetSaveServiceParam.getQuId());
-                    questionCheckedDept.setDeptId(userId);
+                    questionCheckedDept.setQuId(quId);
+                    questionCheckedDept.setDeptId(answerCheckUserSetSaveServiceParam.getUserId());
                     questionCheckedDept.setCreateTime(date);
                     questionCheckedDept.setUpdateTime(date);
                     questionCheckedDept.setType(QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
@@ -208,8 +208,8 @@ public class AnswerCheckUserSetServiceImpl extends ServiceImpl<AnswerCheckUserSe
             }
         }
         //先删除
-        List<Integer> quIdList = param.stream().map(AnswerCheckUserSetSaveServiceParam::getQuId).distinct().collect(Collectors.toList());
-        questionCheckedDeptService.deleteCheckedDeptByQuIds(quIdList,QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
+        List<String> userIdList = param.stream().map(AnswerCheckUserSetSaveServiceParam::getUserId).distinct().collect(Collectors.toList());
+        questionCheckedDeptService.deleteCheckedDeptByDeptIds(userIdList,QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
         //保存
         questionCheckedDeptService.saveBatch(addList);
         return ResultBetter.ok();

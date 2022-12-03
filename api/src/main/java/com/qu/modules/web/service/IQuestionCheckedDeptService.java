@@ -23,6 +23,6 @@ public interface IQuestionCheckedDeptService extends IService<QuestionCheckedDep
 
     void deleteCheckedDeptByQuId(Integer quId,Integer type);
 
-    void deleteCheckedDeptByQuIds(List<Integer> quIdList,Integer type);
+    void deleteCheckedDeptByDeptIds(List<String> deptIdList,Integer type);
 
 }
