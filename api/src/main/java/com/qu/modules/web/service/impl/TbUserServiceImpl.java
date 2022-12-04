@@ -71,42 +71,42 @@ public class TbUserServiceImpl extends ServiceImpl<TbUserMapper, TbUser> impleme
             }
         } else if (positionCode.contains(Constant.POSITION_CODE_LCKSZR)) {
             //		 2、如果登录账号是临床科室主任，返回本科的全部医生（职位是LCKSZKY），和本科室全部医疗类型的能填报的查检表
-            List<TbUserPosition> byPositionIds = tbUserPositionService.getByPositionId(Constant.POSITION_CODE_LCKSZKY);
+            List<TbUserPosition> byPositionIds = tbUserPositionService.getByPositionId(Constant.POSITION_ID_LCKSZKY);
             List<String> userIdListByPosition = byPositionIds.stream().map(TbUserPosition::getUserid).distinct().collect(Collectors.toList());
 
-            List<TbUserAuxiliaryDep> tbUserAuxiliaryDeps = tbUserAuxiliaryDepService.selectByPositionIdAndDepId(Constant.POSITION_CODE_LCKSZKY, deptId);
+            List<TbUserAuxiliaryDep> tbUserAuxiliaryDeps = tbUserAuxiliaryDepService.selectByPositionIdAndDepId(Constant.POSITION_ID_LCKSZKY, deptId);
             List<String> auxiliaryDepUserIdList = tbUserAuxiliaryDeps.stream().map(TbUserAuxiliaryDep::getUserId).distinct().collect(Collectors.toList());
 
             if(CollectionUtil.isNotEmpty(userIdListByPosition) && CollectionUtil.isNotEmpty(auxiliaryDepUserIdList)){
-                lambda.and(w->w.eq(TbUser::getDepid,deptId).eq(TbUser::getPositionid,Constant.POSITION_CODE_LCKSZKY)
+                lambda.and(w->w.eq(TbUser::getDepid,deptId).eq(TbUser::getPositionid,Constant.POSITION_ID_LCKSZKY)
                         .or().in(TbUser::getId,userIdListByPosition).eq(TbUser::getDepid,deptId)
                         .or().in(TbUser::getId,auxiliaryDepUserIdList));
             }else if(CollectionUtil.isNotEmpty(userIdListByPosition)){
                 lambda.eq(TbUser::getDepid,deptId);
-                lambda.and(w->w.eq(TbUser::getPositionid,Constant.POSITION_CODE_LCKSZKY)
+                lambda.and(w->w.eq(TbUser::getPositionid,Constant.POSITION_ID_LCKSZKY)
                         .or().in(TbUser::getId,userIdListByPosition));
             }else if(CollectionUtil.isNotEmpty(auxiliaryDepUserIdList)){
-                lambda.and(w->w.eq(TbUser::getDepid,deptId).eq(TbUser::getPositionid,Constant.POSITION_CODE_LCKSZKY)
+                lambda.and(w->w.eq(TbUser::getDepid,deptId).eq(TbUser::getPositionid,Constant.POSITION_ID_LCKSZKY)
                         .or().in(TbUser::getId,auxiliaryDepUserIdList));
             }
         } else if (positionCode.contains(Constant.POSITION_CODE_LCKHSZ)) {
             //		 3、如果登录账号是临床科室护士长，返回本科的全部护士（职位是LCKSZKYHL），和本科室全部护理类型的能填报的查检表
-            List<TbUserPosition> byPositionIds = tbUserPositionService.getByPositionId(Constant.POSITION_CODE_LCKSZKYHL);
+            List<TbUserPosition> byPositionIds = tbUserPositionService.getByPositionId(Constant.POSITION_ID_LCKSZKYHL);
             List<String> userIdListByPosition = byPositionIds.stream().map(TbUserPosition::getUserid).distinct().collect(Collectors.toList());
 
-            List<TbUserAuxiliaryDep> tbUserAuxiliaryDeps = tbUserAuxiliaryDepService.selectByPositionIdAndDepId(Constant.POSITION_CODE_LCKSZKYHL, deptId);
+            List<TbUserAuxiliaryDep> tbUserAuxiliaryDeps = tbUserAuxiliaryDepService.selectByPositionIdAndDepId(Constant.POSITION_ID_LCKSZKYHL, deptId);
             List<String> auxiliaryDepUserIdList = tbUserAuxiliaryDeps.stream().map(TbUserAuxiliaryDep::getUserId).distinct().collect(Collectors.toList());
 
             if(CollectionUtil.isNotEmpty(userIdListByPosition) && CollectionUtil.isNotEmpty(auxiliaryDepUserIdList)){
-                lambda.and(w->w.eq(TbUser::getDepid,deptId).eq(TbUser::getPositionid,Constant.POSITION_CODE_LCKSZKYHL)
+                lambda.and(w->w.eq(TbUser::getDepid,deptId).eq(TbUser::getPositionid,Constant.POSITION_ID_LCKSZKYHL)
                         .or().in(TbUser::getId,userIdListByPosition).eq(TbUser::getDepid,deptId)
                         .or().in(TbUser::getId,auxiliaryDepUserIdList));
             }else if(CollectionUtil.isNotEmpty(userIdListByPosition)){
                 lambda.eq(TbUser::getDepid,deptId);
-                lambda.and(w->w.eq(TbUser::getPositionid,Constant.POSITION_CODE_LCKSZKY)
+                lambda.and(w->w.eq(TbUser::getPositionid,Constant.POSITION_ID_LCKSZKY)
                         .or().in(TbUser::getId,userIdListByPosition));
             }else if(CollectionUtil.isNotEmpty(auxiliaryDepUserIdList)){
-                lambda.and(w->w.eq(TbUser::getDepid,deptId).eq(TbUser::getPositionid,Constant.POSITION_CODE_LCKSZKY)
+                lambda.and(w->w.eq(TbUser::getDepid,deptId).eq(TbUser::getPositionid,Constant.POSITION_ID_LCKSZKY)
                         .or().in(TbUser::getId,auxiliaryDepUserIdList));
             }
         }else{

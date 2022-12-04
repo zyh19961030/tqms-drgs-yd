@@ -167,7 +167,7 @@ public class AnswerCheckUserSetServiceImpl extends ServiceImpl<AnswerCheckUserSe
         }
 
         //处理数据 查询问卷的责任人
-        List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByDeptIds(userIdList, QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
+        List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByDeptIds(userIdList,deptId, QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
         if(CollectionUtil.isNotEmpty(questionCheckedDeptList)){
             Map<String, List<QuestionCheckedDept>> questionCheckedDeptMap = questionCheckedDeptList.stream().collect(Collectors.toMap(QuestionCheckedDept::getDeptId, Lists::newArrayList,
                     (List<QuestionCheckedDept> n1, List<QuestionCheckedDept> n2) -> {
@@ -203,13 +203,14 @@ public class AnswerCheckUserSetServiceImpl extends ServiceImpl<AnswerCheckUserSe
                     questionCheckedDept.setCreateTime(date);
                     questionCheckedDept.setUpdateTime(date);
                     questionCheckedDept.setType(QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
+                    questionCheckedDept.setUserDeptId(deptId);
                     addList.add(questionCheckedDept);
                 }
             }
         }
         //先删除
         List<String> userIdList = param.stream().map(AnswerCheckUserSetSaveServiceParam::getUserId).distinct().collect(Collectors.toList());
-        questionCheckedDeptService.deleteCheckedDeptByDeptIds(userIdList,QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
+        questionCheckedDeptService.deleteCheckedDeptByDeptIds(userIdList,deptId,QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
         //保存
         questionCheckedDeptService.saveBatch(addList);
         return ResultBetter.ok();

@@ -103,9 +103,9 @@ public interface IQuestionService extends IService<Question> {
 
     List<String> selectCheckedDeptIdsParam(SelectCheckedDeptIdsParam selectCheckedDeptIdsParam);
 
-    void updateResponsibilityUserIdsParam(UpdateResponsibilityUserIdsParam param);
+    void updateResponsibilityUserIdsParam(String deptId,UpdateResponsibilityUserIdsParam param);
 
-    List<String> selectResponsibilityUserIdsParam(SelectResponsibilityUserIdsParam param);
+    List<String> selectResponsibilityUserIdsParam(String deptId,SelectResponsibilityUserIdsParam param);
 
     QuestionVo queryPersonById(Integer id);
 

@@ -55,4 +55,8 @@ public class QuestionCheckedDept {
 	@Excel(name = "类型 1被检查科室 2责任人(dept_id为userId)", width = 15)
     @ApiModelProperty(value = "类型 1被检查科室 2责任人(dept_id为userId)")
 	private Integer type;
+	/**用户所在科室的id(可能是辅助科室)*/
+	@Excel(name = "用户所在科室的id(可能是辅助科室)", width = 15)
+    @ApiModelProperty(value = "用户所在科室的id(可能是辅助科室)")
+	private String userDeptId;
 }

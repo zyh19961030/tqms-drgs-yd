@@ -7,6 +7,7 @@ import com.qu.constant.QuestionCheckedDeptConstant;
 import com.qu.modules.web.entity.QuestionCheckedDept;
 import com.qu.modules.web.mapper.QuestionCheckedDeptMapper;
 import com.qu.modules.web.service.IQuestionCheckedDeptService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,26 +22,33 @@ import java.util.List;
 public class QuestionCheckedDeptServiceImpl extends ServiceImpl<QuestionCheckedDeptMapper, QuestionCheckedDept> implements IQuestionCheckedDeptService {
 
     @Override
-    public List<QuestionCheckedDept> selectCheckedDeptByQuId(Integer quId, Integer type) {
+    public List<QuestionCheckedDept> selectCheckedDeptByQuId(Integer quId, String userDeptId, Integer type) {
         LambdaQueryWrapper<QuestionCheckedDept> lambda = new QueryWrapper<QuestionCheckedDept>().lambda();
         lambda.eq(QuestionCheckedDept::getQuId, quId);
         lambda.eq(QuestionCheckedDept::getType, type);
+        if(StringUtils.isNotBlank(userDeptId)){
+            lambda.eq(QuestionCheckedDept::getUserDeptId, userDeptId);
+        }
         return this.list(lambda);
     }
 
     @Override
-    public List<QuestionCheckedDept> selectCheckedDeptByDeptId(String deptId, Integer type) {
+    public List<QuestionCheckedDept> selectCheckedDeptByDeptId(String deptId, String userDeptId, Integer type) {
         LambdaQueryWrapper<QuestionCheckedDept> lambda = new QueryWrapper<QuestionCheckedDept>().lambda();
         lambda.eq(QuestionCheckedDept::getDeptId, deptId);
         lambda.eq(QuestionCheckedDept::getType, type);
+        if(StringUtils.isNotBlank(userDeptId)){
+            lambda.eq(QuestionCheckedDept::getUserDeptId, userDeptId);
+        }
         return this.list(lambda);
     }
 
     @Override
-    public List<QuestionCheckedDept> selectCheckedDeptByDeptIds(List<String> deptIdList, Integer type) {
+    public List<QuestionCheckedDept> selectCheckedDeptByDeptIds(List<String> deptIdList, String userDeptId, Integer type) {
         LambdaQueryWrapper<QuestionCheckedDept> lambda = new QueryWrapper<QuestionCheckedDept>().lambda();
         lambda.in(QuestionCheckedDept::getDeptId, deptIdList);
         lambda.eq(QuestionCheckedDept::getType, type);
+        lambda.eq(QuestionCheckedDept::getUserDeptId, userDeptId);
         return this.list(lambda);
     }
 
@@ -62,10 +70,11 @@ public class QuestionCheckedDeptServiceImpl extends ServiceImpl<QuestionCheckedD
     }
 
     @Override
-    public void deleteCheckedDeptByDeptIds(List<String> deptIdList, Integer type) {
+    public void deleteCheckedDeptByDeptIds(List<String> deptIdList, String deptId, Integer type) {
         LambdaQueryWrapper<QuestionCheckedDept> lambda = new QueryWrapper<QuestionCheckedDept>().lambda();
         lambda.in(QuestionCheckedDept::getDeptId, deptIdList);
         lambda.eq(QuestionCheckedDept::getType, type);
+        lambda.eq(QuestionCheckedDept::getUserDeptId, deptId);
         this.remove(lambda);
     }
 }

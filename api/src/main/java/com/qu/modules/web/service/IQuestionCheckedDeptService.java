@@ -13,16 +13,16 @@ import java.util.List;
  */
 public interface IQuestionCheckedDeptService extends IService<QuestionCheckedDept> {
 
-    List<QuestionCheckedDept> selectCheckedDeptByQuId(Integer quId,Integer type);
+    List<QuestionCheckedDept> selectCheckedDeptByQuId(Integer quId,String userDeptId,Integer type);
 
-    List<QuestionCheckedDept> selectCheckedDeptByDeptId(String deptId,Integer type);
+    List<QuestionCheckedDept> selectCheckedDeptByDeptId(String deptId,String userDeptId,Integer type);
 
-    List<QuestionCheckedDept> selectCheckedDeptByDeptIds(List<String> deptIdList,Integer type);
+    List<QuestionCheckedDept> selectCheckedDeptByDeptIds(List<String> deptIdList, String userDeptId, Integer type);
 
     List<QuestionCheckedDept> selectCheckedDeptByQuIdAndDeptId(Integer quId, String checkedDeptId);
 
     void deleteCheckedDeptByQuId(Integer quId,Integer type);
 
-    void deleteCheckedDeptByDeptIds(List<String> deptIdList,Integer type);
+    void deleteCheckedDeptByDeptIds(List<String> deptIdList, String deptId,Integer type);
 
 }
