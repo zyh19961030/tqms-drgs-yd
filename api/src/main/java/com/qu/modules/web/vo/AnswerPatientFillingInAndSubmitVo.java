@@ -1,10 +1,12 @@
 package com.qu.modules.web.vo;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
 
 @Data
 @ApiModel(value = "患者登记表填报中和已提交Vo", description = "患者登记表填报中和已提交Vo")
@@ -15,6 +17,9 @@ public class AnswerPatientFillingInAndSubmitVo {
     private Integer quId;
     @ApiModelProperty(value = "问卷名称")
     private String quName;
+    /**答案对应数据库名*/
+    @ApiModelProperty(value = "答案对应数据库名")
+    private java.lang.String tableName;
     /**患者姓名*/
     @ApiModelProperty(value = "患者姓名")
     private java.lang.String patientName;

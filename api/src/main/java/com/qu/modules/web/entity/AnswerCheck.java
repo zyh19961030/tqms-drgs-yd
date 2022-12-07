@@ -1,16 +1,18 @@
 package com.qu.modules.web.entity;
 
+import java.util.Date;
+
+import org.jeecgframework.poi.excel.annotation.Excel;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.jeecgframework.poi.excel.annotation.Excel;
-
-import java.util.Date;
 
 /**
  * @Description: 检查表问卷总表
@@ -81,9 +83,9 @@ public class AnswerCheck {
 //	@Excel(name = "被检查科室医生姓名", width = 15)
 //    @ApiModelProperty(value = "被检查科室医生姓名")
 //	private String checkedDoctName;
-	/**被检查患者住院号*/
-	@Excel(name = "被检查患者住院号", width = 15)
-    @ApiModelProperty(value = "被检查患者住院号")
+	/**被检查患者住院号 -废弃*/
+	@Excel(name = "被检查患者住院号 -废弃", width = 15)
+    @ApiModelProperty(value = "被检查患者住院号 -废弃")
 	private String checkedPatientId;
 	/**被检查患者姓名*/
 	@Excel(name = "被检查患者姓名", width = 15)
@@ -117,4 +119,8 @@ public class AnswerCheck {
 	@Excel(name = "问卷版本", width = 15)
 	@ApiModelProperty(value = "问卷版本")
 	private java.lang.String questionVersion;
+    /**被检查患者住院号*/
+    @Excel(name = "被检查患者住院号", width = 15)
+    @ApiModelProperty(value = "被检查患者住院号")
+    private String caseId;
 }

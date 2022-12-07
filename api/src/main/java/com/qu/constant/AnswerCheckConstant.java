@@ -14,6 +14,7 @@ public class AnswerCheckConstant {
     public static final String COLUMN_NAME_CHECKED_DEPT = "checked_dept";
     public static final String COLUMN_NAME_CHECKED_DOCT = "checked_doct";
     public static final String COLUMN_NAME_CHECKED_PATIENT_ID = "checked_patient_id";
+    public static final String COLUMN_NAME_CASE_ID = "case_id";
     public static final String COLUMN_NAME_CHECKED_PATIENT_NAME = "checked_patient_name";
     public static final String COLUMN_NAME_CHECKED_TOTAL_SCORE = "total_score";
     public static final String COLUMN_NAME_CHECKED_PASS_STATUS = "pass_status";

@@ -47,5 +47,8 @@ public class AnswerCheckVo {
     @ApiModelProperty(value = "答题时间-填报时间")
     private Date answerTime;
 
+    @ApiModelProperty(value = "被检查患者住院号")
+    private String caseId;
+
 
 }

@@ -1,6 +1,20 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.date.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -8,11 +22,23 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
+import com.qu.constant.AnswerCheckConstant;
 import com.qu.constant.QoptionConstant;
 import com.qu.constant.QsubjectConstant;
 import com.qu.constant.QuestionConstant;
-import com.qu.modules.web.entity.*;
-import com.qu.modules.web.mapper.*;
+import com.qu.modules.web.entity.Answer;
+import com.qu.modules.web.entity.AnswerCheck;
+import com.qu.modules.web.entity.QSingleDiseaseTake;
+import com.qu.modules.web.entity.Qoption;
+import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.mapper.AnswerCheckMapper;
+import com.qu.modules.web.mapper.AnswerMapper;
+import com.qu.modules.web.mapper.DynamicTableMapper;
+import com.qu.modules.web.mapper.OptionMapper;
+import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
+import com.qu.modules.web.mapper.QsubjectMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
 import com.qu.modules.web.param.AdminPrivateParam;
 import com.qu.modules.web.param.AdminPrivateUpdateOptionValueParam;
 import com.qu.modules.web.param.AdminPrivateUpdateTableAddDelFeeParam;
@@ -20,19 +46,13 @@ import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
 import com.qu.modules.web.service.IAdminPrivateService;
 import com.qu.modules.web.service.IOptionService;
 import com.qu.util.PriceUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import cn.hutool.core.date.DateException;
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -54,6 +74,9 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
 
     @Resource
     private QSingleDiseaseTakeMapper qSingleDiseaseTakeMapper;
+
+    @Resource
+    private AnswerCheckMapper answerCheckMapper;
 
     private static String[] parsePatterns = new String[]{"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"};
 
@@ -313,7 +336,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         //查出来所有的单病种表
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
         lambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
-//        lambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
+        //        lambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
         lambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
         Integer quId = param.getQuId();
         if(quId!=null && !quId.equals(-1)){
@@ -343,4 +366,71 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
 
         return ResultFactory.success();
     }
+
+
+    @Override
+    public Result updateAnswerCheckCaseId(AdminPrivateUpdateTableDrugFeeParam param) {
+        //查出来所有的AnswerCheck
+        LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
+        lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
+        List<AnswerCheck> answerCheckList = answerCheckMapper.selectList(lambda);
+
+        //查出来所有的检查表
+        LambdaQueryWrapper<Question> questionLambda = new QueryWrapper<Question>().lambda();
+        //        questionLambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
+        questionLambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_CHECK);
+        questionLambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
+        List<Question> questionList = questionMapper.selectList(questionLambda);
+        Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
+        StringBuilder sqlSelect = new StringBuilder();
+        for (AnswerCheck answerCheck : answerCheckList) {
+            Integer quId = answerCheck.getQuId();
+            if (quId == null) {
+                log.info("continue answerCheck.quId is null --answerCheckId-------{}", answerCheck.getId());
+                continue;
+            }
+            Question question = questionMap.get(quId);
+            if (question == null) {
+                log.info("continue answerCheck.question is null--quId---answerCheckId-------{},{}", quId, answerCheck.getId());
+                continue;
+            }
+
+            sqlSelect.setLength(0);
+
+            String tableName = question.getTableName();
+            String summaryMappingTableId = answerCheck.getSummaryMappingTableId();
+            if(StringUtils.isAnyBlank(tableName,summaryMappingTableId)){
+                log.info("continue answerCheck.tableName or summaryMappingTableId is null---answerCheckId-------{},{},{}", tableName, answerCheck.getId(),summaryMappingTableId);
+                continue;
+            }
+            sqlSelect.append("select * from `");
+            sqlSelect.append(tableName);
+            sqlSelect.append("`");
+            sqlSelect.append(" where summary_mapping_table_id = '");
+            sqlSelect.append(summaryMappingTableId);
+            sqlSelect.append("'");
+            Map<String,String> map=null;
+            try {
+                map = dynamicTableMapper.selectDynamicTableColumn(sqlSelect.toString());
+            } catch (Exception e) {
+                log.info("continue selectDynamicTableColumn Exception-------{},{},{}", tableName, answerCheck.getId(),summaryMappingTableId);
+                log.error(e.getMessage(),e);
+                continue;
+            }
+            if (map == null || map.isEmpty()) {
+                log.info("continue sqlAns map is null---answerCheck-------{},{},{}", tableName, answerCheck.getId(),summaryMappingTableId);
+                continue;
+            }
+            if(map.containsKey(AnswerCheckConstant.COLUMN_NAME_CASE_ID)){
+                String s = map.get(AnswerCheckConstant.COLUMN_NAME_CASE_ID);
+                answerCheck.setCaseId(s);
+
+                answerCheckMapper.updateById(answerCheck);
+            }
+        }
+        return ResultFactory.success();
+    }
+
+
+
 }

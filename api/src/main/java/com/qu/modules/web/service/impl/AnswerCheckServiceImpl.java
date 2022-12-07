@@ -384,6 +384,11 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             answerCheck.setCheckedPatientId(mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_PATIENT_ID));
         }
 
+        if (mapCache.containsKey(AnswerCheckConstant.COLUMN_NAME_CASE_ID)
+                && mapCache.get(AnswerCheckConstant.COLUMN_NAME_CASE_ID) != null) {
+            answerCheck.setCaseId(mapCache.get(AnswerCheckConstant.COLUMN_NAME_CASE_ID));
+        }
+
         if (mapCache.containsKey(AnswerCheckConstant.COLUMN_NAME_CHECKED_PATIENT_NAME)
                 && mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_PATIENT_NAME) != null) {
             answerCheck.setCheckedPatientId(mapCache.get(AnswerCheckConstant.COLUMN_NAME_CHECKED_PATIENT_NAME));

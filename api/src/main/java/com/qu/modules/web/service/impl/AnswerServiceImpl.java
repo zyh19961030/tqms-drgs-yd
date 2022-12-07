@@ -470,6 +470,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
             AnswerPatientFillingInAndSubmitVo answerPatientFillingInVo = new AnswerPatientFillingInAndSubmitVo();
             BeanUtils.copyProperties(answer,answerPatientFillingInVo);
             answerPatientFillingInVo.setQuName(questionMap.get(answer.getQuId()).getQuName());
+            answerPatientFillingInVo.setTableName(questionMap.get(answer.getQuId()).getTableName());
             return answerPatientFillingInVo;
         }).collect(Collectors.toList());
         res.setTotal(answerIPage.getTotal());
