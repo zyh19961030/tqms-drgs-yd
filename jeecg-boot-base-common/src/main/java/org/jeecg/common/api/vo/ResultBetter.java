@@ -93,6 +93,14 @@ public class ResultBetter<T> implements Serializable {
 		r.setMessage("成功");
 		return r;
 	}
+
+	public static <T> ResultBetter<T> okNoCode() {
+		ResultBetter<T> r = new ResultBetter<T>();
+		r.setSuccess(true);
+//		r.setCode(CommonConstant.SC_OK_200);
+		r.setMessage("成功");
+		return r;
+	}
 	
 	public static <T> ResultBetter<T> ok(String msg) {
 		ResultBetter<T> r = new ResultBetter<T>();
@@ -112,7 +120,7 @@ public class ResultBetter<T> implements Serializable {
 
 	public static <T> ResultBetter<T> flag(Boolean flag) {
 		if(flag){
-			return ResultBetter.ok();
+			return ResultBetter.okNoCode();
 		}else{
 			return ResultBetter.error("操作失败");
 		}

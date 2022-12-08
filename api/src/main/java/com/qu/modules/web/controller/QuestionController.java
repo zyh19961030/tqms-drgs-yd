@@ -120,7 +120,7 @@ public class QuestionController {
     public ResultBetter<Boolean> againRelease(@RequestBody QuestionAgainReleaseParam questionAgainreleaseParam) {
         List<Integer> subjectIds = questionAgainreleaseParam.getSubjectIds();
         if(CollectionUtil.isEmpty(subjectIds)){
-            return ResultBetter.ok();
+            return ResultBetter.okNoCode();
         }
         Boolean flag = questionService.againRelease(questionAgainreleaseParam);
         return ResultBetter.flag(flag);
