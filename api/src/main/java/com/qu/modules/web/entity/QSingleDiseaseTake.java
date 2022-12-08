@@ -172,7 +172,7 @@ public class QSingleDiseaseTake {
 	/**答案json*/
 	@Excel(name = "答案json", width = 15)
 	@ApiModelProperty(value = "答案json")
-	private java.lang.Object answerJson;
+	private java.lang.String answerJson;
 	/**状态0:草稿1:已提交*/
 	@Excel(name = "状态0:草稿1:已提交", width = 15)
 	@ApiModelProperty(value = "状态0:草稿1:已提交")

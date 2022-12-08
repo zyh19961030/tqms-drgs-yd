@@ -54,11 +54,11 @@ public class QuestionVersion {
 	/**科室编辑(填报)权限，科室id逗号分割*/
 	@Excel(name = "科室编辑(填报)权限，科室id逗号分割", width = 15)
     @ApiModelProperty(value = "科室编辑(填报)权限，科室id逗号分割")
-	private Object deptIds;
+	private String deptIds;
 	/**科室查看权限，科室id逗号分割*/
 	@Excel(name = "科室查看权限，科室id逗号分割", width = 15)
     @ApiModelProperty(value = "科室查看权限，科室id逗号分割")
-	private Object seeDeptIds;
+	private String seeDeptIds;
 	/**答案对应数据库名*/
 	@Excel(name = "答案对应数据库名", width = 15)
     @ApiModelProperty(value = "答案对应数据库名")

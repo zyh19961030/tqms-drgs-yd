@@ -94,11 +94,11 @@ public class QsubjectVersion {
 	/**跳题逻辑*/
 	@Excel(name = "跳题逻辑", width = 15)
     @ApiModelProperty(value = "跳题逻辑")
-	private Object jumpLogic;
+	private String jumpLogic;
 	/**分组题包含题号*/
 	@Excel(name = "分组题包含题号", width = 15)
     @ApiModelProperty(value = "分组题包含题号")
-	private Object groupIds;
+	private String groupIds;
 	/**绑定值*/
 	@Excel(name = "绑定值", width = 15)
     @ApiModelProperty(value = "绑定值")
@@ -150,7 +150,7 @@ public class QsubjectVersion {
 	/**特殊跳题逻辑,前端使用*/
 	@Excel(name = "特殊跳题逻辑,前端使用", width = 15)
     @ApiModelProperty(value = "特殊跳题逻辑,前端使用")
-	private Object specialJumpLogic;
+	private String specialJumpLogic;
 	/**数字类型最小值*/
 	@Excel(name = "数字类型最小值", width = 15)
     @ApiModelProperty(value = "数字类型最小值")
@@ -194,7 +194,7 @@ public class QsubjectVersion {
 	/**针对 19.数量统计题型 20.选择题分数求和题型 21.结果评价题型 22.数值题求和题型 选择统计题目的id集合*/
 	@Excel(name = "针对 19.数量统计题型 20.选择题分数求和题型 21.结果评价题型 22.数值题求和题型 选择统计题目的id集合", width = 15)
     @ApiModelProperty(value = "针对 19.数量统计题型 20.选择题分数求和题型 21.结果评价题型 22.数值题求和题型 选择统计题目的id集合")
-	private Object choiceSubjectId;
+	private String choiceSubjectId;
 	/**针对  23.预设题目数量题型 的项目总数量*/
 	@Excel(name = "针对  23.预设题目数量题型 的项目总数量", width = 15)
     @ApiModelProperty(value = "针对  23.预设题目数量题型 的项目总数量")

@@ -1,19 +1,18 @@
 package com.qu.modules.web.entity;
 
-import java.io.Serializable;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.TableField;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 /**
  * @Description: 问卷临时表
@@ -51,11 +50,11 @@ public class QuestionTemp {
 	/**科室编辑(填报)权限，科室id逗号分割*/
 	@Excel(name = "科室编辑(填报)权限，科室id逗号分割", width = 15)
     @ApiModelProperty(value = "科室编辑(填报)权限，科室id逗号分割")
-	private Object deptIds;
+	private String deptIds;
 	/**科室查看权限，科室id逗号分割*/
 	@Excel(name = "科室查看权限，科室id逗号分割", width = 15)
     @ApiModelProperty(value = "科室查看权限，科室id逗号分割")
-	private Object seeDeptIds;
+	private String seeDeptIds;
 	/**答案对应数据库名*/
 	@Excel(name = "答案对应数据库名", width = 15)
     @ApiModelProperty(value = "答案对应数据库名")

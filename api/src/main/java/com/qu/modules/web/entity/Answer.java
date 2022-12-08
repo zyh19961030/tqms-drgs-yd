@@ -45,7 +45,7 @@ public class Answer {
      */
     @Excel(name = "答案json", width = 15)
     @ApiModelProperty(value = "答案json")
-    private java.lang.Object answerJson;
+    private java.lang.String answerJson;
     /**
      * 0:草稿1:已提交
      */

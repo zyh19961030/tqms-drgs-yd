@@ -1,18 +1,16 @@
 package com.qu.modules.web.entity;
 
-import java.util.Date;
-
-import org.jeecgframework.poi.excel.annotation.Excel;
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.jeecgframework.poi.excel.annotation.Excel;
+
+import java.util.Date;
 
 /**
  * @Description: 检查表问卷总表
@@ -38,7 +36,7 @@ public class AnswerCheck {
 	/**答案json*/
 	@Excel(name = "答案json", width = 15)
     @ApiModelProperty(value = "答案json")
-	private Object answerJson;
+	private String answerJson;
 	/**0:草稿1:已提交*/
 	@Excel(name = "0:草稿1:已提交", width = 15)
     @ApiModelProperty(value = "0:草稿1:已提交")

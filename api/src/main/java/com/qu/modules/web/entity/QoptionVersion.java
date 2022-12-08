@@ -62,7 +62,7 @@ public class QoptionVersion {
 	/**跳题逻辑*/
 	@Excel(name = "跳题逻辑", width = 15)
     @ApiModelProperty(value = "跳题逻辑")
-	private Object jumpLogic;
+	private String jumpLogic;
 	/**是否其他  0:否 1:是*/
 	@Excel(name = "是否其他  0:否 1:是", width = 15)
     @ApiModelProperty(value = "是否其他  0:否 1:是")
@@ -102,7 +102,7 @@ public class QoptionVersion {
 	/**特殊跳题逻辑,前端使用*/
 	@Excel(name = "特殊跳题逻辑,前端使用", width = 15)
     @ApiModelProperty(value = "特殊跳题逻辑,前端使用")
-	private Object specialJumpLogic;
+	private String specialJumpLogic;
 	/**选项分值*/
 	@Excel(name = "选项分值", width = 15)
     @ApiModelProperty(value = "选项分值")
