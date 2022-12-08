@@ -110,4 +110,12 @@ public class ResultBetter<T> implements Serializable {
 		return r;
 	}
 
+	public static <T> ResultBetter<T> flag(Boolean flag) {
+		if(flag){
+			return ResultBetter.ok();
+		}else{
+			return ResultBetter.error("操作失败");
+		}
+	}
+
 }

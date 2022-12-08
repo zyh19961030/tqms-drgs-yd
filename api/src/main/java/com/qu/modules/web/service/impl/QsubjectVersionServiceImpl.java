@@ -26,6 +26,7 @@ public class QsubjectVersionServiceImpl extends ServiceImpl<QsubjectVersionMappe
         lambda.in(QsubjectVersion::getQuId,quId);
         lambda.in(QsubjectVersion::getQuestionVersionId, questionVersionId);
         lambda.in(QsubjectVersion::getDel, QoptionConstant.DEL_NORMAL);
+        lambda.orderByAsc(QsubjectVersion::getOrderNum);
         return this.list(lambda);
     }
 }

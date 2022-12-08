@@ -1,5 +1,6 @@
 package com.qu.modules.web.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.qu.constant.Constant;
 import com.qu.constant.QuestionConstant;
@@ -116,12 +117,13 @@ public class QuestionController {
     @AutoLog(value = "问卷表-再次发布")
     @ApiOperation(value = "问卷表-再次发布", notes = "问卷表-再次发布")
     @PutMapping(value = "/againRelease")
-    public Result<Boolean> againRelease(@RequestBody QuestionAgainReleaseParam questionAgainreleaseParam) {
-        Result<Boolean> result = new Result<Boolean>();
+    public ResultBetter<Boolean> againRelease(@RequestBody QuestionAgainReleaseParam questionAgainreleaseParam) {
+        List<Integer> subjectIds = questionAgainreleaseParam.getSubjectIds();
+        if(CollectionUtil.isEmpty(subjectIds)){
+            return ResultBetter.ok();
+        }
         Boolean flag = questionService.againRelease(questionAgainreleaseParam);
-        result.setResult(flag);
-        result.success("再次发布成功!");
-        return result;
+        return ResultBetter.flag(flag);
     }
 
     /**
