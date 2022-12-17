@@ -1,25 +1,6 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultBetter;
-import org.jeecg.common.api.vo.ResultBetterFactory;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.jeecg.common.util.UUIDGenerator;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
+import cn.hutool.core.date.*;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -36,31 +17,26 @@ import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.mapper.AnswerMapper;
 import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.AnswerAllDataParam;
-import com.qu.modules.web.param.AnswerMonthQuarterYearSubmitParam;
-import com.qu.modules.web.param.AnswerParam;
-import com.qu.modules.web.param.AnswerPatientSubmitParam;
-import com.qu.modules.web.param.Answers;
-import com.qu.modules.web.param.SingleDiseaseAnswer;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IAnswerService;
 import com.qu.modules.web.service.ISubjectService;
-import com.qu.modules.web.vo.AnswerAllDataVo;
-import com.qu.modules.web.vo.AnswerMonthQuarterYearFillingInAndSubmitPageVo;
-import com.qu.modules.web.vo.AnswerMonthQuarterYearFillingInAndSubmitVo;
-import com.qu.modules.web.vo.AnswerPageVo;
-import com.qu.modules.web.vo.AnswerPatientFillingInAndSubmitPageVo;
-import com.qu.modules.web.vo.AnswerPatientFillingInAndSubmitVo;
-import com.qu.modules.web.vo.AnswerVo;
-import com.qu.modules.web.vo.SubjectVo;
+import com.qu.modules.web.vo.*;
 import com.qu.util.HttpClient;
-
-import cn.hutool.core.date.CalendarUtil;
-import cn.hutool.core.date.DateField;
-import cn.hutool.core.date.DatePattern;
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.jeecg.common.api.vo.ResultBetterFactory;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.util.UUIDGenerator;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -383,6 +359,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         lambda.like(Answer::getCreaterDeptid,deptId);
         lambda.eq(Answer::getAnswerStatus,AnswerConstant.ANSWER_STATUS_DRAFT);
         lambda.eq(Answer::getDel,AnswerConstant.DEL_NORMAL);
+        lambda.orderByDesc(Answer::getUpdateTime);
 
         LambdaQueryWrapper<Question> questionLambdaQueryWrapper = getQuestionLambda();
         questionLambdaQueryWrapper.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_PATIENT_WRITE);
@@ -452,6 +429,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         if (StringUtils.isNotBlank(answerPatientSubmitParam.getHospitalInNo())) {
             lambda.like(Answer::getHospitalInNo, answerPatientSubmitParam.getHospitalInNo());
         }
+        lambda.orderByDesc(Answer::getSubmitTime);
         return getAnswerPatientFillingInAndSubmitPageVo(page, lambda);
     }
 

@@ -19,4 +19,8 @@ public interface IQuestionVersionService extends IService<QuestionVersion> {
      */
     QuestionVersion selectByQuestionAndVersion(Integer quId, String questionVersionNumber);
 
+    void saveQuestionVersion(Integer quId);
+
+
+
 }
