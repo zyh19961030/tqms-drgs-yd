@@ -1,21 +1,5 @@
 package com.qu.modules.web.controller.miniapp;
 
-import java.util.List;
-
-import javax.validation.Valid;
-
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.jeecg.common.aspect.annotation.AutoLog;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.qu.constant.QuestionConstant;
 import com.qu.modules.web.param.AnswerMiniAppParam;
@@ -26,10 +10,17 @@ import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.QuestionMiniAppPageVo;
 import com.qu.modules.web.vo.QuestionVo;
 import com.qu.modules.web.vo.ViewNameVo;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.aspect.annotation.AutoLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @Description: 小程序后台调用_问卷表
@@ -66,6 +57,24 @@ public class QuestionMiniAppController {
     }
 
     /**
+     * 登记表分页列表查询
+     *
+     * @param deptId
+     * @param pageNo
+     * @param pageSize
+     * @return
+     */
+    @AutoLog(value = "登记表-分页列表查询")
+    @ApiOperation(value = "登记表-分页列表查询", notes = "登记表-分页列表查询",response = QuestionMiniAppPageVo.class)
+    @GetMapping(value = "/answerList")
+    public Result<QuestionMiniAppPageVo> answerList(String deptId, @RequestHeader(name = "userId") String userId,
+                                                       @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                       @RequestParam(name = "pageSize", defaultValue = "100") Integer pageSize) {
+        IPage<QuestionMiniAppPageVo> iPage = questionService.answerQueryPageListByMiniApp(deptId, userId, pageNo, pageSize);
+        return ResultFactory.success(iPage);
+    }
+
+    /**
      * 通过id查询
      *
      * @param id
@@ -77,6 +86,23 @@ public class QuestionMiniAppController {
     public Result<QuestionVo> queryById(@RequestParam(name = "id", required = true) Integer id) {
         Result<QuestionVo> result = new Result<QuestionVo>();
         QuestionVo questionVo = questionService.queryById(id);
+        result.setResult(questionVo);
+        result.setSuccess(true);
+        return result;
+    }
+
+    /**
+     * 普通问卷_通过id查询_new
+     *
+     * @param param
+     * @return
+     */
+    @AutoLog(value = "普通问卷_通过id查询_new")
+    @ApiOperation(value = "普通问卷_通过id查询_new", notes = "普通问卷_通过id查询_new")
+    @GetMapping(value = "/answerQueryById")
+    public Result<QuestionVo> answerQueryById(@Valid QuestionQueryByIdParam param) {
+        Result<QuestionVo> result = new Result<QuestionVo>();
+        QuestionVo questionVo = questionService.queryByIdNew(param, QuestionConstant.CATEGORY_TYPE_NORMAL);
         result.setResult(questionVo);
         result.setSuccess(true);
         return result;

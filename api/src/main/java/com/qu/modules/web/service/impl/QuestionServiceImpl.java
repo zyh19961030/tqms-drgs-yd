@@ -1623,6 +1623,32 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     }
 
     @Override
+    public IPage<QuestionMiniAppPageVo> answerQueryPageListByMiniApp(String deptId, String userId, Integer pageNo, Integer pageSize) {
+
+        Page<Question> page = new Page<>(pageNo, pageSize);
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        lambda.like(Question::getDeptIds,deptId);
+        lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+        lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_REGISTER);
+//        lambda.in(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_MONTH_QUARTER_YEAR);
+        lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+        IPage<Question> questionIPage = this.page(page, lambda);
+        List<Question> records = questionIPage.getRecords();
+        if(records.isEmpty()){
+            return new Page<>();
+        }
+        List<QuestionMiniAppPageVo> resList = records.stream().map(r -> {
+            QuestionMiniAppPageVo vo = new QuestionMiniAppPageVo();
+            BeanUtils.copyProperties(r, vo);
+            return vo;
+        }).collect(Collectors.toList());
+        IPage<QuestionMiniAppPageVo> questionMiniAppPageVoIPage = new Page<>(pageNo,pageSize);
+        questionMiniAppPageVoIPage.setRecords(resList);
+        questionMiniAppPageVoIPage.setTotal(questionIPage.getTotal());
+        return questionMiniAppPageVoIPage;
+    }
+
+    @Override
     public List<SubjectVo> queryQuestionSubjectById(Integer id) {
         Question question = questionMapper.selectById(id);
         if(question==null || AnswerCheckConstant.DEL_DELETED.equals(question.getDel())){

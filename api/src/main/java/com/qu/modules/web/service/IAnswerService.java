@@ -2,10 +2,7 @@ package com.qu.modules.web.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.Answer;
-import com.qu.modules.web.param.AnswerAllDataParam;
-import com.qu.modules.web.param.AnswerMonthQuarterYearSubmitParam;
-import com.qu.modules.web.param.AnswerParam;
-import com.qu.modules.web.param.AnswerPatientSubmitParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.vo.AnswerAllDataVo;
 import com.qu.modules.web.vo.AnswerMonthQuarterYearFillingInAndSubmitPageVo;
 import com.qu.modules.web.vo.AnswerPageVo;
@@ -35,6 +32,9 @@ public interface IAnswerService extends IService<Answer> {
 
     AnswerMonthQuarterYearFillingInAndSubmitPageVo monthQuarterYearSubmitList(String deptId, AnswerMonthQuarterYearSubmitParam answerMonthQuarterYearSubmitParam,
                                                                               Integer pageNo, Integer pageSize);
+
+    AnswerMonthQuarterYearFillingInAndSubmitPageVo answerQuestionFillInAndSubmitList(AnswerListParam answerListParam, Integer pageNo, Integer pageSize);
+
 
     boolean patientMonthQuarterYearFillingInDelete(Integer id);
 

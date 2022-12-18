@@ -490,8 +490,6 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         return getAnswerMonthQuarterYearFillingInAndSubmitPageVo(page, lambda);
     }
 
-
-
     @Override
     public AnswerMonthQuarterYearFillingInAndSubmitPageVo monthQuarterYearSubmitList(String deptId, AnswerMonthQuarterYearSubmitParam answerMonthQuarterYearSubmitParam,
                                                                                      Integer pageNo, Integer pageSize) {
@@ -539,6 +537,52 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         if (StringUtils.isNotBlank(answerMonthQuarterYearSubmitParam.getCreaterName())) {
             lambda.like(Answer::getCreaterName, answerMonthQuarterYearSubmitParam.getCreaterName());
         }
+        return getAnswerMonthQuarterYearFillingInAndSubmitPageVo(page, lambda);
+    }
+
+    @Override
+    public AnswerMonthQuarterYearFillingInAndSubmitPageVo answerQuestionFillInAndSubmitList(AnswerListParam answerListParam, Integer pageNo, Integer pageSize) {
+        Page<Answer> page = new Page<>(pageNo, pageSize);
+        LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
+        lambda.eq(Answer::getCreaterDeptid,answerListParam.getDeptId());
+//        lambda.eq(Answer::getAnswerStatus,AnswerConstant.ANSWER_STATUS_RELEASE);
+        lambda.eq(Answer::getDel,AnswerConstant.DEL_NORMAL);
+
+        LambdaQueryWrapper<Question> questionLambdaQueryWrapper = getQuestionLambda();
+//        if(answerMonthQuarterYearSubmitParam.getWriteFrequency().equals(QuestionConstant.WRITE_FREQUENCY_ALL)){
+//            questionLambdaQueryWrapper.in(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_MONTH_QUARTER_YEAR);
+//        }else if(answerMonthQuarterYearSubmitParam.getWriteFrequency().equals(QuestionConstant.WRITE_FREQUENCY_MONTH)){
+//            questionLambdaQueryWrapper.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_MONTH);
+//        }else if(answerMonthQuarterYearSubmitParam.getWriteFrequency().equals(QuestionConstant.WRITE_FREQUENCY_QUARTER)){
+//            questionLambdaQueryWrapper.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_QUARTER);
+//        }else if(answerMonthQuarterYearSubmitParam.getWriteFrequency().equals(QuestionConstant.WRITE_FREQUENCY_YEAR)){
+//            questionLambdaQueryWrapper.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_YEAR);
+//        }
+        questionLambdaQueryWrapper.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_REGISTER);
+
+        if(StringUtils.isNotBlank(answerListParam.getQuName())){
+            questionLambdaQueryWrapper.like(Question::getQuName,answerListParam.getQuName());
+        }
+        List<Question> questions = questionMapper.selectList(questionLambdaQueryWrapper);
+        if(questions.isEmpty()){
+            AnswerMonthQuarterYearFillingInAndSubmitPageVo res = new AnswerMonthQuarterYearFillingInAndSubmitPageVo();
+            res.setTotal(0);
+            return res;
+        }
+        List<Integer> questionIdList = questions.stream().map(Question::getId).distinct().collect(Collectors.toList());
+        lambda.in(Answer::getQuId,questionIdList);
+        if (answerListParam.getStartDate() != null) {
+            lambda.ge(Answer::getCreateTime, answerListParam.getStartDate());
+        }
+        if (answerListParam.getEndDate() != null) {
+            lambda.le(Answer::getCreateTime, answerListParam.getEndDate());
+        }
+//        if (StringUtils.isNotBlank(answerMonthQuarterYearSubmitParam.getQuestionAnswerTime())) {
+//            lambda.eq(Answer::getQuestionAnswerTime, answerMonthQuarterYearSubmitParam.getQuestionAnswerTime());
+//        }
+//        if (StringUtils.isNotBlank(answerMonthQuarterYearSubmitParam.getCreaterName())) {
+//            lambda.like(Answer::getCreaterName, answerMonthQuarterYearSubmitParam.getCreaterName());
+//        }
         return getAnswerMonthQuarterYearFillingInAndSubmitPageVo(page, lambda);
     }
 
