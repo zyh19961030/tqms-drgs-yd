@@ -1225,6 +1225,14 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             question.setQuestionVersion(VersionNumberUtil.autoUpgradeVersion(questionVersionNumber));
             this.updateById(question);
 
+            List<Integer> subjectIds = questionAgainreleaseParam.getSubjectIds();
+            if(CollectionUtil.isEmpty(subjectIds)){
+                //保存问卷版本
+                QuestionVersionEvent questionVersionEvent = new QuestionVersionEvent(this, id);
+                applicationEventPublisher.publishEvent(questionVersionEvent);
+                return true;
+            }
+
             DeleteCheckDetailSetEvent event = new DeleteCheckDetailSetEvent(this, id);
             applicationEventPublisher.publishEvent(event);
 
