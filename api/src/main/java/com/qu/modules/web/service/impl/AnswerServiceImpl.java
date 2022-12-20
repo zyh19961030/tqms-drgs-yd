@@ -569,12 +569,13 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
     }
 
     @Override
-    public AnswerMonthQuarterYearFillingInAndSubmitPageVo answerQuestionFillInAndSubmitList(AnswerListParam answerListParam, Integer pageNo, Integer pageSize) {
+    public AnswerMonthQuarterYearFillingInAndSubmitPageVo answerQuestionFillInAndSubmitList(AnswerListParam answerListParam, Integer pageNo, Integer pageSize, String userId) {
         Page<Answer> page = new Page<>(pageNo, pageSize);
         LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
         lambda.eq(Answer::getCreaterDeptid,answerListParam.getDeptId());
 //        lambda.eq(Answer::getAnswerStatus,AnswerConstant.ANSWER_STATUS_RELEASE);
         lambda.eq(Answer::getDel,AnswerConstant.DEL_NORMAL);
+        lambda.orderByDesc(Answer::getUpdateTime);
 
         LambdaQueryWrapper<Question> questionLambdaQueryWrapper = getQuestionLambda();
 //        if(answerMonthQuarterYearSubmitParam.getWriteFrequency().equals(QuestionConstant.WRITE_FREQUENCY_ALL)){
@@ -587,6 +588,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
 //            questionLambdaQueryWrapper.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_YEAR);
 //        }
         questionLambdaQueryWrapper.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_REGISTER);
+//        questionLambdaQueryWrapper.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_PATIENT_WRITE);
 
         if(StringUtils.isNotBlank(answerListParam.getQuName())){
             questionLambdaQueryWrapper.like(Question::getQuName,answerListParam.getQuName());

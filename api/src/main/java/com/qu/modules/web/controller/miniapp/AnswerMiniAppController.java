@@ -1,5 +1,16 @@
 package com.qu.modules.web.controller.miniapp;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.jeecg.common.api.vo.Result;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.qu.modules.web.entity.Answer;
 import com.qu.modules.web.entity.AnswerCheck;
@@ -11,18 +22,10 @@ import com.qu.modules.web.service.IAnswerService;
 import com.qu.modules.web.vo.AnswerCheckPageVo;
 import com.qu.modules.web.vo.AnswerCheckVo;
 import com.qu.modules.web.vo.AnswerMonthQuarterYearFillingInAndSubmitPageVo;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.jeecg.common.api.vo.Result;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
 
 @Slf4j
 @Api(tags = "小程序后台调用_答案")
@@ -54,12 +57,12 @@ public class AnswerMiniAppController {
 
     @ApiOperation(value = "登记表_填报记录分页列表", notes = "登记表_填报记录分页列表")
     @GetMapping(value = "/answerQuestionRecordList")
-    public Result<AnswerMonthQuarterYearFillingInAndSubmitPageVo> answerQuestionRecordList(AnswerListParam answerListParam,
+    public Result<AnswerMonthQuarterYearFillingInAndSubmitPageVo> answerQuestionRecordList(AnswerListParam answerListParam, @RequestHeader(name = "userId") String userId,
                                                               @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                               @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                               HttpServletRequest req) {
         Result<AnswerMonthQuarterYearFillingInAndSubmitPageVo> result = new Result<AnswerMonthQuarterYearFillingInAndSubmitPageVo>();
-        AnswerMonthQuarterYearFillingInAndSubmitPageVo answerPageVo = answerService.answerQuestionFillInAndSubmitList(answerListParam,pageNo, pageSize);
+        AnswerMonthQuarterYearFillingInAndSubmitPageVo answerPageVo = answerService.answerQuestionFillInAndSubmitList(answerListParam,pageNo, pageSize,userId);
         result.setSuccess(true);
         result.setResult(answerPageVo);
         return result;

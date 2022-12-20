@@ -1,10 +1,12 @@
 package com.qu.modules.web.vo;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
 
 @Data
 @ApiModel(value = "月度/季度/年汇总填报中和已提交Vo", description = "月度/季度/年汇总填报中和已提交Vo")
@@ -33,6 +35,6 @@ public class AnswerMonthQuarterYearFillingInAndSubmitVo {
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private java.util.Date submitTime;
     @ApiModelProperty(value = "状态 0:可编辑1:已提交无法编辑")
-    private String answerStatus;
+    private Integer answerStatus;
 
 }
