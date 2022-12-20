@@ -605,7 +605,8 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
             lambda.ge(Answer::getCreateTime, answerListParam.getStartDate());
         }
         if (answerListParam.getEndDate() != null) {
-            lambda.le(Answer::getCreateTime, answerListParam.getEndDate());
+            Date endDate = new org.joda.time.DateTime(answerListParam.getEndDate()).plusDays(1).toDate();
+            lambda.le(Answer::getCreateTime, endDate);
         }
 //        if (StringUtils.isNotBlank(answerMonthQuarterYearSubmitParam.getQuestionAnswerTime())) {
 //            lambda.eq(Answer::getQuestionAnswerTime, answerMonthQuarterYearSubmitParam.getQuestionAnswerTime());
