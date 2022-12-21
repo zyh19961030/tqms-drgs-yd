@@ -33,11 +33,14 @@ import com.qu.constant.QuestionConstant;
 import com.qu.modules.web.entity.Answer;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.entity.TbDep;
+import com.qu.modules.web.entity.TbUser;
 import com.qu.modules.web.mapper.AnswerMapper;
 import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
 import com.qu.modules.web.param.AnswerAllDataParam;
 import com.qu.modules.web.param.AnswerListParam;
+import com.qu.modules.web.param.AnswerMiniAppParam;
 import com.qu.modules.web.param.AnswerMonthQuarterYearSubmitParam;
 import com.qu.modules.web.param.AnswerParam;
 import com.qu.modules.web.param.AnswerPatientSubmitParam;
@@ -46,6 +49,8 @@ import com.qu.modules.web.param.SingleDiseaseAnswer;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.IAnswerService;
 import com.qu.modules.web.service.ISubjectService;
+import com.qu.modules.web.service.ITbDepService;
+import com.qu.modules.web.service.ITbUserService;
 import com.qu.modules.web.vo.AnswerAllDataVo;
 import com.qu.modules.web.vo.AnswerMonthQuarterYearFillingInAndSubmitPageVo;
 import com.qu.modules.web.vo.AnswerMonthQuarterYearFillingInAndSubmitVo;
@@ -82,6 +87,10 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
     @Autowired
     private QuestionMapper questionMapper;
 
+    @Autowired
+    private ITbUserService tbUserService;
+    @Autowired
+    private ITbDepService tbDepService;
 
     @Value("${system.tokenUrl}")
     private String tokenUrl;
@@ -113,6 +122,34 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
                 creater_deptname = jsonRootBean.getData().getDeps().get(0).getDepName();
             }
         }
+        return getResult(answerParam, creater, creater_name, creater_deptid, creater_deptname);
+    }
+
+
+
+    @Override
+    public Result answerByMiniApp(AnswerMiniAppParam answerMiniAppParam, String userId) {
+        TbUser tbUser = tbUserService.getById(userId);
+        if (org.apache.commons.lang.StringUtils.isBlank(userId) || tbUser == null) {
+            return ResultFactory.error("userId参数错误");
+        }
+        AnswerParam AnswerParam = new AnswerParam();
+        BeanUtils.copyProperties(answerMiniAppParam, AnswerParam);
+        if (answerMiniAppParam.getId() != null) {
+            AnswerParam.setId(answerMiniAppParam.getId());
+        }
+        String deptId = answerMiniAppParam.getDeptId();
+        TbDep tbDep;
+        if (org.apache.commons.lang.StringUtils.isNotBlank(deptId)) {
+            tbDep = tbDepService.getById(deptId);
+        } else {
+            tbDep = tbDepService.getById(tbUser.getDepid());
+        }
+
+        return getResult(AnswerParam, tbUser.getId(), tbUser.getUsername(), tbDep.getId(), tbDep.getDepname());
+    }
+
+    private Result getResult(AnswerParam answerParam, String creater, String creater_name, String creater_deptid, String creater_deptname) {
         Answer answer = this.getById(answerParam.getId());
         if(answer==null){
             answer = new Answer();
@@ -209,11 +246,11 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         }
         //插入子表
         StringBuffer sqlAns = new StringBuffer();
-//        Question question = questionMapper.selectById(answerParam.getQuId());
+        //        Question question = questionMapper.selectById(answerParam.getQuId());
         if (question != null) {
             if (insertOrUpdate) {
                 sqlAns.append("update `" + question.getTableName() + "` set ");
-//                List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
+                //                List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
                 List<Qsubject> subjectList = subjectService.selectSubjectByQuId(answerParam.getQuId());
                 for (int i = 0; i < subjectList.size(); i++) {
                     Qsubject qsubjectDynamicTable = subjectList.get(i);
@@ -239,7 +276,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
                 sqlAns.append("`tbksdm`='");
                 sqlAns.append(creater_deptid);
                 sqlAns.append("'");
-//                    sqlAns.delete(sqlAns.length()-1,sqlAns.length());
+                //                    sqlAns.delete(sqlAns.length()-1,sqlAns.length());
                 sqlAns.append(" where summary_mapping_table_id = '");
                 sqlAns.append(answer.getSummaryMappingTableId());
                 sqlAns.append("'");
@@ -248,7 +285,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
             }else{
                 sqlAns.append("insert into `" + question.getTableName() + "` (");
 
-//                List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
+                //                List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
                 List<Qsubject> subjectList = subjectService.selectSubjectByQuId(answerParam.getQuId());
                 for (int i = 0; i < subjectList.size(); i++) {
                     Qsubject qsubjectDynamicTable = subjectList.get(i);
@@ -269,7 +306,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
                 sqlAns.append("`tbksmc`,");
                 sqlAns.append("`tbksdm`,");
                 sqlAns.append("`summary_mapping_table_id`");
-//                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
+                //                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
                 sqlAns.append(") values (");
                 for (int i = 0; i < subjectList.size(); i++) {
                     Qsubject qsubjectDynamicTable = subjectList.get(i);
@@ -295,7 +332,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
                 sqlAns.append("'");
                 sqlAns.append(answer.getSummaryMappingTableId());
                 sqlAns.append("'");
-//                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
+                //                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
 
                 sqlAns.append(")");
                 log.info("-----insert sqlAns:{}", sqlAns.toString());
@@ -305,8 +342,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         return ResultFactory.success();
     }
 
-
-//    @Override
+    //    @Override
 //    public String queryByQuId(Integer quId) {
 //        String answer = null;
 //        try {

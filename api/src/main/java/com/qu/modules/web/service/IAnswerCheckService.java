@@ -12,7 +12,7 @@ import com.qu.modules.web.param.AnswerCheckAddParam;
 import com.qu.modules.web.param.AnswerCheckDeleteParam;
 import com.qu.modules.web.param.AnswerCheckDetailListExportParam;
 import com.qu.modules.web.param.AnswerCheckDetailListParam;
-import com.qu.modules.web.param.AnswerMiniAppParam;
+import com.qu.modules.web.param.AnswerCheckMiniAppParam;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.request.AnswerCheckListRequest;
 import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListExportRequest;
@@ -43,7 +43,7 @@ public interface IAnswerCheckService extends IService<AnswerCheck> {
 
     Result answer(String cookie, AnswerCheckAddParam answerCheckAddParam);
 
-    Result answerByMiniApp(AnswerMiniAppParam answerParam);
+    Result answerByMiniApp(AnswerCheckMiniAppParam answerParam);
 
     AnswerCheck queryById(String id);
 

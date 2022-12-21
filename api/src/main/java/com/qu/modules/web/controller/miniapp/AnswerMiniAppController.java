@@ -3,19 +3,24 @@ package com.qu.modules.web.controller.miniapp;
 import javax.servlet.http.HttpServletRequest;
 
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.qu.modules.web.entity.Answer;
 import com.qu.modules.web.entity.AnswerCheck;
 import com.qu.modules.web.param.AnswerCheckListParam;
 import com.qu.modules.web.param.AnswerListParam;
+import com.qu.modules.web.param.AnswerMiniAppParam;
 import com.qu.modules.web.request.AnswerCheckListRequest;
 import com.qu.modules.web.service.IAnswerCheckService;
 import com.qu.modules.web.service.IAnswerService;
@@ -70,7 +75,7 @@ public class AnswerMiniAppController {
 
 
 
-    @ApiOperation(value = "问卷填报记录-通过id查询", notes = "问卷填报记录-通过id查询")
+    @ApiOperation(value = "检查表_问卷填报记录_通过id查询", notes = "检查表_问卷填报记录_通过id查询")
     @GetMapping(value = "/queryById")
     public Result<AnswerCheck> queryById(@RequestParam(name = "id", required = true) String id) {
         Result<AnswerCheck> result = new Result<>();
@@ -85,7 +90,7 @@ public class AnswerMiniAppController {
     }
 
 
-    @ApiOperation(value = "登记表-通过id查询", notes = "登记表-通过id查询")
+    @ApiOperation(value = "登记表_通过id查询", notes = "登记表_通过id查询")
     @GetMapping(value = "/answerQueryById")
     public Result<Answer> answerQueryById(@RequestParam(name = "id", required = true) String id) {
         Result<Answer> result = new Result<Answer>();
@@ -97,6 +102,20 @@ public class AnswerMiniAppController {
             result.setSuccess(true);
         }
         return result;
+    }
+
+    @ApiOperation(value = "登记表(普通问卷)_答题", notes = "登记表(普通问卷)_答题")
+    @PostMapping(value = "/answer")
+    public Result answer(@RequestBody AnswerMiniAppParam answerMiniAppParam, @RequestHeader(name = "userId") String userId) {
+        log.info("-----------answerMiniAppParam={}", JSON.toJSONString(answerMiniAppParam));
+        try {
+            return answerService.answerByMiniApp(answerMiniAppParam,userId);
+        }catch (Exception e){
+            if( e.getMessage().contains("Table") &&  e.getMessage().contains("doesn't exist")) {
+                return ResultFactory.fail("问卷未发布");
+            }
+        }
+        return ResultFactory.fail();
     }
 
 

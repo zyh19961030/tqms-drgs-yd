@@ -51,7 +51,7 @@ import com.qu.modules.web.param.AnswerCheckAddParam;
 import com.qu.modules.web.param.AnswerCheckDeleteParam;
 import com.qu.modules.web.param.AnswerCheckDetailListExportParam;
 import com.qu.modules.web.param.AnswerCheckDetailListParam;
-import com.qu.modules.web.param.AnswerMiniAppParam;
+import com.qu.modules.web.param.AnswerCheckMiniAppParam;
 import com.qu.modules.web.param.Answers;
 import com.qu.modules.web.param.SingleDiseaseAnswer;
 import com.qu.modules.web.pojo.Data;
@@ -304,7 +304,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
 
 
     @Override
-    public Result answerByMiniApp(AnswerMiniAppParam answerMiniAppParam) {
+    public Result answerByMiniApp(AnswerCheckMiniAppParam answerMiniAppParam) {
         String userId = answerMiniAppParam.getUserId();
         TbUser tbUser = tbUserService.getById(userId);
         if (StringUtils.isBlank(userId) || tbUser == null) {

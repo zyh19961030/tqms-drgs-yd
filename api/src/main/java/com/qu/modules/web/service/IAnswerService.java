@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.Answer;
 import com.qu.modules.web.param.AnswerAllDataParam;
 import com.qu.modules.web.param.AnswerListParam;
+import com.qu.modules.web.param.AnswerMiniAppParam;
 import com.qu.modules.web.param.AnswerMonthQuarterYearSubmitParam;
 import com.qu.modules.web.param.AnswerParam;
 import com.qu.modules.web.param.AnswerPatientSubmitParam;
@@ -22,6 +23,8 @@ public interface IAnswerService extends IService<Answer> {
     int insertDynamicTable(String sql);
 
     Result answer(String cookie, AnswerParam answerParam);
+
+    Result answerByMiniApp(AnswerMiniAppParam answerMiniAppParam, String userId);
 
 //    String queryByQuId(Integer quId);
 
