@@ -1,16 +1,18 @@
 package com.qu.modules.web.entity;
 
+import org.jeecgframework.poi.excel.annotation.Excel;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.jeecgframework.poi.excel.annotation.Excel;
-import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * @Description: 问卷表
@@ -86,9 +88,9 @@ public class Question {
 	@Excel(name = "分类id", width = 15)
 	@ApiModelProperty(value = "分类id")
 	private java.lang.String categoryId;
-	/**0其他 1单病种*/
-	@Excel(name = "0其他 1单病种", width = 15)
-	@ApiModelProperty(value = "0其他 1单病种")
+	/**0其他 1单病种 2检查表 3登记表*/
+	@Excel(name = "0其他 1单病种 2检查表 3登记表", width = 15)
+	@ApiModelProperty(value = "0其他 1单病种 2检查表 3登记表")
 	private java.lang.Integer categoryType;
 	/**图标*/
 	@Excel(name = "图标", width = 15)

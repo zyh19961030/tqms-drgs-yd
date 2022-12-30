@@ -1,11 +1,10 @@
 package com.qu.modules.web.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.vo.QuestionAndCategoryVo;
-
 import java.util.List;
 import java.util.Map;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.qu.modules.web.entity.Question;
 
 /**
  * @Description: 问卷表
@@ -14,10 +13,6 @@ import java.util.Map;
  * @Version: V1.0
  */
 public interface QuestionMapper extends BaseMapper<Question> {
-
-    int queryPageListCount(Map<String, Object> params);
-
-    List<QuestionAndCategoryVo> queryPageList(Map<String, Object> params);
 
     int questionFillInListCount(Map<String, Object> params);
 

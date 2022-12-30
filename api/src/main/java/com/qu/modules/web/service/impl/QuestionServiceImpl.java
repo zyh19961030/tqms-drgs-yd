@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -65,6 +66,7 @@ import com.qu.modules.web.param.QuestionAgainReleaseParam;
 import com.qu.modules.web.param.QuestionCheckParam;
 import com.qu.modules.web.param.QuestionCheckedDepParam;
 import com.qu.modules.web.param.QuestionEditParam;
+import com.qu.modules.web.param.QuestionListParam;
 import com.qu.modules.web.param.QuestionParam;
 import com.qu.modules.web.param.QuestionQueryByIdParam;
 import com.qu.modules.web.param.SelectCheckedDeptIdsParam;
@@ -703,25 +705,56 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     }
 
     @Override
-    public QuestionAndCategoryPageVo queryPageList(QuestionParam questionParam, Integer pageNo, Integer pageSize) {
+    public QuestionAndCategoryPageVo queryPageList(QuestionListParam questionListParam, Integer pageNo, Integer pageSize) {
         QuestionAndCategoryPageVo questionAndCategoryPageVo = new QuestionAndCategoryPageVo();
         QueryWrapper<TqmsQuotaCategory> queryWrapper = new QueryWrapper<>();
 //        queryWrapper.eq("is_single_disease", TqmsQuotaCategoryConstant.IS_SINGLE_DISEASE);
         List<TqmsQuotaCategory> quotaCategoryList = tqmsQuotaCategoryMapper.selectList(queryWrapper);
         Map<Long, String> quotaCategoryMap = quotaCategoryList.stream().collect(Collectors.toMap(TqmsQuotaCategory::getCategoryId, TqmsQuotaCategory::getCategoryName, (k1, k2) -> k1));
 
-
         List<TbData> dataList = tbDataService.selectByDataType(TbDataConstant.DATA_TYPE_QUESTION_CHECK_CATEGORY);
         Map<String, String> dataMap = dataList.stream().collect(Collectors.toMap(TbData::getId, TbData::getValue, (k1, k2) -> k1));
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("quName", questionParam.getQuName());
-        params.put("quDesc", questionParam.getQuDesc());
-        params.put("startRow", (pageNo - 1) * pageSize);
-        params.put("pageSize", pageSize);
-        int total = questionMapper.queryPageListCount(params);
-        List<QuestionAndCategoryVo> questionList = questionMapper.queryPageList(params);
-        for (QuestionAndCategoryVo questionAndCategoryVo : questionList) {
+        Page<Question> page = new Page<>(pageNo, pageSize);
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        if (StringUtils.isNotBlank(questionListParam.getQuName())) {
+            lambda.like(Question::getQuName, questionListParam.getQuName());
+        }
+        if (Objects.nonNull(questionListParam.getCategoryType())) {
+            lambda.eq(Question::getCategoryType, questionListParam.getCategoryType());
+        }
+        if (Objects.nonNull(questionListParam.getCategoryId())) {
+            lambda.eq(Question::getCategoryId, questionListParam.getCategoryId());
+        }
+        if (Objects.nonNull(questionListParam.getWriteFrequency())) {
+            lambda.eq(Question::getWriteFrequency, questionListParam.getWriteFrequency());
+        }
+        if (StringUtils.isNotBlank(questionListParam.getWriteDeptId())) {
+            lambda.like(Question::getDeptIds, questionListParam.getWriteDeptId());
+        }
+        if (StringUtils.isNotBlank(questionListParam.getSeeDeptId())) {
+            lambda.like(Question::getSeeDeptIds, questionListParam.getSeeDeptId());
+        }
+        List<Integer> idListByCheckedDeptId = Lists.newArrayList();
+        if (StringUtils.isNotBlank(questionListParam.getCheckedDeptId())) {
+            List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByDeptId(questionListParam.getCheckedDeptId(), null, QuestionCheckedDeptConstant.TYPE_CHECKED_DEPT);
+            idListByCheckedDeptId = questionCheckedDeptList.stream().map(QuestionCheckedDept::getQuId).collect(Collectors.toList());
+        }
+        if(CollectionUtil.isNotEmpty(idListByCheckedDeptId)){
+            lambda.in(Question::getId, idListByCheckedDeptId);
+        }
+        if (Objects.nonNull(questionListParam.getQuStatus())) {
+            lambda.eq(Question::getQuStatus, questionListParam.getQuStatus());
+        }
+
+        lambda.in(Question::getDel, QuestionConstant.DEL_NORMAL);
+        lambda.orderByDesc(Question::getCreateTime);
+        IPage<Question> questionIPage = this.page(page, lambda);
+        List<Question> questionList = questionIPage.getRecords();
+        ArrayList<QuestionAndCategoryVo> resList = Lists.newArrayList();
+        for (Question question : questionList) {
+            QuestionAndCategoryVo questionAndCategoryVo = new QuestionAndCategoryVo();
+            BeanUtils.copyProperties(question,questionAndCategoryVo);
             String categoryId = questionAndCategoryVo.getCategoryId();
             if (StringUtils.isNotBlank(categoryId)) {
                 if(QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE.equals(questionAndCategoryVo.getCategoryType())){
@@ -730,9 +763,10 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                     questionAndCategoryVo.setCategoryName(dataMap.get(categoryId));
                 }
             }
+            resList.add(questionAndCategoryVo);
         }
-        questionAndCategoryPageVo.setTotal(total);
-        questionAndCategoryPageVo.setQuestionList(questionList);
+        questionAndCategoryPageVo.setTotal(questionIPage.getTotal());
+        questionAndCategoryPageVo.setQuestionList(resList);
         return questionAndCategoryPageVo;
     }
 

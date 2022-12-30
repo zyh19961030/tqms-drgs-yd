@@ -31,6 +31,7 @@ import com.qu.modules.web.param.QuestionAgainReleaseParam;
 import com.qu.modules.web.param.QuestionCheckParam;
 import com.qu.modules.web.param.QuestionCheckedDepParam;
 import com.qu.modules.web.param.QuestionEditParam;
+import com.qu.modules.web.param.QuestionListParam;
 import com.qu.modules.web.param.QuestionParam;
 import com.qu.modules.web.param.QuestionQueryByIdParam;
 import com.qu.modules.web.param.SelectCheckedDeptIdsParam;
@@ -79,7 +80,7 @@ public class QuestionController {
     /**
      * 分页列表查询
      *
-     * @param questionParam
+     * @param questionListParam
      * @param pageNo
      * @param pageSize
      * @param req
@@ -88,12 +89,12 @@ public class QuestionController {
     @AutoLog(value = "问卷表-分页列表查询")
     @ApiOperation(value = "问卷表-分页列表查询", notes = "问卷表-分页列表查询",response = QuestionAndCategoryPageVo.class)
     @GetMapping(value = "/list")
-    public Result<QuestionAndCategoryPageVo> queryPageList(QuestionParam questionParam,
+    public Result<QuestionAndCategoryPageVo> queryPageList(QuestionListParam questionListParam,
                                                            @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                            HttpServletRequest req) {
         Result<QuestionAndCategoryPageVo> result = new Result<>();
-        QuestionAndCategoryPageVo questionAndCategoryPageVo = questionService.queryPageList(questionParam, pageNo, pageSize);
+        QuestionAndCategoryPageVo questionAndCategoryPageVo = questionService.queryPageList(questionListParam, pageNo, pageSize);
         result.setSuccess(true);
         result.setResult(questionAndCategoryPageVo);
         return result;

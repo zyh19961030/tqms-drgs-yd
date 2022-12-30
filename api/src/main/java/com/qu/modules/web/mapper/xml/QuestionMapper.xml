@@ -2,30 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.qu.modules.web.mapper.QuestionMapper">
 
-    <select id="queryPageListCount" parameterType="java.util.Map" resultType="java.lang.Integer">
-        select count(1) from  question
-        where del = 0
-        <if test="quName !=null and quName !=''">
-            and qu_name like CONCAT('%',#{quName},'%')
-        </if>
-        <if test="quDesc !=null and quDesc !=''">
-            and qu_desc like CONCAT('%',#{quDesc},'%')
-        </if>
-    </select>
-
-    <select id="queryPageList" parameterType="java.util.Map" resultType="com.qu.modules.web.vo.QuestionAndCategoryVo">
-        select * from  question
-        where del = 0
-        <if test="quName !=null and quName !=''">
-            and qu_name like CONCAT('%',#{quName},'%')
-        </if>
-        <if test="quDesc !=null and quDesc !=''">
-            and qu_desc like CONCAT('%',#{quDesc},'%')
-        </if>
-        order by create_time desc
-        limit #{startRow},#{pageSize}
-    </select>
-
     <select id="questionFillInListCount" parameterType="java.util.Map" resultType="java.lang.Integer">
         select count(1) from  question
         where del = 0 and qu_status=1 and  (category_type=0 or category_type is null)
