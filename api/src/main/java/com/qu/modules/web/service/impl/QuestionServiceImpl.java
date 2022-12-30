@@ -723,7 +723,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         if (Objects.nonNull(questionListParam.getCategoryType())) {
             lambda.eq(Question::getCategoryType, questionListParam.getCategoryType());
         }
-        if (Objects.nonNull(questionListParam.getCategoryId())) {
+        if (StringUtils.isNotBlank(questionListParam.getCategoryId())) {
             lambda.eq(Question::getCategoryId, questionListParam.getCategoryId());
         }
         if (Objects.nonNull(questionListParam.getWriteFrequency())) {
