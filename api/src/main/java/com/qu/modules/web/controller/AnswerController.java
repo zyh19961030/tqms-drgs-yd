@@ -139,8 +139,8 @@ public class AnswerController {
     @ApiOperation(value = "菜单月度汇总，定期汇总-填报中", notes = "菜单月度汇总，定期汇总-填报中")
     @GetMapping(value = "/monthQuarterYearFillingInList")
     public Result<AnswerMonthQuarterYearFillingInAndSubmitPageVo> monthQuarterYearFillingInList(HttpServletRequest request,
-                                                                                       @RequestParam(name = "type")@ApiParam("菜单 月度传0,季度传1,年传2") String type,
-                                                                                       @RequestParam(name = "month")@ApiParam("月份") String month,
+                                                                                       @RequestParam(name = "type",required = false)@ApiParam("菜单 月度传0,季度传1,年传2") String type,
+                                                                                       @RequestParam(name = "month",required = false)@ApiParam("月份") String month,
                                                                                        @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                                                        @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
         Result<AnswerMonthQuarterYearFillingInAndSubmitPageVo> result = new Result<>();

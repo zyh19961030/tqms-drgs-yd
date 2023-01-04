@@ -1507,18 +1507,20 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     @Override
     public List<QuestionMonthQuarterYearCreateListVo> monthQuarterYearCreateList(String type, String deptId) {
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
-        if("0".equals(type)){
-            lambda.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_MONTH);
-        }else if("1".equals(type)){
-            lambda.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_QUARTER);
-        }else if("2".equals(type)){
-            lambda.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_YEAR);
-        }else{
-            lambda.in(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_MONTH_QUARTER_YEAR);
-        }
+//        if("0".equals(type)){
+//            lambda.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_MONTH);
+//        }else if("1".equals(type)){
+//            lambda.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_QUARTER);
+//        }else if("2".equals(type)){
+//            lambda.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_YEAR);
+//        }else{
+//            lambda.in(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_MONTH_QUARTER_YEAR);
+//        }
+        lambda.in(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_MONTH_QUARTER_YEAR);
         lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
         lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
-        lambda.and(wrapper->wrapper.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_REGISTER).or().isNull(Question::getCategoryType));
+        lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_REGISTER);
+//        lambda.and(wrapper->wrapper.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_REGISTER).or().isNull(Question::getCategoryType));
 
         //科室匹配 问卷设置科室权限---
         if(StringUtils.isNotBlank(deptId)){
