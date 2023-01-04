@@ -4,7 +4,7 @@
 
     <select id="questionFillInListCount" parameterType="java.util.Map" resultType="java.lang.Integer">
         select count(1) from  question
-        where del = 0 and qu_status=1 and  (category_type=0 or category_type is null)
+        where del = 0 and qu_status=1 and  (category_type=0 or category_type=3 or category_type is null)
         <if test="quName !=null and quName !=''">
             and qu_name like CONCAT('%',#{quName},'%')
         </if>
@@ -15,7 +15,7 @@
 
     <select id="questionFillInList" parameterType="java.util.Map" resultType="com.qu.modules.web.entity.Question">
         select * from  question
-        where del = 0 and qu_status=1 and  (category_type=0 or category_type is null)
+        where del = 0 and qu_status=1 and  (category_type=0 or category_type=3 or category_type is null)
         <if test="quName !=null and quName !=''">
             and qu_name like CONCAT('%',#{quName},'%')
         </if>

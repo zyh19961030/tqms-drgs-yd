@@ -1,21 +1,5 @@
 package com.qu.modules.web.controller;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultBetter;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.jeecg.common.aspect.annotation.AutoLog;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.alibaba.fastjson.JSON;
 import com.qu.constant.Constant;
 import com.qu.modules.web.entity.Answer;
@@ -29,11 +13,19 @@ import com.qu.modules.web.vo.AnswerAllDataVo;
 import com.qu.modules.web.vo.AnswerMonthQuarterYearFillingInAndSubmitPageVo;
 import com.qu.modules.web.vo.AnswerPageVo;
 import com.qu.modules.web.vo.AnswerPatientFillingInAndSubmitPageVo;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.aspect.annotation.AutoLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Slf4j
 @Api(tags = "答案")
@@ -64,7 +56,7 @@ public class AnswerController {
 //        return result;
 //    }
 
-    @ApiOperation(value = "普通问卷填报记录分页列表", notes = "普通问卷填报记录分页列表")
+    @ApiOperation(value = "普通问卷填报记录分页列表_改为登记表填报记录", notes = "普通问卷填报记录分页列表_改为登记表填报记录")
     @GetMapping(value = "/questionFillInList")
     public Result<AnswerPageVo> questionFillInList(@RequestParam(name = "quName", required = false) String quName,
                                                    @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
