@@ -706,69 +706,14 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Override
     public IPage<QuestionCheckVo> checkQuestionList(QuestionCheckParam questionCheckParam, Integer pageNo, Integer pageSize, Data data) {
-        String deptId = data.getTbUser().getDepId();
-        Page<Question> page = new Page<>(pageNo, pageSize);
-        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
         String quName = questionCheckParam.getQuName();
-        if(StringUtils.isNotBlank(quName)){
-            lambda.like(Question::getQuName, quName);
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        boolean checkPositionFlag = checkPosition(quName, data, lambda);
+        if(checkPositionFlag){
+            return new Page<>();
         }
-        lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
-        lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
-        lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
-        lambda.like(Question::getDeptIds,deptId);
-        //判断职位
-        String positionId = data.getTbUser().getPositionId();
-        if(Constant.POSITION_ID_LCKSZR.equals(positionId)){
-            lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YL).or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_YL));
-        }else if(Constant.POSITION_ID_LCKSZKY.equals(positionId) ){
-            lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YL).or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_YL));
-            //分配给自己的查检表
-            String userId = data.getTbUser().getId();
-            List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByDeptId(userId, deptId, QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
-            if(questionCheckedDeptList.isEmpty()){
-                return new Page<>();
-            }
-            List<Integer> quIdList = questionCheckedDeptList.stream().map(QuestionCheckedDept::getQuId).distinct().collect(Collectors.toList());
-            if(quIdList.isEmpty()){
-                return new Page<>();
-            }
-            lambda.in(Question::getId,quIdList);
-        }else if(Constant.POSITION_ID_LCKHSZ.equals(positionId)){
-            lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_HL)
-                    .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YG)
-                    .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_HL));
-        }else if( Constant.POSITION_ID_LCKSZKYHL.equals(positionId) ){
-            //分配给自己的查检表
-            lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_HL)
-                    .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YG)
-                    .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_HL));
-            String userId = data.getTbUser().getId();
-            List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByDeptId(userId, deptId, QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
-            if(questionCheckedDeptList.isEmpty()){
-                return new Page<>();
-            }
-            List<Integer> quIdList = questionCheckedDeptList.stream().map(QuestionCheckedDept::getQuId).distinct().collect(Collectors.toList());
-            if(quIdList.isEmpty()){
-                return new Page<>();
-            }
-            lambda.in(Question::getId,quIdList);
-        }else if( Constant.POSITION_ID_ZNKSZKY.equals(positionId) ){
-            //分配给自己的查检表
-            String userId = data.getTbUser().getId();
-            List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByDeptId(userId, deptId, QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
-            if(questionCheckedDeptList.isEmpty()){
-                return new Page<>();
-            }
-            List<Integer> quIdList = questionCheckedDeptList.stream().map(QuestionCheckedDept::getQuId).distinct().collect(Collectors.toList());
-            if(quIdList.isEmpty()){
-                return new Page<>();
-            }
-            lambda.in(Question::getId,quIdList);
-        }
-
+        Page<Question> page = new Page<>(pageNo, pageSize);
         IPage<Question> iPage = this.page(page,lambda);
-
         List<Question> questionList = iPage.getRecords();
         if(questionList.isEmpty()){
             return new Page<>();
@@ -870,21 +815,19 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     }
 
     @Override
-    public List<CheckQuestionParameterSetListVo> checkQuestionParameterSetList(QuestionCheckParam questionCheckParam, String deptId) {
-        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
-        lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
-        lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
-        lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
-        lambda.like(Question::getDeptIds,deptId);
+    public List<CheckQuestionParameterSetListVo> checkQuestionParameterSetList(QuestionCheckParam questionCheckParam, Data data) {
         String quName = questionCheckParam.getQuName();
-        if(StringUtils.isNotBlank(quName)){
-            lambda.like(Question::getQuName, quName);
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        boolean checkPositionFlag = checkPosition(quName, data, lambda);
+        if(checkPositionFlag){
+            return Lists.newArrayList();
         }
         List<Question> list = this.list(lambda);
         if(list.isEmpty()){
             return Lists.newArrayList();
         }
 
+        String deptId = data.getDeps().get(0).getId();
         List<String> questionIds = list.stream().map(q-> String.valueOf(q.getId())).collect(Collectors.toList());
         //查询是否显示 设置统计图形
         List<TbInspectStatsTemplateDep> templateDepList= tbInspectStatsTemplateDepService.selectDeptStatisticsByQuestionIds(deptId,questionIds);
@@ -906,6 +849,72 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         }).collect(Collectors.toList());
 
     }
+
+    private boolean checkPosition(String quName, Data data, LambdaQueryWrapper<Question> lambda) {
+        String deptId = data.getDeps().get(0).getId();
+        if(StringUtils.isNotBlank(quName)){
+            lambda.like(Question::getQuName, quName);
+        }
+        lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+        lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
+        lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+        lambda.like(Question::getDeptIds,deptId);
+
+        //判断职位
+        String positionId = data.getTbUser().getPositionId();
+        if(Constant.POSITION_ID_LCKSZR.equals(positionId)){
+            lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YL).or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_YL));
+        }else if(Constant.POSITION_ID_LCKSZKY.equals(positionId) ){
+            lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YL).or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_YL));
+            //分配给自己的查检表
+            String userId = data.getTbUser().getId();
+            List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByDeptId(userId, deptId, QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
+            if(questionCheckedDeptList.isEmpty()){
+                return  true;
+            }
+            List<Integer> quIdList = questionCheckedDeptList.stream().map(QuestionCheckedDept::getQuId).distinct().collect(Collectors.toList());
+            if(quIdList.isEmpty()){
+                return  true;
+            }
+            lambda.in(Question::getId,quIdList);
+        }else if(Constant.POSITION_ID_LCKHSZ.equals(positionId)){
+            lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_HL)
+                    .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YG)
+                    .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_HL));
+        }else if( Constant.POSITION_ID_LCKSZKYHL.equals(positionId) ){
+            //分配给自己的查检表
+            lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_HL)
+                    .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YG)
+                    .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_HL));
+            String userId = data.getTbUser().getId();
+            List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByDeptId(userId, deptId, QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
+            if(questionCheckedDeptList.isEmpty()){
+                return  true;
+            }
+            List<Integer> quIdList = questionCheckedDeptList.stream().map(QuestionCheckedDept::getQuId).distinct().collect(Collectors.toList());
+            if(quIdList.isEmpty()){
+                return  true;
+            }
+            lambda.in(Question::getId,quIdList);
+        }else if( Constant.POSITION_ID_ZNKSZKY.equals(positionId) ){
+            //分配给自己的查检表
+            String userId = data.getTbUser().getId();
+            List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByDeptId(userId, deptId, QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
+            if(questionCheckedDeptList.isEmpty()){
+                return  true;
+            }
+            List<Integer> quIdList = questionCheckedDeptList.stream().map(QuestionCheckedDept::getQuId).distinct().collect(Collectors.toList());
+            if(quIdList.isEmpty()){
+                return  true;
+            }
+            lambda.in(Question::getId,quIdList);
+        }
+        return false;
+    }
+
+
+
+
 
     @Override
     public List<CheckQuestionHistoryStatisticDeptListDeptVo> checkQuestionHistoryStatisticInspectedDeptList(CheckQuestionHistoryStatisticDeptListParam deptListParam, Data data) {

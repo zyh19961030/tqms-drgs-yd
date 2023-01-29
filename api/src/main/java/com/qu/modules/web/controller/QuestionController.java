@@ -303,8 +303,7 @@ public class QuestionController {
     public ResultBetter<List<CheckQuestionParameterSetListVo>> checkQuestionParameterSetList(QuestionCheckParam questionCheckParam,HttpServletRequest request) {
         ResultBetter<List<CheckQuestionParameterSetListVo>> result = new ResultBetter<>();
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        String deptId = data.getDeps().get(0).getId();
-        List<CheckQuestionParameterSetListVo> questionCheckPageVoIPage = questionService.checkQuestionParameterSetList(questionCheckParam,deptId);
+        List<CheckQuestionParameterSetListVo> questionCheckPageVoIPage = questionService.checkQuestionParameterSetList(questionCheckParam, data);
         result.setSuccess(true);
         result.setResult(questionCheckPageVoIPage);
         return result;
