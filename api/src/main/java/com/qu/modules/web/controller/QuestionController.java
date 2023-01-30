@@ -527,6 +527,13 @@ public class QuestionController {
         return result;
     }
 
+    @ApiOperation(value = "复制检查表", notes = "复制检查表")
+    @PostMapping(value = "/copyQuestion")
+    public Result<?> copyQuestion(@RequestBody @Valid CopyQuestionParam copyQuestionParam,HttpServletRequest request) {
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        return questionService.copyQuestion(copyQuestionParam,data);
+    }
+
 
 
 

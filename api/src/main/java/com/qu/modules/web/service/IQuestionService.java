@@ -147,4 +147,6 @@ public interface IQuestionService extends IService<Question> {
 
     List<Question> getByIds(List<Integer> quIdList);
 
+    Result<?> copyQuestion(CopyQuestionParam copyQuestionParam, Data data);
+
 }

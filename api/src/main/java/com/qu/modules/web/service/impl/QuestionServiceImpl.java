@@ -6,10 +6,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.qu.constant.*;
 import com.qu.event.DeleteCheckDetailSetEvent;
 import com.qu.event.QuestionVersionEvent;
+import com.qu.modules.web.dto.SubjectCopyVo;
 import com.qu.modules.web.entity.*;
 import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
@@ -1828,4 +1831,118 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
         return this.list(lambda);
     }
+
+    @Override
+    public Result<?> copyQuestion(CopyQuestionParam copyQuestionParam, Data data) {
+        Integer quId = copyQuestionParam.getQuId();
+        Question questionOld = this.getById(quId);
+        if (questionOld == null || QuestionConstant.DEL_DELETED.equals(questionOld.getDel())) {
+            return Result.error("问卷不存在");
+        }
+        //查询临时表题目和临时表选项
+        LambdaQueryWrapper<Qsubject> qsubjectLambda = new QueryWrapper<Qsubject>().lambda();
+        qsubjectLambda.eq(Qsubject::getQuId,quId);
+        qsubjectLambda.eq(Qsubject::getDel,QuestionConstant.DEL_NORMAL);
+        qsubjectLambda.orderByAsc(Qsubject::getOrderNum);
+        List<Qsubject> subjectList = subjectService.list(qsubjectLambda);
+        if(subjectList.isEmpty()){
+            return Result.error("问卷没有找到题目");
+        }
+
+        List<Integer> subjectIdList = subjectList.stream().map(Qsubject::getId).distinct().collect(Collectors.toList());
+        LambdaQueryWrapper<Qoption> qoptionLambda = new QueryWrapper<Qoption>().lambda();
+        qoptionLambda.in(Qoption::getSubId,subjectIdList);
+        qoptionLambda.in(Qoption::getDel, QoptionConstant.DEL_NORMAL);
+        qoptionLambda.orderByAsc(Qoption::getOpOrder);
+        List<Qoption> qoptionList = optionService.list(qoptionLambda);
+        Map<Integer, ArrayList<Qoption>> optionMap = qoptionList.stream().collect(
+                Collectors.toMap(Qoption::getSubId, Lists::newArrayList, (ArrayList<Qoption> k1, ArrayList<Qoption> k2) -> {
+                    k1.addAll(k2);
+                    return k1;
+                }));
+
+        List<SubjectCopyVo> subjectVoList = new ArrayList<>();
+        ArrayList<Qoption> optionEmptyList = Lists.newArrayList();
+        for (Qsubject qsubject : subjectList) {
+            SubjectCopyVo subjectDto = new SubjectCopyVo();
+            BeanUtils.copyProperties(qsubject, subjectDto);
+
+            ArrayList<Qoption> qoptionsList = optionMap.get(qsubject.getId());
+            subjectDto.setOptionList(qoptionsList==null?optionEmptyList:qoptionsList);
+            subjectVoList.add(subjectDto);
+        }
+
+        //保存问卷
+        Question question = new Question();
+        BeanUtils.copyProperties(questionOld, question);
+        question.setQuName(copyQuestionParam.getNewQuestionName());
+        question.setTableName(copyQuestionParam.getNewTableName());
+        Date date = new Date();
+        String userId = data.getTbUser().getId();
+        question.setCreater(userId);
+        question.setCreateTime(date);
+        question.setUpdater(userId);
+        question.setUpdateTime(date);
+        question.setQuestionVersion(QuestionConstant.QUESTION_VERSION_DEFAULT);
+        question.setTraceabilityStatus(QuestionConstant.TRACEABILITY_STATUS_NO_GENERATE);
+        question.setId(null);
+        this.save(question);
+
+        //保存题目
+        HashMap<Integer, Integer> subjectIdMap = Maps.newHashMap();
+        List<Qsubject> qsubjectAddList =Lists.newArrayList();
+        List<Qoption> optionAddList =Lists.newArrayList();
+        for (SubjectCopyVo subjectCopyVo : subjectVoList) {
+            Qsubject qsubject = new Qsubject();
+            BeanUtils.copyProperties(subjectCopyVo, qsubject);
+            qsubject.setId(null);
+            qsubject.setQuId(question.getId());
+            qsubject.setJumpLogic(subjectCopyVo.getJumpLogic());
+            qsubject.setSpecialJumpLogic(subjectCopyVo.getSpecialJumpLogic());
+            qsubject.setGroupIds(subjectCopyVo.getGroupIds());
+            qsubject.setChoiceSubjectId(subjectCopyVo.getChoiceSubjectId());
+            subjectService.save(qsubject);
+            qsubjectAddList.add(qsubject);
+            subjectIdMap.put(subjectCopyVo.getId(),qsubject.getId());
+
+            List<Qoption> optionList = subjectCopyVo.getOptionList();
+            for (Qoption qoptionTemp : optionList) {
+                Qoption qoption = new Qoption();
+                BeanUtils.copyProperties(qoptionTemp, qoption);
+                qoption.setId(null);
+                qoption.setSubId(qsubject.getId());
+                qoption.setJumpLogic(qoptionTemp.getJumpLogic());
+                qoption.setSpecialJumpLogic(qoptionTemp.getSpecialJumpLogic());
+                optionAddList.add(qoption);
+            }
+        }
+        optionService.saveBatch(optionAddList);
+
+        //处理分组
+        List<Qsubject> qsubjectUpdateList =Lists.newArrayList();
+        for (Qsubject qsubject : qsubjectAddList) {
+            String groupIds = qsubject.getGroupIds();
+            if(StringUtils.isNotBlank(groupIds)){
+                ArrayList<String> groupIdList = Lists.newArrayList(groupIds.split(","));
+                ArrayList<Integer> groupNewIdList = Lists.newArrayList();
+                for (String s : groupIdList) {
+                    int i = Integer.parseInt(s);
+                    if(subjectIdMap.containsKey(i)){
+                        groupNewIdList.add(subjectIdMap.get(i));
+                    }
+                }
+                qsubject.setGroupIds(Joiner.on(",").join(groupNewIdList));
+                qsubjectUpdateList.add(qsubject);
+            }
+        }
+        if(!qsubjectUpdateList.isEmpty()){
+            subjectService.updateBatchById(qsubjectUpdateList);
+        }
+
+        return Result.ok();
+    }
+
+
+
+
 }
