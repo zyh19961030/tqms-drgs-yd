@@ -157,8 +157,7 @@ public class QuestionController {
     @PutMapping(value = "/release")
     public ResultBetter<Boolean> release(@Valid @RequestBody IdParam idParam, HttpServletRequest request) {
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        questionService.release(idParam,data.getTbUser());
-        return ResultBetter.ok();
+        return questionService.release(idParam,data.getTbUser());
     }
 
     /**
