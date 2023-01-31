@@ -1,32 +1,18 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.qu.constant.*;
-import com.qu.event.DeleteCheckDetailSetEvent;
-import com.qu.event.QuestionVersionEvent;
-import com.qu.modules.web.dto.SubjectCopyVo;
-import com.qu.modules.web.entity.*;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
-import com.qu.modules.web.param.*;
-import com.qu.modules.web.pojo.Data;
-import com.qu.modules.web.pojo.TbUser;
-import com.qu.modules.web.service.*;
-import com.qu.modules.web.vo.*;
-import com.qu.util.DeptUtil;
-import com.qu.util.IntegerUtil;
-import com.qu.util.StringUtil;
-import com.qu.util.VersionNumberUtil;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultBetter;
@@ -37,10 +23,109 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.qu.constant.AnswerCheckConstant;
+import com.qu.constant.AnswerCheckUserSetConstant;
+import com.qu.constant.AnswerConstant;
+import com.qu.constant.Constant;
+import com.qu.constant.QSingleDiseaseTakeConstant;
+import com.qu.constant.QoptionConstant;
+import com.qu.constant.QsubjectConstant;
+import com.qu.constant.QuestionCheckedDeptConstant;
+import com.qu.constant.QuestionConstant;
+import com.qu.constant.TbDataConstant;
+import com.qu.constant.TbInspectStatsTemplateDepConstant;
+import com.qu.event.DeleteCheckDetailSetEvent;
+import com.qu.event.QuestionVersionEvent;
+import com.qu.modules.web.dto.SubjectCopyVo;
+import com.qu.modules.web.entity.Answer;
+import com.qu.modules.web.entity.AnswerCheck;
+import com.qu.modules.web.entity.AnswerCheckUserSet;
+import com.qu.modules.web.entity.QSingleDiseaseTake;
+import com.qu.modules.web.entity.Qoption;
+import com.qu.modules.web.entity.QoptionVersion;
+import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.entity.QsubjectVersion;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.entity.QuestionCheckedDept;
+import com.qu.modules.web.entity.QuestionVersion;
+import com.qu.modules.web.entity.TbData;
+import com.qu.modules.web.entity.TbDep;
+import com.qu.modules.web.entity.TbInspectStatsTemplateDep;
+import com.qu.modules.web.entity.TbUserAuxiliaryDep;
+import com.qu.modules.web.entity.TqmsQuotaCategory;
+import com.qu.modules.web.mapper.DynamicTableMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
+import com.qu.modules.web.param.CheckQuestionHistoryStatisticDeptListParam;
+import com.qu.modules.web.param.CopyQuestionParam;
+import com.qu.modules.web.param.IdParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam;
+import com.qu.modules.web.param.QuestionAgainReleaseParam;
+import com.qu.modules.web.param.QuestionCheckParam;
+import com.qu.modules.web.param.QuestionCheckedDepParam;
+import com.qu.modules.web.param.QuestionEditParam;
+import com.qu.modules.web.param.QuestionListParam;
+import com.qu.modules.web.param.QuestionParam;
+import com.qu.modules.web.param.QuestionQueryByIdParam;
+import com.qu.modules.web.param.SelectCheckedDeptIdsParam;
+import com.qu.modules.web.param.SelectResponsibilityUserIdsParam;
+import com.qu.modules.web.param.UpdateCategoryIdParam;
+import com.qu.modules.web.param.UpdateCheckedDeptIdsParam;
+import com.qu.modules.web.param.UpdateDeptIdsParam;
+import com.qu.modules.web.param.UpdateQuestionIconParam;
+import com.qu.modules.web.param.UpdateResponsibilityUserIdsParam;
+import com.qu.modules.web.param.UpdateTemplateIdParam;
+import com.qu.modules.web.param.UpdateWriteFrequencyIdsParam;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.pojo.TbUser;
+import com.qu.modules.web.service.IAnswerCheckService;
+import com.qu.modules.web.service.IAnswerCheckUserSetService;
+import com.qu.modules.web.service.IAnswerService;
+import com.qu.modules.web.service.IOptionService;
+import com.qu.modules.web.service.IQSingleDiseaseTakeService;
+import com.qu.modules.web.service.IQoptionVersionService;
+import com.qu.modules.web.service.IQsubjectVersionService;
+import com.qu.modules.web.service.IQuestionCheckedDeptService;
+import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.service.IQuestionVersionService;
+import com.qu.modules.web.service.ISubjectService;
+import com.qu.modules.web.service.ITbDataService;
+import com.qu.modules.web.service.ITbDepService;
+import com.qu.modules.web.service.ITbInspectStatsTemplateDepService;
+import com.qu.modules.web.service.ITbUserAuxiliaryDepService;
+import com.qu.modules.web.service.ITbUserService;
+import com.qu.modules.web.vo.CheckQuestionHistoryStatisticDeptListDeptVo;
+import com.qu.modules.web.vo.CheckQuestionHistoryStatisticVo;
+import com.qu.modules.web.vo.CheckQuestionParameterSetListVo;
+import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
+import com.qu.modules.web.vo.QuestionAndCategoryVo;
+import com.qu.modules.web.vo.QuestionCheckVo;
+import com.qu.modules.web.vo.QuestionMiniAppPageVo;
+import com.qu.modules.web.vo.QuestionMonthQuarterYearCreateListVo;
+import com.qu.modules.web.vo.QuestionPageVo;
+import com.qu.modules.web.vo.QuestionPatientCreateListVo;
+import com.qu.modules.web.vo.QuestionSetColumnAllVo;
+import com.qu.modules.web.vo.QuestionSetColumnChooseVo;
+import com.qu.modules.web.vo.QuestionSetColumnVo;
+import com.qu.modules.web.vo.QuestionStatisticsCheckVo;
+import com.qu.modules.web.vo.QuestionVo;
+import com.qu.modules.web.vo.SubjectVo;
+import com.qu.modules.web.vo.ViewNameVo;
+import com.qu.util.DeptUtil;
+import com.qu.util.IntegerUtil;
+import com.qu.util.StringUtil;
+import com.qu.util.VersionNumberUtil;
+
+import cn.hutool.core.collection.CollectionUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: 问卷表
@@ -465,7 +550,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     public List<ViewNameVo> queryByViewName(QuestionCheckedDepParam param) {
         StringBuffer sql =new StringBuffer();
         String viewName = param.getViewName();
-        if(viewName.equals("checked_dep")){
+        if("checked_dep".equals(viewName)){
             sql.append("select * from `");
             sql.append(viewName);
             Integer quId = param.getQuId();
@@ -499,27 +584,34 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             question.setUpdateTime(new Date());
             questionMapper.updateById(question);
             question = questionMapper.selectById(questionEditParam.getId());
-            //如果是已发布，建表
-            if (question.getQuStatus() == 1) {
+        } catch (Exception e) {
+            question = null;
+            log.error(e.getMessage(), e);
+        }
+        return question;
+    }
 
-                DeleteCheckDetailSetEvent event = new DeleteCheckDetailSetEvent(this, question.getId());
-                applicationEventPublisher.publishEvent(event);
+    @Override
+    public void release(IdParam idParam, TbUser tbUser) {
+        Question question = questionMapper.selectById(idParam.getId());
+        DeleteCheckDetailSetEvent event = new DeleteCheckDetailSetEvent(this, question.getId());
+        applicationEventPublisher.publishEvent(event);
 
-                StringBuffer sql = new StringBuffer();
-                sql.append("CREATE TABLE `" + question.getTableName() + "` (");
-                sql.append("`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',");
-//                List<Qsubject> subjectList = subjectMapper.selectSubjectByQuId(questionEditParam.getId());
-                List<Qsubject> subjectList = subjectService.selectSubjectByQuId(questionEditParam.getId());
-                for (Qsubject qsubject : subjectList) {
-                    Integer limitWords = qsubject.getLimitWords();
-                    if(limitWords==null || limitWords==0){
-                        limitWords=50;
-                    }
-                    String subType = qsubject.getSubType();
-                    Integer del = qsubject.getDel();
-                    if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType) || QuestionConstant.DEL_DELETED.equals(del)) {
-                        continue;
-                    }
+        StringBuffer sql = new StringBuffer();
+        sql.append("CREATE TABLE `" + question.getTableName() + "` (");
+        sql.append("`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',");
+        //                List<Qsubject> subjectList = subjectMapper.selectSubjectByQuId(questionEditParam.getId());
+        List<Qsubject> subjectList = subjectService.selectSubjectByQuId(question.getId());
+        for (Qsubject qsubject : subjectList) {
+            Integer limitWords = qsubject.getLimitWords();
+            if(limitWords==null || limitWords==0){
+                limitWords=50;
+            }
+            String subType = qsubject.getSubType();
+            Integer del = qsubject.getDel();
+            if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType) || QuestionConstant.DEL_DELETED.equals(del)) {
+                continue;
+            }
 //                    if (QsubjectConstant.SUB_TYPE_DEPT_USER.equals(subType)) {
 //                        sql.append("`")
 //                                .append("a_question_dept")
@@ -544,67 +636,67 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 //                        continue;
 //                    }
 
-                    sql.append("`")
-                            .append(qsubject.getColumnName())
-                            .append("` ")
-                            .append(qsubject.getColumnTypeDatabase()==null?"varchar":qsubject.getColumnTypeDatabase())
-                            .append("(")
-                            .append(limitWords)
-                            .append(") COMMENT '")
-                            .append(qsubject.getId())
-                            .append("',");
+            sql.append("`")
+                    .append(qsubject.getColumnName())
+                    .append("` ")
+                    .append(qsubject.getColumnTypeDatabase()==null?"varchar":qsubject.getColumnTypeDatabase())
+                    .append("(")
+                    .append(limitWords)
+                    .append(") COMMENT '")
+                    .append(qsubject.getId())
+                    .append("',");
 
-                    if (QsubjectConstant.MARK_OPEN.equals(qsubject.getMark())) {
-                        sql.append("`")
-                                .append(qsubject.getColumnName())
-                                .append("_mark")
-                                .append("` ")
-                                .append(QsubjectConstant.MARK_TYPE)
-                                .append("(")
-                                .append(QsubjectConstant.MARK_LENGTH)
-                                .append(") COMMENT '")
-                                .append(qsubject.getId())
-                                .append("的痕迹")
-                                .append("',");
-                        sql.append("`")
-                                .append(qsubject.getColumnName())
-                                .append("_mark_img")
-                                .append("` ")
-                                .append(QsubjectConstant.MARK_TYPE)
-                                .append("(")
-                                .append(QsubjectConstant.MARK_LENGTH)
-                                .append(") COMMENT '")
-                                .append(qsubject.getId())
-                                .append("的痕迹图片")
-                                .append("',");
-                    }
-                }
-                if(QuestionConstant.CATEGORY_TYPE_CHECK.equals(question.getCategoryType())){
-                    sql.append(" `tbrid` varchar(128) NULL COMMENT '填报人id',");
-                    sql.append(" `tbrxm` varchar(128) NULL COMMENT '填报人名称',");
-                }
-                sql.append(" `answer_datetime` timestamp(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '填报时间',");
-                sql.append(" `tbksmc` varchar(128) NULL COMMENT '填报科室名称',");
-                sql.append(" `tbksdm` varchar(128) NULL COMMENT '填报科室代码',");
-                sql.append(" `summary_mapping_table_id` varchar(128) NULL COMMENT '对应总表的id，可以当主键',");
-                sql.append(" `del` tinyint(4) NULL DEFAULT 0 COMMENT '0:正常1:已删除',");
-                sql.append(" PRIMARY KEY (`id`)");
-                if(subjectList.size()>=50){
-                    sql.append(") ENGINE=MyISAM DEFAULT CHARSET=utf8;");
-                }else{
-                    sql.append(") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-                }
-                dynamicTableMapper.createDynamicTable(sql.toString());
-
-                //保存问卷版本
-                QuestionVersionEvent questionVersionEvent = new QuestionVersionEvent(this, question.getId());
-                applicationEventPublisher.publishEvent(questionVersionEvent);
+            if (QsubjectConstant.MARK_OPEN.equals(qsubject.getMark())) {
+                sql.append("`")
+                        .append(qsubject.getColumnName())
+                        .append("_mark")
+                        .append("` ")
+                        .append(QsubjectConstant.MARK_TYPE)
+                        .append("(")
+                        .append(QsubjectConstant.MARK_LENGTH)
+                        .append(") COMMENT '")
+                        .append(qsubject.getId())
+                        .append("的痕迹")
+                        .append("',");
+                sql.append("`")
+                        .append(qsubject.getColumnName())
+                        .append("_mark_img")
+                        .append("` ")
+                        .append(QsubjectConstant.MARK_TYPE)
+                        .append("(")
+                        .append(QsubjectConstant.MARK_LENGTH)
+                        .append(") COMMENT '")
+                        .append(qsubject.getId())
+                        .append("的痕迹图片")
+                        .append("',");
             }
-        } catch (Exception e) {
-            question = null;
-            log.error(e.getMessage(), e);
         }
-        return question;
+        if(QuestionConstant.CATEGORY_TYPE_CHECK.equals(question.getCategoryType())){
+            sql.append(" `tbrid` varchar(128) NULL COMMENT '填报人id',");
+            sql.append(" `tbrxm` varchar(128) NULL COMMENT '填报人名称',");
+        }
+        sql.append(" `answer_datetime` timestamp(0) NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '填报时间',");
+        sql.append(" `tbksmc` varchar(128) NULL COMMENT '填报科室名称',");
+        sql.append(" `tbksdm` varchar(128) NULL COMMENT '填报科室代码',");
+        sql.append(" `summary_mapping_table_id` varchar(128) NULL COMMENT '对应总表的id，可以当主键',");
+        sql.append(" `del` tinyint(4) NULL DEFAULT 0 COMMENT '0:正常1:已删除',");
+        sql.append(" PRIMARY KEY (`id`)");
+        if(subjectList.size()>=50){
+            sql.append(") ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+        }else{
+            sql.append(") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+        }
+        dynamicTableMapper.createDynamicTable(sql.toString());
+
+        //保存问卷版本
+        QuestionVersionEvent questionVersionEvent = new QuestionVersionEvent(this, question.getId());
+        applicationEventPublisher.publishEvent(questionVersionEvent);
+
+        String userId = tbUser.getId();
+        question.setUpdater(userId);
+        question.setUpdateTime(new Date());
+        question.setQuStatus(QuestionConstant.QU_STATUS_RELEASE);
+        questionMapper.updateById(question);
     }
 
     @Override
@@ -1876,6 +1968,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         Question question = new Question();
         BeanUtils.copyProperties(questionOld, question);
         question.setQuName(copyQuestionParam.getNewQuestionName());
+        question.setQuStatus(QuestionConstant.QU_STATUS_DRAFT);
         question.setTableName(copyQuestionParam.getNewTableName());
         Date date = new Date();
         String userId = data.getTbUser().getId();
