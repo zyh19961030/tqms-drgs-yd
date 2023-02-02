@@ -28,6 +28,9 @@ public class QsubjectConstant {
 	public static final String MARK_LENGTH = "0";
 	public static final String MARK_TYPE = "TEXT";
 
+	public static final String COLUMN_TYPE_DEFAULT = "字符串";
+	public static final String COLUMN_TYPE_DATABASE_DEFAULT = "varchar";
+
 
     public static final Integer DEL_NORMAL = 0;
     public static final Integer DEL_DELETED = 1;
