@@ -1387,8 +1387,6 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             Collection<Qsubject> subjectList = subjectService.listByIds(subjectIds);
             boolean alterFlag = false;
             for (Qsubject qsubject : subjectList) {
-                sql.append(" ADD COLUMN ");
-
                 Integer limitWords = qsubject.getLimitWords();
                 if (limitWords == null || limitWords == 0) {
                     limitWords = 50;
@@ -1399,6 +1397,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                     continue;
                 }
                 alterFlag = true;
+                sql.append(" ADD COLUMN ");
 //                 if (QsubjectConstant.SUB_TYPE_DEPT_USER.equals(subType)) {
 //                     sql.append("`")
 //                             .append("question_dept")
