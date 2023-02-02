@@ -8,13 +8,13 @@
         category_id categoryId,single_disease_name disease,sum(need_report_count) needReportCount,
         sum(complete_report_count) completeReportCount,sum(not_report_count) notReportCount,
         CONCAT(IFNULL(CAST(AVG(complete_report_country_rate) AS DECIMAL(18,2)),0),'%') completeReportCountryRate,
-        CAST(sum(average_in_hospital_day) AS DECIMAL(18,2)) averageInHospitalDay,
-        CAST(sum(average_in_hospital_fee) AS DECIMAL(18,2)) averageInHospitalFee,
-        CAST(sum(average_drug_fee) AS DECIMAL(18,2)) averageDrugFee,
-        CAST(sum(average_operation_treatment_fee) AS DECIMAL(18,2)) averageOperationTreatmentFee,
-        CAST(sum(average_disposable_consumable) AS DECIMAL(18,2)) averageDisposableConsumable,
-        CONCAT(CAST(sum(mortality) AS DECIMAL(18,2)),'%') mortality,
-        CONCAT(CAST(sum(operation_complication_rate) AS DECIMAL(18,2)),'%') operationComplicationRate
+        CAST(AVG(average_in_hospital_day) AS DECIMAL(18,2)) averageInHospitalDay,
+        CAST(AVG(average_in_hospital_fee) AS DECIMAL(18,2)) averageInHospitalFee,
+        CAST(AVG(average_drug_fee) AS DECIMAL(18,2)) averageDrugFee,
+        CAST(AVG(average_operation_treatment_fee) AS DECIMAL(18,2)) averageOperationTreatmentFee,
+        CAST(AVG(average_disposable_consumable) AS DECIMAL(18,2)) averageDisposableConsumable,
+        CONCAT(CAST(AVG(mortality) AS DECIMAL(18,2)),'%') mortality,
+        CONCAT(CAST(AVG(operation_complication_rate) AS DECIMAL(18,2)),'%') operationComplicationRate
         FROM `q_single_disease_statistic_hospital`
         <where>
             year_month_remark >= #{dateStart} and year_month_remark &lt;= #{dateEnd}
