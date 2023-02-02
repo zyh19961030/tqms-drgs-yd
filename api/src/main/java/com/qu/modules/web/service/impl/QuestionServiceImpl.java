@@ -1385,6 +1385,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             sql.append("ALTER TABLE `" + question.getTableName() + "` ");
 //            List<Qsubject> subjectList = subjectMapper.selectBatchIds(subjectIds);
             Collection<Qsubject> subjectList = subjectService.listByIds(subjectIds);
+            boolean alterFlag = false;
             for (Qsubject qsubject : subjectList) {
                 sql.append(" ADD COLUMN ");
 
@@ -1397,6 +1398,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                 if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType) || QuestionConstant.DEL_DELETED.equals(del)) {
                     continue;
                 }
+                alterFlag = true;
 //                 if (QsubjectConstant.SUB_TYPE_DEPT_USER.equals(subType)) {
 //                     sql.append("`")
 //                             .append("question_dept")
@@ -1427,7 +1429,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                         .append("(")
                         .append(limitWords)
                         .append(") NULL COMMENT '")
-                        .append(qsubject.getSubName())
+                        .append(qsubject.getId())
                         .append("',");
                  if (QsubjectConstant.MARK_OPEN.equals(qsubject.getMark())) {
                      sql.append("`")
@@ -1438,7 +1440,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                              .append("(")
                              .append(QsubjectConstant.MARK_LENGTH)
                              .append(") COMMENT '")
-                             .append(qsubject.getSubName())
+                             .append(qsubject.getId())
                              .append("的痕迹")
                              .append("',");
                      sql.append("`")
@@ -1449,19 +1451,20 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                              .append("(")
                              .append(QsubjectConstant.MARK_LENGTH)
                              .append(") COMMENT '")
-                             .append(qsubject.getSubName())
+                             .append(qsubject.getId())
                              .append("的痕迹图片")
                              .append("',");
                  }
             }
-            sql.delete(sql.length()-1,sql.length());
-            sql.append(" ; ");
-            dynamicTableMapper.createDynamicTable(sql.toString());
 
+            if(alterFlag){
+                sql.delete(sql.length()-1,sql.length());
+                sql.append(" ; ");
+                dynamicTableMapper.createDynamicTable(sql.toString());
+            }
             //保存问卷版本
             QuestionVersionEvent questionVersionEvent = new QuestionVersionEvent(this, id);
             applicationEventPublisher.publishEvent(questionVersionEvent);
-
             return true;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
