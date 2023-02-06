@@ -362,7 +362,7 @@ public class QuestionController {
         return result;
     }
 
-    @ApiOperation(value = "检查管理_历史统计列表_上级督查_填报记录和检查明细_被检查科室筛选条件(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计列表_上级督查_填报记录和检查明细_被检查科室筛选条件(职能科室和临床科室同一个接口)")
+    @ApiOperation(value = "检查管理_历史统计列表(查检结果)_上级督查_填报记录和检查明细_被检查科室筛选条件(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计列表(查检结果)_上级督查_填报记录和检查明细_被检查科室筛选条件(职能科室和临床科室同一个接口)")
     @GetMapping(value = "/checkQuestionHistoryStatisticInspectedDeptList")
     public ResultBetter<List<CheckQuestionHistoryStatisticDeptListDeptVo>> checkQuestionHistoryStatisticInspectedDeptList(@Valid CheckQuestionHistoryStatisticDeptListParam deptListParam,
                                                                                          HttpServletRequest request) {
@@ -374,7 +374,7 @@ public class QuestionController {
         return result;
     }
 
-    @ApiOperation(value = "检查管理_历史统计列表_上级督查_填报记录和检查明细_检查科室筛选条件(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计列表_上级督查_填报记录和检查明细_检查科室筛选条件(职能科室和临床科室同一个接口)")
+    @ApiOperation(value = "检查管理_历史统计列表(查检结果)_上级督查_填报记录和检查明细_检查科室筛选条件(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计列表(查检结果)_上级督查_填报记录和检查明细_检查科室筛选条件(职能科室和临床科室同一个接口)")
     @GetMapping(value = "/checkQuestionHistoryStatisticDeptList")
     public ResultBetter<List<CheckQuestionHistoryStatisticDeptListDeptVo>> checkQuestionHistoryStatisticDeptList(@Valid CheckQuestionHistoryStatisticDeptListParam deptListParam,
                                                                                                      HttpServletRequest request) {
@@ -386,7 +386,7 @@ public class QuestionController {
         return result;
     }
 
-    @ApiOperation(value = "检查管理_历史统计列表_科室自查_填报记录和检查明细_自查科室筛选条件(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计列表_科室自查_填报记录和检查明细_自查科室筛选条件(职能科室和临床科室同一个接口)")
+    @ApiOperation(value = "检查管理_历史统计列表(查检结果)_科室自查_填报记录和检查明细_自查科室筛选条件(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计列表(查检结果)_科室自查_填报记录和检查明细_自查科室筛选条件(职能科室和临床科室同一个接口)")
     @GetMapping(value = "/checkQuestionHistoryStatisticSelfDeptList")
     public ResultBetter<List<CheckQuestionHistoryStatisticDeptListDeptVo>> checkQuestionHistoryStatisticSelfDeptList(@Valid CheckQuestionHistoryStatisticDeptListParam deptListParam,
                                                                                                      HttpServletRequest request) {

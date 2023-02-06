@@ -222,12 +222,12 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
 
         if (recordListRequest.getStartDate() != null) {
-            lambda.ge(AnswerCheck::getUpdateTime, recordListRequest.getStartDate());
+            lambda.ge(AnswerCheck::getAnswerTime, recordListRequest.getStartDate());
         }
 
         if (recordListRequest.getEndDate() != null) {
             Date endDate = new DateTime(recordListRequest.getEndDate()).plusDays(1).toDate();
-            lambda.le(AnswerCheck::getUpdateTime, endDate);
+            lambda.le(AnswerCheck::getAnswerTime, endDate);
         }
 
         String checkMonth = recordListRequest.getCheckMonth();
@@ -960,8 +960,23 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         }
 
         LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
-        lambda.eq(AnswerCheck::getAnswerStatus, AnswerCheckConstant.ANSWER_STATUS_RELEASE);
         lambda.eq(AnswerCheck::getQuId, listRequest.getQuId());
+        lambda.eq(AnswerCheck::getAnswerStatus, AnswerCheckConstant.ANSWER_STATUS_RELEASE);
+        lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
+        if (listRequest.getStartDate() != null) {
+            lambda.ge(AnswerCheck::getAnswerTime, listRequest.getStartDate());
+        }
+
+        if (listRequest.getEndDate() != null) {
+            Date endDate = new DateTime(listRequest.getEndDate()).plusDays(1).toDate();
+            lambda.le(AnswerCheck::getAnswerTime, endDate);
+        }
+
+        String checkMonth = listRequest.getCheckMonth();
+        if (StringUtils.isNotBlank(checkMonth)) {
+            lambda.eq(AnswerCheck::getCheckMonth, checkMonth);
+        }
+
         if (StringUtils.isNotBlank(checkedDeptId)) {
             lambda.eq(AnswerCheck::getCheckedDept, checkedDeptId);
         }
@@ -975,11 +990,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             lambda.eq(AnswerCheck::getCheckedDept, selfDeptId);
             lambda.eq(AnswerCheck::getCreaterDeptId, selfDeptId);
         }
-        lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
-        String checkMonth = listRequest.getCheckMonth();
-        if (StringUtils.isNotBlank(checkMonth)) {
-            lambda.eq(AnswerCheck::getCheckMonth, checkMonth);
-        }
+
         lambda.orderByDesc(AnswerCheck::getAnswerTime);
         IPage<AnswerCheck> answerCheckIPage = this.page(page, lambda);
         List<AnswerCheck> answerCheckList = answerCheckIPage.getRecords();
@@ -1070,8 +1081,18 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         }
 
         LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
-        lambda.eq(AnswerCheck::getAnswerStatus, AnswerCheckConstant.ANSWER_STATUS_RELEASE);
         lambda.eq(AnswerCheck::getQuId, exportRequest.getQuId());
+        lambda.eq(AnswerCheck::getAnswerStatus, AnswerCheckConstant.ANSWER_STATUS_RELEASE);
+        lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
+        if (exportRequest.getStartDate() != null) {
+            lambda.ge(AnswerCheck::getAnswerTime, exportRequest.getStartDate());
+        }
+
+        if (exportRequest.getEndDate() != null) {
+            Date endDate = new DateTime(exportRequest.getEndDate()).plusDays(1).toDate();
+            lambda.le(AnswerCheck::getAnswerTime, endDate);
+        }
+
         if (StringUtils.isNotBlank(checkedDeptId)) {
             lambda.eq(AnswerCheck::getCheckedDept, checkedDeptId);
         }
@@ -1085,11 +1106,12 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             lambda.eq(AnswerCheck::getCheckedDept, selfDeptId);
             lambda.eq(AnswerCheck::getCreaterDeptId, selfDeptId);
         }
-        lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
+
         String checkMonth = exportRequest.getCheckMonth();
         if (StringUtils.isNotBlank(checkMonth)) {
             lambda.eq(AnswerCheck::getCheckMonth, checkMonth);
         }
+
         lambda.orderByDesc(AnswerCheck::getAnswerTime);
         List<AnswerCheck> answerCheckList = this.list(lambda);
         if (!answerCheckList.isEmpty()) {

@@ -111,7 +111,7 @@ public class AnswerCheckController {
         return result;
     }
 
-	@ApiOperation(value = "检查表管理_历史统计_上级督查_填报记录分页列表(职能科室和临床科室同一个接口)", notes = "检查表管理_历史统计_上级督查_填报记录分页列表(职能科室和临床科室同一个接口)")
+	@ApiOperation(value = "检查表管理_历史统计(查检结果)_上级督查_填报记录分页列表(职能科室和临床科室同一个接口)", notes = "检查表管理_历史统计(查检结果)_上级督查_填报记录分页列表(职能科室和临床科室同一个接口)")
 	@GetMapping(value = "/checkQuestionHistoryStatisticRecordList")
 	public ResultBetter<IPage<CheckQuestionHistoryStatisticRecordListVo>> checkQuestionHistoryStatisticRecordList(@Valid CheckQuestionHistoryStatisticRecordListParam recordListParam,
                                                                                                                @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
@@ -126,7 +126,7 @@ public class AnswerCheckController {
 		return result;
 	}
 
-	@ApiOperation(value = "检查表管理_历史统计_科室自查_填报记录分页列表(职能科室和临床科室同一个接口)", notes = "检查表管理_历史统计_科室自查_填报记录分页列表(职能科室和临床科室同一个接口)")
+	@ApiOperation(value = "检查表管理_历史统计(查检结果)_科室自查_填报记录分页列表(职能科室和临床科室同一个接口)", notes = "检查表管理_历史统计(查检结果)_科室自查_填报记录分页列表(职能科室和临床科室同一个接口)")
 	@GetMapping(value = "/checkQuestionHistoryStatisticDeptRecordList")
 	public ResultBetter<IPage<CheckQuestionHistoryStatisticRecordListVo>> checkQuestionHistoryStatisticDeptRecordList(@Valid CheckQuestionHistoryStatisticDeptRecordListParam deptRecordListParam,
 																										 @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
@@ -141,7 +141,7 @@ public class AnswerCheckController {
 		return result;
 	}
 
-	@ApiOperation(value = "检查表管理_历史统计_上级督查/科室自查_填报记录分页列表_删除接口", notes = "检查表管理_历史统计_科室自查_填报记录分页列表(职能科室和临床科室同一个接口)")
+	@ApiOperation(value = "检查表管理_历史统计(查检结果)_上级督查/科室自查_填报记录分页列表_删除接口", notes = "检查表管理_历史统计(查检结果)_科室自查_填报记录分页列表(职能科室和临床科室同一个接口)")
 	@GetMapping(value = "/checkQuestionRecordDelete")
 	public ResultBetter checkQuestionRecordDelete(@Valid AnswerCheckDeleteParam param,
 												  HttpServletRequest request) {
@@ -187,7 +187,7 @@ public class AnswerCheckController {
 		 return result;
 	 }
 
-	@ApiOperation(value = "检查管理_历史统计_上级督查_明细表格分页列表(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计_上级督查_明细表格分页列表(职能科室和临床科室同一个接口)",response = AnswerCheckDetailListVo.class)
+	@ApiOperation(value = "检查管理_历史统计(查检结果)_上级督查_明细表格分页列表(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计(查检结果)_上级督查_明细表格分页列表(职能科室和临床科室同一个接口)",response = AnswerCheckDetailListVo.class)
 	@GetMapping(value = "/checkQuestionHistoryStatisticDetailList")
 	public ResultBetter<AnswerCheckDetailListVo> checkQuestionHistoryStatisticDetailList(@Valid CheckQuestionHistoryStatisticDetailListParam detailListParam,
 													  @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
@@ -203,7 +203,7 @@ public class AnswerCheckController {
 		return result;
 	}
 
-	@ApiOperation(value = "检查管理_历史统计_科室自查_明细表格分页列表(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计_科室自查_明细表格分页列表(职能科室和临床科室同一个接口)",response = AnswerCheckDetailListVo.class)
+	@ApiOperation(value = "检查管理_历史统计(查检结果)_科室自查_明细表格分页列表(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计(查检结果)_科室自查_明细表格分页列表(职能科室和临床科室同一个接口)",response = AnswerCheckDetailListVo.class)
 	@GetMapping(value = "/checkQuestionHistoryStatisticDeptDetailList")
 	public ResultBetter<AnswerCheckDetailListVo> checkQuestionHistoryStatisticDeptDetailList(@Valid CheckQuestionHistoryStatisticDeptDetailListParam deptDetailListParam,
 																				   @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
@@ -234,12 +234,12 @@ public class AnswerCheckController {
 
 
 	/**
-	 * 检查管理_历史统计_上级督查_明细表格分页列表_导出(职能科室和临床科室同一个接口)
+	 * 检查管理_历史统计(查检结果)_上级督查_明细表格分页列表_导出(职能科室和临床科室同一个接口)
 	 *
 	 * @param response
 	 */
 	@GetMapping(value = "/exportXlsCheckQuestionHistoryStatisticDetailList")
-	@ApiOperation(value = "检查管理_历史统计_上级督查_明细表格分页列表_导出(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计_上级督查_明细表格分页列表_导出(职能科室和临床科室同一个接口)")
+	@ApiOperation(value = "检查管理_历史统计(查检结果)_上级督查_明细表格分页列表_导出(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计(查检结果)_上级督查_明细表格分页列表_导出(职能科室和临床科室同一个接口)")
 	public void exportXlsCheckQuestionHistoryStatisticDetailList(@Valid CheckQuestionHistoryStatisticDetailListExportParam detailListExportParam,HttpServletResponse response) {
 		CheckQuestionHistoryStatisticDetailListExportRequest exportRequest = new CheckQuestionHistoryStatisticDetailListExportRequest();
 		BeanUtils.copyProperties(detailListExportParam,exportRequest);
@@ -247,12 +247,12 @@ public class AnswerCheckController {
 	}
 
 	/**
-	 * 检查管理_历史统计_科室自查_明细表格分页列表_导出(职能科室和临床科室同一个接口)
+	 * 检查管理_历史统计(查检结果)_科室自查_明细表格分页列表_导出(职能科室和临床科室同一个接口)
 	 *
 	 * @param response
 	 */
 	@GetMapping(value = "/exportXlsCheckQuestionHistoryStatisticDeptDetailList")
-	@ApiOperation(value = "检查管理_历史统计_科室自查_明细表格分页列表_导出(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计_科室自查_明细表格分页列表_导出(职能科室和临床科室同一个接口)")
+	@ApiOperation(value = "检查管理_历史统计(查检结果)_科室自查_明细表格分页列表_导出(职能科室和临床科室同一个接口)", notes = "检查管理_历史统计(查检结果)_科室自查_明细表格分页列表_导出(职能科室和临床科室同一个接口)")
 	public void exportXlsCheckQuestionHistoryStatisticDeptDetailList(@Valid CheckQuestionHistoryStatisticDeptDetailListExportParam deptDetailListExportParam,HttpServletResponse response) {
 		CheckQuestionHistoryStatisticDetailListExportRequest exportRequest = new CheckQuestionHistoryStatisticDetailListExportRequest();
 		BeanUtils.copyProperties(deptDetailListExportParam,exportRequest);

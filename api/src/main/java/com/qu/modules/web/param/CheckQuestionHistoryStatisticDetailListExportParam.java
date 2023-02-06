@@ -1,12 +1,18 @@
 package com.qu.modules.web.param;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
+import java.util.Date;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
 @Data
 @ApiModel(value="CheckQuestionHistoryStatisticDetailListExportParam检查管理_历史统计_上级督查_明细表格分页列表入参", description="CheckQuestionHistoryStatisticDetailListExportParam检查管理_历史统计_上级督查_明细表格分页列表入参")
@@ -29,5 +35,15 @@ public class CheckQuestionHistoryStatisticDetailListExportParam {
     @ApiModelProperty(value = "userId")
     @NotBlank(message = "userId不能为空")
     private String userId;
+
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern="yyyy-MM-dd")
+    @ApiModelProperty(value = "填报时间_起始时间 格式：yyyy-MM-dd")
+    private Date startDate;
+
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern="yyyy-MM-dd")
+    @ApiModelProperty(value = "填报时间_结束时间 格式：yyyy-MM-dd")
+    private Date endDate;
 
 }
