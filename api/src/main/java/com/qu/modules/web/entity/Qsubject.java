@@ -206,4 +206,8 @@ public class Qsubject {
     @Excel(name = "痕迹是否必填   0:非必填 1:必填", width = 15)
     @ApiModelProperty(value = "痕迹是否必填   0:非必填 1:必填")
     private java.lang.Integer markRequire;
+    /**是否回写元数据库 1回写 0不回写*/
+    @Excel(name = "是否回写元数据库 1回写 0不回写", width = 15)
+    @ApiModelProperty(value = "是否回写元数据库 1回写 0不回写")
+    private java.lang.Integer writeMetabase;
 }
