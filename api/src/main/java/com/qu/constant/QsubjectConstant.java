@@ -1,8 +1,8 @@
 package com.qu.constant;
 
-import java.util.List;
-
 import com.google.common.collect.Lists;
+
+import java.util.List;
 
 public class QsubjectConstant {
 
@@ -34,6 +34,9 @@ public class QsubjectConstant {
 
     public static final Integer DEL_NORMAL = 0;
     public static final Integer DEL_DELETED = 1;
+
+    public static final Integer WRITE_METABASE_YES = 1;
+    public static final Integer WRITE_METABASE_NO = 0;
 
     public static final List<String> QUANTITY_STATISTICS_LIST =  Lists.newArrayList(SUB_TYPE_CHOICE,SUB_TYPE_SINGLE_CHOICE_BOX,SUB_TYPE_CHOICE_SCORE,SUB_TYPE_SINGLE_CHOICE_BOX_SCORE);
     public static final List<String> SCORE_COUNT_LIST =  Lists.newArrayList(SUB_TYPE_CHOICE_SCORE,SUB_TYPE_SINGLE_CHOICE_BOX_SCORE);

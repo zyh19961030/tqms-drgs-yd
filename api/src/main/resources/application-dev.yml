@@ -65,3 +65,5 @@ system:
   tokenUrl: http://localhost:19101/business/tbUser/currentInfo
 #  singleDiseaseReportUrl: http://drgs.0060.cn:80/interface/010102/%s/1.2/put/
   singleDiseaseReportUrl: http://192.168.1.23:80/interface/010102/%s/1.2/put/
+#  writeMetabaseUrl: http://tqmszbservice.shijiyunyi.com/business/metadata/updateMetaData
+  writeMetabaseUrl: http://localhost:19102/business/metadata/updateMetaData
