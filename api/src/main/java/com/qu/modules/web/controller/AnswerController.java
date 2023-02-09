@@ -1,11 +1,28 @@
 package com.qu.modules.web.controller;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.aspect.annotation.AutoLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.alibaba.fastjson.JSON;
 import com.qu.constant.Constant;
 import com.qu.modules.web.entity.Answer;
 import com.qu.modules.web.param.AnswerAllDataParam;
 import com.qu.modules.web.param.AnswerMonthQuarterYearSubmitParam;
 import com.qu.modules.web.param.AnswerParam;
+import com.qu.modules.web.param.AnswerPatientFillingInParam;
 import com.qu.modules.web.param.AnswerPatientSubmitParam;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.IAnswerService;
@@ -13,19 +30,11 @@ import com.qu.modules.web.vo.AnswerAllDataVo;
 import com.qu.modules.web.vo.AnswerMonthQuarterYearFillingInAndSubmitPageVo;
 import com.qu.modules.web.vo.AnswerPageVo;
 import com.qu.modules.web.vo.AnswerPatientFillingInAndSubmitPageVo;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultBetter;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.jeecg.common.aspect.annotation.AutoLog;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
 
 @Slf4j
 @Api(tags = "答案")
@@ -100,14 +109,14 @@ public class AnswerController {
     @AutoLog(value = "患者登记表-填报中")
     @ApiOperation(value = "患者登记表-填报中", notes = "患者登记表-填报中")
     @GetMapping(value = "/patientFillingInList")
-    public Result<AnswerPatientFillingInAndSubmitPageVo> patientFillingInList(HttpServletRequest request,
+    public Result<AnswerPatientFillingInAndSubmitPageVo> patientFillingInList(AnswerPatientFillingInParam answerPatientFillingInParam, HttpServletRequest request,
                                                                               @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                                               @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
         Result<AnswerPatientFillingInAndSubmitPageVo> result = new Result<>();
         //加科室过滤---
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
         String deptId = data.getDeps().get(0).getId();
-        AnswerPatientFillingInAndSubmitPageVo list = answerService.patientFillingInList(deptId, pageNo,pageSize );
+        AnswerPatientFillingInAndSubmitPageVo list = answerService.patientFillingInList(deptId,answerPatientFillingInParam, pageNo,pageSize );
         result.setSuccess(true);
         result.setResult(list);
         return result;

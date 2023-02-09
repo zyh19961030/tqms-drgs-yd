@@ -10,6 +10,7 @@ import com.qu.modules.web.param.AnswerListParam;
 import com.qu.modules.web.param.AnswerMiniAppParam;
 import com.qu.modules.web.param.AnswerMonthQuarterYearSubmitParam;
 import com.qu.modules.web.param.AnswerParam;
+import com.qu.modules.web.param.AnswerPatientFillingInParam;
 import com.qu.modules.web.param.AnswerPatientSubmitParam;
 import com.qu.modules.web.vo.AnswerAllDataVo;
 import com.qu.modules.web.vo.AnswerMonthQuarterYearFillingInAndSubmitPageVo;
@@ -32,7 +33,7 @@ public interface IAnswerService extends IService<Answer> {
 
     boolean withdrawEdit(Integer id);
 
-    AnswerPatientFillingInAndSubmitPageVo patientFillingInList(String deptId, Integer pageNo, Integer pageSize);
+    AnswerPatientFillingInAndSubmitPageVo patientFillingInList(String deptId, AnswerPatientFillingInParam answerPatientFillingInParam, Integer pageNo, Integer pageSize);
 
     AnswerPatientFillingInAndSubmitPageVo patientSubmitList(String deptId, AnswerPatientSubmitParam answerPatientSubmitParam, Integer pageNo, Integer pageSize);
 

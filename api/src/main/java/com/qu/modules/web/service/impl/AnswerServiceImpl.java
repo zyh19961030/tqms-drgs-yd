@@ -1,29 +1,14 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.date.*;
-import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.qu.constant.AnswerConstant;
-import com.qu.constant.QuestionConstant;
-import com.qu.modules.web.entity.*;
-import com.qu.modules.web.mapper.AnswerMapper;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.*;
-import com.qu.modules.web.pojo.JsonRootBean;
-import com.qu.modules.web.service.IAnswerService;
-import com.qu.modules.web.service.ISubjectService;
-import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.service.ITbUserService;
-import com.qu.modules.web.vo.*;
-import com.qu.util.HttpClient;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultBetter;
@@ -35,8 +20,54 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.qu.constant.AnswerConstant;
+import com.qu.constant.QuestionConstant;
+import com.qu.modules.web.entity.Answer;
+import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.entity.TbDep;
+import com.qu.modules.web.entity.TbUser;
+import com.qu.modules.web.mapper.AnswerMapper;
+import com.qu.modules.web.mapper.DynamicTableMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.param.AnswerAllDataParam;
+import com.qu.modules.web.param.AnswerListParam;
+import com.qu.modules.web.param.AnswerMiniAppParam;
+import com.qu.modules.web.param.AnswerMonthQuarterYearSubmitParam;
+import com.qu.modules.web.param.AnswerParam;
+import com.qu.modules.web.param.AnswerPatientFillingInParam;
+import com.qu.modules.web.param.AnswerPatientSubmitParam;
+import com.qu.modules.web.param.Answers;
+import com.qu.modules.web.param.SingleDiseaseAnswer;
+import com.qu.modules.web.pojo.JsonRootBean;
+import com.qu.modules.web.service.IAnswerService;
+import com.qu.modules.web.service.ISubjectService;
+import com.qu.modules.web.service.ITbDepService;
+import com.qu.modules.web.service.ITbUserService;
+import com.qu.modules.web.vo.AnswerAllDataVo;
+import com.qu.modules.web.vo.AnswerMonthQuarterYearFillingInAndSubmitPageVo;
+import com.qu.modules.web.vo.AnswerMonthQuarterYearFillingInAndSubmitVo;
+import com.qu.modules.web.vo.AnswerPageVo;
+import com.qu.modules.web.vo.AnswerPatientFillingInAndSubmitPageVo;
+import com.qu.modules.web.vo.AnswerPatientFillingInAndSubmitVo;
+import com.qu.modules.web.vo.AnswerVo;
+import com.qu.modules.web.vo.SubjectVo;
+import com.qu.util.HttpClient;
+
+import cn.hutool.core.date.CalendarUtil;
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -216,99 +247,98 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         }
         //插入子表
         StringBuffer sqlAns = new StringBuffer();
-        //        Question question = questionMapper.selectById(answerParam.getQuId());
-        if (question != null) {
-            if (insertOrUpdate) {
-                sqlAns.append("update `" + question.getTableName() + "` set ");
-                //                List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
-                List<Qsubject> subjectList = subjectService.selectSubjectByQuId(answerParam.getQuId());
-                for (int i = 0; i < subjectList.size(); i++) {
-                    Qsubject qsubjectDynamicTable = subjectList.get(i);
-                    String subType = qsubjectDynamicTable.getSubType();
-                    Integer del = qsubjectDynamicTable.getDel();
-                    if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
-                            || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null
-                            || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
-                        continue;
-                    }
-                    sqlAns.append("`");
-                    sqlAns.append(qsubjectDynamicTable.getColumnName());
-                    sqlAns.append("`");
-                    sqlAns.append("=");
-                    sqlAns.append("'");
-                    sqlAns.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
-                    sqlAns.append("'");
-                    sqlAns.append(",");
+//        Question question = questionMapper.selectById(answerParam.getQuId());
+        if (insertOrUpdate) {
+            sqlAns.append("update `").append(question.getTableName()).append("` set ");
+            //                List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
+            List<Qsubject> subjectList = subjectService.selectSubjectByQuId(answerParam.getQuId());
+            for (int i = 0; i < subjectList.size(); i++) {
+                Qsubject qsubjectDynamicTable = subjectList.get(i);
+                String subType = qsubjectDynamicTable.getSubType();
+                Integer del = qsubjectDynamicTable.getDel();
+                if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                        || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null
+                        || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
+                    continue;
                 }
-                sqlAns.append("`tbksmc`='");
-                sqlAns.append(creater_deptname);
-                sqlAns.append("',");
-                sqlAns.append("`tbksdm`='");
-                sqlAns.append(creater_deptid);
+                sqlAns.append("`");
+                sqlAns.append(qsubjectDynamicTable.getColumnName());
+                sqlAns.append("`");
+                sqlAns.append("=");
                 sqlAns.append("'");
-                //                    sqlAns.delete(sqlAns.length()-1,sqlAns.length());
-                sqlAns.append(" where summary_mapping_table_id = '");
-                sqlAns.append(answer.getSummaryMappingTableId());
+                sqlAns.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
                 sqlAns.append("'");
-                log.info("-----update sqlAns:{}", sqlAns.toString());
-                dynamicTableMapper.updateDynamicTable(sqlAns.toString());
-            }else{
-                sqlAns.append("insert into `" + question.getTableName() + "` (");
-
-                //                List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
-                List<Qsubject> subjectList = subjectService.selectSubjectByQuId(answerParam.getQuId());
-                for (int i = 0; i < subjectList.size(); i++) {
-                    Qsubject qsubjectDynamicTable = subjectList.get(i);
-                    String subType = qsubjectDynamicTable.getSubType();
-                    Integer del = qsubjectDynamicTable.getDel();
-                    if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
-                            || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null
-                            || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
-                        continue;
-                    }
-
-                    Qsubject qsubject = subjectList.get(i);
-                    sqlAns.append("`");
-                    sqlAns.append(qsubject.getColumnName());
-                    sqlAns.append("`");
-                    sqlAns.append(",");
-                }
-                sqlAns.append("`tbksmc`,");
-                sqlAns.append("`tbksdm`,");
-                sqlAns.append("`summary_mapping_table_id`");
-                //                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
-                sqlAns.append(") values (");
-                for (int i = 0; i < subjectList.size(); i++) {
-                    Qsubject qsubjectDynamicTable = subjectList.get(i);
-                    String subType = qsubjectDynamicTable.getSubType();
-                    Integer del = qsubjectDynamicTable.getDel();
-                    if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
-                            || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null
-                            || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
-                        continue;
-                    }
-                    sqlAns.append("'");
-                    sqlAns.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
-                    sqlAns.append("',");
-                }
-                sqlAns.append("'");
-                sqlAns.append(creater_deptname);
-                sqlAns.append("',");
-
-                sqlAns.append("'");
-                sqlAns.append(creater_deptid);
-                sqlAns.append("',");
-
-                sqlAns.append("'");
-                sqlAns.append(answer.getSummaryMappingTableId());
-                sqlAns.append("'");
-                //                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
-
-                sqlAns.append(")");
-                log.info("-----insert sqlAns:{}", sqlAns.toString());
-                dynamicTableMapper.insertDynamicTable(sqlAns.toString());
+                sqlAns.append(",");
             }
+            sqlAns.append("`tbksmc`='");
+            sqlAns.append(creater_deptname);
+            sqlAns.append("',");
+            sqlAns.append("`tbksdm`='");
+            sqlAns.append(creater_deptid);
+            sqlAns.append("'");
+            //                    sqlAns.delete(sqlAns.length()-1,sqlAns.length());
+            sqlAns.append(" where summary_mapping_table_id = '");
+            sqlAns.append(answer.getSummaryMappingTableId());
+            sqlAns.append("'");
+            log.info("-----update sqlAns:{}", sqlAns.toString());
+            dynamicTableMapper.updateDynamicTable(sqlAns.toString());
+        }else{
+            sqlAns.append("insert into `").append(question.getTableName()).append("` (");
+
+            //                List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(answerParam.getQuId());
+            List<Qsubject> subjectList = subjectService.selectSubjectByQuId(answerParam.getQuId());
+            for (int i = 0; i < subjectList.size(); i++) {
+                Qsubject qsubjectDynamicTable = subjectList.get(i);
+                String subType = qsubjectDynamicTable.getSubType();
+                Integer del = qsubjectDynamicTable.getDel();
+                if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                        || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null
+                        || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
+                    continue;
+                }
+
+                Qsubject qsubject = subjectList.get(i);
+                sqlAns.append("`");
+                sqlAns.append(qsubject.getColumnName());
+                sqlAns.append("`");
+                sqlAns.append(",");
+            }
+            sqlAns.append("`tbksmc`,");
+            sqlAns.append("`tbksdm`,");
+            sqlAns.append("`summary_mapping_table_id`");
+            //                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
+            sqlAns.append(") values (");
+            for (int i = 0; i < subjectList.size(); i++) {
+                Qsubject qsubjectDynamicTable = subjectList.get(i);
+                String subType = qsubjectDynamicTable.getSubType();
+                Integer del = qsubjectDynamicTable.getDel();
+                if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                        || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null
+                        || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
+                    continue;
+                }
+                sqlAns.append("'");
+                sqlAns.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
+                sqlAns.append("',");
+            }
+            sqlAns.append("'");
+            sqlAns.append(creater_deptname);
+            sqlAns.append("',");
+
+            sqlAns.append("'");
+            sqlAns.append(creater_deptid);
+            sqlAns.append("',");
+
+            sqlAns.append("'");
+            sqlAns.append(answer.getSummaryMappingTableId());
+            sqlAns.append("'");
+            //                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
+
+            sqlAns.append(")");
+            log.info("-----insert sqlAns:{}", sqlAns.toString());
+            dynamicTableMapper.insertDynamicTable(sqlAns.toString());
         }
+
         return ResultFactory.success();
     }
 
@@ -384,14 +414,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
     }
 
     @Override
-    public AnswerPatientFillingInAndSubmitPageVo patientFillingInList(String deptId, Integer pageNo, Integer pageSize) {
-        Page<Answer> page = new Page<>(pageNo, pageSize);
-        LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
-        lambda.like(Answer::getCreaterDeptid,deptId);
-        lambda.eq(Answer::getAnswerStatus,AnswerConstant.ANSWER_STATUS_DRAFT);
-        lambda.eq(Answer::getDel,AnswerConstant.DEL_NORMAL);
-        lambda.orderByDesc(Answer::getUpdateTime);
-
+    public AnswerPatientFillingInAndSubmitPageVo patientFillingInList(String deptId,AnswerPatientFillingInParam answerPatientFillingInParam, Integer pageNo, Integer pageSize) {
         LambdaQueryWrapper<Question> questionLambdaQueryWrapper = getQuestionLambda();
         questionLambdaQueryWrapper.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_REGISTER);
         questionLambdaQueryWrapper.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_PATIENT_WRITE);
@@ -401,8 +424,33 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
             res.setTotal(0);
             return res;
         }
+
+        Page<Answer> page = new Page<>(pageNo, pageSize);
+        LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
+        lambda.orderByDesc(Answer::getUpdateTime);
+        lambda.like(Answer::getCreaterDeptid,deptId);
+        lambda.eq(Answer::getAnswerStatus,AnswerConstant.ANSWER_STATUS_DRAFT);
+        lambda.eq(Answer::getDel,AnswerConstant.DEL_NORMAL);
         List<Integer> questionIdList = questions.stream().map(Question::getId).distinct().collect(Collectors.toList());
         lambda.in(Answer::getQuId,questionIdList);
+        if(StringUtils.isNotBlank(answerPatientFillingInParam.getPatientName())){
+            lambda.like(Answer::getPatientName,answerPatientFillingInParam.getPatientName());
+        }
+        if (StringUtils.isNotBlank(answerPatientFillingInParam.getHospitalInNo())) {
+            lambda.like(Answer::getHospitalInNo, answerPatientFillingInParam.getHospitalInNo());
+        }
+        if (answerPatientFillingInParam.getInHospitalStartDate() != null) {
+            lambda.ge(Answer::getInTime, answerPatientFillingInParam.getInHospitalStartDate());
+        }
+        if (answerPatientFillingInParam.getInHospitalEndDate() != null) {
+            lambda.le(Answer::getInTime, answerPatientFillingInParam.getInHospitalEndDate());
+        }
+        if (answerPatientFillingInParam.getOutHospitalStartDate() != null) {
+            lambda.ge(Answer::getOutTime, answerPatientFillingInParam.getOutHospitalStartDate());
+        }
+        if (answerPatientFillingInParam.getOutHospitalEndDate() != null) {
+            lambda.le(Answer::getOutTime, answerPatientFillingInParam.getOutHospitalEndDate());
+        }
         return getAnswerPatientFillingInAndSubmitPageVo(page, lambda);
     }
 
@@ -415,6 +463,19 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
 
     @Override
     public AnswerPatientFillingInAndSubmitPageVo patientSubmitList(String deptId, AnswerPatientSubmitParam answerPatientSubmitParam, Integer pageNo, Integer pageSize) {
+        LambdaQueryWrapper<Question> questionLambdaQueryWrapper = getQuestionLambda();
+        questionLambdaQueryWrapper.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_REGISTER);
+        questionLambdaQueryWrapper.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_PATIENT_WRITE);
+        if(StringUtils.isNotBlank(answerPatientSubmitParam.getQuName())){
+            questionLambdaQueryWrapper.like(Question::getQuName,answerPatientSubmitParam.getQuName());
+        }
+        List<Question> questions = questionMapper.selectList(questionLambdaQueryWrapper);
+        if(questions.isEmpty()){
+            AnswerPatientFillingInAndSubmitPageVo res = new AnswerPatientFillingInAndSubmitPageVo();
+            res.setTotal(0);
+            return res;
+        }
+
         Page<Answer> page = new Page<>(pageNo, pageSize);
         LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
         //院领导和质控办放开查询的权限
@@ -428,18 +489,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         if(StringUtils.isNotBlank(answerPatientSubmitParam.getPatientName())){
             lambda.like(Answer::getPatientName,answerPatientSubmitParam.getPatientName());
         }
-        LambdaQueryWrapper<Question> questionLambdaQueryWrapper = getQuestionLambda();
-        questionLambdaQueryWrapper.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_REGISTER);
-        questionLambdaQueryWrapper.eq(Question::getWriteFrequency,QuestionConstant.WRITE_FREQUENCY_PATIENT_WRITE);
-        if(StringUtils.isNotBlank(answerPatientSubmitParam.getQuName())){
-            questionLambdaQueryWrapper.like(Question::getQuName,answerPatientSubmitParam.getQuName());
-        }
-        List<Question> questions = questionMapper.selectList(questionLambdaQueryWrapper);
-        if(questions.isEmpty()){
-            AnswerPatientFillingInAndSubmitPageVo res = new AnswerPatientFillingInAndSubmitPageVo();
-            res.setTotal(0);
-            return res;
-        }
+
         List<Integer> questionIdList = questions.stream().map(Question::getId).distinct().collect(Collectors.toList());
         lambda.in(Answer::getQuId,questionIdList);
 
