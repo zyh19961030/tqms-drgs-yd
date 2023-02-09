@@ -232,6 +232,13 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
             answer.setInTime(dateInTime);
         }
 
+        if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_OUT_TIME)
+                && mapCache.get(AnswerConstant.COLUMN_NAME_OUT_TIME)!=null){
+            String dateOutTimeString = mapCache.get(AnswerConstant.COLUMN_NAME_OUT_TIME);
+            Date dateInTime = DateUtil.parse(dateOutTimeString).toJdkDate();
+            answer.setOutTime(dateInTime);
+        }
+
         boolean insertOrUpdate = answer.getId() != null && answer.getId() != 0;
         if (insertOrUpdate) {
             answer.setUpdateTime(date);

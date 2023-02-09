@@ -19,6 +19,7 @@ public class AnswerConstant {
     public static final String COLUMN_NAME_AGE = "AGE";
     public static final String COLUMN_NAME_AGE_LOWER_CASE = "age";
     public static final String COLUMN_NAME_IN_TIME = "INTIME";
+    public static final String COLUMN_NAME_OUT_TIME = "OUTTIME";
 
 
 
