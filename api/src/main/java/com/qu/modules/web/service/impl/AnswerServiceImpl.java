@@ -3,7 +3,6 @@ package com.qu.modules.web.service.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.*;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -352,9 +351,8 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
             }
 
             AnswerMarkDto dto = new AnswerMarkDto();
-            dto.setQu_id(question.getId());
-
-            dto.setSub_id(qsubject.getId());
+            dto.setQuestion(question.getTableName());
+            dto.setQsubject(qsubject.getColumnName());
             dto.setCase_id(answer.getHospitalInNo());
             if(StringUtils.isBlank(value) && StringUtils.isNotBlank(newValue)){
                 //痕迹
@@ -383,7 +381,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
                 responseEntity = HttpTools.post(writeMetabaseUrl, data);
                 if (responseEntity.isOk()) {
                     log.info("sync WRITE_METABASE success.{}", responseEntity);
-                    JSONObject jsonObject = JSON.parseObject(responseEntity.getContent());
+//                    JSONObject jsonObject = JSON.parseObject(responseEntity.getContent());
                 } else {
                     log.info("sync WRITE_METABASE fail.{}", responseEntity);
                 }
