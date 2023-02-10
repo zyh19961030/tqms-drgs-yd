@@ -777,12 +777,17 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         for (Question question : questionList) {
             QuestionAndCategoryVo questionAndCategoryVo = new QuestionAndCategoryVo();
             BeanUtils.copyProperties(question,questionAndCategoryVo);
-            String categoryId = questionAndCategoryVo.getCategoryId();
-            if (StringUtils.isNotBlank(categoryId)) {
-                if(QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE.equals(questionAndCategoryVo.getCategoryType())){
-                    questionAndCategoryVo.setCategoryName(quotaCategoryMap.get(Long.parseLong(categoryId)));
-                }else if(QuestionConstant.CATEGORY_TYPE_CHECK.equals(questionAndCategoryVo.getCategoryType())){
-                    questionAndCategoryVo.setCategoryName(dataMap.get(categoryId));
+            Integer categoryType = questionAndCategoryVo.getCategoryType();
+            if(QuestionConstant.CATEGORY_TYPE_REGISTER.equals(categoryType)){
+                questionAndCategoryVo.setCategoryName("登记表");
+            }else{
+                String categoryId = questionAndCategoryVo.getCategoryId();
+                if (StringUtils.isNotBlank(categoryId)) {
+                    if(QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE.equals(categoryType)){
+                        questionAndCategoryVo.setCategoryName(quotaCategoryMap.get(Long.parseLong(categoryId)));
+                    }else if(QuestionConstant.CATEGORY_TYPE_CHECK.equals(categoryType)){
+                        questionAndCategoryVo.setCategoryName(dataMap.get(categoryId));
+                    }
                 }
             }
             resList.add(questionAndCategoryVo);
