@@ -344,6 +344,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             BeanUtils.copyProperties(questionVersion, questionVo);
             questionVo.setId(questionVersion.getQuId());
             questionVo.setQuestionVersion(question.getQuestionVersion());
+            questionVo.setCategoryType(question.getCategoryType());
+            questionVo.setCategoryId(question.getCategoryId());
+            questionVo.setWriteFrequency(question.getWriteFrequency());
             questionVo.setQuestionVersionData(answerQuestionVersionNumber);
 
             String questionVersionId = questionVersion.getId();
