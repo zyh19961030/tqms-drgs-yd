@@ -1,14 +1,12 @@
 package com.qu.modules.web.param;
 
-import java.util.Date;
-
-import org.springframework.format.annotation.DateTimeFormat;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 @Data
 @ApiModel(value="AnswerCheckParam入参", description="AnswerCheckParam入参")
@@ -29,5 +27,8 @@ public class AnswerCheckListParam {
 
     @ApiModelProperty(value = "被检查科室id")
     private String deptId;
+
+    @ApiModelProperty(value = "当前用户登录科室id")
+    private String userDeptId;
 
 }

@@ -48,9 +48,9 @@ public class Question {
 	@Excel(name = "0:正常1:已停用", width = 15)
 	@ApiModelProperty(value = "0:正常1:已停用")
 	private java.lang.Integer quStop;
-	/**科室编辑权限，科室id逗号分割*/
-	@Excel(name = "科室编辑权限，科室id逗号分割", width = 15)
-    @ApiModelProperty(value = "科室编辑权限，科室id逗号分割")
+	/**科室编辑(填报)权限，科室id逗号分割*/
+	@Excel(name = "科室编辑(填报)权限，科室id逗号分割", width = 15)
+    @ApiModelProperty(value = "科室编辑(填报)权限，科室id逗号分割")
 	private java.lang.String deptIds;
 	/**科室查看权限，科室id逗号分割*/
 	@Excel(name = "科室查看权限，科室id逗号分割", width = 15)
