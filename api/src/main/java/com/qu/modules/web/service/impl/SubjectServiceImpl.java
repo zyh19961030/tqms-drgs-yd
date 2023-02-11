@@ -1,19 +1,5 @@
 package com.qu.modules.web.service.impl;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -26,25 +12,24 @@ import com.qu.modules.web.entity.Qoption;
 import com.qu.modules.web.entity.Qsubject;
 import com.qu.modules.web.mapper.OptionMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.param.InsertSubjectParam;
-import com.qu.modules.web.param.LogicParam;
-import com.qu.modules.web.param.QoptionParam;
-import com.qu.modules.web.param.SpecialLogicParam;
-import com.qu.modules.web.param.StatisticsCheckTableParam;
-import com.qu.modules.web.param.SubjectEditParam;
-import com.qu.modules.web.param.SubjectLogicParam;
-import com.qu.modules.web.param.SubjectParam;
-import com.qu.modules.web.param.SubjectQuantityStatisticsParam;
-import com.qu.modules.web.param.SubjectSpecialLogicParam;
-import com.qu.modules.web.param.UpdateOrderNumParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.TbUser;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.QsubjectIdAndNameVo;
 import com.qu.modules.web.vo.StatisticsCheckTableSubjectVo;
 import com.qu.modules.web.vo.SubjectVo;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 题目表
@@ -56,10 +41,10 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> implements ISubjectService {
 
-    @Autowired
+    @Resource
     private QsubjectMapper qsubjectMapper;
 
-    @Autowired
+    @Resource
     private OptionMapper optionMapper;
 
     @Lazy
@@ -398,15 +383,17 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
     public Boolean removeSubjectById(Integer id, TbUser tbUser) {
         Boolean delFlag = true;
         try {
+            Qsubject subject = this.getById(id);
+            if(subject==null){
+                return false;
+            }
             String userId = tbUser.getId();
-            Qsubject subject = new Qsubject();
-            subject.setId(id);
             subject.setDel(QsubjectConstant.DEL_DELETED);
             subject.setUpdater(userId);
             subject.setUpdateTime(new Date());
             qsubjectMapper.updateById(subject);
             //如果此题在分组中，删除分组题中的groupIds
-            Qsubject groupQsubject = qsubjectMapper.selectIdByGroupIdsLike(id);
+            Qsubject groupQsubject = qsubjectMapper.selectIdByGroupIdsLike(id,subject.getQuId());
             if (groupQsubject != null) {
                 Integer groupSubId = groupQsubject.getId();
                 String groupIds = groupQsubject.getGroupIds();
@@ -445,7 +432,7 @@ public class SubjectServiceImpl extends ServiceImpl<QsubjectMapper, Qsubject> im
             //把分组的groupIds字段调换顺序
             int ida = qsubjecta.getId();
             int idb = qsubjectb.getId();
-            Qsubject groupQsubject = qsubjectMapper.selectIdByGroupIdsLike(ida);
+            Qsubject groupQsubject = qsubjectMapper.selectIdByGroupIdsLike(ida, qsubjecta.getQuId());
             if (groupQsubject != null) {
                 Integer groupSubId = groupQsubject.getId();
                 String groupIds = groupQsubject.getGroupIds();

@@ -1,43 +1,26 @@
 package com.qu.modules.web.controller;
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.jeecg.common.aspect.annotation.AutoLog;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.qu.constant.Constant;
 import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.param.InsertSubjectParam;
-import com.qu.modules.web.param.StatisticsCheckTableParam;
-import com.qu.modules.web.param.SubjectEditParam;
-import com.qu.modules.web.param.SubjectLogicParam;
-import com.qu.modules.web.param.SubjectParam;
-import com.qu.modules.web.param.SubjectQuantityStatisticsParam;
-import com.qu.modules.web.param.SubjectSpecialLogicParam;
-import com.qu.modules.web.param.UpdateOrderNumParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.QsubjectIdAndNameVo;
 import com.qu.modules.web.vo.StatisticsCheckTableSubjectVo;
 import com.qu.modules.web.vo.SubjectVo;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.aspect.annotation.AutoLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @Description: 题目表
@@ -135,8 +118,12 @@ public class SubjectController {
         Result<Boolean> result = new Result<Boolean>();
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
         Boolean ok = subjectService.removeSubjectById(id,data.getTbUser());
-        result.setResult(ok);
-        result.success("删除成功!");
+        if(ok){
+            result.setResult(true);
+            result.success("删除成功!");
+        }else{
+            result.error500("操作失败");
+        }
         return result;
     }
 

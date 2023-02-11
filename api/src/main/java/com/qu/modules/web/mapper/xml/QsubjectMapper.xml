@@ -11,11 +11,11 @@
     </select>
 
     <select id="selectIdByGroupIdsLike" parameterType="java.lang.Integer" resultType="com.qu.modules.web.entity.Qsubject">
-        select * from qsubject where group_ids like  CONCAT('%',#{subId},'%')  and qu_id = (select qu_id from qsubject where id = #{subId}) limit 1
+        select * from qsubject where group_ids like  CONCAT('%',#{subId},'%')  and qu_id = #{quId} and del = 0 limit 1
     </select>
 
     <select id="selectGroupQsubjectByQuId" parameterType="java.util.Map" resultType="com.qu.modules.web.entity.Qsubject">
-        select * from qsubject where qu_id = #{quId} and sub_type = '8' <![CDATA[ and id <> #{subId} ]]>
+        select * from qsubject where qu_id = #{quId} and sub_type = '8' and del = 0  <![CDATA[ and id <> #{subId} ]]>
     </select>
 
     <select id="selectPersonSubjectByQuId" parameterType="java.lang.Integer" resultType="com.qu.modules.web.entity.Qsubject">
