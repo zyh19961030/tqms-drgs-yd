@@ -1,5 +1,20 @@
 package com.qu.modules.web.service.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -9,23 +24,20 @@ import com.google.common.collect.Maps;
 import com.qu.constant.QoptionConstant;
 import com.qu.constant.QuestionConstant;
 import com.qu.modules.web.dto.SubjectDto;
-import com.qu.modules.web.entity.*;
+import com.qu.modules.web.entity.Qoption;
+import com.qu.modules.web.entity.QoptionTemp;
+import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.entity.QsubjectTemp;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.entity.QuestionTemp;
 import com.qu.modules.web.mapper.QuestionTempMapper;
 import com.qu.modules.web.param.IdParam;
-import com.qu.modules.web.service.*;
-import org.apache.commons.lang3.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import com.qu.modules.web.service.IOptionService;
+import com.qu.modules.web.service.IQoptionTempService;
+import com.qu.modules.web.service.IQsubjectTempService;
+import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.service.IQuestionTempService;
+import com.qu.modules.web.service.ISubjectService;
 
 /**
  * @Description: 问卷临时表
@@ -108,10 +120,10 @@ public class QuestionTempServiceImpl extends ServiceImpl<QuestionTempMapper, Que
             BeanUtils.copyProperties(subjectDto, qsubject);
             qsubject.setId(null);
             qsubject.setQuId(question.getId());
-            qsubject.setJumpLogic(subjectDto.getJumpLogic());
-            qsubject.setSpecialJumpLogic(subjectDto.getSpecialJumpLogic());
-            qsubject.setGroupIds(subjectDto.getGroupIds());
-            qsubject.setChoiceSubjectId(subjectDto.getChoiceSubjectId());
+//            qsubject.setJumpLogic(subjectDto.getJumpLogic());
+//            qsubject.setSpecialJumpLogic(subjectDto.getSpecialJumpLogic());
+//            qsubject.setGroupIds(subjectDto.getGroupIds());
+//            qsubject.setChoiceSubjectId(subjectDto.getChoiceSubjectId());
             subjectService.save(qsubject);
             qsubjectAddList.add(qsubject);
             subjectIdMap.put(subjectDto.getId(),qsubject.getId());
@@ -122,8 +134,8 @@ public class QuestionTempServiceImpl extends ServiceImpl<QuestionTempMapper, Que
                 BeanUtils.copyProperties(qoptionTemp, qoption);
                 qoption.setId(null);
                 qoption.setSubId(qsubject.getId());
-                qoption.setJumpLogic(qoptionTemp.getJumpLogic());
-                qoption.setSpecialJumpLogic(qoptionTemp.getSpecialJumpLogic());
+//                qoption.setJumpLogic(qoptionTemp.getJumpLogic());
+//                qoption.setSpecialJumpLogic(qoptionTemp.getSpecialJumpLogic());
                 optionAddList.add(qoption);
             }
         }
@@ -149,8 +161,6 @@ public class QuestionTempServiceImpl extends ServiceImpl<QuestionTempMapper, Que
         if(!qsubjectUpdateList.isEmpty()){
             subjectService.updateBatchById(qsubjectUpdateList);
         }
-
-
 
         return Result.ok();
     }
