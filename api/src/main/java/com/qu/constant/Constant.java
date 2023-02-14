@@ -76,6 +76,15 @@ public class Constant {
     //职位id 职能科室干事
     public static final String POSITION_ID_ZNKSZKY = "bdf2b7f482ec482191e5630c2fde8555";
 
+    //职位id 职能科室主任
+    public static final String POSITION_ID_ZNKSZR = "729671ab22da4ddf8a00122c82de91a4";
+
+    //职位id 医技科室主任
+    public static final String POSITION_ID_YJKSZR = "dbad83dbb80b43f89478d328fee2a185";
+
+    //职位id 医技科室护士长
+    public static final String POSITION_ID_YJKSHSZ = "526b8c27193440f89e934c9849643b2b";
+
     //职位id 临床科室主任
     public static final String POSITION_ID_LCKSZR = "55f051452e354a7c92663fe66443e024";
 

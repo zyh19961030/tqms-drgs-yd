@@ -735,7 +735,10 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     public IPage<QuestionCheckVo> checkQuestionList(QuestionCheckParam questionCheckParam, Integer pageNo, Integer pageSize, Data data) {
         String quName = questionCheckParam.getQuName();
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
-        boolean checkPositionFlag = checkPosition(quName, data, lambda);
+        String deptId = data.getDeps().get(0).getId();
+        String positionId = data.getTbUser().getPositionId();
+        String userId = data.getTbUser().getId();
+        boolean checkPositionFlag = checkPosition(quName, deptId,positionId,userId, lambda);
         if(checkPositionFlag){
             return new Page<>();
         }
@@ -845,7 +848,10 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     public List<CheckQuestionParameterSetListVo> checkQuestionParameterSetList(QuestionCheckParam questionCheckParam, Data data) {
         String quName = questionCheckParam.getQuName();
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
-        boolean checkPositionFlag = checkPosition(quName, data, lambda);
+        String deptId = data.getDeps().get(0).getId();
+        String positionId = data.getTbUser().getPositionId();
+        String userId = data.getTbUser().getId();
+        boolean checkPositionFlag = checkPosition(quName, deptId,positionId,userId, lambda);
         if(checkPositionFlag){
             return Lists.newArrayList();
         }
@@ -854,7 +860,6 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             return Lists.newArrayList();
         }
 
-        String deptId = data.getDeps().get(0).getId();
         List<String> questionIds = list.stream().map(q-> String.valueOf(q.getId())).collect(Collectors.toList());
         //查询是否显示 设置统计图形
         List<TbInspectStatsTemplateDep> templateDepList= tbInspectStatsTemplateDepService.selectDeptStatisticsByQuestionIds(deptId,questionIds);
@@ -877,8 +882,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     }
 
-    private boolean checkPosition(String quName, Data data, LambdaQueryWrapper<Question> lambda) {
-        String deptId = data.getDeps().get(0).getId();
+    private boolean checkPosition(String quName, String deptId,String positionId,String userId, LambdaQueryWrapper<Question> lambda) {
         if(StringUtils.isNotBlank(quName)){
             lambda.like(Question::getQuName, quName);
         }
@@ -888,13 +892,11 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         lambda.like(Question::getDeptIds,deptId);
 
         //判断职位
-        String positionId = data.getTbUser().getPositionId();
         if(Constant.POSITION_ID_LCKSZR.equals(positionId)){
             lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YL).or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_YL));
         }else if(Constant.POSITION_ID_LCKSZKY.equals(positionId) ){
             lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YL).or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_YL));
             //分配给自己的查检表
-            String userId = data.getTbUser().getId();
             List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByDeptId(userId, deptId, QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
             if(questionCheckedDeptList.isEmpty()){
                 return  true;
@@ -913,7 +915,6 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_HL)
                     .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YG)
                     .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_HL));
-            String userId = data.getTbUser().getId();
             List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByDeptId(userId, deptId, QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
             if(questionCheckedDeptList.isEmpty()){
                 return  true;
@@ -925,7 +926,6 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             lambda.in(Question::getId,quIdList);
         }else if( Constant.POSITION_ID_ZNKSZKY.equals(positionId) ){
             //分配给自己的查检表
-            String userId = data.getTbUser().getId();
             List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByDeptId(userId, deptId, QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
             if(questionCheckedDeptList.isEmpty()){
                 return  true;
@@ -1615,82 +1615,33 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Override
     public IPage<QuestionMiniAppPageVo> queryPageListByMiniApp(String deptId, String userId, Integer pageNo, Integer pageSize) {
-
-        Page<Question> page = new Page<>(pageNo, pageSize);
-        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
-        lambda.like(Question::getDeptIds,deptId);
-        lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
-        lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
-        lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
-        //userId 暂时兼容
-        if(StringUtils.isNotBlank(userId)){
-            com.qu.modules.web.entity.TbUser tbUser = tbUserService.getById(userId);
-            if(org.apache.commons.lang.StringUtils.isBlank(userId)  || tbUser==null){
+        com.qu.modules.web.entity.TbUser tbUser = tbUserService.getById(userId);
+        if(org.apache.commons.lang.StringUtils.isBlank(userId)  || tbUser==null){
+            return new Page<>();
+        }
+        String positionId = null;
+        if(deptId.equals(tbUser.getDepid())){
+            positionId = tbUser.getPositionid();
+        }else{
+            //查询辅助科室
+            TbUserAuxiliaryDep auxiliaryDep = tbUserAuxiliaryDepService.selectByUserIdAndDepId(userId,deptId);
+            if(auxiliaryDep==null){
                 return new Page<>();
             }
-            String positionId = null;
-            if(deptId.equals(tbUser.getDepid())){
-                positionId = tbUser.getRoleid();
-            }else{
-                //查询辅助科室
-                TbUserAuxiliaryDep auxiliaryDep = tbUserAuxiliaryDepService.selectByUserIdAndDepId(userId,deptId);
-                if(auxiliaryDep==null){
-                    return new Page<>();
-                }
-                positionId = auxiliaryDep.getPositionId();
-            }
-            //判断职位
-            if(Constant.POSITION_ID_LCKSZR.equals(positionId)){
-                lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YL).or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_YL));
-            }else if(Constant.POSITION_ID_LCKSZKY.equals(positionId) ){
-                lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YL).or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_YL));
-                //分配给自己的查检表
-                List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByDeptId(userId, deptId, QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
-                if(questionCheckedDeptList.isEmpty()){
-                    return new Page<>();
-                }
-                List<Integer> quIdList = questionCheckedDeptList.stream().map(QuestionCheckedDept::getQuId).distinct().collect(Collectors.toList());
-                if(quIdList.isEmpty()){
-                    return new Page<>();
-                }
-                lambda.in(Question::getId,quIdList);
-            }else if(Constant.POSITION_ID_LCKHSZ.equals(positionId)){
-                lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_HL)
-                        .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YG)
-                        .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_HL));
-            }else if( Constant.POSITION_ID_LCKSZKYHL.equals(positionId) ){
-                //分配给自己的查检表
-                lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_HL)
-                        .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YG)
-                        .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_HL));
-                List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByDeptId(userId, deptId, QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
-                if(questionCheckedDeptList.isEmpty()){
-                    return new Page<>();
-                }
-                List<Integer> quIdList = questionCheckedDeptList.stream().map(QuestionCheckedDept::getQuId).distinct().collect(Collectors.toList());
-                if(quIdList.isEmpty()){
-                    return new Page<>();
-                }
-                lambda.in(Question::getId,quIdList);
-            }else if( Constant.POSITION_ID_ZNKSZKY.equals(positionId) ){
-                //分配给自己的查检表
-                List<QuestionCheckedDept> questionCheckedDeptList = questionCheckedDeptService.selectCheckedDeptByDeptId(userId, deptId, QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
-                if(questionCheckedDeptList.isEmpty()){
-                    return new Page<>();
-                }
-                List<Integer> quIdList = questionCheckedDeptList.stream().map(QuestionCheckedDept::getQuId).distinct().collect(Collectors.toList());
-                if(quIdList.isEmpty()){
-                    return new Page<>();
-                }
-                lambda.in(Question::getId,quIdList);
-            }
+            positionId = auxiliaryDep.getPositionId();
         }
-
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        boolean checkPositionFlag = checkPosition(null, deptId,positionId,userId, lambda);
+        if(checkPositionFlag){
+            return new Page<>();
+        }
+        Page<Question> page = new Page<>(pageNo, pageSize);
         IPage<Question> questionIPage = this.page(page, lambda);
         List<Question> records = questionIPage.getRecords();
         if(records.isEmpty()){
             return new Page<>();
         }
+
         List<QuestionMiniAppPageVo> resList = records.stream().map(r -> {
             QuestionMiniAppPageVo vo = new QuestionMiniAppPageVo();
             BeanUtils.copyProperties(r, vo);
