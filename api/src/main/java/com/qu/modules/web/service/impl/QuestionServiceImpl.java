@@ -735,9 +735,11 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     public IPage<QuestionCheckVo> checkQuestionList(QuestionCheckParam questionCheckParam, Integer pageNo, Integer pageSize, Data data) {
         String quName = questionCheckParam.getQuName();
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
-        String deptId = data.getDeps().get(0).getId();
+//        String deptId = data.getDeps().get(0).getId();
+        String deptId = data.getTbUser().getDepId();
         String positionId = data.getTbUser().getPositionId();
         String userId = data.getTbUser().getId();
+        lambda.like(Question::getDeptIds,deptId);
         boolean checkPositionFlag = checkPosition(quName, deptId,positionId,userId, lambda);
         if(checkPositionFlag){
             return new Page<>();
@@ -787,24 +789,15 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Override
     public List<CheckQuestionHistoryStatisticVo> checkQuestionHistoryStatisticList(QuestionCheckParam questionCheckParam, Data data) {
-        String deptId = data.getDeps().get(0).getId();
+        String deptId = data.getTbUser().getDepId();
+        String positionId = data.getTbUser().getPositionId();
+        String userId = data.getTbUser().getId();
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
-        lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
-        lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
-        lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
         lambda.like(Question::getSeeDeptIds,deptId);
-        String quName = questionCheckParam.getQuName();
-        if(StringUtils.isNotBlank(quName)){
-            lambda.like(Question::getQuName, quName);
-        }
-        //判断角色
-        String roleId = data.getRole().getRoleId();
-        if(Constant.ROLE_ID_LCKS_ZR.equals(roleId) || Constant.ROLE_ID_LCKS_YL_ZKY.equals(roleId) ){
-            lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YL).or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_YL));
-        }else if(Constant.ROLE_ID_LCKS_HSZ.equals(roleId) || Constant.ROLE_ID_LCKS_HL_ZKY.equals(roleId) ){
-            lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_HL)
-                    .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YG)
-                    .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_HL));
+//        lambda.like(Question::getDeptIds,deptId);
+        boolean checkPositionFlag = checkPosition(questionCheckParam.getQuName(), deptId,positionId,userId, lambda);
+        if(checkPositionFlag){
+            return Lists.newArrayList();
         }
 
         List<Question> list = this.list(lambda);
@@ -848,9 +841,11 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     public List<CheckQuestionParameterSetListVo> checkQuestionParameterSetList(QuestionCheckParam questionCheckParam, Data data) {
         String quName = questionCheckParam.getQuName();
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
-        String deptId = data.getDeps().get(0).getId();
+//        String deptId = data.getDeps().get(0).getId();
+        String deptId = data.getTbUser().getDepId();
         String positionId = data.getTbUser().getPositionId();
         String userId = data.getTbUser().getId();
+        lambda.like(Question::getDeptIds,deptId);
         boolean checkPositionFlag = checkPosition(quName, deptId,positionId,userId, lambda);
         if(checkPositionFlag){
             return Lists.newArrayList();
@@ -889,7 +884,6 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
         lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
         lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
-        lambda.like(Question::getDeptIds,deptId);
 
         //判断职位
         if(Constant.POSITION_ID_LCKSZR.equals(positionId)){
@@ -1631,6 +1625,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             positionId = auxiliaryDep.getPositionId();
         }
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        lambda.like(Question::getDeptIds,deptId);
         boolean checkPositionFlag = checkPosition(null, deptId,positionId,userId, lambda);
         if(checkPositionFlag){
             return new Page<>();
