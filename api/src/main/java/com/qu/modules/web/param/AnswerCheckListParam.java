@@ -28,7 +28,7 @@ public class AnswerCheckListParam {
     @ApiModelProperty(value = "被检查科室id")
     private String deptId;
 
-    @ApiModelProperty(value = "当前用户登录科室id")
+    @ApiModelProperty(value = "当前用户登录科室id_小程序专用")
     private String userDeptId;
 
 }

@@ -46,7 +46,8 @@ public class AnswerMiniAppController {
         Result<AnswerCheckPageVo> result = new Result<AnswerCheckPageVo>();
         AnswerCheckListRequest listRequest = new AnswerCheckListRequest();
         BeanUtils.copyProperties(answerCheckListParam,listRequest);
-        listRequest.setUserId(userId);
+//        listRequest.setUserId(userId);
+        listRequest.setCreaterDeptId(answerCheckListParam.getUserDeptId());
         IPage<AnswerCheckVo> answerPageVo = answerCheckService.checkQuestionFillInList(listRequest,pageNo, pageSize, null);
         result.setSuccess(true);
         result.setResult(answerPageVo);

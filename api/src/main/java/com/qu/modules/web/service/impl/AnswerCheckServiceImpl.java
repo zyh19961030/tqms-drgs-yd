@@ -119,6 +119,9 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         if (request != null && StringUtils.isNotBlank(request.getUserId())) {
             lambda.eq(AnswerCheck::getCreater, request.getUserId());
         }
+        if (request != null && StringUtils.isNotBlank(request.getCreaterDeptId())) {
+            lambda.eq(AnswerCheck::getCreaterDeptId, request.getCreaterDeptId());
+        }
         if (request != null && request.getStartDate() != null) {
             lambda.ge(AnswerCheck::getUpdateTime, request.getStartDate());
         }
