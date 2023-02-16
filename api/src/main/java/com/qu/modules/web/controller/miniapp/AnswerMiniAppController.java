@@ -43,11 +43,13 @@ public class AnswerMiniAppController {
                                                              @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                              @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                              HttpServletRequest req) {
+        log.info("检查表问卷_填报记录分页列表-checkQuestionRecordList-answerCheckListParam-------->{}",JSON.toJSONString(answerCheckListParam));
         Result<AnswerCheckPageVo> result = new Result<AnswerCheckPageVo>();
         AnswerCheckListRequest listRequest = new AnswerCheckListRequest();
         BeanUtils.copyProperties(answerCheckListParam,listRequest);
 //        listRequest.setUserId(userId);
         listRequest.setCreaterDeptId(answerCheckListParam.getUserDeptId());
+//        listRequest.setUserDeptId(null);
         IPage<AnswerCheckVo> answerPageVo = answerCheckService.checkQuestionFillInList(listRequest,pageNo, pageSize, null);
         result.setSuccess(true);
         result.setResult(answerPageVo);
@@ -60,6 +62,7 @@ public class AnswerMiniAppController {
                                                               @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                               @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                               HttpServletRequest req) {
+        log.info("登记表_填报记录分页列表-answerQuestionRecordList-answerListParam-------->{}",JSON.toJSONString(answerListParam));
         Result<AnswerMonthQuarterYearFillingInAndSubmitPageVo> result = new Result<AnswerMonthQuarterYearFillingInAndSubmitPageVo>();
         AnswerMonthQuarterYearFillingInAndSubmitPageVo answerPageVo = answerService.answerQuestionFillInAndSubmitList(answerListParam,pageNo, pageSize,userId);
         result.setSuccess(true);
