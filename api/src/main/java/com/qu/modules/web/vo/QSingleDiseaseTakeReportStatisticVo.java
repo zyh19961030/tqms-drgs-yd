@@ -23,21 +23,12 @@ public class QSingleDiseaseTakeReportStatisticVo {
     @ApiModelProperty(value = "病种名称")
     @Excel(name = "病种名称")
     private String disease;
-    /**
-     * 需要上报数
-     */
     @ApiModelProperty(value = "需要上报数")
     @Excel(name = "需要上报数")
     private Integer needReportCount;
-    /**
-     * 已上报数
-     */
     @ApiModelProperty(value = "已上报数")
     @Excel(name = "已上报数")
     private Integer completeReportCount;
-    /**
-     * 未上报数
-     */
     @ApiModelProperty(value = "未上报数")
     @Excel(name = "未上报数")
     private Integer notReportCount;

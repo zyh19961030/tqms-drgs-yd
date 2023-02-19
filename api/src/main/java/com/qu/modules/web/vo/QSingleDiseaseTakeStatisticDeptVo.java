@@ -39,17 +39,31 @@ public class QSingleDiseaseTakeStatisticDeptVo {
     private String completeReportCountryRate;
     @ApiModelProperty(value = "平均住院日")
     private BigDecimal averageInHospitalDay;
+    @ApiModelProperty(value = "总和住院日")
+    private Integer sumInHospitalDay;
     @ApiModelProperty(value = "平均住院费用")
     private BigDecimal averageInHospitalFee;
+    @ApiModelProperty(value = "总和住院费用")
+    private BigDecimal sumInHospitalFee;
     @ApiModelProperty(value = "平均药品费用")
     private BigDecimal averageDrugFee;
+    @ApiModelProperty(value = "总和药品费用")
+    private BigDecimal sumDrugFee;
     @ApiModelProperty(value = "平均手术治疗费")
     private BigDecimal averageOperationTreatmentFee;
+    @ApiModelProperty(value = "总和手术治疗费")
+    private BigDecimal sumOperationTreatmentFee;
     @ApiModelProperty(value = "平均一次性耗材费")
     private BigDecimal averageDisposableConsumable;
+    @ApiModelProperty(value = "总和一次性耗材费")
+    private BigDecimal sumDisposableConsumable;
     @ApiModelProperty(value = "死亡率")
-    private String mortality="0.12%";
+    private String mortality="0.00%";
+    @ApiModelProperty(value = "死亡个数")
+    private Integer mortalityCount;
     @ApiModelProperty(value = "手术并发症发生率")
-    private String operationComplicationRate="0.25%";
+    private String operationComplicationRate="0.00%";
+    @ApiModelProperty(value = "手术并发症个数")
+    private Integer operationComplicationRateCount;
 
 }

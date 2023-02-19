@@ -110,7 +110,8 @@ public class QSingleDiseaseStatisticDeptServiceImpl extends ServiceImpl<QSingleD
 
     private void saveDeptStatistic(Date startDate, Date endDate, List<Question> questionList) {
         Map<String, Object> params = new HashMap<>();
-
+        NumberFormat numberFormat = NumberFormat.getInstance();
+        numberFormat.setMaximumFractionDigits(2);
         for (int i = 0; i < questionList.size(); i++) {
             Question question = questionList.get(i);
             String deptIds = question.getDeptIds();
@@ -137,13 +138,16 @@ public class QSingleDiseaseStatisticDeptServiceImpl extends ServiceImpl<QSingleD
                     continue;
                 }
                 if (singleDiseaseReportStatisticList.isEmpty()) {
-                    QSingleDiseaseTakeStatisticDeptVo qSingleDiseaseTakeStatisticDeptVo = QSingleDiseaseTakeStatisticDeptVo.builder().categoryId(question.getCategoryId()).dynamicTableName(question.getTableName()).disease(question.getQuName())
-                            .tqmsDept(deptId).tqmsDeptName(byId.getDepname()).needReportCount(0).completeReportCount(0).notReportCount(0).completeReportCountryRate("0").averageInHospitalDay(new BigDecimal("0.0000")).averageInHospitalFee(new BigDecimal("0.00"))
-                            .averageDrugFee(new BigDecimal("0.00"))
-                            .averageOperationTreatmentFee(new BigDecimal("0.00"))
-                            .averageDisposableConsumable(new BigDecimal("0.00"))
-                            .mortality("0")
-                            .operationComplicationRate("0").build();
+                    QSingleDiseaseTakeStatisticDeptVo qSingleDiseaseTakeStatisticDeptVo = QSingleDiseaseTakeStatisticDeptVo.builder()
+                            .categoryId(question.getCategoryId()).dynamicTableName(question.getTableName()).disease(question.getQuName())
+                            .tqmsDept(deptId).tqmsDeptName(byId.getDepname()).needReportCount(0).completeReportCount(0).notReportCount(0)
+                            .completeReportCountryRate("0").averageInHospitalDay(new BigDecimal("0.0000")).sumInHospitalDay(0)
+                            .averageInHospitalFee(new BigDecimal("0.00")).sumInHospitalFee(new BigDecimal("0.00"))
+                            .averageDrugFee(new BigDecimal("0.00")).sumDrugFee(new BigDecimal("0.00"))
+                            .averageOperationTreatmentFee(new BigDecimal("0.00")).sumOperationTreatmentFee(new BigDecimal("0.00"))
+                            .averageDisposableConsumable(new BigDecimal("0.00")).sumDisposableConsumable(new BigDecimal("0.00"))
+                            .mortality("0").mortalityCount(0)
+                            .operationComplicationRate("0").operationComplicationRateCount(0).build();
                     singleDiseaseReportStatisticList.add(qSingleDiseaseTakeStatisticDeptVo);
                 } else {
                     for (int index = 0; index < singleDiseaseReportStatisticList.size(); index++) {
@@ -161,30 +165,40 @@ public class QSingleDiseaseStatisticDeptServiceImpl extends ServiceImpl<QSingleD
                         qSingleDiseaseTakeReportStatisticVo.setCompleteReportCount(completeReportCount);
                         qSingleDiseaseTakeReportStatisticVo.setNotReportCount(notReportCount);
 
-                        NumberFormat numberFormat = NumberFormat.getInstance();
-                        numberFormat.setMaximumFractionDigits(2);
                         String completeReportCountryRate = numberFormat.format((float) completeReportCount / (float) needReportCount * 100);
                         qSingleDiseaseTakeReportStatisticVo.setCompleteReportCountryRate(completeReportCountryRate);
 
                         Map<String, Object> map = qSingleDiseaseTakeMapper.countAvgSql(countParams);
                         BigDecimal averageInHospitalDay = (BigDecimal) map.get("averageInHospitalDay");
+                        BigDecimal sumInHospitalDay = (BigDecimal) map.get("sumInHospitalDay");
                         BigDecimal averageInHospitalFee = (BigDecimal) map.get("averageInHospitalFee");
+                        BigDecimal sumInHospitalFee = (BigDecimal) map.get("sumInHospitalFee");
                         BigDecimal averageDrugFee = (BigDecimal) map.get("averageDrugFee");
+                        BigDecimal sumDrugFee = (BigDecimal) map.get("sumDrugFee");
                         BigDecimal averageOperationTreatmentFee = (BigDecimal) map.get("averageOperationTreatmentFee");
+                        BigDecimal sumOperationTreatmentFee = (BigDecimal) map.get("sumOperationTreatmentFee");
                         BigDecimal averageDisposableConsumable = (BigDecimal) map.get("averageDisposableConsumable");
+                        BigDecimal sumDisposableConsumable = (BigDecimal) map.get("sumDisposableConsumable");
                         qSingleDiseaseTakeReportStatisticVo.setAverageInHospitalDay(averageInHospitalDay);
+                        qSingleDiseaseTakeReportStatisticVo.setSumInHospitalDay(sumInHospitalDay.intValue());
                         qSingleDiseaseTakeReportStatisticVo.setAverageInHospitalFee(averageInHospitalFee);
+                        qSingleDiseaseTakeReportStatisticVo.setSumInHospitalFee(sumInHospitalFee);
                         qSingleDiseaseTakeReportStatisticVo.setAverageDrugFee(averageDrugFee);
+                        qSingleDiseaseTakeReportStatisticVo.setSumDrugFee(sumDrugFee);
                         qSingleDiseaseTakeReportStatisticVo.setAverageOperationTreatmentFee(averageOperationTreatmentFee);
+                        qSingleDiseaseTakeReportStatisticVo.setSumOperationTreatmentFee(sumOperationTreatmentFee);
                         qSingleDiseaseTakeReportStatisticVo.setAverageDisposableConsumable(averageDisposableConsumable);
+                        qSingleDiseaseTakeReportStatisticVo.setSumDisposableConsumable(sumDisposableConsumable);
 
                         //查询死亡率和并发症
                         Integer mortalityCount = qSingleDiseaseTakeMapper.countMortalitySql(countParams);
                         String mortalityString = numberFormat.format((float) mortalityCount / (float) needReportCount * 100);
                         qSingleDiseaseTakeReportStatisticVo.setMortality(mortalityString);
+                        qSingleDiseaseTakeReportStatisticVo.setMortalityCount(mortalityCount);
                         Integer operationComplicationCount = qSingleDiseaseTakeMapper.countOperationComplicationSql(countParams);
                         String operationComplicationString = numberFormat.format((float) operationComplicationCount / (float) needReportCount * 100);
                         qSingleDiseaseTakeReportStatisticVo.setOperationComplicationRate(operationComplicationString);
+                        qSingleDiseaseTakeReportStatisticVo.setOperationComplicationRateCount(operationComplicationCount);
 
                         qSingleDiseaseTakeReportStatisticVo.setDisease(question.getQuName());
                         qSingleDiseaseTakeReportStatisticVo.setCategoryId(question.getCategoryId());
@@ -204,9 +218,13 @@ public class QSingleDiseaseStatisticDeptServiceImpl extends ServiceImpl<QSingleD
                 statistic.setSingleDiseaseName(s.getDisease());
                 statistic.setAverageInHospitalDay(s.getAverageInHospitalDay().toPlainString());
                 statistic.setAverageInHospitalFee(s.getAverageInHospitalFee().toPlainString());
+                statistic.setSumInHospitalFee(s.getSumInHospitalFee().toPlainString());
                 statistic.setAverageDrugFee(s.getAverageDrugFee().toPlainString());
+                statistic.setSumDrugFee(s.getSumDrugFee().toPlainString());
                 statistic.setAverageOperationTreatmentFee(s.getAverageOperationTreatmentFee().toPlainString());
+                statistic.setSumOperationTreatmentFee(s.getSumOperationTreatmentFee().toPlainString());
                 statistic.setAverageDisposableConsumable(s.getAverageDisposableConsumable().toPlainString());
+                statistic.setSumDisposableConsumable(s.getSumDisposableConsumable().toPlainString());
                 return statistic;
             }).collect(Collectors.toList());
 
@@ -233,13 +251,14 @@ public class QSingleDiseaseStatisticDeptServiceImpl extends ServiceImpl<QSingleD
             if (singleDiseaseReportStatisticList.isEmpty()) {
                 QSingleDiseaseTakeStatisticDeptVo qSingleDiseaseTakeStatisticDeptVo = QSingleDiseaseTakeStatisticDeptVo.builder()
                         .categoryId(question.getCategoryId()).dynamicTableName(question.getTableName()).disease(question.getQuName())
-                        .needReportCount(0).completeReportCount(0).notReportCount(0).completeReportCountryRate("0")
-                        .averageInHospitalDay(new BigDecimal("0.0000")).averageInHospitalFee(new BigDecimal("0.00"))
-                        .averageDrugFee(new BigDecimal("0.00"))
-                        .averageOperationTreatmentFee(new BigDecimal("0.00"))
-                        .averageDisposableConsumable(new BigDecimal("0.00"))
-                        .mortality("0")
-                        .operationComplicationRate("0").build();
+                        .needReportCount(0).completeReportCount(0).notReportCount(0)
+                        .completeReportCountryRate("0").averageInHospitalDay(new BigDecimal("0.0000")).sumInHospitalDay(0)
+                        .averageInHospitalFee(new BigDecimal("0.00")).sumInHospitalFee(new BigDecimal("0.00"))
+                        .averageDrugFee(new BigDecimal("0.00")).sumDrugFee(new BigDecimal("0.00"))
+                        .averageOperationTreatmentFee(new BigDecimal("0.00")).sumOperationTreatmentFee(new BigDecimal("0.00"))
+                        .averageDisposableConsumable(new BigDecimal("0.00")).sumDisposableConsumable(new BigDecimal("0.00"))
+                        .mortality("0").mortalityCount(0)
+                        .operationComplicationRate("0").operationComplicationRateCount(0).build();
                 singleDiseaseReportStatisticList.add(qSingleDiseaseTakeStatisticDeptVo);
             } else {
                 for (int index = 0; index < singleDiseaseReportStatisticList.size(); index++) {
@@ -262,23 +281,35 @@ public class QSingleDiseaseStatisticDeptServiceImpl extends ServiceImpl<QSingleD
 
                     Map<String, Object> map = qSingleDiseaseTakeMapper.countAvgSql(countParams);
                     BigDecimal averageInHospitalDay = (BigDecimal) map.get("averageInHospitalDay");
+                    BigDecimal sumInHospitalDay = (BigDecimal) map.get("sumInHospitalDay");
                     BigDecimal averageInHospitalFee = (BigDecimal) map.get("averageInHospitalFee");
+                    BigDecimal sumInHospitalFee = (BigDecimal) map.get("sumInHospitalFee");
                     BigDecimal averageDrugFee = (BigDecimal) map.get("averageDrugFee");
+                    BigDecimal sumDrugFee = (BigDecimal) map.get("sumDrugFee");
                     BigDecimal averageOperationTreatmentFee = (BigDecimal) map.get("averageOperationTreatmentFee");
+                    BigDecimal sumOperationTreatmentFee = (BigDecimal) map.get("sumOperationTreatmentFee");
                     BigDecimal averageDisposableConsumable = (BigDecimal) map.get("averageDisposableConsumable");
+                    BigDecimal sumDisposableConsumable = (BigDecimal) map.get("sumDisposableConsumable");
                     qSingleDiseaseTakeReportStatisticVo.setAverageInHospitalDay(averageInHospitalDay);
+                    qSingleDiseaseTakeReportStatisticVo.setSumInHospitalDay(sumInHospitalDay.intValue());
                     qSingleDiseaseTakeReportStatisticVo.setAverageInHospitalFee(averageInHospitalFee);
+                    qSingleDiseaseTakeReportStatisticVo.setSumInHospitalFee(sumInHospitalFee);
                     qSingleDiseaseTakeReportStatisticVo.setAverageDrugFee(averageDrugFee);
+                    qSingleDiseaseTakeReportStatisticVo.setSumDrugFee(sumDrugFee);
                     qSingleDiseaseTakeReportStatisticVo.setAverageOperationTreatmentFee(averageOperationTreatmentFee);
+                    qSingleDiseaseTakeReportStatisticVo.setSumOperationTreatmentFee(sumOperationTreatmentFee);
                     qSingleDiseaseTakeReportStatisticVo.setAverageDisposableConsumable(averageDisposableConsumable);
+                    qSingleDiseaseTakeReportStatisticVo.setSumDisposableConsumable(sumDisposableConsumable);
 
                     //查询死亡率和并发症
                     Integer mortalityCount = qSingleDiseaseTakeMapper.countMortalitySql(countParams);
                     String mortalityString = numberFormat.format((float) mortalityCount / (float) needReportCount * 100);
                     qSingleDiseaseTakeReportStatisticVo.setMortality(mortalityString);
+                    qSingleDiseaseTakeReportStatisticVo.setMortalityCount(mortalityCount);
                     Integer operationComplicationCount = qSingleDiseaseTakeMapper.countOperationComplicationSql(countParams);
                     String operationComplicationString = numberFormat.format((float) operationComplicationCount / (float) needReportCount * 100);
                     qSingleDiseaseTakeReportStatisticVo.setOperationComplicationRate(operationComplicationString);
+                    qSingleDiseaseTakeReportStatisticVo.setOperationComplicationRateCount(operationComplicationCount);
 
                     qSingleDiseaseTakeReportStatisticVo.setDisease(question.getQuName());
                     qSingleDiseaseTakeReportStatisticVo.setCategoryId(question.getCategoryId());
@@ -298,9 +329,13 @@ public class QSingleDiseaseStatisticDeptServiceImpl extends ServiceImpl<QSingleD
                 statistic.setSingleDiseaseName(s.getDisease());
                 statistic.setAverageInHospitalDay(s.getAverageInHospitalDay().toPlainString());
                 statistic.setAverageInHospitalFee(s.getAverageInHospitalFee().toPlainString());
+                statistic.setSumInHospitalFee(s.getSumInHospitalFee().toPlainString());
                 statistic.setAverageDrugFee(s.getAverageDrugFee().toPlainString());
+                statistic.setSumDrugFee(s.getSumDrugFee().toPlainString());
                 statistic.setAverageOperationTreatmentFee(s.getAverageOperationTreatmentFee().toPlainString());
+                statistic.setSumOperationTreatmentFee(s.getSumOperationTreatmentFee().toPlainString());
                 statistic.setAverageDisposableConsumable(s.getAverageDisposableConsumable().toPlainString());
+                statistic.setSumDisposableConsumable(s.getSumDisposableConsumable().toPlainString());
                 return statistic;
             }).collect(Collectors.toList());
 

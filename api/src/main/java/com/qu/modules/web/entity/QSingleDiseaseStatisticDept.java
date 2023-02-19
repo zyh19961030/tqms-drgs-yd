@@ -11,7 +11,7 @@ import lombok.experimental.Accessors;
 import org.jeecgframework.poi.excel.annotation.Excel;
 
 /**
- * @Description: 单病种统计表
+ * @Description: 单病种统计科级表
  * @Author: jeecg-boot
  * @Date:   2022-04-15
  * @Version: V1.0
@@ -35,21 +35,21 @@ public class QSingleDiseaseStatisticDept {
 	@Excel(name = "月份", width = 15)
 	@ApiModelProperty(value = "月份")
 	private java.lang.Integer month;
+	/**年月格式 yyyy-MM*/
+	@Excel(name = "年月格式 yyyy-MM", width = 15)
+    @ApiModelProperty(value = "年月格式 yyyy-MM")
+	private java.lang.String yearMonthRemark;
 	/**年月格式 yyyy年MM月*/
 	@Excel(name = "年月格式 yyyy年MM月", width = 15)
-	@ApiModelProperty(value = "年月格式 yyyy年MM月")
+    @ApiModelProperty(value = "年月格式 yyyy年MM月")
 	private java.lang.String yearMonthTitle;
-	/**年月格式 yyyyMM*/
-	@Excel(name = "年月格式 yyyyMM", width = 15)
-	@ApiModelProperty(value = "年月格式 yyyyMM")
-	private java.lang.String yearMonthRemark;
 	/**分类id*/
 	@Excel(name = "分类id", width = 15)
-	@ApiModelProperty(value = "分类id")
+    @ApiModelProperty(value = "分类id")
 	private java.lang.String categoryId;
 	/**单病种名称*/
 	@Excel(name = "单病种名称", width = 15)
-	@ApiModelProperty(value = "单病种名称")
+    @ApiModelProperty(value = "单病种名称")
 	private java.lang.String singleDiseaseName;
 	/**动态创建表的表名*/
 	@Excel(name = "动态创建表的表名", width = 15)
@@ -83,34 +83,62 @@ public class QSingleDiseaseStatisticDept {
 	@Excel(name = "平均住院天数 字符串 可以带小数", width = 15)
 	@ApiModelProperty(value = "平均住院天数 字符串 可以带小数")
 	private java.lang.String averageInHospitalDay;
+	/**总和住院天数*/
+	@Excel(name = "总和住院天数", width = 15)
+    @ApiModelProperty(value = "总和住院天数")
+	private java.lang.Integer sumInHospitalDay;
 	/**平均住院费用 字符串 可以带小数*/
 	@Excel(name = "平均住院费用 字符串 可以带小数", width = 15)
-	@ApiModelProperty(value = "平均住院费用 字符串 可以带小数")
+    @ApiModelProperty(value = "平均住院费用 字符串 可以带小数")
 	private java.lang.String averageInHospitalFee;
-	/**手术并发症发生率*/
-	@Excel(name = "手术并发症发生率", width = 15)
-	@ApiModelProperty(value = "手术并发症发生率")
-	private java.lang.String operationComplicationRate;
-	/**死亡率*/
-	@Excel(name = "死亡率", width = 15)
-	@ApiModelProperty(value = "死亡率")
-	private java.lang.String mortality;
+	/**总和住院费用 字符串 可以带小数*/
+	@Excel(name = "总和住院费用 字符串 可以带小数", width = 15)
+    @ApiModelProperty(value = "总和住院费用 字符串 可以带小数")
+	private java.lang.String sumInHospitalFee;
 	/**平均药品费用 字符串 可以带小数*/
 	@Excel(name = "平均药品费用 字符串 可以带小数", width = 15)
-	@ApiModelProperty(value = "平均药品费用 字符串 可以带小数")
+    @ApiModelProperty(value = "平均药品费用 字符串 可以带小数")
 	private java.lang.String averageDrugFee;
+	/**总和药品费用 字符串 可以带小数*/
+	@Excel(name = "总和药品费用 字符串 可以带小数", width = 15)
+    @ApiModelProperty(value = "总和药品费用 字符串 可以带小数")
+	private java.lang.String sumDrugFee;
 	/**平均手术治疗费用 字符串 可以带小数*/
 	@Excel(name = "平均手术治疗费用 字符串 可以带小数", width = 15)
-	@ApiModelProperty(value = "平均手术治疗费用 字符串 可以带小数")
+    @ApiModelProperty(value = "平均手术治疗费用 字符串 可以带小数")
 	private java.lang.String averageOperationTreatmentFee;
+	/**总和手术治疗费用 字符串 可以带小数*/
+	@Excel(name = "总和手术治疗费用 字符串 可以带小数", width = 15)
+    @ApiModelProperty(value = "总和手术治疗费用 字符串 可以带小数")
+	private java.lang.String sumOperationTreatmentFee;
 	/**平均一次性耗材费用 字符串 可以带小数*/
 	@Excel(name = "平均一次性耗材费用 字符串 可以带小数", width = 15)
-	@ApiModelProperty(value = "平均一次性耗材费用 字符串 可以带小数")
+    @ApiModelProperty(value = "平均一次性耗材费用 字符串 可以带小数")
 	private java.lang.String averageDisposableConsumable;
+	/**总和一次性耗材费用 字符串 可以带小数*/
+	@Excel(name = "总和一次性耗材费用 字符串 可以带小数", width = 15)
+    @ApiModelProperty(value = "总和一次性耗材费用 字符串 可以带小数")
+	private java.lang.String sumDisposableConsumable;
+	/**死亡率*/
+	@Excel(name = "死亡率", width = 15)
+    @ApiModelProperty(value = "死亡率")
+	private java.lang.String mortality;
+	/**死亡个数*/
+	@Excel(name = "死亡个数", width = 15)
+    @ApiModelProperty(value = "死亡个数")
+	private java.lang.Integer mortalityCount;
+	/**手术并发症发生率*/
+	@Excel(name = "手术并发症发生率", width = 15)
+    @ApiModelProperty(value = "手术并发症发生率")
+	private java.lang.String operationComplicationRate;
+	/**手术并发症发生个数*/
+	@Excel(name = "手术并发症发生个数", width = 15)
+    @ApiModelProperty(value = "手术并发症发生个数")
+	private java.lang.Integer operationComplicationRateCount;
 	/**创建时间*/
-	@ApiModelProperty(value = "创建时间")
+    @ApiModelProperty(value = "创建时间")
 	private java.util.Date createTime;
 	/**更新时间*/
-	@ApiModelProperty(value = "更新时间")
+    @ApiModelProperty(value = "更新时间")
 	private java.util.Date updateTime;
 }

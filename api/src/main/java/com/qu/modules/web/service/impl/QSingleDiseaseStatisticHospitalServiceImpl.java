@@ -1,23 +1,12 @@
 package com.qu.modules.web.service.impl;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.qu.constant.QuestionConstant;
+import com.qu.modules.web.dto.QSingleDiseaseTakeReportStatisticDto;
 import com.qu.modules.web.entity.QSingleDiseaseStatisticHospital;
 import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.mapper.QSingleDiseaseStatisticHospitalMapper;
@@ -26,11 +15,16 @@ import com.qu.modules.web.param.QSingleDiseaseTakeReportQuantityRankingParam;
 import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
 import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisParam;
 import com.qu.modules.web.service.IQSingleDiseaseStatisticHospitalService;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportQuantityRankingVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticAnalysisVo;
+import com.qu.modules.web.vo.*;
 import com.qu.util.DeptUtil;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 单病种统计院级表
@@ -102,10 +96,69 @@ public class QSingleDiseaseStatisticHospitalServiceImpl extends ServiceImpl<QSin
         params.put("dateStart", dateStart);
         params.put("dateEnd", dateEnd);
         Integer total = this.baseMapper.allSingleDiseaseReportStatisticCount(params);
-        List<QSingleDiseaseTakeReportStatisticVo> allSingleDiseaseReportStatisticList = this.baseMapper.allSingleDiseaseReportStatistic(params);
+        List<QSingleDiseaseTakeReportStatisticDto> allSingleDiseaseReportStatisticList = this.baseMapper.allSingleDiseaseReportStatistic(params);
+        ArrayList<QSingleDiseaseTakeReportStatisticVo> resList = Lists.newArrayList();
+
+        NumberFormat numberFormat = NumberFormat.getInstance();
+        numberFormat.setMaximumFractionDigits(2);
+        for (QSingleDiseaseTakeReportStatisticDto qSingleDiseaseTakeReportStatisticDto : allSingleDiseaseReportStatisticList) {
+            QSingleDiseaseTakeReportStatisticVo vo = new QSingleDiseaseTakeReportStatisticVo();
+            BeanUtils.copyProperties(qSingleDiseaseTakeReportStatisticDto,vo);
+
+            Integer completeReportCount = qSingleDiseaseTakeReportStatisticDto.getCompleteReportCount();
+            if(completeReportCount==0){
+                vo.setCompleteReportCountryRate("0.00%");
+                vo.setAverageInHospitalDay("0.0000");
+                vo.setAverageInHospitalFee("0.00");
+                vo.setAverageDrugFee("0.00");
+                vo.setAverageOperationTreatmentFee("0.00");
+                vo.setAverageDisposableConsumable("0.00");
+                vo.setMortality("0.00%");
+                vo.setOperationComplicationRate("0.00%");
+            }else{
+                Integer needReportCount = qSingleDiseaseTakeReportStatisticDto.getNeedReportCount();
+                String completeReportCountryRate = numberFormat.format((float) completeReportCount / (float) needReportCount * 100);
+                vo.setCompleteReportCountryRate(completeReportCountryRate+"%");
+
+                Integer sumInHospitalDay = qSingleDiseaseTakeReportStatisticDto.getSumInHospitalDay();
+                String averageInHospitalDay = numberFormat.format((float) sumInHospitalDay / (float) completeReportCount);
+                vo.setAverageInHospitalDay(averageInHospitalDay);
+
+                BigDecimal sumInHospitalFee = qSingleDiseaseTakeReportStatisticDto.getSumInHospitalFee();
+                sumInHospitalFee=sumInHospitalFee.divide(new BigDecimal(completeReportCount),2,BigDecimal.ROUND_HALF_UP);
+                String averageInHospitalFee = sumInHospitalFee.toPlainString();
+                vo.setAverageInHospitalFee(averageInHospitalFee);
+
+                BigDecimal sumDrugFee = qSingleDiseaseTakeReportStatisticDto.getSumDrugFee();
+                sumDrugFee=sumDrugFee.divide(new BigDecimal(completeReportCount),2,BigDecimal.ROUND_HALF_UP);
+                String averageDrugFee = sumDrugFee.toPlainString();
+                vo.setAverageDrugFee(averageDrugFee);
+
+                BigDecimal sumOperationTreatmentFee = qSingleDiseaseTakeReportStatisticDto.getSumOperationTreatmentFee();
+                sumOperationTreatmentFee=sumOperationTreatmentFee.divide(new BigDecimal(completeReportCount),2,BigDecimal.ROUND_HALF_UP);
+                String averageOperationTreatmentFee = sumOperationTreatmentFee.toPlainString();
+                vo.setAverageOperationTreatmentFee(averageOperationTreatmentFee);
+
+                BigDecimal sumDisposableConsumable = qSingleDiseaseTakeReportStatisticDto.getSumDisposableConsumable();
+                sumDisposableConsumable=sumDisposableConsumable.divide(new BigDecimal(completeReportCount),2,BigDecimal.ROUND_HALF_UP);
+                String averageDisposableConsumable = sumDisposableConsumable.toPlainString();
+                vo.setAverageDisposableConsumable(averageDisposableConsumable);
+
+                Integer mortalityCount = qSingleDiseaseTakeReportStatisticDto.getMortalityCount();
+                String mortalityString = numberFormat.format((float) mortalityCount / (float) completeReportCount * 100);
+                vo.setMortality(mortalityString+"%");
+
+                Integer operationComplicationCount = qSingleDiseaseTakeReportStatisticDto.getOperationComplicationRateCount();
+                String operationComplicationString = numberFormat.format((float) operationComplicationCount / (float) completeReportCount * 100);
+                vo.setOperationComplicationRate(operationComplicationString+"%");
+            }
+
+
+            resList.add(vo);
+        }
 
         qSingleDiseaseTakeReportStatisticPageVo.setTotal(total);
-        qSingleDiseaseTakeReportStatisticPageVo.setQSingleDiseaseTakeList(allSingleDiseaseReportStatisticList);
+        qSingleDiseaseTakeReportStatisticPageVo.setQSingleDiseaseTakeList(resList);
         return qSingleDiseaseTakeReportStatisticPageVo;
     }
 

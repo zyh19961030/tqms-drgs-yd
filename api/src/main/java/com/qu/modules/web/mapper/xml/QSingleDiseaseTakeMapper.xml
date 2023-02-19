@@ -61,14 +61,15 @@
         /*round(AVG(drug_fee),2)*/
         select
             IFNULL(avg(in_hospital_day),0) averageInHospitalDay,
+            IFNULL(sum(in_hospital_day),0) sumInHospitalDay,
             IFNULL(CAST(AVG(in_hospital_fee) AS DECIMAL(18,2)),0) averageInHospitalFee,
---              IFNULL(AVG(in_hospital_fee),0) averageInHospitalFee,
+            IFNULL(CAST(sum(in_hospital_fee) AS DECIMAL(18,2)),0) sumInHospitalFee,
             IFNULL(CAST(AVG(drug_fee) AS DECIMAL(18,2)),0) averageDrugFee,
---              IFNULL(AVG(drug_fee),0) averageDrugFee,
+            IFNULL(CAST(sum(drug_fee) AS DECIMAL(18,2)),0) sumDrugFee,
             IFNULL(CAST(AVG(operation_treatment_fee) AS DECIMAL(18,2)),0) averageOperationTreatmentFee,
---              IFNULL(AVG(operation_treatment_fee),0) averageOperationTreatmentFee,
-            IFNULL(CAST(AVG(disposable_consumable) AS DECIMAL(18,2)),0) averageDisposableConsumable
---              IFNULL(AVG(disposable_consumable),0) averageDisposableConsumable
+            IFNULL(CAST(sum(operation_treatment_fee) AS DECIMAL(18,2)),0) sumOperationTreatmentFee,
+            IFNULL(CAST(AVG(disposable_consumable) AS DECIMAL(18,2)),0) averageDisposableConsumable,
+            IFNULL(CAST(sum(disposable_consumable) AS DECIMAL(18,2)),0) sumDisposableConsumable
         FROM `q_single_disease_take`
         <where>
             <if test="categoryId!=null and categoryId!=''">

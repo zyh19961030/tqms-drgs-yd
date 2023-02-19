@@ -1,10 +1,10 @@
 package com.qu.modules.web.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.qu.modules.web.dto.QSingleDiseaseTakeReportStatisticDto;
 import com.qu.modules.web.entity.QSingleDiseaseStatisticHospital;
 import com.qu.modules.web.param.QSingleDiseaseTakeReportQuantityRankingParam;
 import com.qu.modules.web.vo.QSingleDiseaseTakeReportQuantityRankingVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -21,7 +21,7 @@ public interface QSingleDiseaseStatisticHospitalMapper extends BaseMapper<QSingl
 
     Integer allSingleDiseaseReportStatisticCount(Map<String, Object> params);
 
-    List<QSingleDiseaseTakeReportStatisticVo> allSingleDiseaseReportStatistic(Map<String, Object> params);
+    List<QSingleDiseaseTakeReportStatisticDto> allSingleDiseaseReportStatistic(Map<String, Object> params);
 
     List<QSingleDiseaseTakeReportQuantityRankingVo> singleDiseaseReportQuantityRanking(@Param("qSingleDiseaseTakeReportQuantityRankingParam") QSingleDiseaseTakeReportQuantityRankingParam qSingleDiseaseTakeReportQuantityRankingParam);
 
