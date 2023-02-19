@@ -145,12 +145,20 @@ public class QSingleDiseaseStatisticHospitalServiceImpl extends ServiceImpl<QSin
                 vo.setAverageDisposableConsumable(averageDisposableConsumable);
 
                 Integer mortalityCount = qSingleDiseaseTakeReportStatisticDto.getMortalityCount();
-                String mortalityString = numberFormat.format((float) mortalityCount / (float) completeReportCount * 100);
-                vo.setMortality(mortalityString+"%");
+                if(mortalityCount==0){
+                    vo.setMortality("0.00%");
+                }else{
+                    String mortalityString = numberFormat.format((float) mortalityCount / (float) completeReportCount * 100);
+                    vo.setMortality(mortalityString+"%");
+                }
 
                 Integer operationComplicationCount = qSingleDiseaseTakeReportStatisticDto.getOperationComplicationRateCount();
-                String operationComplicationString = numberFormat.format((float) operationComplicationCount / (float) completeReportCount * 100);
-                vo.setOperationComplicationRate(operationComplicationString+"%");
+                if(operationComplicationCount==0){
+                    vo.setOperationComplicationRate("0.00%");
+                }else{
+                    String operationComplicationString = numberFormat.format((float) operationComplicationCount / (float) completeReportCount * 100);
+                    vo.setOperationComplicationRate(operationComplicationString+"%");
+                }
             }
 
 
