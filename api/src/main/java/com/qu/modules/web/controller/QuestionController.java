@@ -563,6 +563,23 @@ public class QuestionController {
     }
 
     /**
+     * 登记表汇总(不加type,包括月度,季度,年的)
+     */
+    @AutoLog(value = "登记表汇总-新建查询")
+    @ApiOperation(value = "登记表汇总-新建查询", notes = "登记表汇总-新建查询")
+    @GetMapping(value = "/registerCreateList")
+    public Result<List<QuestionMonthQuarterYearCreateListVo>> registerCreateList(HttpServletRequest request) {
+        Result<List<QuestionMonthQuarterYearCreateListVo>> result = new Result<>();
+        //加科室过滤---
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String deptId = data.getDeps().get(0).getId();
+        List<QuestionMonthQuarterYearCreateListVo> list = questionService.registerCreateList(deptId);
+        result.setSuccess(true);
+        result.setResult(list);
+        return result;
+    }
+
+    /**
      * 检查项目添加中获取表单
      *
      * @return
