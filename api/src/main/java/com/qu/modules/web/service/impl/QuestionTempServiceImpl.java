@@ -109,6 +109,9 @@ public class QuestionTempServiceImpl extends ServiceImpl<QuestionTempMapper, Que
         Question question = new Question();
         BeanUtils.copyProperties(questionTemp, question);
         question.setId(null);
+        question.setQuStatus(QuestionConstant.QU_STATUS_DRAFT);
+        question.setQuestionVersion(QuestionConstant.QUESTION_VERSION_DEFAULT);
+        question.setTraceabilityStatus(QuestionConstant.TRACEABILITY_STATUS_NO_GENERATE);
         questionService.save(question);
 
         //保存题目
