@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qu.modules.web.mapper.ZbCodeConfigMapper">
+
+    <select id="listByName"
+            parameterType="java.lang.String"
+            resultType="com.qu.modules.web.vo.ZbCodeConfigVo">
+        SELECT distinct zbgroup code,zbgroupname name FROM `zb_code_config` WHERE `zblx` = '3'
+        <if test="name!=null and name!=''">
+            and zbgroupname =#{name}
+        </if>
+    </select>
+
+</mapper>
