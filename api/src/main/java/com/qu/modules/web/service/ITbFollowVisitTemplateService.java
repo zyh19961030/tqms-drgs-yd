@@ -1,5 +1,7 @@
 package com.qu.modules.web.service;
 
+import org.jeecg.common.api.vo.ResultBetter;
+
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -20,7 +22,7 @@ public interface ITbFollowVisitTemplateService extends IService<TbFollowVisitTem
 
     IPage<TbFollowVisitTemplateListVo> queryPageList(Page<TbFollowVisitTemplate> page, TbFollowVisitTemplateListParam listParam);
 
-    void addOrUpdate(TbFollowVisitTemplateAddOrUpdateParam param, Data data);
+    ResultBetter<Boolean> addOrUpdate(TbFollowVisitTemplateAddOrUpdateParam param, Data data);
 
     TbFollowVisitTemplateInfoVo info(String id);
 

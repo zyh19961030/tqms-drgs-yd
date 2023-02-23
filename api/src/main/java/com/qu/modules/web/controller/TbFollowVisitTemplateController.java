@@ -3,10 +3,10 @@ package com.qu.modules.web.controller;
 import javax.servlet.http.HttpServletRequest;
 
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultBetter;
 import org.jeecg.common.api.vo.ResultFactory;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -71,17 +71,9 @@ public class TbFollowVisitTemplateController {
 	@AutoLog(value = "随访模板表-添加或编辑")
 	@ApiOperation(value="随访模板表-添加或编辑", notes="随访模板表-添加或编辑")
 	@PostMapping(value = "/addOrUpdate")
-	public Result<TbFollowVisitTemplate> addOrUpdate(@RequestBody TbFollowVisitTemplateAddOrUpdateParam addParam, HttpServletRequest request) {
-		Result<TbFollowVisitTemplate> result = new Result<TbFollowVisitTemplate>();
-		try {
-			Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-			tbFollowVisitTemplateService.addOrUpdate(addParam,data);
-			result.success("添加成功！");
-		} catch (Exception e) {
-			log.error(e.getMessage(),e);
-			result.error500("操作失败");
-		}
-		return result;
+	public ResultBetter<Boolean> addOrUpdate(@RequestBody TbFollowVisitTemplateAddOrUpdateParam addParam, HttpServletRequest request) {
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        return tbFollowVisitTemplateService.addOrUpdate(addParam,data);
 	}
 
 	/**
@@ -107,7 +99,7 @@ public class TbFollowVisitTemplateController {
 
     @AutoLog(value = "随访模板表-停用")
     @ApiOperation(value = "随访模板表-停用", notes = "随访模板表-停用")
-    @DeleteMapping(value = "/deactivate")
+    @GetMapping(value = "/deactivate")
     public Result deactivate(@RequestParam(name="id",required=true)@ApiParam("从列表中获取的主键id") Integer id) {
         boolean flag = tbFollowVisitTemplateService.deactivate(id);
         if(flag){

@@ -1,14 +1,16 @@
 package com.qu.modules.web.vo;
 
+import java.util.Date;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.util.Date;
 
 /**
  * @Description: 随访模板表
@@ -30,6 +32,9 @@ public class TbFollowVisitTemplateListVo {
 
 	@ApiModelProperty(value = "适用疾病")
 	private String disease;
+
+    @ApiModelProperty(value = "状态 1-正常 2-停用")
+    private Integer status;
 
 	@ApiModelProperty(value = "创建人")
 	private String createUser;

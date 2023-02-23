@@ -1,18 +1,20 @@
 package com.qu.modules.web.entity;
 
+import java.util.Date;
+
+import org.jeecgframework.poi.excel.annotation.Excel;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.jeecgframework.poi.excel.annotation.Excel;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.util.Date;
 
 /**
  * @Description: 随访模板疾病表
@@ -39,10 +41,10 @@ public class TbFollowVisitTemplateDisease {
 	@Excel(name = "疾病code", width = 15)
     @ApiModelProperty(value = "疾病code")
 	private String code;
-	/**疾病名称*/
-	@Excel(name = "疾病名称", width = 15)
-    @ApiModelProperty(value = "疾病名称")
-	private String name;
+//	/**疾病名称*/
+//	@Excel(name = "疾病名称", width = 15)
+//    @ApiModelProperty(value = "疾病名称")
+//	private String name;
 	/**删除状态（0：未删除  1：已删除）*/
 	@Excel(name = "删除状态（0：未删除  1：已删除）", width = 15)
     @ApiModelProperty(value = "删除状态（0：未删除  1：已删除）")

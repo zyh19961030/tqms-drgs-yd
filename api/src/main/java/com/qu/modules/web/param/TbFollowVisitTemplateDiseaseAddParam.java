@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.jeecgframework.poi.excel.annotation.Excel;
 
 /**
  * @Description: 随访模板疾病表
@@ -20,11 +19,9 @@ import org.jeecgframework.poi.excel.annotation.Excel;
 public class TbFollowVisitTemplateDiseaseAddParam {
 
 	/**疾病code*/
-	@Excel(name = "疾病code", width = 15)
     @ApiModelProperty(value = "疾病code")
 	private String code;
 	/**疾病名称*/
-	@Excel(name = "疾病名称", width = 15)
     @ApiModelProperty(value = "疾病名称")
 	private String name;
 

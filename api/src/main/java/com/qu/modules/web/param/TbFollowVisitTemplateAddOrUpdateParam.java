@@ -1,12 +1,12 @@
 package com.qu.modules.web.param;
 
+import java.util.List;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-
-import java.util.List;
 
 /**
  * @Description: 随访模板表
@@ -31,7 +31,8 @@ public class TbFollowVisitTemplateAddOrUpdateParam {
 	private Integer dateStartType;
 
 	@ApiModelProperty(value = "适用疾病集合")
-	private List<TbFollowVisitTemplateDiseaseAddParam> diseaseList;
+	private List<String> diseaseList;
+//	private List<TbFollowVisitTemplateDiseaseAddParam> diseaseList;
 
 	@ApiModelProperty(value = "随访计划周期集合")
 	private List<TbFollowVisitTemplateCycleAddParam> cycleList;

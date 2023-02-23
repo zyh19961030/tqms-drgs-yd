@@ -8,6 +8,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.ResultBetter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -26,18 +27,18 @@ import com.qu.modules.web.entity.TbFollowVisitTemplate;
 import com.qu.modules.web.entity.TbFollowVisitTemplateCycle;
 import com.qu.modules.web.entity.TbFollowVisitTemplateDisease;
 import com.qu.modules.web.entity.TbUser;
+import com.qu.modules.web.entity.ZbCodeConfig;
 import com.qu.modules.web.mapper.TbFollowVisitTemplateMapper;
 import com.qu.modules.web.param.TbFollowVisitTemplateAddOrUpdateParam;
 import com.qu.modules.web.param.TbFollowVisitTemplateCycleAddParam;
-import com.qu.modules.web.param.TbFollowVisitTemplateDiseaseAddParam;
 import com.qu.modules.web.param.TbFollowVisitTemplateListParam;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.ITbFollowVisitTemplateCycleService;
 import com.qu.modules.web.service.ITbFollowVisitTemplateDiseaseService;
 import com.qu.modules.web.service.ITbFollowVisitTemplateService;
 import com.qu.modules.web.service.ITbUserService;
+import com.qu.modules.web.service.IZbCodeConfigService;
 import com.qu.modules.web.vo.TbFollowVisitTemplateCycleInfoVo;
-import com.qu.modules.web.vo.TbFollowVisitTemplateDiseaseInfoVo;
 import com.qu.modules.web.vo.TbFollowVisitTemplateInfoVo;
 import com.qu.modules.web.vo.TbFollowVisitTemplateListVo;
 
@@ -54,11 +55,14 @@ public class TbFollowVisitTemplateServiceImpl extends ServiceImpl<TbFollowVisitT
     @Autowired
     private ITbUserService tbUserService;
 
-
     @Autowired
     private ITbFollowVisitTemplateDiseaseService tbFollowVisitTemplateDiseaseService;
+
     @Autowired
     private ITbFollowVisitTemplateCycleService tbFollowVisitTemplateCycleService;
+
+    @Autowired
+    private IZbCodeConfigService zbCodeConfigService;
 
     @Override
     public IPage<TbFollowVisitTemplateListVo> queryPageList(Page<TbFollowVisitTemplate> page, TbFollowVisitTemplateListParam listParam) {
@@ -91,17 +95,32 @@ public class TbFollowVisitTemplateServiceImpl extends ServiceImpl<TbFollowVisitT
         diseaseLambdaQueryWrapper.in(TbFollowVisitTemplateDisease::getFollowVisitTemplateId,templateIdList);
         diseaseLambdaQueryWrapper.eq(TbFollowVisitTemplateDisease::getDelState,TbFollowVisitTemplateConstant.DEL_NORMAL);
         List<TbFollowVisitTemplateDisease> diseaseList = tbFollowVisitTemplateDiseaseService.list(diseaseLambdaQueryWrapper);
+
         Map<Integer, List<TbFollowVisitTemplateDisease>> diseaseMap = diseaseList.stream().collect(Collectors.toMap(TbFollowVisitTemplateDisease::getId, Lists::newArrayList,
                 (List<TbFollowVisitTemplateDisease> n1, List<TbFollowVisitTemplateDisease> n2) -> {
                     n1.addAll(n2);
                     return n1;
                 }));
 
+        List<String> diseaseCodeList = diseaseList.stream().map(TbFollowVisitTemplateDisease::getCode).collect(Collectors.toList());
+        LambdaQueryWrapper<ZbCodeConfig> zbCodeConfigLambdaQueryWrapper = new QueryWrapper<ZbCodeConfig>().lambda();
+        zbCodeConfigLambdaQueryWrapper.in(ZbCodeConfig::getCode,diseaseCodeList);
+        zbCodeConfigLambdaQueryWrapper.in(ZbCodeConfig::getZblx,3);
+        zbCodeConfigLambdaQueryWrapper.groupBy(ZbCodeConfig::getCode);
+        List<ZbCodeConfig> zbCodeConfigList = zbCodeConfigService.list(zbCodeConfigLambdaQueryWrapper);
+        Map<String, ZbCodeConfig> zbCodeConfigMap = zbCodeConfigList.stream().collect(Collectors.toMap(ZbCodeConfig::getCode, Function.identity()));
+
         List<TbFollowVisitTemplateListVo> resList = records.stream().map(r -> {
             TbFollowVisitTemplateListVo vo = new TbFollowVisitTemplateListVo();
             BeanUtils.copyProperties(r, vo);
             List<TbFollowVisitTemplateDisease> templateDiseaseList = diseaseMap.get(r.getId());
-            vo.setDisease(templateDiseaseList.stream().map(TbFollowVisitTemplateDisease::getName).collect(Collectors.joining("、")));
+            vo.setDisease(templateDiseaseList.stream().map(d->{
+                ZbCodeConfig zbCodeConfig = zbCodeConfigMap.get(d.getCode());
+                if(Objects.nonNull(zbCodeConfig)){
+                    return zbCodeConfig.getZbgroupname();
+                }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.joining("、")));
             TbUser tbUser = userMap.get(r.getCreateUser());
             if(Objects.nonNull(tbUser)){
                 vo.setCreateUser(tbUser.getLoginname());
@@ -117,9 +136,21 @@ public class TbFollowVisitTemplateServiceImpl extends ServiceImpl<TbFollowVisitT
     }
 
     @Override
-    public void addOrUpdate(TbFollowVisitTemplateAddOrUpdateParam param, Data data) {
+    public ResultBetter<Boolean> addOrUpdate(TbFollowVisitTemplateAddOrUpdateParam param, Data data) {
         Integer id = param.getId();
         Date date = new Date();
+
+        //先查查疾病有没有被别的用
+        LambdaQueryWrapper<TbFollowVisitTemplateDisease> checkDiseaseLambdaQueryWrapper = new QueryWrapper<TbFollowVisitTemplateDisease>().lambda();
+        List<String> diseaseAddParamList = param.getDiseaseList();
+        checkDiseaseLambdaQueryWrapper.in(TbFollowVisitTemplateDisease::getCode,diseaseAddParamList);
+        if(id!=null && id >0){
+            checkDiseaseLambdaQueryWrapper.ne(TbFollowVisitTemplateDisease::getFollowVisitTemplateId,id);
+        }
+        List<TbFollowVisitTemplateDisease> checkDiseaseList = tbFollowVisitTemplateDiseaseService.list(checkDiseaseLambdaQueryWrapper);
+        if(!checkDiseaseList.isEmpty()){
+            return ResultBetter.error("该疾病已被其他模板引用，无法添加");
+        }
 
         if(id!=null && id >0){
             TbFollowVisitTemplate byId = this.getById(id);
@@ -143,7 +174,6 @@ public class TbFollowVisitTemplateServiceImpl extends ServiceImpl<TbFollowVisitT
         diseaseLambdaQueryWrapper.eq(TbFollowVisitTemplateDisease::getFollowVisitTemplateId,id).set(TbFollowVisitTemplateDisease::getDelState,TbFollowVisitTemplateConstant.DEL_DELETED);
         TbFollowVisitTemplateDisease a = new TbFollowVisitTemplateDisease();
         tbFollowVisitTemplateDiseaseService.update(a,diseaseLambdaQueryWrapper);
-        List<TbFollowVisitTemplateDiseaseAddParam> diseaseAddParamList = param.getDiseaseList();
         Integer finalId = id;
         List<TbFollowVisitTemplateDisease> diseaseList = diseaseAddParamList.stream().map(d -> {
             TbFollowVisitTemplateDisease disease = new TbFollowVisitTemplateDisease();
@@ -174,7 +204,7 @@ public class TbFollowVisitTemplateServiceImpl extends ServiceImpl<TbFollowVisitT
             return cycle;
         }).collect(Collectors.toList());
         tbFollowVisitTemplateCycleService.saveBatch(cycleList);
-
+        return ResultBetter.ok();
     }
 
     @Override
@@ -191,12 +221,14 @@ public class TbFollowVisitTemplateServiceImpl extends ServiceImpl<TbFollowVisitT
         diseaseLambdaQueryWrapper.eq(TbFollowVisitTemplateDisease::getFollowVisitTemplateId,id);
         diseaseLambdaQueryWrapper.eq(TbFollowVisitTemplateDisease::getDelState,TbFollowVisitTemplateConstant.DEL_NORMAL);
         List<TbFollowVisitTemplateDisease> diseaseList = tbFollowVisitTemplateDiseaseService.list(diseaseLambdaQueryWrapper);
-        List<TbFollowVisitTemplateDiseaseInfoVo> resDiseaseList = diseaseList.stream().map(d -> {
-            TbFollowVisitTemplateDiseaseInfoVo diseaseInfoVo = new TbFollowVisitTemplateDiseaseInfoVo();
-            BeanUtils.copyProperties(d, diseaseInfoVo);
-            return diseaseInfoVo;
-        }).collect(Collectors.toList());
-        vo.setDiseaseList(resDiseaseList);
+//        List<TbFollowVisitTemplateDiseaseInfoVo> resDiseaseList = diseaseList.stream().map(d -> {
+//            TbFollowVisitTemplateDiseaseInfoVo diseaseInfoVo = new TbFollowVisitTemplateDiseaseInfoVo();
+//            BeanUtils.copyProperties(d, diseaseInfoVo);
+//            return diseaseInfoVo;
+//        }).collect(Collectors.toList());
+//        vo.setDiseaseList(resDiseaseList);
+        List<String> diseaseCodeList = diseaseList.stream().map(TbFollowVisitTemplateDisease::getCode).collect(Collectors.toList());
+        vo.setDiseaseList(diseaseCodeList);
 
         LambdaQueryWrapper<TbFollowVisitTemplateCycle> cycleLambdaQueryWrapper = new QueryWrapper<TbFollowVisitTemplateCycle>().lambda();
         cycleLambdaQueryWrapper.eq(TbFollowVisitTemplateCycle::getFollowVisitTemplateId,id);

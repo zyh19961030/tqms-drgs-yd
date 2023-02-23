@@ -1,12 +1,12 @@
 package com.qu.modules.web.vo;
 
+import java.util.List;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-
-import java.util.List;
 
 /**
  * @Description: 随访模板表
@@ -30,7 +30,8 @@ public class TbFollowVisitTemplateInfoVo {
 	private Integer dateStartType;
 
 	@ApiModelProperty(value = "适用疾病集合")
-	private List<TbFollowVisitTemplateDiseaseInfoVo> diseaseList;
+	private List<String> diseaseList;
+//	private List<TbFollowVisitTemplateDiseaseInfoVo> diseaseList;
 
 	@ApiModelProperty(value = "随访计划周期集合")
 	private List<TbFollowVisitTemplateCycleInfoVo> cycleList;
