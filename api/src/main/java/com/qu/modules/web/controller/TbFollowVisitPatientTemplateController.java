@@ -1,48 +1,61 @@
 package com.qu.modules.web.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.qu.modules.web.entity.TbFollowVisitPatientTemplate;
+import com.qu.modules.web.param.TbFollowVisitPatientTemplateListParam;
+import com.qu.modules.web.service.ITbFollowVisitPatientTemplateService;
+import com.qu.modules.web.vo.TbFollowVisitPatientTemplateListVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.aspect.annotation.AutoLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.annotations.Api;
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
 
- /**
+/**
  * @Description: 随访患者模板总记录表
  * @Author: jeecg-boot
  * @Date:   2023-02-23
  * @Version: V1.0
  */
 @Slf4j
-@Api(tags="随访患者模板总记录表")
+@Api(tags="患者随访管理(随访患者模板总记录表)")
 @RestController
 @RequestMapping("/business/tbFollowVisitPatientTemplate")
 public class TbFollowVisitPatientTemplateController {
-//	@Autowired
-//	private ITbFollowVisitPatientTemplateService tbFollowVisitPatientTemplateService;
-//
-//	/**
-//	  * 分页列表查询
-//	 * @param tbFollowVisitPatientTemplate
-//	 * @param pageNo
-//	 * @param pageSize
-//	 * @param req
-//	 * @return
-//	 */
-//	@AutoLog(value = "随访患者模板总记录表-分页列表查询")
-//	@ApiOperation(value="随访患者模板总记录表-分页列表查询", notes="随访患者模板总记录表-分页列表查询")
-//	@GetMapping(value = "/list")
-//	public Result<IPage<TbFollowVisitPatientTemplate>> queryPageList(TbFollowVisitPatientTemplate tbFollowVisitPatientTemplate,
-//									  @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
-//									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
-//									  HttpServletRequest req) {
-//		Result<IPage<TbFollowVisitPatientTemplate>> result = new Result<IPage<TbFollowVisitPatientTemplate>>();
-//		QueryWrapper<TbFollowVisitPatientTemplate> queryWrapper = QueryGenerator.initQueryWrapper(tbFollowVisitPatientTemplate, req.getParameterMap());
-//		Page<TbFollowVisitPatientTemplate> page = new Page<TbFollowVisitPatientTemplate>(pageNo, pageSize);
-//		IPage<TbFollowVisitPatientTemplate> pageList = tbFollowVisitPatientTemplateService.page(page, queryWrapper);
-//		result.setSuccess(true);
-//		result.setResult(pageList);
-//		return result;
-//	}
+
+	@Autowired
+	private ITbFollowVisitPatientTemplateService tbFollowVisitPatientTemplateService;
+
+	/**
+	  * 分页列表查询
+	 * @param param
+	 * @param pageNo
+	 * @param pageSize
+	 * @param req
+	 * @return
+	 */
+	@AutoLog(value = "患者随访管理-分页列表查询")
+	@ApiOperation(value="患者随访管理-分页列表查询", notes="患者随访管理-分页列表查询")
+	@GetMapping(value = "/list")
+	public Result<IPage<TbFollowVisitPatientTemplateListVo>> queryPageList(TbFollowVisitPatientTemplateListParam param,
+                                                                           @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
+                                                                           @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
+                                                                           HttpServletRequest req) {
+		Result<IPage<TbFollowVisitPatientTemplateListVo>> result = new Result<IPage<TbFollowVisitPatientTemplateListVo>>();
+		Page<TbFollowVisitPatientTemplate> page = new Page<TbFollowVisitPatientTemplate>(pageNo, pageSize);
+		IPage<TbFollowVisitPatientTemplateListVo> pageList = tbFollowVisitPatientTemplateService.queryPageList(page, param);
+		result.setSuccess(true);
+		result.setResult(pageList);
+		return result;
+	}
 //
 //	/**
 //	  *   添加

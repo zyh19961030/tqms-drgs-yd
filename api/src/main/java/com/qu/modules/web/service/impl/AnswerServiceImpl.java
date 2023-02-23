@@ -325,7 +325,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
             dynamicTableMapper.insertDynamicTable(sqlAns.toString());
         }
 
-        return ResultFactory.success();
+        return ResultFactory.success(answer.getId());
     }
 
     private void saveAnswerMark(Map<String, String> newDataMapCache, List<Qsubject> subjectList, Answer answer, Question question) {

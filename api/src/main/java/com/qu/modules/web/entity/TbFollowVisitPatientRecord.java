@@ -1,20 +1,18 @@
 package com.qu.modules.web.entity;
 
-import java.util.Date;
-
-import org.jeecgframework.poi.excel.annotation.Excel;
-import org.springframework.format.annotation.DateTimeFormat;
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.jeecgframework.poi.excel.annotation.Excel;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 /**
  * @Description: 随访患者记录表
@@ -37,6 +35,10 @@ public class TbFollowVisitPatientRecord {
 	@Excel(name = "随访患者信息表id", width = 15)
     @ApiModelProperty(value = "随访患者信息表id")
 	private Integer followVisitPatientId;
+	/**随访患者模板总记录表id*/
+	@Excel(name = "随访患者模板总记录表id", width = 15)
+    @ApiModelProperty(value = "随访患者模板总记录表id")
+	private Integer followVisitPatientTemplateId;
 	/**随访计划模板id*/
 	@Excel(name = "随访计划模板id", width = 15)
     @ApiModelProperty(value = "随访计划模板id")
@@ -55,6 +57,10 @@ public class TbFollowVisitPatientRecord {
 	@Excel(name = "随访次数_第N次随访", width = 15)
     @ApiModelProperty(value = "随访次数_第N次随访")
 	private Integer followVisitNumber;
+	/**答案id*/
+	@Excel(name = "答案id", width = 15)
+	@ApiModelProperty(value = "答案id")
+	private Integer answerId;
 	/**状态 1待填报 2已填报 3随访被终止*/
 	@Excel(name = "状态 1待填报 2已填报 3随访被终止", width = 15)
     @ApiModelProperty(value = "状态 1待填报 2已填报 3随访被终止")

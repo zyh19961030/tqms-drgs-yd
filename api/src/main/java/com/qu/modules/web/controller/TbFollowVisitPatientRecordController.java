@@ -1,29 +1,28 @@
 package com.qu.modules.web.controller;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.jeecg.common.aspect.annotation.AutoLog;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.qu.modules.web.entity.TbFollowVisitPatientRecord;
+import com.qu.modules.web.param.TbFollowVisitPatientRecordAnswerAfterParam;
 import com.qu.modules.web.param.TbFollowVisitPatientRecordListParam;
 import com.qu.modules.web.service.ITbFollowVisitPatientRecordService;
 import com.qu.modules.web.vo.TbFollowVisitPatientRecordListVo;
-
+import com.qu.modules.web.vo.TbFollowVisitPatientRecordVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.aspect.annotation.AutoLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
- /**
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
+/**
  * @Description: 随访患者记录表
  * @Author: jeecg-boot
  * @Date:   2023-02-23
@@ -50,9 +49,9 @@ public class TbFollowVisitPatientRecordController {
 	@ApiOperation(value="随访患者记录表-分页列表查询", notes="随访患者记录表-分页列表查询")
 	@GetMapping(value = "/list")
 	public Result<IPage<TbFollowVisitPatientRecordListVo>> queryPageList(TbFollowVisitPatientRecordListParam param,
-                                                                         @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
-                                                                         @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
-                                                                         HttpServletRequest req) {
+																		 @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
+																		 @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
+																		 HttpServletRequest req) {
 		Result<IPage<TbFollowVisitPatientRecordListVo>> result = new Result<IPage<TbFollowVisitPatientRecordListVo>>();
 		Page<TbFollowVisitPatientRecord> page = new Page<TbFollowVisitPatientRecord>(pageNo, pageSize);
 		IPage<TbFollowVisitPatientRecordListVo> pageList = tbFollowVisitPatientRecordService.queryPageList(param,page);
@@ -72,6 +71,22 @@ public class TbFollowVisitPatientRecordController {
              return ResultFactory.fail("终止随访失败");
          }
      }
+
+
+	 @AutoLog(value = "随访患者记录表-去随访")
+	 @ApiOperation(value = "随访患者记录表-去随访", notes = "随访患者记录表-去随访")
+	 @GetMapping(value = "/startFollowVisit")
+	 public ResultBetter<TbFollowVisitPatientRecordVo> startFollowVisit(@RequestParam(name="id",required=true)@ApiParam("从列表中获取的主键id") Integer id) {
+		 TbFollowVisitPatientRecordVo vo = tbFollowVisitPatientRecordService.startFollowVisit(id);
+		 return ResultBetter.ok(vo);
+	 }
+
+	 @AutoLog(value = "随访患者记录表-去随访-保存答案之后的接口")
+	 @ApiOperation(value = "随访患者记录表-去随访-保存答案之后的接口", notes = "随访患者记录表-去随访-保存答案之后的接口")
+	 @PostMapping(value = "/answerAfter")
+	 public ResultBetter<Boolean> answerAfter(@RequestBody @Valid TbFollowVisitPatientRecordAnswerAfterParam param) {
+		 return tbFollowVisitPatientRecordService.answerAfter(param);
+	 }
 	
 //	/**
 //	  *   添加

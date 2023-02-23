@@ -1,14 +1,32 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
+import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.qu.constant.TbFollowVisitPatientConstant;
+import com.qu.constant.TbFollowVisitPatientTemplateConstant;
+import com.qu.constant.TbFollowVisitTemplateConstant;
+import com.qu.modules.web.entity.TbFollowVisitPatient;
+import com.qu.modules.web.entity.TbFollowVisitPatientRecord;
+import com.qu.modules.web.entity.TbFollowVisitPatientTemplate;
+import com.qu.modules.web.entity.TbFollowVisitTemplate;
+import com.qu.modules.web.mapper.TbFollowVisitPatientRecordMapper;
+import com.qu.modules.web.param.TbFollowVisitPatientRecordAnswerAfterParam;
+import com.qu.modules.web.param.TbFollowVisitPatientRecordListParam;
+import com.qu.modules.web.service.ITbFollowVisitPatientRecordService;
+import com.qu.modules.web.service.ITbFollowVisitPatientService;
+import com.qu.modules.web.service.ITbFollowVisitPatientTemplateService;
+import com.qu.modules.web.service.ITbFollowVisitTemplateService;
+import com.qu.modules.web.vo.TbFollowVisitPatientRecordHistoryVo;
+import com.qu.modules.web.vo.TbFollowVisitPatientRecordListVo;
+import com.qu.modules.web.vo.TbFollowVisitPatientRecordVo;
 import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.ResultBetter;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -16,24 +34,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.qu.constant.TbFollowVisitPatientConstant;
-import com.qu.constant.TbFollowVisitTemplateConstant;
-import com.qu.modules.web.entity.TbFollowVisitPatient;
-import com.qu.modules.web.entity.TbFollowVisitPatientRecord;
-import com.qu.modules.web.entity.TbFollowVisitTemplate;
-import com.qu.modules.web.mapper.TbFollowVisitPatientRecordMapper;
-import com.qu.modules.web.param.TbFollowVisitPatientRecordListParam;
-import com.qu.modules.web.service.ITbFollowVisitPatientRecordService;
-import com.qu.modules.web.service.ITbFollowVisitPatientService;
-import com.qu.modules.web.service.ITbFollowVisitTemplateService;
-import com.qu.modules.web.vo.TbFollowVisitPatientRecordListVo;
-
-import cn.hutool.core.collection.CollectionUtil;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 随访患者记录表
@@ -50,6 +53,9 @@ public class TbFollowVisitPatientRecordServiceImpl extends ServiceImpl<TbFollowV
 
     @Autowired
     private ITbFollowVisitPatientService tbFollowVisitPatientService;
+
+    @Autowired
+    private ITbFollowVisitPatientTemplateService tbFollowVisitPatientTemplateService;
 
     @Override
     public IPage<TbFollowVisitPatientRecordListVo> queryPageList(TbFollowVisitPatientRecordListParam param, Page<TbFollowVisitPatientRecord> page) {
@@ -111,6 +117,9 @@ public class TbFollowVisitPatientRecordServiceImpl extends ServiceImpl<TbFollowV
         }
         IPage<TbFollowVisitPatientRecord> iPage = this.page(page, lambda);
         List<TbFollowVisitPatientRecord> records = iPage.getRecords();
+        if(CollectionUtil.isEmpty(records)){
+            return new Page<>();
+        }
 
         List<Integer> recordPatientIdList = records.stream().map(TbFollowVisitPatientRecord::getFollowVisitPatientId).distinct().collect(Collectors.toList());
         Collection<TbFollowVisitPatient> tbFollowVisitPatientList = tbFollowVisitPatientService.listByIds(recordPatientIdList);
@@ -131,7 +140,7 @@ public class TbFollowVisitPatientRecordServiceImpl extends ServiceImpl<TbFollowV
             if(Objects.nonNull(tbFollowVisitTemplate)){
                 vo.setFollowVisitTemplate(tbFollowVisitTemplate.getName());
             }
-
+            vo.setId(r.getId());
             return vo;
         }).collect(Collectors.toList());
 
@@ -148,12 +157,69 @@ public class TbFollowVisitPatientRecordServiceImpl extends ServiceImpl<TbFollowV
         if(byId==null){
             return false;
         }
-        byId.setStatus(TbFollowVisitPatientConstant.STATUS_STOP);
-        this.updateById(byId);
+        Integer followVisitPatientTemplateId = byId.getFollowVisitPatientTemplateId();
+        TbFollowVisitPatientTemplate patientTemplate = tbFollowVisitPatientTemplateService.getById(followVisitPatientTemplateId);
+        if(patientTemplate==null){
+            return false;
+        }
+        patientTemplate.setStatus(TbFollowVisitPatientTemplateConstant.STATUS_STOP);
+        tbFollowVisitPatientTemplateService.updateById(patientTemplate);
+
+        TbFollowVisitPatientRecord emptyEntity = new TbFollowVisitPatientRecord();
+        LambdaUpdateWrapper<TbFollowVisitPatientRecord> lambda = new UpdateWrapper<TbFollowVisitPatientRecord>().lambda();
+        lambda.eq(TbFollowVisitPatientRecord::getFollowVisitPatientTemplateId, followVisitPatientTemplateId)
+                .eq(TbFollowVisitPatientRecord::getStatus, TbFollowVisitPatientConstant.STATUS_WAIT)
+                .set(TbFollowVisitPatientRecord::getStatus, TbFollowVisitPatientConstant.STATUS_STOP);
+        this.update(emptyEntity, lambda);
         return true;
     }
 
+    @Override
+    public TbFollowVisitPatientRecordVo startFollowVisit(Integer id) {
+        TbFollowVisitPatientRecord byId = this.getById(id);
+        if(byId==null){
+            return null;
+        }
+        TbFollowVisitPatientRecordVo vo = new TbFollowVisitPatientRecordVo();
+        Integer followVisitPatientId = byId.getFollowVisitPatientId();
+        TbFollowVisitPatient patient = tbFollowVisitPatientService.getById(followVisitPatientId);
+        BeanUtils.copyProperties(patient,vo);
+        vo.setId(id);
+        vo.setFollowVisitNumber(byId.getFollowVisitNumber());
 
+        Integer followVisitTemplateId = byId.getFollowVisitTemplateId();
+        TbFollowVisitTemplate template = tbFollowVisitTemplateService.getById(followVisitTemplateId);
+        vo.setFollowVisitTemplateName(template.getName());
+        vo.setDateStartType(template.getDateStartType());
 
+        vo.setFollowVisitTime(byId.getFollowVisitTime());
+        vo.setFollowVisitPatientTemplateId(byId.getFollowVisitPatientTemplateId());
+        vo.setQuestionId(byId.getQuestionId());
 
+        LambdaUpdateWrapper<TbFollowVisitPatientRecord> lambda = new UpdateWrapper<TbFollowVisitPatientRecord>().lambda();
+        lambda.eq(TbFollowVisitPatientRecord::getFollowVisitPatientTemplateId, byId.getFollowVisitPatientTemplateId());
+        lambda.eq(TbFollowVisitPatientRecord::getStatus, TbFollowVisitPatientConstant.STATUS_COMPLETED);
+        List<TbFollowVisitPatientRecord> list = this.list(lambda);
+        List<TbFollowVisitPatientRecordHistoryVo> historyVoList = list.stream().map(r -> {
+            TbFollowVisitPatientRecordHistoryVo historyVo = new TbFollowVisitPatientRecordHistoryVo();
+            BeanUtils.copyProperties(r, historyVo);
+            return historyVo;
+        }).collect(Collectors.toList());
+
+        vo.setHistoryRecord(historyVoList);
+        return vo;
+    }
+
+    @Override
+    public ResultBetter<Boolean> answerAfter(TbFollowVisitPatientRecordAnswerAfterParam param) {
+        Integer id = param.getId();
+        TbFollowVisitPatientRecord byId = this.getById(id);
+        if(byId==null){
+            return ResultBetter.error("记录错误");
+        }
+        byId.setAnswerId(param.getAnswerId());
+        byId.setStatus(TbFollowVisitPatientConstant.STATUS_COMPLETED);
+        this.updateById(byId);
+        return ResultBetter.ok();
+    }
 }

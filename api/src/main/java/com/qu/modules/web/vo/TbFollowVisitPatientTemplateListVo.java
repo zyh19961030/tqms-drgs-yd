@@ -21,8 +21,8 @@ import java.util.Date;
 @TableName("tb_follow_visit_patient_record")
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@ApiModel(value="TbFollowVisitPatientRecordListVo", description="TbFollowVisitPatientRecordListVo")
-public class TbFollowVisitPatientRecordListVo {
+@ApiModel(value="TbFollowVisitPatientTemplateListVo", description="TbFollowVisitPatientTemplateListVo")
+public class TbFollowVisitPatientTemplateListVo {
 
     @ApiModelProperty(value = "id")
 	private Integer id;
@@ -39,26 +39,31 @@ public class TbFollowVisitPatientRecordListVo {
     @ApiModelProperty(value = "患者主要诊断")
     private String diagnosis;
 
-    @ApiModelProperty(value = "随访内容")
+    @ApiModelProperty(value = "随访计划名称")
     private String followVisitTemplate;
 
-    @ApiModelProperty(value = "随访计划模板id")
-    private Integer followVisitTemplateId;
+    @ApiModelProperty(value = "计划总随访次数")
+    private Integer followVisitCountNumber;
+
+    @ApiModelProperty(value = "已随访次数")
+    private Integer alreadyFollowVisitCountNumber;
 
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    @ApiModelProperty(value = "建议随访日期")
+    @ApiModelProperty(value = "建议下次随访日期")
     private Date followVisitTime;
 
-    @ApiModelProperty(value = "随访次数_第N次随访")
-    private Integer followVisitNumber;
+    @ApiModelProperty(value = "状态 1执行中 2计划已完成 3已提前终止")
+    private Integer status;
 
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "出院时间")
     private Date outTime;
 
-    @ApiModelProperty(value = "状态 1待填报 2已填报 3随访被终止")
-    private Integer status;
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @ApiModelProperty(value = "创建时间")
+    private Date createTime;
 
 }
