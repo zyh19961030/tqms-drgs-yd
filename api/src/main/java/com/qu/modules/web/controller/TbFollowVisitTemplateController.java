@@ -1,5 +1,19 @@
 package com.qu.modules.web.controller;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.aspect.annotation.AutoLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.qu.constant.Constant;
@@ -10,15 +24,11 @@ import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.ITbFollowVisitTemplateService;
 import com.qu.modules.web.vo.TbFollowVisitTemplateInfoVo;
 import com.qu.modules.web.vo.TbFollowVisitTemplateListVo;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.aspect.annotation.AutoLog;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @Description: 随访模板表
@@ -93,6 +103,19 @@ public class TbFollowVisitTemplateController {
 		}
 		return result;
 	}
+
+
+    @AutoLog(value = "随访模板表-停用")
+    @ApiOperation(value = "随访模板表-停用", notes = "随访模板表-停用")
+    @DeleteMapping(value = "/deactivate")
+    public Result deactivate(@RequestParam(name="id",required=true)@ApiParam("从列表中获取的主键id") Integer id) {
+        boolean flag = tbFollowVisitTemplateService.deactivate(id);
+        if(flag){
+            return ResultFactory.success();
+        }else{
+            return ResultFactory.fail("停用失败");
+        }
+    }
 
 //	/**
 //	  *  编辑

@@ -23,4 +23,7 @@ public interface ITbFollowVisitTemplateService extends IService<TbFollowVisitTem
     void addOrUpdate(TbFollowVisitTemplateAddOrUpdateParam param, Data data);
 
     TbFollowVisitTemplateInfoVo info(String id);
+
+    boolean deactivate(Integer id);
+
 }

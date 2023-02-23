@@ -1,5 +1,18 @@
 package com.qu.modules.web.service.impl;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -27,18 +40,6 @@ import com.qu.modules.web.vo.TbFollowVisitTemplateCycleInfoVo;
 import com.qu.modules.web.vo.TbFollowVisitTemplateDiseaseInfoVo;
 import com.qu.modules.web.vo.TbFollowVisitTemplateInfoVo;
 import com.qu.modules.web.vo.TbFollowVisitTemplateListVo;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @Description: 随访模板表
@@ -109,8 +110,9 @@ public class TbFollowVisitTemplateServiceImpl extends ServiceImpl<TbFollowVisitT
         }).collect(Collectors.toList());
 
         Page<TbFollowVisitTemplateListVo> resPage = new Page<>();
-        BeanUtils.copyProperties(iPage,resPage);
         resPage.setRecords(resList);
+        resPage.setTotal(iPage.getTotal());
+        resPage.setCurrent(iPage.getCurrent());
         return resPage;
     }
 
@@ -207,5 +209,16 @@ public class TbFollowVisitTemplateServiceImpl extends ServiceImpl<TbFollowVisitT
         }).collect(Collectors.toList());
         vo.setCycleList(resCycleList);
         return vo;
+    }
+
+    @Override
+    public boolean deactivate(Integer id) {
+        TbFollowVisitTemplate byId = this.getById(id);
+        if(byId==null){
+            return false;
+        }
+        byId.setStatus(TbFollowVisitTemplateConstant.STATUS_STOP);
+        this.updateById(byId);
+        return true;
     }
 }
