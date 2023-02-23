@@ -1,19 +1,20 @@
 package com.qu.modules.web.entity;
 
-import java.io.Serializable;
 import java.util.Date;
+
+import org.jeecgframework.poi.excel.annotation.Excel;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.TableField;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.jeecgframework.poi.excel.annotation.Excel;
 
 /**
  * @Description: 随访患者记录表
@@ -29,7 +30,7 @@ import org.jeecgframework.poi.excel.annotation.Excel;
 public class TbFollowVisitPatientRecord {
     
 	/**id*/
-	@TableId(type = IdType.UUID)
+	@TableId(type = IdType.AUTO)
     @ApiModelProperty(value = "id")
 	private Integer id;
 	/**随访患者信息表id*/
@@ -54,9 +55,9 @@ public class TbFollowVisitPatientRecord {
 	@Excel(name = "随访次数_第N次随访", width = 15)
     @ApiModelProperty(value = "随访次数_第N次随访")
 	private Integer followVisitNumber;
-	/**状态 1待填报 2已填报*/
-	@Excel(name = "状态 1待填报 2已填报", width = 15)
-    @ApiModelProperty(value = "状态 1待填报 2已填报")
+	/**状态 1待填报 2已填报 3随访被终止*/
+	@Excel(name = "状态 1待填报 2已填报 3随访被终止", width = 15)
+    @ApiModelProperty(value = "状态 1待填报 2已填报 3随访被终止")
 	private Integer status;
 	/**删除状态（0：未删除  1：已删除）*/
 	@Excel(name = "删除状态（0：未删除  1：已删除）", width = 15)
