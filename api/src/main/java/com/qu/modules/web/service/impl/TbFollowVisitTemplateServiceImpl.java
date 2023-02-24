@@ -1,5 +1,6 @@
 package com.qu.modules.web.service.impl;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.qu.constant.TbFollowVisitTemplateConstant;
+import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.entity.TbFollowVisitTemplate;
 import com.qu.modules.web.entity.TbFollowVisitTemplateCycle;
 import com.qu.modules.web.entity.TbFollowVisitTemplateDisease;
@@ -33,6 +35,7 @@ import com.qu.modules.web.param.TbFollowVisitTemplateAddOrUpdateParam;
 import com.qu.modules.web.param.TbFollowVisitTemplateCycleAddParam;
 import com.qu.modules.web.param.TbFollowVisitTemplateListParam;
 import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.service.ITbFollowVisitTemplateCycleService;
 import com.qu.modules.web.service.ITbFollowVisitTemplateDiseaseService;
 import com.qu.modules.web.service.ITbFollowVisitTemplateService;
@@ -63,6 +66,9 @@ public class TbFollowVisitTemplateServiceImpl extends ServiceImpl<TbFollowVisitT
 
     @Autowired
     private IZbCodeConfigService zbCodeConfigService;
+
+    @Autowired
+    private IQuestionService questionService;
 
     @Override
     public IPage<TbFollowVisitTemplateListVo> queryPageList(Page<TbFollowVisitTemplate> page, TbFollowVisitTemplateListParam listParam) {
@@ -234,9 +240,18 @@ public class TbFollowVisitTemplateServiceImpl extends ServiceImpl<TbFollowVisitT
         cycleLambdaQueryWrapper.eq(TbFollowVisitTemplateCycle::getFollowVisitTemplateId,id);
         cycleLambdaQueryWrapper.eq(TbFollowVisitTemplateCycle::getDelState,TbFollowVisitTemplateConstant.DEL_NORMAL);
         List<TbFollowVisitTemplateCycle> cycleList = tbFollowVisitTemplateCycleService.list(cycleLambdaQueryWrapper);
+
+        List<Integer> questionIdList = cycleList.stream().map(TbFollowVisitTemplateCycle::getQuestionId).distinct().collect(Collectors.toList());
+        Collection<Question> questionList = questionService.listByIds(questionIdList);
+        Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
+
         List<TbFollowVisitTemplateCycleInfoVo> resCycleList = cycleList.stream().map(c -> {
             TbFollowVisitTemplateCycleInfoVo cycleInfoVo = new TbFollowVisitTemplateCycleInfoVo();
             BeanUtils.copyProperties(c, cycleInfoVo);
+            Question question = questionMap.get(c.getQuestionId());
+            if(Objects.nonNull(question)){
+                cycleInfoVo.setQuestionName(question.getQuName());
+            }
             return cycleInfoVo;
         }).collect(Collectors.toList());
         vo.setCycleList(resCycleList);

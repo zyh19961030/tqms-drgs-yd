@@ -23,7 +23,7 @@ public class TbFollowVisitTemplateCycleAddParam {
 
 	/**次数*/
 	@ApiModelProperty(value = "次数")
-	private String frequency;
+	private Integer frequency;
 
 	/**距时间起点的整数*/
 	@ApiModelProperty(value = "距时间起点的整数")

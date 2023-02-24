@@ -1,6 +1,7 @@
 package com.qu.modules.web.vo;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -23,11 +24,18 @@ public class TbFollowVisitPatientRecordHistoryVo {
     @ApiModelProperty(value = "id")
 	private Integer id;
 
+    @ApiModelProperty(value = "随访次数_第N次随访")
+    private Integer followVisitNumber;
+
     @ApiModelProperty(value = "随访关联内容的问卷id")
     private Integer questionId;
 
     @ApiModelProperty(value = "答案id")
     private Integer answerId;
+
+//    @ApiModelProperty(value = "状态 1待填报 2已填报 3随访被终止")
+//    private Integer status;
+
 
 
 }

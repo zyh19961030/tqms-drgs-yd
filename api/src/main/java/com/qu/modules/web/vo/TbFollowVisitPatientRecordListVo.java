@@ -1,15 +1,17 @@
 package com.qu.modules.web.vo;
 
+import java.util.Date;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.util.Date;
 
 /**
  * @Description: 随访患者记录表
@@ -52,6 +54,9 @@ public class TbFollowVisitPatientRecordListVo {
 
     @ApiModelProperty(value = "随访次数_第N次随访")
     private Integer followVisitNumber;
+
+    @ApiModelProperty(value = "对应随访计划名称")
+    private String followVisitTemplateName;
 
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")

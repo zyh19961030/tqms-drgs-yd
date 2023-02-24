@@ -17,7 +17,7 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@ApiModel(value="TbFollowVisitTemplateAddParam", description="TbFollowVisitTemplateAddParam")
+@ApiModel(value="TbFollowVisitTemplateAddOrUpdateParam", description="TbFollowVisitTemplateAddOrUpdateParam")
 public class TbFollowVisitTemplateAddOrUpdateParam {
     
 	/**id*/

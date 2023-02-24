@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.jeecgframework.poi.excel.annotation.Excel;
 
 /**
  * @Description: 随访模板周期表
@@ -22,25 +21,19 @@ import org.jeecgframework.poi.excel.annotation.Excel;
 public class TbFollowVisitTemplateCycleInfoVo {
 
 
-	/**次数*/
-	@Excel(name = "次数", width = 15)
 	@ApiModelProperty(value = "次数")
 	private String frequency;
 
-	/**距时间起点的整数*/
-	@Excel(name = "距时间起点的整数", width = 15)
 	@ApiModelProperty(value = "距时间起点的整数")
 	private Integer dateStartNumber;
 
-	/**距时间起点 1天 2周 3月 4年*/
-	@Excel(name = "距时间起点 1天 2周 3月 4年", width = 15)
 	@ApiModelProperty(value = "距时间起点 1天 2周 3月 4年")
 	private Integer dateStartType;
 
-	/**关联内容的问卷标题*/
-	@Excel(name = "关联内容的问卷标题", width = 15)
 	@ApiModelProperty(value = "关联内容的问卷标题")
 	private Integer questionId;
 
+    @ApiModelProperty(value = "关联内容的问卷标题名字")
+    private String questionName;
 
 }

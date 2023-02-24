@@ -1,30 +1,13 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.qu.constant.TbFollowVisitPatientConstant;
-import com.qu.constant.TbFollowVisitPatientTemplateConstant;
-import com.qu.constant.TbFollowVisitTemplateConstant;
-import com.qu.modules.web.entity.TbFollowVisitPatient;
-import com.qu.modules.web.entity.TbFollowVisitPatientRecord;
-import com.qu.modules.web.entity.TbFollowVisitPatientTemplate;
-import com.qu.modules.web.entity.TbFollowVisitTemplate;
-import com.qu.modules.web.mapper.TbFollowVisitPatientRecordMapper;
-import com.qu.modules.web.param.TbFollowVisitPatientRecordAnswerAfterParam;
-import com.qu.modules.web.param.TbFollowVisitPatientRecordListParam;
-import com.qu.modules.web.service.ITbFollowVisitPatientRecordService;
-import com.qu.modules.web.service.ITbFollowVisitPatientService;
-import com.qu.modules.web.service.ITbFollowVisitPatientTemplateService;
-import com.qu.modules.web.service.ITbFollowVisitTemplateService;
-import com.qu.modules.web.vo.TbFollowVisitPatientRecordHistoryVo;
-import com.qu.modules.web.vo.TbFollowVisitPatientRecordListVo;
-import com.qu.modules.web.vo.TbFollowVisitPatientRecordVo;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.ResultBetter;
 import org.joda.time.DateTime;
@@ -34,9 +17,35 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.qu.constant.TbFollowVisitPatientConstant;
+import com.qu.constant.TbFollowVisitPatientRecordConstant;
+import com.qu.constant.TbFollowVisitPatientTemplateConstant;
+import com.qu.constant.TbFollowVisitTemplateConstant;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.entity.TbFollowVisitPatient;
+import com.qu.modules.web.entity.TbFollowVisitPatientRecord;
+import com.qu.modules.web.entity.TbFollowVisitPatientTemplate;
+import com.qu.modules.web.entity.TbFollowVisitTemplate;
+import com.qu.modules.web.mapper.TbFollowVisitPatientRecordMapper;
+import com.qu.modules.web.param.TbFollowVisitPatientRecordAnswerAfterParam;
+import com.qu.modules.web.param.TbFollowVisitPatientRecordListParam;
+import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.service.ITbFollowVisitPatientRecordService;
+import com.qu.modules.web.service.ITbFollowVisitPatientService;
+import com.qu.modules.web.service.ITbFollowVisitPatientTemplateService;
+import com.qu.modules.web.service.ITbFollowVisitTemplateService;
+import com.qu.modules.web.vo.TbFollowVisitPatientRecordHistoryVo;
+import com.qu.modules.web.vo.TbFollowVisitPatientRecordListVo;
+import com.qu.modules.web.vo.TbFollowVisitPatientRecordVo;
+
+import cn.hutool.core.collection.CollectionUtil;
 
 /**
  * @Description: 随访患者记录表
@@ -56,6 +65,8 @@ public class TbFollowVisitPatientRecordServiceImpl extends ServiceImpl<TbFollowV
 
     @Autowired
     private ITbFollowVisitPatientTemplateService tbFollowVisitPatientTemplateService;
+    @Autowired
+    private IQuestionService questionService;
 
     @Override
     public IPage<TbFollowVisitPatientRecordListVo> queryPageList(TbFollowVisitPatientRecordListParam param, Page<TbFollowVisitPatientRecord> page) {
@@ -114,6 +125,8 @@ public class TbFollowVisitPatientRecordServiceImpl extends ServiceImpl<TbFollowV
         Integer status = param.getStatus();
         if(status!=null && status>0){
             lambda.eq(TbFollowVisitPatientRecord::getStatus,status);
+        }else{
+            lambda.ne(TbFollowVisitPatientRecord::getStatus, TbFollowVisitPatientRecordConstant.STATUS_STOP);
         }
         IPage<TbFollowVisitPatientRecord> iPage = this.page(page, lambda);
         List<TbFollowVisitPatientRecord> records = iPage.getRecords();
@@ -129,16 +142,25 @@ public class TbFollowVisitPatientRecordServiceImpl extends ServiceImpl<TbFollowV
         Collection<TbFollowVisitTemplate> tbFollowVisitTemplateList = tbFollowVisitTemplateService.listByIds(recordTemplateIdList);
         Map<Integer, TbFollowVisitTemplate> followVisitTemplateMap = tbFollowVisitTemplateList.stream().collect(Collectors.toMap(TbFollowVisitTemplate::getId, Function.identity()));
 
+        List<Integer> questionIdList = records.stream().map(TbFollowVisitPatientRecord::getQuestionId).distinct().collect(Collectors.toList());
+        Collection<Question> questionList = questionService.listByIds(questionIdList);
+        Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
+
         List<TbFollowVisitPatientRecordListVo> resList = records.stream().map(r -> {
             TbFollowVisitPatientRecordListVo vo = new TbFollowVisitPatientRecordListVo();
             BeanUtils.copyProperties(r, vo);
             TbFollowVisitPatient tbFollowVisitPatient = followVisitPatientMap.get(r.getFollowVisitPatientId());
             if(Objects.nonNull(tbFollowVisitPatient)){
                 BeanUtils.copyProperties(tbFollowVisitPatient,vo);
+                vo.setPatientName(tbFollowVisitPatient.getName());
             }
             TbFollowVisitTemplate tbFollowVisitTemplate = followVisitTemplateMap.get(r.getFollowVisitTemplateId());
             if(Objects.nonNull(tbFollowVisitTemplate)){
-                vo.setFollowVisitTemplate(tbFollowVisitTemplate.getName());
+                vo.setFollowVisitTemplateName(tbFollowVisitTemplate.getName());
+            }
+            Question question = questionMap.get(r.getQuestionId());
+            if(Objects.nonNull(question)){
+                vo.setFollowVisitTemplate(question.getQuName());
             }
             vo.setId(r.getId());
             return vo;
@@ -195,6 +217,7 @@ public class TbFollowVisitPatientRecordServiceImpl extends ServiceImpl<TbFollowV
         vo.setFollowVisitTime(byId.getFollowVisitTime());
         vo.setFollowVisitPatientTemplateId(byId.getFollowVisitPatientTemplateId());
         vo.setQuestionId(byId.getQuestionId());
+        vo.setAnswerId(byId.getAnswerId());
 
         LambdaUpdateWrapper<TbFollowVisitPatientRecord> lambda = new UpdateWrapper<TbFollowVisitPatientRecord>().lambda();
         lambda.eq(TbFollowVisitPatientRecord::getFollowVisitPatientTemplateId, byId.getFollowVisitPatientTemplateId());
