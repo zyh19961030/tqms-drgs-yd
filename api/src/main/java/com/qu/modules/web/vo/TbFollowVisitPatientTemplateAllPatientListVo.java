@@ -23,8 +23,8 @@ import lombok.experimental.Accessors;
 @TableName("tb_follow_visit_patient_record")
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@ApiModel(value="TbFollowVisitPatientTemplateListVo", description="TbFollowVisitPatientTemplateListVo")
-public class TbFollowVisitPatientTemplateListVo {
+@ApiModel(value="TbFollowVisitPatientTemplateAllPatientListVo", description="TbFollowVisitPatientTemplateAllPatientListVo")
+public class TbFollowVisitPatientTemplateAllPatientListVo {
 
     @ApiModelProperty(value = "id")
 	private Integer id;
@@ -37,6 +37,9 @@ public class TbFollowVisitPatientTemplateListVo {
 
     @ApiModelProperty(value = "电话")
 	private String phone;
+
+    @ApiModelProperty(value = "住院次数")
+    private String inHospitalNumber;
 
     @ApiModelProperty(value = "患者主要诊断")
     private String diagnosis;

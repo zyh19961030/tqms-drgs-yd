@@ -15,6 +15,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -63,8 +64,10 @@ public class TbFollowVisitPatientRecordServiceImpl extends ServiceImpl<TbFollowV
     @Autowired
     private ITbFollowVisitPatientService tbFollowVisitPatientService;
 
+    @Lazy
     @Autowired
     private ITbFollowVisitPatientTemplateService tbFollowVisitPatientTemplateService;
+
     @Autowired
     private IQuestionService questionService;
 

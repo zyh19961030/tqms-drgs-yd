@@ -88,7 +88,7 @@ public class TbFollowVisitTemplateServiceImpl extends ServiceImpl<TbFollowVisitT
         if (listParam.getEndUpdateTime() != null) {
             lambda.le(TbFollowVisitTemplate::getUpdateTime, listParam.getEndUpdateTime());
         }
-
+        lambda.orderByDesc(TbFollowVisitTemplate::getUpdateTime);
         IPage<TbFollowVisitTemplate> iPage = this.page(page, lambda);
         List<TbFollowVisitTemplate> records = iPage.getRecords();
 
@@ -102,7 +102,7 @@ public class TbFollowVisitTemplateServiceImpl extends ServiceImpl<TbFollowVisitT
         diseaseLambdaQueryWrapper.eq(TbFollowVisitTemplateDisease::getDelState,TbFollowVisitTemplateConstant.DEL_NORMAL);
         List<TbFollowVisitTemplateDisease> diseaseList = tbFollowVisitTemplateDiseaseService.list(diseaseLambdaQueryWrapper);
 
-        Map<Integer, List<TbFollowVisitTemplateDisease>> diseaseMap = diseaseList.stream().collect(Collectors.toMap(TbFollowVisitTemplateDisease::getId, Lists::newArrayList,
+        Map<Integer, List<TbFollowVisitTemplateDisease>> diseaseMap = diseaseList.stream().collect(Collectors.toMap(TbFollowVisitTemplateDisease::getFollowVisitTemplateId, Lists::newArrayList,
                 (List<TbFollowVisitTemplateDisease> n1, List<TbFollowVisitTemplateDisease> n2) -> {
                     n1.addAll(n2);
                     return n1;
@@ -110,11 +110,11 @@ public class TbFollowVisitTemplateServiceImpl extends ServiceImpl<TbFollowVisitT
 
         List<String> diseaseCodeList = diseaseList.stream().map(TbFollowVisitTemplateDisease::getCode).collect(Collectors.toList());
         LambdaQueryWrapper<ZbCodeConfig> zbCodeConfigLambdaQueryWrapper = new QueryWrapper<ZbCodeConfig>().lambda();
-        zbCodeConfigLambdaQueryWrapper.in(ZbCodeConfig::getCode,diseaseCodeList);
-        zbCodeConfigLambdaQueryWrapper.in(ZbCodeConfig::getZblx,3);
-        zbCodeConfigLambdaQueryWrapper.groupBy(ZbCodeConfig::getCode);
+        zbCodeConfigLambdaQueryWrapper.in(ZbCodeConfig::getZbgroup,diseaseCodeList);
+        zbCodeConfigLambdaQueryWrapper.eq(ZbCodeConfig::getZblx,3);
+        zbCodeConfigLambdaQueryWrapper.groupBy(ZbCodeConfig::getZbgroup);
         List<ZbCodeConfig> zbCodeConfigList = zbCodeConfigService.list(zbCodeConfigLambdaQueryWrapper);
-        Map<String, ZbCodeConfig> zbCodeConfigMap = zbCodeConfigList.stream().collect(Collectors.toMap(ZbCodeConfig::getCode, Function.identity()));
+        Map<String, ZbCodeConfig> zbCodeConfigMap = zbCodeConfigList.stream().collect(Collectors.toMap(ZbCodeConfig::getZbgroup, Function.identity()));
 
         List<TbFollowVisitTemplateListVo> resList = records.stream().map(r -> {
             TbFollowVisitTemplateListVo vo = new TbFollowVisitTemplateListVo();
@@ -183,7 +183,8 @@ public class TbFollowVisitTemplateServiceImpl extends ServiceImpl<TbFollowVisitT
         Integer finalId = id;
         List<TbFollowVisitTemplateDisease> diseaseList = diseaseAddParamList.stream().map(d -> {
             TbFollowVisitTemplateDisease disease = new TbFollowVisitTemplateDisease();
-            BeanUtils.copyProperties(d, disease);
+//            BeanUtils.copyProperties(d, disease);
+            disease.setCode(d);
             disease.setFollowVisitTemplateId(finalId);
             disease.setDelState(TbFollowVisitTemplateConstant.DEL_NORMAL);
             disease.setCreateUser(data.getTbUser().getId());

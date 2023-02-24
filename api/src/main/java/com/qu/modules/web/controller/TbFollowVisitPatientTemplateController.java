@@ -1,15 +1,10 @@
 package com.qu.modules.web.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.qu.modules.web.entity.TbFollowVisitPatientTemplate;
-import com.qu.modules.web.param.TbFollowVisitPatientTemplateListParam;
-import com.qu.modules.web.service.ITbFollowVisitPatientTemplateService;
-import com.qu.modules.web.vo.TbFollowVisitPatientTemplateListVo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
+
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.jeecg.common.api.vo.ResultFactory;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +12,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.qu.modules.web.entity.TbFollowVisitPatientTemplate;
+import com.qu.modules.web.param.TbFollowVisitPatientTemplateAllPatientListParam;
+import com.qu.modules.web.param.TbFollowVisitPatientTemplateListParam;
+import com.qu.modules.web.service.ITbFollowVisitPatientTemplateService;
+import com.qu.modules.web.vo.TbFollowVisitPatientTemplateAllPatientListVo;
+import com.qu.modules.web.vo.TbFollowVisitPatientTemplateInfoVo;
+import com.qu.modules.web.vo.TbFollowVisitPatientTemplateListVo;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: 随访患者模板总记录表
@@ -56,8 +64,44 @@ public class TbFollowVisitPatientTemplateController {
 		result.setResult(pageList);
 		return result;
 	}
-//
-//	/**
+
+    @AutoLog(value = "患者随访管理-终止随访")
+    @ApiOperation(value = "患者随访管理-终止随访", notes = "患者随访管理-终止随访")
+    @GetMapping(value = "/stopFollowVisit")
+    public Result stopFollowVisit(@RequestParam(name="id",required=true)@ApiParam("从列表中获取的主键id") Integer id) {
+        boolean flag = tbFollowVisitPatientTemplateService.stopFollowVisit(id);
+        if(flag){
+            return ResultFactory.success();
+        }else{
+            return ResultFactory.fail("终止随访失败");
+        }
+    }
+
+    @AutoLog(value = "患者随访管理-详情")
+    @ApiOperation(value = "患者随访管理-详情", notes = "患者随访管理-详情")
+    @GetMapping(value = "/info")
+    public ResultBetter<TbFollowVisitPatientTemplateInfoVo> info(@RequestParam(name="id",required=true)@ApiParam("从列表中获取的主键id") Integer id) {
+        TbFollowVisitPatientTemplateInfoVo info = tbFollowVisitPatientTemplateService.info(id);
+        return ResultBetter.ok(info);
+    }
+
+    @AutoLog(value = "全部患者随访-分页列表查询")
+    @ApiOperation(value="全部患者随访-分页列表查询", notes="全部患者随访-分页列表查询")
+    @GetMapping(value = "/allPatientList")
+    public Result<IPage<TbFollowVisitPatientTemplateAllPatientListVo>> allPatientList(TbFollowVisitPatientTemplateAllPatientListParam param,
+                                                                                      @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
+                                                                                      @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
+                                                                                      HttpServletRequest req) {
+        Result<IPage<TbFollowVisitPatientTemplateAllPatientListVo>> result = new Result<IPage<TbFollowVisitPatientTemplateAllPatientListVo>>();
+        Page<TbFollowVisitPatientTemplate> page = new Page<TbFollowVisitPatientTemplate>(pageNo, pageSize);
+        IPage<TbFollowVisitPatientTemplateAllPatientListVo> pageList = tbFollowVisitPatientTemplateService.allPatientList(page, param);
+        result.setSuccess(true);
+        result.setResult(pageList);
+        return result;
+    }
+
+
+    //	/**
 //	  *   添加
 //	 * @param tbFollowVisitPatientTemplate
 //	 * @return

@@ -59,6 +59,10 @@ public class TbFollowVisitPatient {
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "出院时间")
 	private Date outTime;
+    /**科室id*/
+    @Excel(name = "科室id", width = 15)
+    @ApiModelProperty(value = "科室id")
+    private String deptId;
 	/**删除状态（0：未删除  1：已删除）*/
 	@Excel(name = "删除状态（0：未删除  1：已删除）", width = 15)
     @ApiModelProperty(value = "删除状态（0：未删除  1：已删除）")
