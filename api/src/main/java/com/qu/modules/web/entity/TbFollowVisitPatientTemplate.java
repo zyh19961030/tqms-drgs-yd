@@ -1,20 +1,18 @@
 package com.qu.modules.web.entity;
 
-import java.util.Date;
-
-import org.jeecgframework.poi.excel.annotation.Excel;
-import org.springframework.format.annotation.DateTimeFormat;
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.jeecgframework.poi.excel.annotation.Excel;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 /**
  * @Description: 随访患者模板总记录表
@@ -41,17 +39,13 @@ public class TbFollowVisitPatientTemplate {
 	@Excel(name = "随访计划模板id", width = 15)
     @ApiModelProperty(value = "随访计划模板id")
 	private Integer followVisitTemplateId;
-	/**随访关联内容的问卷id*/
-	@Excel(name = "随访关联内容的问卷id", width = 15)
-    @ApiModelProperty(value = "随访关联内容的问卷id")
-	private Integer questionId;
 	/**计划总随访次数*/
 	@Excel(name = "计划总随访次数", width = 15)
     @ApiModelProperty(value = "计划总随访次数")
 	private Integer followVisitCountNumber;
-	/**状态 1执行中 2计划已完成 3已提前终止*/
-	@Excel(name = "状态 1执行中 2计划已完成 3已提前终止", width = 15)
-    @ApiModelProperty(value = "状态 1执行中 2计划已完成 3已提前终止")
+	/**状态 1执行中 2计划已完成 3已提前终止 4二次住院提前终止*/
+	@Excel(name = "状态 1执行中 2计划已完成 3已提前终止 4二次住院提前终止", width = 15)
+    @ApiModelProperty(value = "状态 1执行中 2计划已完成 3已提前终止 4二次住院提前终止")
 	private Integer status;
 	/**删除状态（0：未删除  1：已删除）*/
 	@Excel(name = "删除状态（0：未删除  1：已删除）", width = 15)

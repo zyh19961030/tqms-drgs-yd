@@ -55,7 +55,7 @@ public class TbFollowVisitPatientTemplateListVo {
     @ApiModelProperty(value = "建议下次随访日期")
     private Date followVisitTime;
 
-    @ApiModelProperty(value = "状态 1执行中 2计划已完成 3已提前终止")
+    @ApiModelProperty(value = "状态 1执行中 2计划已完成 3已提前终止 4二次住院提前终止")
     private Integer status;
 
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")

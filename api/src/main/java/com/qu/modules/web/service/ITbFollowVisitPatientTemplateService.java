@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.TbFollowVisitPatientTemplate;
 import com.qu.modules.web.param.TbFollowVisitPatientTemplateAllPatientListParam;
+import com.qu.modules.web.param.TbFollowVisitPatientTemplateGenerateParam;
 import com.qu.modules.web.param.TbFollowVisitPatientTemplateListParam;
 import com.qu.modules.web.vo.TbFollowVisitPatientTemplateAllPatientListVo;
 import com.qu.modules.web.vo.TbFollowVisitPatientTemplateInfoVo;
@@ -25,5 +26,7 @@ public interface ITbFollowVisitPatientTemplateService extends IService<TbFollowV
     TbFollowVisitPatientTemplateInfoVo info(Integer id);
 
     IPage<TbFollowVisitPatientTemplateAllPatientListVo> allPatientList(Page<TbFollowVisitPatientTemplate> page, TbFollowVisitPatientTemplateAllPatientListParam param);
+
+    void generatePatientTemplate(TbFollowVisitPatientTemplateGenerateParam param);
 
 }

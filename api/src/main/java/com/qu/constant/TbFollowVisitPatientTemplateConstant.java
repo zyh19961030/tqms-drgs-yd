@@ -10,6 +10,7 @@ public class TbFollowVisitPatientTemplateConstant {
 	public static final Integer STATUS_PROGRESS   = 1;
 	public static final Integer STATUS_COMPLETED   = 2;
 	public static final Integer STATUS_STOP = 3;
+	public static final Integer STATUS_AGAIN_HOSPITAL_STOP = 4;
 
 
 

@@ -29,7 +29,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     private static final String URL_LOGIN = "/login";
 
     private static final String URL_REGISTER = "/register";
-    private static final List<String> URL_LIST = Lists.newArrayList("/web/miniapp",
+    private static final List<String> URL_LIST = Lists.newArrayList("/web/miniapp","/web/ba",
             "/j/admin",
             "/answerCheck/exportXlsDetailList",
             "/answerCheck/exportXlsCheckQuestionHistoryStatisticDeptDetailList",
