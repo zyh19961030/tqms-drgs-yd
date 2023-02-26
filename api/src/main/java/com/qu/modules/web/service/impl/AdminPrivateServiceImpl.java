@@ -1,20 +1,6 @@
 package com.qu.modules.web.service.impl;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang3.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import cn.hutool.core.date.*;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -22,23 +8,9 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
-import com.qu.constant.AnswerCheckConstant;
-import com.qu.constant.QoptionConstant;
-import com.qu.constant.QsubjectConstant;
-import com.qu.constant.QuestionConstant;
-import com.qu.modules.web.entity.Answer;
-import com.qu.modules.web.entity.AnswerCheck;
-import com.qu.modules.web.entity.QSingleDiseaseTake;
-import com.qu.modules.web.entity.Qoption;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.mapper.AnswerCheckMapper;
-import com.qu.modules.web.mapper.AnswerMapper;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.OptionMapper;
-import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
-import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.constant.*;
+import com.qu.modules.web.entity.*;
+import com.qu.modules.web.mapper.*;
 import com.qu.modules.web.param.AdminPrivateParam;
 import com.qu.modules.web.param.AdminPrivateUpdateOptionValueParam;
 import com.qu.modules.web.param.AdminPrivateUpdateTableAddDelFeeParam;
@@ -46,13 +18,22 @@ import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
 import com.qu.modules.web.service.IAdminPrivateService;
 import com.qu.modules.web.service.IOptionService;
 import com.qu.util.PriceUtil;
-
-import cn.hutool.core.date.DateException;
-import cn.hutool.core.date.DateField;
-import cn.hutool.core.date.DatePattern;
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -77,6 +58,9 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
 
     @Resource
     private AnswerCheckMapper answerCheckMapper;
+
+    @Resource
+    private AnswerMapper answerMapper;
 
     private static String[] parsePatterns = new String[]{"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"};
 
@@ -431,6 +415,86 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         return ResultFactory.success();
     }
 
+    @Override
+    public Result updateAnswerOutTime(AdminPrivateUpdateTableDrugFeeParam param) {
+
+        //查出来所有的 Question
+        LambdaQueryWrapper<Question> questionLambda = new QueryWrapper<Question>().lambda();
+        //        questionLambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
+//        questionLambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_CHECK);
+        questionLambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
+        List<Question> questionList = questionMapper.selectList(questionLambda);
+        Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
+
+        for (int i = 0; ; i++) {
+            //查出来所有的Answer
+            LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
+            lambda.eq(Answer::getDel, AnswerConstant.DEL_NORMAL);
+            lambda.isNull(Answer::getOutTime);
+
+            lambda.last(" limit 500");
+            List<Answer> answerList = answerMapper.selectList(lambda);
+            if(answerList.isEmpty()){
+                break;
+            }
+
+            StringBuilder sqlSelect = new StringBuilder();
+            for (Answer answer : answerList) {
+                Integer quId = answer.getQuId();
+                if (quId == null) {
+                    log.info("continue answer.quId is null --answerId-------{}", answer.getId());
+                    continue;
+                }
+                Question question = questionMap.get(quId);
+                if (question == null) {
+                    log.info("continue answer.question is null--quId---answerId-------{},{}", quId, answer.getId());
+                    continue;
+                }
+
+                sqlSelect.setLength(0);
+
+                String tableName = question.getTableName();
+                String summaryMappingTableId = answer.getSummaryMappingTableId();
+                if(StringUtils.isAnyBlank(tableName,summaryMappingTableId)){
+                    log.info("continue answer.tableName or summaryMappingTableId is null---answerId-------{},{},{}", tableName, answer.getId(),summaryMappingTableId);
+                    continue;
+                }
+                sqlSelect.append("select * from `");
+                sqlSelect.append(tableName);
+                sqlSelect.append("`");
+                sqlSelect.append(" where summary_mapping_table_id = '");
+                sqlSelect.append(summaryMappingTableId);
+                sqlSelect.append("'");
+                Map<String,String> map=null;
+                try {
+                    map = dynamicTableMapper.selectDynamicTableColumn(sqlSelect.toString());
+                } catch (Exception e) {
+                    log.info("continue selectDynamicTableColumn Exception-------{},{},{}", tableName, answer.getId(),summaryMappingTableId);
+                    log.error(e.getMessage(),e);
+                    continue;
+                }
+                if (map == null || map.isEmpty()) {
+                    log.info("continue sqlAns map is null---answer-------{},{},{}", tableName, answer.getId(),summaryMappingTableId);
+                    continue;
+                }
+                if(map.containsKey(AnswerConstant.COLUMN_NAME_OUT_TIME)){
+                    String s = map.get(AnswerConstant.COLUMN_NAME_OUT_TIME);
+                    DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+                    org.joda.time.DateTime dateTime = dateTimeFormatter.parseDateTime(s);
+                    answer.setOutTime(dateTime.toDate());
+
+                    answerMapper.updateById(answer);
+                }
+            }
 
 
+
+
+
+
+
+
+        }
+        return ResultFactory.success();
+    }
 }

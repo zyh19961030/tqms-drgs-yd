@@ -88,4 +88,14 @@ public class AdminPrivateController {
         return adminPrivateService.updateAnswerCheckCaseId(param);
     }
 
+    @ApiOperation(value = "给answer总表outTime的历史数据赋值", notes = "给answer总表outTime的历史数据赋值")
+    @PostMapping(value = "/updateAnswerOutTime")
+    public Result updateAnswerOutTime(@RequestBody AdminPrivateUpdateTableDrugFeeParam param) {
+        if(!"z1c2".equals(param.getName())){
+            return ResultFactory.fail();
+        }
+        log.info("-----------updateAnswerOutTime={}", JSON.toJSONString(param));
+        return adminPrivateService.updateAnswerOutTime(param);
+    }
+
 }
