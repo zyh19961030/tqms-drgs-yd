@@ -67,6 +67,9 @@ public class TbFollowVisitPatientRecordServiceImpl extends ServiceImpl<TbFollowV
             templateLambdaQueryWrapper.like(TbFollowVisitTemplate::getName,name);
             templateLambdaQueryWrapper.eq(TbFollowVisitTemplate::getDelState, TbFollowVisitTemplateConstant.DEL_NORMAL);
             List<TbFollowVisitTemplate> templateList = tbFollowVisitTemplateService.list(templateLambdaQueryWrapper);
+            if(CollectionUtil.isEmpty(templateList)){
+                return new Page<>();
+            }
             templateIdList = templateList.stream().map(TbFollowVisitTemplate::getId).distinct().collect(Collectors.toList());
         }
 
@@ -75,8 +78,11 @@ public class TbFollowVisitPatientRecordServiceImpl extends ServiceImpl<TbFollowV
         if(StringUtils.isNotBlank(patientName)){
             //查询随访模板
             LambdaQueryWrapper<TbFollowVisitPatient> patientLambdaQueryWrapper = new QueryWrapper<TbFollowVisitPatient>().lambda();
-            patientLambdaQueryWrapper.like(TbFollowVisitPatient::getName,name);
+            patientLambdaQueryWrapper.like(TbFollowVisitPatient::getName,patientName);
             List<TbFollowVisitPatient> patientList = tbFollowVisitPatientService.list(patientLambdaQueryWrapper);
+            if(CollectionUtil.isEmpty(patientList)){
+                return new Page<>();
+            }
             patientIdList = patientList.stream().map(TbFollowVisitPatient::getId).distinct().collect(Collectors.toList());
         }
 

@@ -181,11 +181,17 @@ public class TbFollowVisitPatientTemplateServiceImpl extends ServiceImpl<TbFollo
                 vo.setFollowVisitTemplate(tbFollowVisitTemplate.getName());
             }
             List<TbFollowVisitPatientRecord> patientRecordVoList = patientRecordMap.get(r.getId());
-            vo.setAlreadyFollowVisitCountNumber(patientRecordVoList.size());
+            if(Objects.nonNull(patientRecordVoList)){
+                vo.setAlreadyFollowVisitCountNumber(patientRecordVoList.size());
+            }else{
+                vo.setAlreadyFollowVisitCountNumber(0);
+            }
 
             List<TbFollowVisitPatientRecord> nextPatientRecordVoList = nextPatientRecordMap.get(r.getId());
-            TbFollowVisitPatientRecord tbFollowVisitPatientRecord = nextPatientRecordVoList.get(0);
-            vo.setFollowVisitTime(tbFollowVisitPatientRecord.getFollowVisitTime());
+            if(Objects.nonNull(nextPatientRecordVoList)){
+                TbFollowVisitPatientRecord tbFollowVisitPatientRecord = nextPatientRecordVoList.get(0);
+                vo.setFollowVisitTime(tbFollowVisitPatientRecord.getFollowVisitTime());
+            }
 
             vo.setId(r.getId());
             return vo;
@@ -390,18 +396,24 @@ public class TbFollowVisitPatientTemplateServiceImpl extends ServiceImpl<TbFollo
             TbFollowVisitPatient tbFollowVisitPatient = followVisitPatientMap.get(r.getFollowVisitPatientId());
             if(Objects.nonNull(tbFollowVisitPatient)){
                 BeanUtils.copyProperties(tbFollowVisitPatient,vo);
+                vo.setPatientName(tbFollowVisitPatient.getName());
             }
             TbFollowVisitTemplate tbFollowVisitTemplate = followVisitTemplateMap.get(r.getFollowVisitTemplateId());
             if(Objects.nonNull(tbFollowVisitTemplate)){
                 vo.setFollowVisitTemplate(tbFollowVisitTemplate.getName());
             }
-
             List<TbFollowVisitPatientRecord> patientRecordVoList = patientRecordMap.get(r.getId());
-            vo.setAlreadyFollowVisitCountNumber(patientRecordVoList.size());
+            if(Objects.nonNull(patientRecordVoList)){
+                vo.setAlreadyFollowVisitCountNumber(patientRecordVoList.size());
+            }else{
+                vo.setAlreadyFollowVisitCountNumber(0);
+            }
 
             List<TbFollowVisitPatientRecord> nextPatientRecordVoList = nextPatientRecordMap.get(r.getId());
-            TbFollowVisitPatientRecord tbFollowVisitPatientRecord = nextPatientRecordVoList.get(0);
-            vo.setFollowVisitTime(tbFollowVisitPatientRecord.getFollowVisitTime());
+            if(Objects.nonNull(nextPatientRecordVoList)){
+                TbFollowVisitPatientRecord tbFollowVisitPatientRecord = nextPatientRecordVoList.get(0);
+                vo.setFollowVisitTime(tbFollowVisitPatientRecord.getFollowVisitTime());
+            }
 
             vo.setId(r.getId());
             return vo;
