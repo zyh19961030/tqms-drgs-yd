@@ -30,6 +30,13 @@ public class TbFollowVisitPatientTemplateAllPatientListVo {
     @ApiModelProperty(value = "患者姓名")
 	private String patientName;
 
+
+    @ApiModelProperty(value = "科室id")
+    private String deptId;
+
+    @ApiModelProperty(value = "科室名称")
+    private String deptName;
+
     @ApiModelProperty(value = "病案号")
 	private String caseId;
 

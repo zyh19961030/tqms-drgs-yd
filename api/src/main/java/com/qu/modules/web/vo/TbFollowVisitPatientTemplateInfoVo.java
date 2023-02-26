@@ -55,7 +55,7 @@ public class TbFollowVisitPatientTemplateInfoVo {
     private Integer followVisitCountNumber;
 
     @ApiModelProperty(value = "已随访次数")
-    private Integer alreadyFollowVisitCountNumber;
+    private Long alreadyFollowVisitCountNumber;
 
     @ApiModelProperty(value = "填报记录(历史随访记录)")
     private List<TbFollowVisitPatientTemplateHistoryVo> historyRecord;
