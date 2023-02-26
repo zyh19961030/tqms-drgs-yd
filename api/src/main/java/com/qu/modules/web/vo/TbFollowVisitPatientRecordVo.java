@@ -1,18 +1,16 @@
 package com.qu.modules.web.vo;
 
-import java.util.Date;
-import java.util.List;
-
-import org.springframework.format.annotation.DateTimeFormat;
-
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * @Description: 随访患者记录表
@@ -73,8 +71,8 @@ public class TbFollowVisitPatientRecordVo {
     @ApiModelProperty(value = "本次随访记录答案id")
     private Integer answerId;
 
-    @ApiModelProperty(value = "随访内容")
-    private String followVisitTemplate;
+//    @ApiModelProperty(value = "随访内容")
+//    private String followVisitTemplate;
 
     @ApiModelProperty(value = "状态 1待填报 2已填报 3随访被终止")
     private Integer status;

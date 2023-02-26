@@ -1,23 +1,6 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.jeecg.common.api.vo.ResultBetter;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -29,24 +12,27 @@ import com.qu.constant.TbFollowVisitPatientConstant;
 import com.qu.constant.TbFollowVisitPatientRecordConstant;
 import com.qu.constant.TbFollowVisitPatientTemplateConstant;
 import com.qu.constant.TbFollowVisitTemplateConstant;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.entity.TbFollowVisitPatient;
-import com.qu.modules.web.entity.TbFollowVisitPatientRecord;
-import com.qu.modules.web.entity.TbFollowVisitPatientTemplate;
-import com.qu.modules.web.entity.TbFollowVisitTemplate;
+import com.qu.modules.web.entity.*;
 import com.qu.modules.web.mapper.TbFollowVisitPatientRecordMapper;
 import com.qu.modules.web.param.TbFollowVisitPatientRecordAnswerAfterParam;
 import com.qu.modules.web.param.TbFollowVisitPatientRecordListParam;
-import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.service.ITbFollowVisitPatientRecordService;
-import com.qu.modules.web.service.ITbFollowVisitPatientService;
-import com.qu.modules.web.service.ITbFollowVisitPatientTemplateService;
-import com.qu.modules.web.service.ITbFollowVisitTemplateService;
+import com.qu.modules.web.service.*;
 import com.qu.modules.web.vo.TbFollowVisitPatientRecordHistoryVo;
 import com.qu.modules.web.vo.TbFollowVisitPatientRecordListVo;
 import com.qu.modules.web.vo.TbFollowVisitPatientRecordVo;
+import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
 
-import cn.hutool.core.collection.CollectionUtil;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 随访患者记录表
@@ -211,6 +197,7 @@ public class TbFollowVisitPatientRecordServiceImpl extends ServiceImpl<TbFollowV
         BeanUtils.copyProperties(patient,vo);
         vo.setId(id);
         vo.setFollowVisitNumber(byId.getFollowVisitNumber());
+        vo.setStatus(byId.getStatus());
 
         Integer followVisitTemplateId = byId.getFollowVisitTemplateId();
         TbFollowVisitTemplate template = tbFollowVisitTemplateService.getById(followVisitTemplateId);
