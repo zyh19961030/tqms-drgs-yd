@@ -74,6 +74,9 @@ public class TbFollowVisitPatientTemplateServiceImpl extends ServiceImpl<TbFollo
             templateLambdaQueryWrapper.like(TbFollowVisitTemplate::getName,name);
             templateLambdaQueryWrapper.eq(TbFollowVisitTemplate::getDelState, TbFollowVisitTemplateConstant.DEL_NORMAL);
             List<TbFollowVisitTemplate> templateList = tbFollowVisitTemplateService.list(templateLambdaQueryWrapper);
+            if(CollectionUtil.isEmpty(templateList)){
+                return new Page<>();
+            }
             templateIdList = templateList.stream().map(TbFollowVisitTemplate::getId).distinct().collect(Collectors.toList());
         }
 
@@ -84,6 +87,9 @@ public class TbFollowVisitPatientTemplateServiceImpl extends ServiceImpl<TbFollo
             LambdaQueryWrapper<TbFollowVisitPatient> patientLambdaQueryWrapper = new QueryWrapper<TbFollowVisitPatient>().lambda();
             patientLambdaQueryWrapper.like(TbFollowVisitPatient::getName,name);
             List<TbFollowVisitPatient> patientList = tbFollowVisitPatientService.list(patientLambdaQueryWrapper);
+            if(CollectionUtil.isEmpty(patientList)){
+                return new Page<>();
+            }
             patientIdList = patientList.stream().map(TbFollowVisitPatient::getId).distinct().collect(Collectors.toList());
         }
 
@@ -94,6 +100,9 @@ public class TbFollowVisitPatientTemplateServiceImpl extends ServiceImpl<TbFollo
             LambdaQueryWrapper<TbFollowVisitPatient> patientLambdaQueryWrapper = new QueryWrapper<TbFollowVisitPatient>().lambda();
             patientLambdaQueryWrapper.like(TbFollowVisitPatient::getDiagnosis,diagnosis);
             List<TbFollowVisitPatient> patientList = tbFollowVisitPatientService.list(patientLambdaQueryWrapper);
+            if(CollectionUtil.isEmpty(patientList)){
+                return new Page<>();
+            }
             diagnosisPatientIdList = patientList.stream().map(TbFollowVisitPatient::getId).distinct().collect(Collectors.toList());
         }
 
@@ -137,17 +146,47 @@ public class TbFollowVisitPatientTemplateServiceImpl extends ServiceImpl<TbFollo
         Collection<TbFollowVisitTemplate> tbFollowVisitTemplateList = tbFollowVisitTemplateService.listByIds(recordTemplateIdList);
         Map<Integer, TbFollowVisitTemplate> followVisitTemplateMap = tbFollowVisitTemplateList.stream().collect(Collectors.toMap(TbFollowVisitTemplate::getId, Function.identity()));
 
+        List<Integer> patientTemplateIdList = records.stream().map(TbFollowVisitPatientTemplate::getId).distinct().collect(Collectors.toList());
+        LambdaQueryWrapper<TbFollowVisitPatientRecord> patientRecordLambdaQueryWrapper = new QueryWrapper<TbFollowVisitPatientRecord>().lambda();
+        patientRecordLambdaQueryWrapper.in(TbFollowVisitPatientRecord::getFollowVisitPatientTemplateId,patientTemplateIdList);
+        patientRecordLambdaQueryWrapper.eq(TbFollowVisitPatientRecord::getStatus, TbFollowVisitPatientRecordConstant.STATUS_COMPLETED);
+        List<TbFollowVisitPatientRecord> patientRecordList = tbFollowVisitPatientRecordService.list(patientRecordLambdaQueryWrapper);
+        Map<Integer, List<TbFollowVisitPatientRecord>> patientRecordMap = patientRecordList.stream().collect(Collectors.toMap(TbFollowVisitPatientRecord::getFollowVisitPatientTemplateId, Lists::newArrayList,
+                (List<TbFollowVisitPatientRecord> n1, List<TbFollowVisitPatientRecord> n2) -> {
+                    n1.addAll(n2);
+                    return n1;
+                }));
+
+        LambdaQueryWrapper<TbFollowVisitPatientRecord> followVisitPatientRecordLambdaQueryWrapper = new QueryWrapper<TbFollowVisitPatientRecord>().lambda();
+        followVisitPatientRecordLambdaQueryWrapper.in(TbFollowVisitPatientRecord::getFollowVisitPatientTemplateId,patientTemplateIdList);
+        followVisitPatientRecordLambdaQueryWrapper.eq(TbFollowVisitPatientRecord::getStatus, TbFollowVisitPatientRecordConstant.STATUS_WAIT);
+        followVisitPatientRecordLambdaQueryWrapper.orderByDesc(TbFollowVisitPatientRecord::getFollowVisitNumber);
+        List<TbFollowVisitPatientRecord> nextPatientRecordList = tbFollowVisitPatientRecordService.list(followVisitPatientRecordLambdaQueryWrapper);
+        Map<Integer, List<TbFollowVisitPatientRecord>> nextPatientRecordMap = nextPatientRecordList.stream().collect(Collectors.toMap(TbFollowVisitPatientRecord::getFollowVisitPatientTemplateId, Lists::newArrayList,
+                (List<TbFollowVisitPatientRecord> n1, List<TbFollowVisitPatientRecord> n2) -> {
+                    n1.addAll(n2);
+                    return n1;
+                }));
+
         List<TbFollowVisitPatientTemplateListVo> resList = records.stream().map(r -> {
             TbFollowVisitPatientTemplateListVo vo = new TbFollowVisitPatientTemplateListVo();
             BeanUtils.copyProperties(r, vo);
             TbFollowVisitPatient tbFollowVisitPatient = followVisitPatientMap.get(r.getFollowVisitPatientId());
             if(Objects.nonNull(tbFollowVisitPatient)){
                 BeanUtils.copyProperties(tbFollowVisitPatient,vo);
+                vo.setPatientName(tbFollowVisitPatient.getName());
             }
             TbFollowVisitTemplate tbFollowVisitTemplate = followVisitTemplateMap.get(r.getFollowVisitTemplateId());
             if(Objects.nonNull(tbFollowVisitTemplate)){
                 vo.setFollowVisitTemplate(tbFollowVisitTemplate.getName());
             }
+            List<TbFollowVisitPatientRecord> patientRecordVoList = patientRecordMap.get(r.getId());
+            vo.setAlreadyFollowVisitCountNumber(patientRecordVoList.size());
+
+            List<TbFollowVisitPatientRecord> nextPatientRecordVoList = nextPatientRecordMap.get(r.getId());
+            TbFollowVisitPatientRecord tbFollowVisitPatientRecord = nextPatientRecordVoList.get(0);
+            vo.setFollowVisitTime(tbFollowVisitPatientRecord.getFollowVisitTime());
+
             vo.setId(r.getId());
             return vo;
         }).collect(Collectors.toList());
@@ -201,7 +240,7 @@ public class TbFollowVisitPatientTemplateServiceImpl extends ServiceImpl<TbFollo
 
         LambdaQueryWrapper<TbFollowVisitPatientRecord> patientRecordLambdaQueryWrapper = new QueryWrapper<TbFollowVisitPatientRecord>().lambda();
         patientRecordLambdaQueryWrapper.eq(TbFollowVisitPatientRecord::getFollowVisitPatientTemplateId,id);
-        patientRecordLambdaQueryWrapper.eq(TbFollowVisitPatientRecord::getStatus, TbFollowVisitPatientRecordConstant.STATUS_COMPLETED);
+//        patientRecordLambdaQueryWrapper.eq(TbFollowVisitPatientRecord::getStatus, TbFollowVisitPatientRecordConstant.STATUS_COMPLETED);
         List<TbFollowVisitPatientRecord> patientRecordList = tbFollowVisitPatientRecordService.list(patientRecordLambdaQueryWrapper);
         vo.setAlreadyFollowVisitCountNumber(patientRecordList.size());
 
@@ -323,6 +362,28 @@ public class TbFollowVisitPatientTemplateServiceImpl extends ServiceImpl<TbFollo
         Collection<TbFollowVisitTemplate> tbFollowVisitTemplateList = tbFollowVisitTemplateService.listByIds(recordTemplateIdList);
         Map<Integer, TbFollowVisitTemplate> followVisitTemplateMap = tbFollowVisitTemplateList.stream().collect(Collectors.toMap(TbFollowVisitTemplate::getId, Function.identity()));
 
+        List<Integer> patientTemplateIdList = records.stream().map(TbFollowVisitPatientTemplate::getId).distinct().collect(Collectors.toList());
+        LambdaQueryWrapper<TbFollowVisitPatientRecord> patientRecordLambdaQueryWrapper = new QueryWrapper<TbFollowVisitPatientRecord>().lambda();
+        patientRecordLambdaQueryWrapper.in(TbFollowVisitPatientRecord::getFollowVisitPatientTemplateId,patientTemplateIdList);
+        patientRecordLambdaQueryWrapper.eq(TbFollowVisitPatientRecord::getStatus, TbFollowVisitPatientRecordConstant.STATUS_COMPLETED);
+        List<TbFollowVisitPatientRecord> patientRecordList = tbFollowVisitPatientRecordService.list(patientRecordLambdaQueryWrapper);
+        Map<Integer, List<TbFollowVisitPatientRecord>> patientRecordMap = patientRecordList.stream().collect(Collectors.toMap(TbFollowVisitPatientRecord::getFollowVisitPatientTemplateId, Lists::newArrayList,
+                (List<TbFollowVisitPatientRecord> n1, List<TbFollowVisitPatientRecord> n2) -> {
+                    n1.addAll(n2);
+                    return n1;
+                }));
+
+        LambdaQueryWrapper<TbFollowVisitPatientRecord> followVisitPatientRecordLambdaQueryWrapper = new QueryWrapper<TbFollowVisitPatientRecord>().lambda();
+        followVisitPatientRecordLambdaQueryWrapper.in(TbFollowVisitPatientRecord::getFollowVisitPatientTemplateId,patientTemplateIdList);
+        followVisitPatientRecordLambdaQueryWrapper.eq(TbFollowVisitPatientRecord::getStatus, TbFollowVisitPatientRecordConstant.STATUS_WAIT);
+        followVisitPatientRecordLambdaQueryWrapper.orderByDesc(TbFollowVisitPatientRecord::getFollowVisitNumber);
+        List<TbFollowVisitPatientRecord> nextPatientRecordList = tbFollowVisitPatientRecordService.list(followVisitPatientRecordLambdaQueryWrapper);
+        Map<Integer, List<TbFollowVisitPatientRecord>> nextPatientRecordMap = nextPatientRecordList.stream().collect(Collectors.toMap(TbFollowVisitPatientRecord::getFollowVisitPatientTemplateId, Lists::newArrayList,
+                (List<TbFollowVisitPatientRecord> n1, List<TbFollowVisitPatientRecord> n2) -> {
+                    n1.addAll(n2);
+                    return n1;
+                }));
+
         List<TbFollowVisitPatientTemplateAllPatientListVo> resList = records.stream().map(r -> {
             TbFollowVisitPatientTemplateAllPatientListVo vo = new TbFollowVisitPatientTemplateAllPatientListVo();
             BeanUtils.copyProperties(r, vo);
@@ -334,6 +395,14 @@ public class TbFollowVisitPatientTemplateServiceImpl extends ServiceImpl<TbFollo
             if(Objects.nonNull(tbFollowVisitTemplate)){
                 vo.setFollowVisitTemplate(tbFollowVisitTemplate.getName());
             }
+
+            List<TbFollowVisitPatientRecord> patientRecordVoList = patientRecordMap.get(r.getId());
+            vo.setAlreadyFollowVisitCountNumber(patientRecordVoList.size());
+
+            List<TbFollowVisitPatientRecord> nextPatientRecordVoList = nextPatientRecordMap.get(r.getId());
+            TbFollowVisitPatientRecord tbFollowVisitPatientRecord = nextPatientRecordVoList.get(0);
+            vo.setFollowVisitTime(tbFollowVisitPatientRecord.getFollowVisitTime());
+
             vo.setId(r.getId());
             return vo;
         }).collect(Collectors.toList());
