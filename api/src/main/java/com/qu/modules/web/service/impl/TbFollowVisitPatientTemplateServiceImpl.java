@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.qu.constant.TbFollowVisitPatientConstant;
 import com.qu.constant.TbFollowVisitPatientRecordConstant;
 import com.qu.constant.TbFollowVisitPatientTemplateConstant;
@@ -188,6 +189,7 @@ public class TbFollowVisitPatientTemplateServiceImpl extends ServiceImpl<TbFollo
 
         TbFollowVisitPatient patient = tbFollowVisitPatientService.getById(byId.getFollowVisitPatientId());
         BeanUtils.copyProperties(patient,vo);
+        vo.setPatientName(patient.getName());
 
         Integer followVisitTemplateId = byId.getFollowVisitTemplateId();
         TbFollowVisitTemplate template = tbFollowVisitTemplateService.getById(followVisitTemplateId);
@@ -204,19 +206,21 @@ public class TbFollowVisitPatientTemplateServiceImpl extends ServiceImpl<TbFollo
         vo.setAlreadyFollowVisitCountNumber(patientRecordList.size());
 
         List<Integer> questionIdList = patientRecordList.stream().map(TbFollowVisitPatientRecord::getQuestionId).distinct().collect(Collectors.toList());
-        Collection<Question> questionList = questionService.listByIds(questionIdList);
-        Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
-
-
-        List<TbFollowVisitPatientTemplateHistoryVo> historyVoList = patientRecordList.stream().map(p -> {
+        Map<Integer, Question> questionMap = Maps.newHashMap();
+        if(CollectionUtil.isNotEmpty(questionIdList)){
+            Collection<Question> questionList = questionService.listByIds(questionIdList);
+            questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
+        }
+        List<TbFollowVisitPatientTemplateHistoryVo> historyVoList = Lists.newArrayList();
+        for (TbFollowVisitPatientRecord record : patientRecordList) {
             TbFollowVisitPatientTemplateHistoryVo historyVo = new TbFollowVisitPatientTemplateHistoryVo();
-            BeanUtils.copyProperties(p,historyVo);
-            Question question = questionMap.get(p.getQuestionId());
+            BeanUtils.copyProperties(record,historyVo);
+            Question question = questionMap.get(record.getQuestionId());
             if(Objects.nonNull(question)){
                 historyVo.setQuestionName(question.getQuName());
             }
-            return historyVo;
-        }).collect(Collectors.toList());
+            historyVoList.add(historyVo);
+        }
         vo.setHistoryRecord(historyVoList);
 
         LambdaQueryWrapper<TbFollowVisitPatientRecord> followVisitPatientRecordLambdaQueryWrapper = new QueryWrapper<TbFollowVisitPatientRecord>().lambda();

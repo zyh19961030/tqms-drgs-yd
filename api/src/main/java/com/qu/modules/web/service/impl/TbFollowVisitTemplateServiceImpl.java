@@ -1,20 +1,5 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.jeecg.common.api.vo.ResultBetter;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -24,26 +9,26 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.qu.constant.TbFollowVisitTemplateConstant;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.entity.TbFollowVisitTemplate;
-import com.qu.modules.web.entity.TbFollowVisitTemplateCycle;
-import com.qu.modules.web.entity.TbFollowVisitTemplateDisease;
-import com.qu.modules.web.entity.TbUser;
-import com.qu.modules.web.entity.ZbCodeConfig;
+import com.qu.modules.web.entity.*;
 import com.qu.modules.web.mapper.TbFollowVisitTemplateMapper;
 import com.qu.modules.web.param.TbFollowVisitTemplateAddOrUpdateParam;
 import com.qu.modules.web.param.TbFollowVisitTemplateCycleAddParam;
 import com.qu.modules.web.param.TbFollowVisitTemplateListParam;
 import com.qu.modules.web.pojo.Data;
-import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.service.ITbFollowVisitTemplateCycleService;
-import com.qu.modules.web.service.ITbFollowVisitTemplateDiseaseService;
-import com.qu.modules.web.service.ITbFollowVisitTemplateService;
-import com.qu.modules.web.service.ITbUserService;
-import com.qu.modules.web.service.IZbCodeConfigService;
+import com.qu.modules.web.service.*;
 import com.qu.modules.web.vo.TbFollowVisitTemplateCycleInfoVo;
 import com.qu.modules.web.vo.TbFollowVisitTemplateInfoVo;
 import com.qu.modules.web.vo.TbFollowVisitTemplateListVo;
+import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 随访模板表
@@ -74,7 +59,7 @@ public class TbFollowVisitTemplateServiceImpl extends ServiceImpl<TbFollowVisitT
     public IPage<TbFollowVisitTemplateListVo> queryPageList(Page<TbFollowVisitTemplate> page, TbFollowVisitTemplateListParam listParam) {
         LambdaQueryWrapper<TbFollowVisitTemplate> lambda = new QueryWrapper<TbFollowVisitTemplate>().lambda();
         if (StringUtils.isNotBlank(listParam.getName())) {
-            lambda.eq(TbFollowVisitTemplate::getName, listParam.getName());
+            lambda.like(TbFollowVisitTemplate::getName, listParam.getName());
         }
         if (listParam.getStartCreateTime() != null) {
             lambda.ge(TbFollowVisitTemplate::getCreateTime, listParam.getStartCreateTime());

@@ -1,20 +1,18 @@
 package com.qu.modules.web.entity;
 
-import java.util.Date;
-
-import org.jeecgframework.poi.excel.annotation.Excel;
-import org.springframework.format.annotation.DateTimeFormat;
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.jeecgframework.poi.excel.annotation.Excel;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 /**
  * @Description: 随访患者记录表
@@ -63,6 +61,10 @@ public class TbFollowVisitPatientRecord {
     @Excel(name = "距时间起点的整数", width = 15)
     @ApiModelProperty(value = "距时间起点的整数")
     private Integer dateStartNumber;
+    /**距时间起点 1天 2周 3月 4年*/
+    @Excel(name = "距时间起点 1天 2周 3月 4年", width = 15)
+    @ApiModelProperty(value = "距时间起点 1天 2周 3月 4年")
+    private Integer dateStartType;
 	/**答案id*/
 	@Excel(name = "答案id", width = 15)
 	@ApiModelProperty(value = "答案id")

@@ -22,7 +22,7 @@ public class TbFollowVisitTemplateCycleInfoVo {
 
 
 	@ApiModelProperty(value = "次数")
-	private String frequency;
+	private Integer frequency;
 
 	@ApiModelProperty(value = "距时间起点的整数")
 	private Integer dateStartNumber;
