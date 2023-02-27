@@ -1,11 +1,8 @@
 package com.qu.modules.web.controller.zb;
 
-import com.qu.modules.web.param.TbFollowVisitPatientTemplateGenerateParam;
-import com.qu.modules.web.service.ITbFollowVisitPatientTemplateService;
-import com.qu.modules.web.vo.TbFollowVisitPatientTemplateInfoVo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import lombok.extern.slf4j.Slf4j;
+import javax.validation.Valid;
+
+import org.apache.poi.ss.formula.functions.T;
 import org.jeecg.common.api.vo.ResultBetter;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +11,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
+import com.qu.modules.web.param.TbFollowVisitPatientTemplateGenerateParam;
+import com.qu.modules.web.service.ITbFollowVisitPatientTemplateService;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: 随访患者模板总记录表
@@ -35,7 +37,7 @@ public class TbFollowVisitPatientTemplateZbController {
 	@AutoLog(value = "患者随访管理-患者生成计划")
 	@ApiOperation(value="患者随访管理-患者生成计划", notes="患者随访管理-患者生成计划")
 	@PostMapping(value = "/generatePatientTemplate")
-	public ResultBetter<TbFollowVisitPatientTemplateInfoVo> generatePatientTemplate(@RequestBody @Valid TbFollowVisitPatientTemplateGenerateParam param) {
+	public ResultBetter<T> generatePatientTemplate(@RequestBody @Valid TbFollowVisitPatientTemplateGenerateParam param) {
 		tbFollowVisitPatientTemplateService.generatePatientTemplate(param);
 		return ResultBetter.ok();
 	}
