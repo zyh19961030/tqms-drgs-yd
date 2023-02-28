@@ -1110,7 +1110,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             questionCheckedDept.setType(QuestionCheckedDeptConstant.TYPE_CHECKED_DEPT);
             addList.add(questionCheckedDept);
         }
-        questionCheckedDeptService.deleteCheckedDeptByQuId(quId,QuestionCheckedDeptConstant.TYPE_CHECKED_DEPT);
+        questionCheckedDeptService.deleteCheckedDeptByQuId(quId,QuestionCheckedDeptConstant.TYPE_CHECKED_DEPT,null);
         questionCheckedDeptService.saveBatch(addList);
     }
 
@@ -1148,7 +1148,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             questionCheckedDept.setUserDeptId(deptId);
             addList.add(questionCheckedDept);
         }
-        questionCheckedDeptService.deleteCheckedDeptByQuId(quId,QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER);
+        questionCheckedDeptService.deleteCheckedDeptByQuId(quId,QuestionCheckedDeptConstant.TYPE_RESPONSIBILITY_USER,deptId);
         questionCheckedDeptService.saveBatch(addList);
     }
 
