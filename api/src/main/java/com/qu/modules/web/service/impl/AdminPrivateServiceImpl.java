@@ -17,6 +17,7 @@ import com.qu.modules.web.param.AdminPrivateUpdateTableAddDelFeeParam;
 import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
 import com.qu.modules.web.service.IAdminPrivateService;
 import com.qu.modules.web.service.IOptionService;
+import com.qu.modules.web.service.ISubjectService;
 import com.qu.util.PriceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -47,6 +49,9 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
 
     @Resource
     private QsubjectMapper qsubjectMapper;
+
+    @Resource
+    private ISubjectService subjectService;
 
     @Resource
     private OptionMapper optionMapper;
@@ -486,15 +491,92 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
                     answerMapper.updateById(answer);
                 }
             }
-
-
-
-
-
-
-
-
         }
         return ResultFactory.success();
+    }
+
+    @Override
+    public Result updateTableAddMark(AdminPrivateUpdateTableDrugFeeParam param) {
+        //查出来所有的检查表 Question
+        LambdaQueryWrapper<Question> questionLambda = new QueryWrapper<Question>().lambda();
+        questionLambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
+        questionLambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_CHECK);
+        questionLambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
+        questionLambda.ge(Question::getId, 296);
+        List<Question> questionList = questionMapper.selectList(questionLambda);
+        if(questionList.isEmpty()){
+            return ResultFactory.fail("没有已发布的检查表");
+        }
+        Date date = new Date();
+        StringBuffer errorMsg = new StringBuffer();
+        for (Question question : questionList) {
+            StringBuffer sql = new StringBuffer();
+            sql.append("ALTER TABLE `" + question.getTableName() + "` ");
+            boolean alterFlag = false;
+            //查出来所有题
+            LambdaQueryWrapper<Qsubject> qsubjectLambdaQueryWrapper = new QueryWrapper<Qsubject>().lambda();
+            qsubjectLambdaQueryWrapper.eq(Qsubject::getQuId,question.getId())
+                    .in(Qsubject::getSubType,Lists.newArrayList(QsubjectConstant.SUB_TYPE_CHOICE_SCORE,QsubjectConstant.SUB_TYPE_SINGLE_CHOICE_BOX_SCORE))
+                    .eq(Qsubject::getMark,  QsubjectConstant.MARK_CLOSE)
+                    .eq(Qsubject::getDel, QsubjectConstant.DEL_NORMAL);
+            List<Qsubject> subjectList = qsubjectMapper.selectList(qsubjectLambdaQueryWrapper);
+            List<Qsubject> updateQsubjectList = Lists.newArrayList();
+            for (Qsubject qsubject : subjectList) {
+                String subType = qsubject.getSubType();
+                Integer del = qsubject.getDel();
+                if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                        || QuestionConstant.DEL_DELETED.equals(del) || QsubjectConstant.MARK_OPEN.equals(qsubject.getMark())) {
+                    continue;
+                }
+                alterFlag = true;
+                qsubject.setMark(QsubjectConstant.MARK_OPEN);
+                qsubject.setUpdateTime(date);
+                updateQsubjectList.add(qsubject);
+                sql.append(" ADD COLUMN `")
+                        .append(qsubject.getColumnName())
+                        .append("_mark_img")
+                        .append("` ")
+                        .append(QsubjectConstant.MARK_TYPE)
+                        .append("(")
+                        .append(QsubjectConstant.MARK_LENGTH)
+                        .append(") COMMENT '")
+                        .append(qsubject.getId())
+                        .append("的痕迹图片")
+                        .append("' AFTER `")
+                        .append(qsubject.getColumnName())
+                        .append("`,");
+                sql.append(" ADD COLUMN `")
+                        .append(qsubject.getColumnName())
+                        .append("_mark")
+                        .append("` ")
+                        .append(QsubjectConstant.MARK_TYPE)
+                        .append("(")
+                        .append(QsubjectConstant.MARK_LENGTH)
+                        .append(") COMMENT '")
+                        .append(qsubject.getId())
+                        .append("的痕迹")
+                        .append("' AFTER `")
+                        .append(qsubject.getColumnName())
+                        .append("`,");
+            }
+            if(alterFlag){
+                try {
+                    sql.delete(sql.length()-1,sql.length());
+                    sql.append(" ; ");
+                    dynamicTableMapper.createDynamicTable(sql.toString());
+                }catch (Exception e){
+                    log.error("问卷quId--add mark error--quId---->"+question.getId(),e);
+                    errorMsg.append("问卷quId->");
+                    errorMsg.append(question.getId());
+                    errorMsg.append("<->问卷名称");
+                    errorMsg.append("->");
+                    errorMsg.append(question.getQuName());
+                    errorMsg.append("报错");
+                    continue;
+                }
+                subjectService.updateBatchById(updateQsubjectList);
+            }
+        }
+        return ResultFactory.success(errorMsg);
     }
 }

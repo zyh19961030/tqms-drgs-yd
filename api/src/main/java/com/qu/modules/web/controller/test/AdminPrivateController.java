@@ -1,5 +1,11 @@
 package com.qu.modules.web.controller.test;
 
+import com.alibaba.fastjson.JSON;
+import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
+import com.qu.modules.web.service.IAdminPrivateService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,15 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.alibaba.fastjson.JSON;
-import com.qu.modules.web.param.AdminPrivateUpdateTableAddDelFeeParam;
-import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
-import com.qu.modules.web.service.IAdminPrivateService;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Api(tags = "后台API")
@@ -67,15 +64,15 @@ public class AdminPrivateController {
 //    }
 
 
-    @ApiOperation(value = "给子表添加del", notes = "给子表添加del")
-    @PostMapping(value = "/updateTableAddDel")
-    public Result updateTableAddDel(@RequestBody AdminPrivateUpdateTableAddDelFeeParam param) {
-        if(!"f4r5".equals(param.getName())){
-            return ResultFactory.fail();
-        }
-        log.info("-----------updateTableAddDel={}", JSON.toJSONString(param));
-        return adminPrivateService.updateTableAddDel(param);
-    }
+//    @ApiOperation(value = "给子表添加del", notes = "给子表添加del")
+//    @PostMapping(value = "/updateTableAddDel")
+//    public Result updateTableAddDel(@RequestBody AdminPrivateUpdateTableAddDelFeeParam param) {
+//        if(!"f4r5".equals(param.getName())){
+//            return ResultFactory.fail();
+//        }
+//        log.info("-----------updateTableAddDel={}", JSON.toJSONString(param));
+//        return adminPrivateService.updateTableAddDel(param);
+//    }
 
 
     @ApiOperation(value = "给查检表总表caseId的历史数据赋值", notes = "给查检表总表caseId的历史数据赋值")
@@ -96,6 +93,16 @@ public class AdminPrivateController {
         }
         log.info("-----------updateAnswerOutTime={}", JSON.toJSONString(param));
         return adminPrivateService.updateAnswerOutTime(param);
+    }
+
+    @ApiOperation(value = "给已发布所有检查表添加痕迹", notes = "给已发布所有检查表添加痕迹")
+    @PostMapping(value = "/updateTableAddMark")
+    public Result updateTableAddMark(@RequestBody AdminPrivateUpdateTableDrugFeeParam param) {
+        if(!"f4r1".equals(param.getName())){
+            return ResultFactory.fail();
+        }
+        log.info("-----------updateTableAddDel={}", JSON.toJSONString(param));
+        return adminPrivateService.updateTableAddMark(param);
     }
 
 }

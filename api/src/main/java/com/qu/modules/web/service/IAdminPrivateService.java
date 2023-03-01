@@ -24,6 +24,8 @@ public interface IAdminPrivateService extends IService<Answer> {
 
     Result updateAnswerOutTime(AdminPrivateUpdateTableDrugFeeParam param);
 
+    Result updateTableAddMark(AdminPrivateUpdateTableDrugFeeParam param);
+
 
 
 }
