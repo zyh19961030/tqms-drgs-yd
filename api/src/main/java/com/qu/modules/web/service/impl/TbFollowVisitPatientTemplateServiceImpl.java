@@ -108,7 +108,7 @@ public class TbFollowVisitPatientTemplateServiceImpl extends ServiceImpl<TbFollo
         if(StringUtils.isNotBlank(patientName)){
             //查询随访模板
             LambdaQueryWrapper<TbFollowVisitPatient> patientLambdaQueryWrapper = new QueryWrapper<TbFollowVisitPatient>().lambda();
-            patientLambdaQueryWrapper.like(TbFollowVisitPatient::getName,name);
+            patientLambdaQueryWrapper.like(TbFollowVisitPatient::getName,patientName);
             List<TbFollowVisitPatient> patientList = tbFollowVisitPatientService.list(patientLambdaQueryWrapper);
             if(CollectionUtil.isEmpty(patientList)){
                 return new Page<>();
