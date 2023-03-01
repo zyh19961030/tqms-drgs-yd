@@ -1387,87 +1387,91 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
             StringBuffer sql = new StringBuffer();
             sql.append("ALTER TABLE `" + question.getTableName() + "` ");
-//            List<Qsubject> subjectList = subjectMapper.selectBatchIds(subjectIds);
-            Collection<Qsubject> subjectList = subjectService.listByIds(subjectIds);
             boolean alterFlag = false;
-            for (Qsubject qsubject : subjectList) {
-                Integer limitWords = qsubject.getLimitWords();
-                if (limitWords == null || limitWords == 0) {
-                    limitWords = 50;
+            if(CollectionUtil.isNotEmpty(subjectIds)){
+//            List<Qsubject> subjectList = subjectMapper.selectBatchIds(subjectIds);
+                Collection<Qsubject> subjectList = subjectService.listByIds(subjectIds);
+                for (Qsubject qsubject : subjectList) {
+                    Integer limitWords = qsubject.getLimitWords();
+                    if (limitWords == null || limitWords == 0) {
+                        limitWords = 50;
+                    }
+                    String subType = qsubject.getSubType();
+                    Integer del = qsubject.getDel();
+                    if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType) || QuestionConstant.DEL_DELETED.equals(del)) {
+                        continue;
+                    }
+                    alterFlag = true;
+                    sql.append(" ADD COLUMN ");
+                    sql.append("`")
+                            .append(qsubject.getColumnName())
+                            .append("` ")
+                            .append(qsubject.getColumnTypeDatabase()==null?"varchar":qsubject.getColumnTypeDatabase())
+                            .append("(")
+                            .append(limitWords)
+                            .append(") NULL COMMENT '")
+                            .append(qsubject.getId())
+                            .append("',");
+                    if (QsubjectConstant.MARK_OPEN.equals(qsubject.getMark())) {
+                        sql.append(" ADD COLUMN `")
+                                .append(qsubject.getColumnName())
+                                .append("_mark")
+                                .append("` ")
+                                .append(QsubjectConstant.MARK_TYPE)
+                                .append("(")
+                                .append(QsubjectConstant.MARK_LENGTH)
+                                .append(") COMMENT '")
+                                .append(qsubject.getId())
+                                .append("的痕迹")
+                                .append("',");
+                        sql.append(" ADD COLUMN `")
+                                .append(qsubject.getColumnName())
+                                .append("_mark_img")
+                                .append("` ")
+                                .append(QsubjectConstant.MARK_TYPE)
+                                .append("(")
+                                .append(QsubjectConstant.MARK_LENGTH)
+                                .append(") COMMENT '")
+                                .append(qsubject.getId())
+                                .append("的痕迹图片")
+                                .append("',");
+                    }
                 }
-                String subType = qsubject.getSubType();
-                Integer del = qsubject.getDel();
-                if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType) || QuestionConstant.DEL_DELETED.equals(del)) {
-                    continue;
-                }
-                alterFlag = true;
-                sql.append(" ADD COLUMN ");
-                sql.append("`")
-                        .append(qsubject.getColumnName())
-                        .append("` ")
-                        .append(qsubject.getColumnTypeDatabase()==null?"varchar":qsubject.getColumnTypeDatabase())
-                        .append("(")
-                        .append(limitWords)
-                        .append(") NULL COMMENT '")
-                        .append(qsubject.getId())
-                        .append("',");
-                 if (QsubjectConstant.MARK_OPEN.equals(qsubject.getMark())) {
-                     sql.append(" ADD COLUMN `")
-                             .append(qsubject.getColumnName())
-                             .append("_mark")
-                             .append("` ")
-                             .append(QsubjectConstant.MARK_TYPE)
-                             .append("(")
-                             .append(QsubjectConstant.MARK_LENGTH)
-                             .append(") COMMENT '")
-                             .append(qsubject.getId())
-                             .append("的痕迹")
-                             .append("',");
-                     sql.append(" ADD COLUMN `")
-                             .append(qsubject.getColumnName())
-                             .append("_mark_img")
-                             .append("` ")
-                             .append(QsubjectConstant.MARK_TYPE)
-                             .append("(")
-                             .append(QsubjectConstant.MARK_LENGTH)
-                             .append(") COMMENT '")
-                             .append(qsubject.getId())
-                             .append("的痕迹图片")
-                             .append("',");
-                 }
             }
 
-            Collection<Qsubject> markSubjectList = subjectService.listByIds(markSubjectIds);
-            for (Qsubject qsubject : markSubjectList) {
-                String subType = qsubject.getSubType();
-                Integer del = qsubject.getDel();
-                if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType) || QuestionConstant.DEL_DELETED.equals(del)) {
-                    continue;
-                }
-                alterFlag = true;
-                if (QsubjectConstant.MARK_OPEN.equals(qsubject.getMark())) {
-                    sql.append(" ADD COLUMN `")
-                            .append(qsubject.getColumnName())
-                            .append("_mark")
-                            .append("` ")
-                            .append(QsubjectConstant.MARK_TYPE)
-                            .append("(")
-                            .append(QsubjectConstant.MARK_LENGTH)
-                            .append(") COMMENT '")
-                            .append(qsubject.getId())
-                            .append("的痕迹")
-                            .append("',");
-                    sql.append(" ADD COLUMN `")
-                            .append(qsubject.getColumnName())
-                            .append("_mark_img")
-                            .append("` ")
-                            .append(QsubjectConstant.MARK_TYPE)
-                            .append("(")
-                            .append(QsubjectConstant.MARK_LENGTH)
-                            .append(") COMMENT '")
-                            .append(qsubject.getId())
-                            .append("的痕迹图片")
-                            .append("',");
+            if(CollectionUtil.isNotEmpty(markSubjectIds)){
+                Collection<Qsubject> markSubjectList = subjectService.listByIds(markSubjectIds);
+                for (Qsubject qsubject : markSubjectList) {
+                    String subType = qsubject.getSubType();
+                    Integer del = qsubject.getDel();
+                    if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType) || QuestionConstant.DEL_DELETED.equals(del) || QsubjectConstant.MARK_OPEN.equals(qsubject.getMarkHistory())) {
+                        continue;
+                    }
+                    alterFlag = true;
+                    if (QsubjectConstant.MARK_OPEN.equals(qsubject.getMark())) {
+                        sql.append(" ADD COLUMN `")
+                                .append(qsubject.getColumnName())
+                                .append("_mark")
+                                .append("` ")
+                                .append(QsubjectConstant.MARK_TYPE)
+                                .append("(")
+                                .append(QsubjectConstant.MARK_LENGTH)
+                                .append(") COMMENT '")
+                                .append(qsubject.getId())
+                                .append("的痕迹")
+                                .append("',");
+                        sql.append(" ADD COLUMN `")
+                                .append(qsubject.getColumnName())
+                                .append("_mark_img")
+                                .append("` ")
+                                .append(QsubjectConstant.MARK_TYPE)
+                                .append("(")
+                                .append(QsubjectConstant.MARK_LENGTH)
+                                .append(") COMMENT '")
+                                .append(qsubject.getId())
+                                .append("的痕迹图片")
+                                .append("',");
+                    }
                 }
             }
 
