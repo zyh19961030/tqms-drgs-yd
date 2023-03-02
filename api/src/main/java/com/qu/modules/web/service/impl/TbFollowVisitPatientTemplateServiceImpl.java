@@ -1,6 +1,20 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -14,26 +28,32 @@ import com.qu.constant.TbFollowVisitPatientConstant;
 import com.qu.constant.TbFollowVisitPatientRecordConstant;
 import com.qu.constant.TbFollowVisitPatientTemplateConstant;
 import com.qu.constant.TbFollowVisitTemplateConstant;
-import com.qu.modules.web.entity.*;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.entity.TbDep;
+import com.qu.modules.web.entity.TbFollowVisitPatient;
+import com.qu.modules.web.entity.TbFollowVisitPatientRecord;
+import com.qu.modules.web.entity.TbFollowVisitPatientTemplate;
+import com.qu.modules.web.entity.TbFollowVisitTemplate;
+import com.qu.modules.web.entity.TbFollowVisitTemplateCycle;
+import com.qu.modules.web.entity.TbFollowVisitTemplateDisease;
 import com.qu.modules.web.mapper.TbFollowVisitPatientTemplateMapper;
 import com.qu.modules.web.param.TbFollowVisitPatientTemplateAllPatientListParam;
 import com.qu.modules.web.param.TbFollowVisitPatientTemplateGenerateParam;
 import com.qu.modules.web.param.TbFollowVisitPatientTemplateListParam;
-import com.qu.modules.web.service.*;
+import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.service.ITbDepService;
+import com.qu.modules.web.service.ITbFollowVisitPatientRecordService;
+import com.qu.modules.web.service.ITbFollowVisitPatientService;
+import com.qu.modules.web.service.ITbFollowVisitPatientTemplateService;
+import com.qu.modules.web.service.ITbFollowVisitTemplateCycleService;
+import com.qu.modules.web.service.ITbFollowVisitTemplateDiseaseService;
+import com.qu.modules.web.service.ITbFollowVisitTemplateService;
 import com.qu.modules.web.vo.TbFollowVisitPatientTemplateAllPatientListVo;
 import com.qu.modules.web.vo.TbFollowVisitPatientTemplateHistoryVo;
 import com.qu.modules.web.vo.TbFollowVisitPatientTemplateInfoVo;
 import com.qu.modules.web.vo.TbFollowVisitPatientTemplateListVo;
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import cn.hutool.core.collection.CollectionUtil;
 
 /**
  * @Description: 随访患者模板总记录表
@@ -88,7 +108,7 @@ public class TbFollowVisitPatientTemplateServiceImpl extends ServiceImpl<TbFollo
         if(StringUtils.isNotBlank(patientName)){
             //查询随访模板
             LambdaQueryWrapper<TbFollowVisitPatient> patientLambdaQueryWrapper = new QueryWrapper<TbFollowVisitPatient>().lambda();
-            patientLambdaQueryWrapper.like(TbFollowVisitPatient::getName,name);
+            patientLambdaQueryWrapper.like(TbFollowVisitPatient::getName,patientName);
             List<TbFollowVisitPatient> patientList = tbFollowVisitPatientService.list(patientLambdaQueryWrapper);
             if(CollectionUtil.isEmpty(patientList)){
                 return new Page<>();
@@ -191,7 +211,7 @@ public class TbFollowVisitPatientTemplateServiceImpl extends ServiceImpl<TbFollo
             }
 
             List<TbFollowVisitPatientRecord> nextPatientRecordVoList = nextPatientRecordMap.get(r.getId());
-            if(Objects.nonNull(nextPatientRecordVoList)){
+            if(CollectionUtil.isNotEmpty(nextPatientRecordVoList)){
                 TbFollowVisitPatientRecord tbFollowVisitPatientRecord = nextPatientRecordVoList.get(0);
                 vo.setFollowVisitTime(tbFollowVisitPatientRecord.getFollowVisitTime());
             }
@@ -277,13 +297,15 @@ public class TbFollowVisitPatientTemplateServiceImpl extends ServiceImpl<TbFollo
         }
         vo.setHistoryRecord(historyVoList);
 
-        LambdaQueryWrapper<TbFollowVisitPatientRecord> followVisitPatientRecordLambdaQueryWrapper = new QueryWrapper<TbFollowVisitPatientRecord>().lambda();
-        followVisitPatientRecordLambdaQueryWrapper.eq(TbFollowVisitPatientRecord::getFollowVisitPatientTemplateId,id);
-        followVisitPatientRecordLambdaQueryWrapper.eq(TbFollowVisitPatientRecord::getStatus, TbFollowVisitPatientRecordConstant.STATUS_WAIT);
-        followVisitPatientRecordLambdaQueryWrapper.orderByDesc(TbFollowVisitPatientRecord::getFollowVisitNumber);
-        List<TbFollowVisitPatientRecord> nextPatientRecordList = tbFollowVisitPatientRecordService.list(followVisitPatientRecordLambdaQueryWrapper);
-        TbFollowVisitPatientRecord tbFollowVisitPatientRecord = nextPatientRecordList.get(0);
-        vo.setFollowVisitTime(tbFollowVisitPatientRecord.getFollowVisitTime());
+//        LambdaQueryWrapper<TbFollowVisitPatientRecord> followVisitPatientRecordLambdaQueryWrapper = new QueryWrapper<TbFollowVisitPatientRecord>().lambda();
+//        followVisitPatientRecordLambdaQueryWrapper.eq(TbFollowVisitPatientRecord::getFollowVisitPatientTemplateId,id);
+//        followVisitPatientRecordLambdaQueryWrapper.eq(TbFollowVisitPatientRecord::getStatus, TbFollowVisitPatientRecordConstant.STATUS_WAIT);
+//        followVisitPatientRecordLambdaQueryWrapper.orderByDesc(TbFollowVisitPatientRecord::getFollowVisitNumber);
+//        List<TbFollowVisitPatientRecord> nextPatientRecordList = tbFollowVisitPatientRecordService.list(followVisitPatientRecordLambdaQueryWrapper);
+//        if(CollectionUtil.isNotEmpty(nextPatientRecordList)){
+//            TbFollowVisitPatientRecord tbFollowVisitPatientRecord = nextPatientRecordList.get(0);
+//            vo.setFollowVisitTime(tbFollowVisitPatientRecord.getFollowVisitTime());
+//        }
 
         vo.setStatus(byId.getStatus());
         vo.setCreateTime(byId.getCreateTime());
@@ -441,7 +463,7 @@ public class TbFollowVisitPatientTemplateServiceImpl extends ServiceImpl<TbFollo
             }
 
             List<TbFollowVisitPatientRecord> nextPatientRecordVoList = nextPatientRecordMap.get(r.getId());
-            if(Objects.nonNull(nextPatientRecordVoList)){
+            if(CollectionUtil.isNotEmpty(nextPatientRecordVoList)){
                 TbFollowVisitPatientRecord tbFollowVisitPatientRecord = nextPatientRecordVoList.get(0);
                 vo.setFollowVisitTime(tbFollowVisitPatientRecord.getFollowVisitTime());
             }

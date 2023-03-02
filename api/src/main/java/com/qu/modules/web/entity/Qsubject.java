@@ -210,4 +210,8 @@ public class Qsubject {
     @Excel(name = "是否回写元数据库 1回写 0不回写", width = 15)
     @ApiModelProperty(value = "是否回写元数据库 1回写 0不回写")
     private java.lang.Integer writeMetabase;
+    /**痕迹历史是否开启过  0:不开启1:开启 */
+    @Excel(name = "痕迹历史是否开启过  0:不开启1:开启 ", width = 15)
+    @ApiModelProperty(value = "痕迹历史是否开启过  0:不开启1:开启 ")
+    private java.lang.Integer markHistory;
 }

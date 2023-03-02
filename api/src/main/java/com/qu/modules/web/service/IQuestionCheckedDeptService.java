@@ -21,7 +21,7 @@ public interface IQuestionCheckedDeptService extends IService<QuestionCheckedDep
 
     List<QuestionCheckedDept> selectCheckedDeptByQuIdAndDeptId(Integer quId, String checkedDeptId);
 
-    void deleteCheckedDeptByQuId(Integer quId,Integer type);
+    void deleteCheckedDeptByQuId(Integer quId,Integer type, String deptId);
 
     void deleteCheckedDeptByDeptIds(List<String> deptIdList, String deptId,Integer type);
 

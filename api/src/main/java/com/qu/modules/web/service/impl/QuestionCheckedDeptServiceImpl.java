@@ -62,10 +62,13 @@ public class QuestionCheckedDeptServiceImpl extends ServiceImpl<QuestionCheckedD
     }
 
     @Override
-    public void deleteCheckedDeptByQuId(Integer quId,Integer type) {
+    public void deleteCheckedDeptByQuId(Integer quId,Integer type, String deptId) {
         LambdaQueryWrapper<QuestionCheckedDept> lambda = new QueryWrapper<QuestionCheckedDept>().lambda();
         lambda.eq(QuestionCheckedDept::getQuId, quId);
         lambda.eq(QuestionCheckedDept::getType, type);
+        if(StringUtils.isNotBlank(deptId)){
+            lambda.eq(QuestionCheckedDept::getUserDeptId, deptId);
+        }
         this.remove(lambda);
     }
 
