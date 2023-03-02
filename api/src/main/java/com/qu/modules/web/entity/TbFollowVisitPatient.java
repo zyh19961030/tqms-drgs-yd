@@ -1,18 +1,20 @@
 package com.qu.modules.web.entity;
 
+import java.util.Date;
+
+import org.jeecgframework.poi.excel.annotation.Excel;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.jeecgframework.poi.excel.annotation.Excel;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.util.Date;
 
 /**
  * @Description: 随访患者信息表
@@ -26,7 +28,7 @@ import java.util.Date;
 @Accessors(chain = true)
 @ApiModel(value="tb_follow_visit_patient对象", description="随访患者信息表")
 public class TbFollowVisitPatient {
-    
+
 	/**id*/
 	@TableId(type = IdType.AUTO)
     @ApiModelProperty(value = "id")
@@ -85,4 +87,22 @@ public class TbFollowVisitPatient {
 	@Excel(name = "备注", width = 15)
     @ApiModelProperty(value = "备注")
 	private String remark;
+	/**身份证号*/
+	@Excel(name = "身份证号", width = 15)
+    @ApiModelProperty(value = "身份证号")
+    private String idCard;
+	/**联系人*/
+	@Excel(name = "联系人", width = 15)
+    @ApiModelProperty(value = "联系人")
+	private String contactName;
+    /**联系人电话*/
+	@Excel(name = "联系人电话", width = 15)
+    @ApiModelProperty(value = "联系人电话")
+    private String contactPhone;
+	/**住院医师*/
+	@Excel(name = "住院医师", width = 15)
+    @ApiModelProperty(value = "住院医师")
+    private String inHospitalDoctor;
+
+
 }

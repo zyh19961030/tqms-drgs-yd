@@ -1,16 +1,19 @@
 package com.qu.modules.web.param;
 
+import java.util.Date;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.util.Date;
 
 /**
  * @Description: 随访模板表
@@ -59,5 +62,16 @@ public class TbFollowVisitPatientTemplateGenerateParam {
     @NotBlank(message = "科室id_不能为空")
     private String deptId;
 
+    @ApiModelProperty(value = "身份证号")
+    private String idCard;
+
+    @ApiModelProperty(value = "联系人")
+    private String contactName;
+
+    @ApiModelProperty(value = "联系人电话")
+    private String contactPhone;
+
+    @ApiModelProperty(value = "住院医师")
+    private String inHospitalDoctor;
 
 }
