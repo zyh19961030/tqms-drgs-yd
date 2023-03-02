@@ -75,6 +75,27 @@ public class AdminPrivateController {
 //    }
 
 
+    @ApiOperation(value = "给检查表子表添加answerStatus", notes = "给检查表子表添加answerStatus")
+    @PostMapping(value = "/updateTableAddAnswerStatus")
+    public Result updateTableAddAnswerStatus(@RequestBody AdminPrivateUpdateTableDrugFeeParam param) {
+        if(!"f4r6".equals(param.getName())){
+            return ResultFactory.fail();
+        }
+        log.info("-----------updateTableAddAnswerStatus={}", JSON.toJSONString(param));
+        return adminPrivateService.updateTableAddAnswerStatus(param);
+    }
+
+    @ApiOperation(value = "给子表answerStatus赋值", notes = "给子表answerStatus赋值")
+    @PostMapping(value = "/updateAnswerStatus")
+    public Result updateAnswerStatus(@RequestBody AdminPrivateUpdateTableDrugFeeParam param) {
+        if(!"f4r6".equals(param.getName())){
+            return ResultFactory.fail();
+        }
+        log.info("-----------updateAnswerStatus={}", JSON.toJSONString(param));
+        return adminPrivateService.updateAnswerStatus(param);
+    }
+
+
     @ApiOperation(value = "给查检表总表caseId的历史数据赋值", notes = "给查检表总表caseId的历史数据赋值")
     @PostMapping(value = "/updateAnswerCheckCaseId")
     public Result updateAnswerCheckCaseId(@RequestBody AdminPrivateUpdateTableDrugFeeParam param) {

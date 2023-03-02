@@ -322,7 +322,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
 
     @Override
     public Result updateTableAddDel(AdminPrivateUpdateTableAddDelFeeParam param) {
-        //查出来所有的单病种表
+        //查出来所有的问卷表
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
         lambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
         //        lambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
@@ -356,6 +356,120 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         return ResultFactory.success();
     }
 
+
+    @Override
+    public Result updateTableAddAnswerStatus(AdminPrivateUpdateTableDrugFeeParam param) {
+        //查出来所有的检查表
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        lambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
+        lambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_CHECK);
+        lambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
+//        Integer quId = param.getQuId();
+//        if(quId!=null && !quId.equals(-1)){
+//            lambda.ge(Question::getId,quId);
+//        }
+//        if(quId!=null && quId.equals(-1)){
+//            lambda.lt(Question::getId,164);
+//        }
+
+        List<Question> questionList = questionMapper.selectList(lambda);
+        if(questionList.isEmpty()){
+            return ResultFactory.fail("未找到需要更新的问卷");
+        }
+        StringBuilder sqlSelect = new StringBuilder();
+        StringBuffer errorMsg = new StringBuffer();
+        for (Question question : questionList) {
+            String tableName = question.getTableName();
+            if(StringUtils.isBlank(tableName)){
+                continue;
+            }
+            sqlSelect.setLength(0);
+            //ALTER TABLE `drgs_stk` ADD COLUMN `del` tinyint(4) NULL DEFAULT 0 COMMENT '0:正常1:已删除' AFTER `summary_mapping_table_id`;
+            sqlSelect.append("ALTER TABLE `");
+            sqlSelect.append(tableName);
+            sqlSelect.append("` ADD COLUMN `table_answer_status` int(11) NULL DEFAULT 0 COMMENT '0:草稿1:已提交' AFTER `summary_mapping_table_id`");
+            try {
+                dynamicTableMapper.createDynamicTable(sqlSelect.toString());
+            }catch (Exception e){
+                log.error("问卷quId--add table_answer_status error--quId---->"+question.getId(),e);
+                errorMsg.append("问卷quId->");
+                errorMsg.append(question.getId());
+                errorMsg.append("<->问卷名称");
+                errorMsg.append("->");
+                errorMsg.append(question.getQuName());
+                errorMsg.append("<-");
+                errorMsg.append("报错，");
+            }
+        }
+
+        return ResultFactory.success(errorMsg);
+    }
+
+    @Override
+    public Result updateAnswerStatus(AdminPrivateUpdateTableDrugFeeParam param) {
+
+        //查出来所有的AnswerCheck
+        LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
+        lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
+        List<AnswerCheck> answerCheckList = answerCheckMapper.selectList(lambda);
+
+        //查出来所有的检查表
+        LambdaQueryWrapper<Question> questionLambda = new QueryWrapper<Question>().lambda();
+//        questionLambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
+        questionLambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_CHECK);
+        questionLambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
+        List<Question> questionList = questionMapper.selectList(questionLambda);
+        Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
+
+
+        StringBuffer sqlAns = new StringBuffer();
+        StringBuffer errorMsg = new StringBuffer();
+        for (AnswerCheck answerCheck : answerCheckList) {
+            Integer quId = answerCheck.getQuId();
+            if (quId == null) {
+                log.info("continue answerCheck.quId is null --answerCheckId-------{}", answerCheck.getId());
+                continue;
+            }
+            Question question = questionMap.get(quId);
+            if (question == null || QuestionConstant.DEL_DELETED.equals(question.getDel())) {
+                log.info("continue answerCheck.question is null--quId---answerCheckId-------{},{}", quId, answerCheck.getId());
+                continue;
+            }
+
+
+            String tableName = question.getTableName();
+            String summaryMappingTableId = answerCheck.getSummaryMappingTableId();
+            if(StringUtils.isAnyBlank(tableName,summaryMappingTableId)){
+                log.info("continue answerCheck.tableName or summaryMappingTableId is null---answerCheckId-------{},{},{}", tableName, answerCheck.getId(),summaryMappingTableId);
+                continue;
+            }
+
+            sqlAns.append("update `" + question.getTableName() + "` set ");
+            sqlAns.append("`table_answer_status`='");
+            sqlAns.append(answerCheck.getAnswerStatus());
+            sqlAns.append("'");
+            sqlAns.append(" where summary_mapping_table_id = '");
+            sqlAns.append(answerCheck.getSummaryMappingTableId());
+            sqlAns.append("'");
+            log.info("-----update sqlAns:{}", sqlAns.toString());
+            try {
+                dynamicTableMapper.updateDynamicTable(sqlAns.toString());
+            }catch (Exception e){
+                log.error("问卷quId--add updateAnswerStatus error--answerCheck---->"+answerCheck.getId(),e);
+                errorMsg.append("answerCheckId->");
+                errorMsg.append(answerCheck.getId());
+                errorMsg.append("<->问卷名称");
+                errorMsg.append("->");
+                errorMsg.append(question.getQuName());
+                errorMsg.append("报错,");
+                continue;
+            }
+
+
+            sqlAns.setLength(0);
+        }
+        return ResultFactory.success(errorMsg);
+    }
 
     @Override
     public Result updateAnswerCheckCaseId(AdminPrivateUpdateTableDrugFeeParam param) {
