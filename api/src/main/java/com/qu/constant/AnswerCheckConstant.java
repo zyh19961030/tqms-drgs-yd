@@ -27,5 +27,8 @@ public class AnswerCheckConstant {
     public static final String COLUMN_NAME_IN_TIME = "INTIME";
 
 
+    public static final Integer ANSWER_CHECK_LIST_MINIAPP_PARAM_CHECK_USER_TYPE_USER = 1;
+    public static final Integer ANSWER_CHECK_LIST_MINIAPP_PARAM_CHECK_USER_TYPE_DEPT = 2;
+
 
 }

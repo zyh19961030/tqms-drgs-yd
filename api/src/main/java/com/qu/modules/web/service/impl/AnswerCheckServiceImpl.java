@@ -159,6 +159,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             lambda.le(AnswerCheck::getUpdateTime, endDate);
         }
 
+        lambda.orderByAsc(AnswerCheck::getAnswerStatus);
         lambda.orderByDesc(AnswerCheck::getAnswerTime);
         IPage<AnswerCheck> answerCheckIPage = this.page(page, lambda);
         List<AnswerCheck> answerCheckList = answerCheckIPage.getRecords();

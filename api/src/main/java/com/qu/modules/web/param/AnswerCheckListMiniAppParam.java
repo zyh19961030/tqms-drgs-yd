@@ -12,7 +12,7 @@ import lombok.Data;
 
 @Data
 @ApiModel(value="AnswerCheckParam入参", description="AnswerCheckParam入参")
-public class AnswerCheckListParam {
+public class AnswerCheckListMiniAppParam {
 
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd")
@@ -29,5 +29,11 @@ public class AnswerCheckListParam {
 
     @ApiModelProperty(value = "被检查科室id")
     private String deptId;
+
+    @ApiModelProperty(value = "当前用户登录科室id_小程序专用")
+    private String userDeptId;
+
+    @ApiModelProperty(value = "检查人：1本人 2本科室全部")
+    private Integer checkUserType;
 
 }
