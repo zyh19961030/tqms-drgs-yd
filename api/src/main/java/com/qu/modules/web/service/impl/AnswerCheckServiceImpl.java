@@ -739,6 +739,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             fieldItems.add(fieldItem);
             fieldItem.put("fieldTxt", qsubject.getSubName());
             fieldItem.put("fieldId", qsubject.getColumnName());
+            fieldItem.put("fieldSubType", qsubject.getSubType());
             if (checkDetailSetVo.getChildList() != null && !checkDetailSetVo.getChildList().isEmpty()) {
                 List<LinkedHashMap<String, Object>> fieldItemsFor = Lists.newArrayList();
                 fieldItem.put("fieldChildList", fieldItemsFor);
@@ -942,6 +943,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         fieldItems.add(fieldItemCheckDept);
         fieldItemCheckDept.put("fieldTxt", "检查科室");
         fieldItemCheckDept.put("fieldId", "checkDept");
+        fieldItemCheckDept.put("fieldSubType", 0);
         setItems(checkDetailSet, subjectMap, fieldItems);
         //数据
         Page<AnswerCheck> page = new Page<>(pageNo, pageSize);
