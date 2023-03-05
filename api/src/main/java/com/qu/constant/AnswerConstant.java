@@ -21,6 +21,9 @@ public class AnswerConstant {
     public static final String COLUMN_NAME_IN_TIME = "INTIME";
     public static final String COLUMN_NAME_OUT_TIME = "OUTTIME";
 
+    public static final Integer SOURCE_PC = 1;
+    public static final Integer SOURCE_MINIAPP = 2;
+
 
 
 }

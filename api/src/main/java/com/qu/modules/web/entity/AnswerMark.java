@@ -1,19 +1,16 @@
 package com.qu.modules.web.entity;
 
-import java.io.Serializable;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
+
+import java.util.Date;
 
 /**
  * @Description: 登记表痕迹表
@@ -29,7 +26,7 @@ import org.jeecgframework.poi.excel.annotation.Excel;
 public class AnswerMark {
     
 	/**主键*/
-	@TableId(type = IdType.UUID)
+	@TableId(type = IdType.AUTO)
     @ApiModelProperty(value = "主键")
 	private Integer id;
 	/**问卷id*/
@@ -62,4 +59,8 @@ public class AnswerMark {
 	@Excel(name = "修改之后数据", width = 15)
     @ApiModelProperty(value = "修改之后数据")
 	private String dataAfter;
+	/**来源 1PC 2小程序*/
+	@Excel(name = "来源 1PC 2小程序", width = 15)
+    @ApiModelProperty(value = "来源 1PC 2小程序")
+	private Integer source;
 }

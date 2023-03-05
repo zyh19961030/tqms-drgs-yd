@@ -20,10 +20,7 @@ import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
 import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.JsonRootBean;
-import com.qu.modules.web.service.IAnswerService;
-import com.qu.modules.web.service.ISubjectService;
-import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.service.ITbUserService;
+import com.qu.modules.web.service.*;
 import com.qu.modules.web.vo.*;
 import com.qu.util.HttpClient;
 import com.qu.util.HttpTools;
@@ -41,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
@@ -50,10 +48,10 @@ import java.util.stream.Collectors;
 @Service
 public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> implements IAnswerService {
 
-    @Autowired
+    @Resource
     private DynamicTableMapper dynamicTableMapper;
 
-    @Autowired
+    @Resource
     private AnswerMapper answerMapper;
 
 //    @Autowired
@@ -62,7 +60,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
     @Autowired
     private ISubjectService subjectService;
 
-    @Autowired
+    @Resource
     private QuestionMapper questionMapper;
 
     @Autowired
@@ -75,6 +73,9 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
 
     @Value("${system.writeMetabaseUrl}")
     private String writeMetabaseUrl;
+
+    @Resource
+    private IAnswerMarkService answerMarkService;
 
 
     @Override
@@ -104,7 +105,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
                 creater_deptname = jsonRootBean.getData().getDeps().get(0).getDepName();
             }
         }
-        return getResult(answerParam, creater, creater_name, creater_deptid, creater_deptname);
+        return getResult(answerParam, creater, creater_name, creater_deptid, creater_deptname,AnswerConstant.SOURCE_PC);
     }
 
 
@@ -128,10 +129,10 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
             tbDep = tbDepService.getById(tbUser.getDepid());
         }
 
-        return getResult(AnswerParam, tbUser.getId(), tbUser.getUsername(), tbDep.getId(), tbDep.getDepname());
+        return getResult(AnswerParam, tbUser.getId(), tbUser.getUsername(), tbDep.getId(), tbDep.getDepname(),AnswerConstant.SOURCE_MINIAPP);
     }
 
-    private Result getResult(AnswerParam answerParam, String creater, String creater_name, String creater_deptid, String creater_deptname) {
+    private Result getResult(AnswerParam answerParam, String creater, String creater_name, String creater_deptid, String creater_deptname,Integer source) {
         Answer answer = this.getById(answerParam.getId());
         if(answer==null){
             answer = new Answer();
@@ -227,7 +228,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
             answerMapper.updateById(answer);
 
             //保存痕迹相关
-            saveAnswerMark(mapCache,subjectList,answer,question);
+            saveAnswerMark(mapCache,subjectList,answer,question,creater,source);
         }else{
             answer.setCreateTime(date);
             answer.setUpdateTime(date);
@@ -330,7 +331,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         return ResultFactory.success(vo);
     }
 
-    private void saveAnswerMark(Map<String, String> newDataMapCache, List<Qsubject> subjectList, Answer answer, Question question) {
+    private void saveAnswerMark(Map<String, String> newDataMapCache, List<Qsubject> subjectList, Answer answer, Question question,String creater,Integer source) {
         StringBuffer sqlAns = new StringBuffer();
         sqlAns.append("select * from `");
         sqlAns.append(question.getTableName());
@@ -340,6 +341,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         Map<String,String> oldDataMapCache = dynamicTableMapper.selectDynamicTableColumn(sqlAns.toString());
         Map<String, Qsubject> subjectMap = subjectList.stream().filter(q-> StringUtils.isNotBlank(q.getColumnName())).collect(Collectors.toMap(Qsubject::getColumnName, Function.identity()));
         List<AnswerMarkDto> dtoList = Lists.newArrayList();
+        List<AnswerMark> answerMarkList = Lists.newArrayList();
         for (Map.Entry<String, String> entity : oldDataMapCache.entrySet()) {
             String key = entity.getKey();
             String value = String.valueOf(entity.getValue());
@@ -356,22 +358,52 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
             dto.setQuestion(question.getTableName());
             dto.setQsubject(qsubject.getColumnName());
             dto.setCase_id(answer.getHospitalInNo());
+
+            AnswerMark answerMark = new AnswerMark();
+            answerMark.setQuId(question.getId());
+            answerMark.setSubjectId(qsubject.getId());
+            answerMark.setCaseId(answer.getHospitalInNo());
+            Date date = new Date();
+            answerMark.setCreateTime(date);
+            answerMark.setUpdateTime(date);
+            answerMark.setCreateUser(creater);
+            answerMark.setDataBefore(value);
+            answerMark.setSource(source);
+
             if(StringUtils.isBlank(value) && StringUtils.isNotBlank(newValue)){
                 //痕迹
                 dto.setAnswer(newValue);
+                answerMark.setDataAfter(newValue);
+                answerMarkList.add(answerMark);
+                if(QsubjectConstant.WRITE_METABASE_YES.equals(qsubject.getWriteMetabase())){
+                    dtoList.add(dto);
+                }
             }else if(StringUtils.isNotBlank(value) && StringUtils.isBlank(newValue)){
                 //痕迹
                 dto.setAnswer(newValue);
+                answerMark.setDataAfter(newValue);
+                answerMarkList.add(answerMark);
+                if(QsubjectConstant.WRITE_METABASE_YES.equals(qsubject.getWriteMetabase())){
+                    dtoList.add(dto);
+                }
             }else if(StringUtils.isNotBlank(value) && StringUtils.isNotBlank(newValue)){
                 if(!value.equals(newValue)){
                     //痕迹
-                    dto.setAnswer(newValue);
+                    answerMark.setDataAfter(newValue);
+                    if(QsubjectConstant.WRITE_METABASE_YES.equals(qsubject.getWriteMetabase())){
+                        dtoList.add(dto);
+                    }
+                    answerMarkList.add(answerMark);
                 }
             }
-            if(QsubjectConstant.WRITE_METABASE_YES.equals(qsubject.getWriteMetabase())){
-                dtoList.add(dto);
-            }
+
+
         }
+
+        if(CollectionUtil.isNotEmpty(answerMarkList)){
+            answerMarkService.saveBatch(answerMarkList);
+        }
+
         if(CollectionUtil.isNotEmpty(dtoList)){
             HttpTools.HttpData data = HttpTools.HttpData.instance();
             data.setPostEntity(new StringEntity(JSON.toJSONString(dtoList), ContentType.APPLICATION_JSON));
