@@ -682,6 +682,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         sql.append(" `tbksdm` varchar(128) NULL COMMENT '填报科室代码',");
         sql.append(" `summary_mapping_table_id` varchar(128) NULL COMMENT '对应总表的id，可以当主键',");
         sql.append(" `del` tinyint(4) NULL DEFAULT 0 COMMENT '0:正常1:已删除',");
+        sql.append(" `table_answer_status` int(11) NULL DEFAULT 0 COMMENT '0:草稿1:已提交',");
         sql.append(" PRIMARY KEY (`id`)");
         if(subjectList.size()>=50){
             sql.append(") ENGINE=MyISAM DEFAULT CHARSET=utf8;");
