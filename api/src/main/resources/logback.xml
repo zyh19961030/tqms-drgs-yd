@@ -2,7 +2,7 @@
 <configuration debug="false">
     <!--定义日志文件的存储地址 -->
     <property name="LOG_HOME" value="./wenjuan_logs"/>
-    <property name="MAX_FILE_SIZE" value="10MB"/>
+    <property name="MAX_FILE_SIZE" value="50MB"/>
     <property name="MAX_HISTORY" value="30"/>
 
     <property name="COLOR_PATTERN"

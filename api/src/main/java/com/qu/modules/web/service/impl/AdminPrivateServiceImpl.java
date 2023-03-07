@@ -1,25 +1,15 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.date.*;
-import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.google.common.collect.Lists;
-import com.qu.constant.*;
-import com.qu.modules.web.entity.*;
-import com.qu.modules.web.mapper.*;
-import com.qu.modules.web.param.AdminPrivateParam;
-import com.qu.modules.web.param.AdminPrivateUpdateOptionValueParam;
-import com.qu.modules.web.param.AdminPrivateUpdateTableAddDelFeeParam;
-import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
-import com.qu.modules.web.service.IAdminPrivateService;
-import com.qu.modules.web.service.IOptionService;
-import com.qu.modules.web.service.ISubjectService;
-import com.qu.util.PriceUtil;
-import lombok.extern.slf4j.Slf4j;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultFactory;
@@ -28,14 +18,46 @@ import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
+import com.qu.constant.AnswerCheckConstant;
+import com.qu.constant.AnswerConstant;
+import com.qu.constant.QoptionConstant;
+import com.qu.constant.QsubjectConstant;
+import com.qu.constant.QuestionConstant;
+import com.qu.modules.web.entity.Answer;
+import com.qu.modules.web.entity.AnswerCheck;
+import com.qu.modules.web.entity.QSingleDiseaseTake;
+import com.qu.modules.web.entity.Qoption;
+import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.mapper.AnswerCheckMapper;
+import com.qu.modules.web.mapper.AnswerMapper;
+import com.qu.modules.web.mapper.DynamicTableMapper;
+import com.qu.modules.web.mapper.OptionMapper;
+import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
+import com.qu.modules.web.mapper.QsubjectMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.param.AdminPrivateParam;
+import com.qu.modules.web.param.AdminPrivateUpdateOptionValueParam;
+import com.qu.modules.web.param.AdminPrivateUpdateTableAddDelFeeParam;
+import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
+import com.qu.modules.web.service.IAdminPrivateService;
+import com.qu.modules.web.service.IOptionService;
+import com.qu.modules.web.service.ISubjectService;
+import com.qu.util.PriceUtil;
+
+import cn.hutool.core.date.DateException;
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -379,6 +401,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         StringBuilder sqlSelect = new StringBuilder();
         StringBuffer errorMsg = new StringBuffer();
         for (Question question : questionList) {
+            sqlSelect.setLength(0);
             String tableName = question.getTableName();
             if(StringUtils.isBlank(tableName)){
                 continue;
@@ -425,6 +448,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         StringBuffer sqlAns = new StringBuffer();
         StringBuffer errorMsg = new StringBuffer();
         for (AnswerCheck answerCheck : answerCheckList) {
+            sqlAns.setLength(0);
             Integer quId = answerCheck.getQuId();
             if (quId == null) {
                 log.info("continue answerCheck.quId is null --answerCheckId-------{}", answerCheck.getId());
@@ -466,7 +490,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
             }
 
 
-            sqlAns.setLength(0);
+
         }
         return ResultFactory.success(errorMsg);
     }
@@ -616,7 +640,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         questionLambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
         questionLambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_CHECK);
         questionLambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
-        questionLambda.ge(Question::getId, 296);
+//        questionLambda.ge(Question::getId, 296);
         List<Question> questionList = questionMapper.selectList(questionLambda);
         if(questionList.isEmpty()){
             return ResultFactory.fail("没有已发布的检查表");
