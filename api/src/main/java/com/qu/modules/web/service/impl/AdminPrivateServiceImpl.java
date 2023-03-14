@@ -500,6 +500,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         //查出来所有的AnswerCheck
         LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
         lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
+        lambda.isNotNull(AnswerCheck::getCaseId);
         List<AnswerCheck> answerCheckList = answerCheckMapper.selectList(lambda);
 
         //查出来所有的检查表
