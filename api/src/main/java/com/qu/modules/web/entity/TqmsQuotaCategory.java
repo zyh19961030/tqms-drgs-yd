@@ -1,12 +1,14 @@
 package com.qu.modules.web.entity;
 
+import org.jeecgframework.poi.excel.annotation.Excel;
+
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.jeecgframework.poi.excel.annotation.Excel;
 
 /**
  * @Description: 分类表
@@ -36,7 +38,7 @@ public class TqmsQuotaCategory {
 	/**父级分类ID*/
 	@Excel(name = "父级分类ID", width = 15)
     @ApiModelProperty(value = "父级分类ID")
-	private Integer parentId;
+	private Long parentId;
 	/**单病种类型*/
 	@Excel(name = "单病种类型", width = 15)
     @ApiModelProperty(value = "单病种类型")
