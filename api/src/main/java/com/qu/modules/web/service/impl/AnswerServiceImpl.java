@@ -1,18 +1,30 @@
 package com.qu.modules.web.service.impl;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.*;
+import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.qu.constant.AnswerConstant;
+import com.qu.constant.QsubjectConstant;
+import com.qu.constant.QuestionConstant;
+import com.qu.modules.web.dto.AnswerMarkDto;
+import com.qu.modules.web.entity.*;
+import com.qu.modules.web.mapper.AnswerMapper;
+import com.qu.modules.web.mapper.DynamicTableMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.param.*;
+import com.qu.modules.web.pojo.JsonRootBean;
+import com.qu.modules.web.service.*;
+import com.qu.modules.web.vo.*;
+import com.qu.util.HttpClient;
+import com.qu.util.HttpTools;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -26,61 +38,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.qu.constant.AnswerConstant;
-import com.qu.constant.QsubjectConstant;
-import com.qu.constant.QuestionConstant;
-import com.qu.modules.web.dto.AnswerMarkDto;
-import com.qu.modules.web.entity.Answer;
-import com.qu.modules.web.entity.AnswerMark;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.entity.TbDep;
-import com.qu.modules.web.entity.TbUser;
-import com.qu.modules.web.mapper.AnswerMapper;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.AnswerAllDataParam;
-import com.qu.modules.web.param.AnswerListParam;
-import com.qu.modules.web.param.AnswerMiniAppParam;
-import com.qu.modules.web.param.AnswerMonthQuarterYearSubmitParam;
-import com.qu.modules.web.param.AnswerParam;
-import com.qu.modules.web.param.AnswerPatientFillingInParam;
-import com.qu.modules.web.param.AnswerPatientSubmitParam;
-import com.qu.modules.web.param.Answers;
-import com.qu.modules.web.param.SingleDiseaseAnswer;
-import com.qu.modules.web.pojo.JsonRootBean;
-import com.qu.modules.web.service.IAnswerMarkService;
-import com.qu.modules.web.service.IAnswerService;
-import com.qu.modules.web.service.ISubjectService;
-import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.service.ITbUserService;
-import com.qu.modules.web.vo.AnswerAllDataVo;
-import com.qu.modules.web.vo.AnswerIdVo;
-import com.qu.modules.web.vo.AnswerMonthQuarterYearFillingInAndSubmitPageVo;
-import com.qu.modules.web.vo.AnswerMonthQuarterYearFillingInAndSubmitVo;
-import com.qu.modules.web.vo.AnswerPageVo;
-import com.qu.modules.web.vo.AnswerPatientFillingInAndSubmitPageVo;
-import com.qu.modules.web.vo.AnswerPatientFillingInAndSubmitVo;
-import com.qu.modules.web.vo.AnswerVo;
-import com.qu.modules.web.vo.SubjectVo;
-import com.qu.util.HttpClient;
-import com.qu.util.HttpTools;
-
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.CalendarUtil;
-import cn.hutool.core.date.DateField;
-import cn.hutool.core.date.DatePattern;
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUtil;
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Resource;
+import java.io.IOException;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -134,16 +96,18 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         String creater = "";
         String creater_name = "";
         String creater_deptid = "";
-        String creater_deptname = "";
         if (jsonRootBean != null) {
             if (jsonRootBean.getData() != null) {
                 creater = jsonRootBean.getData().getTbUser().getId();
                 creater_name = jsonRootBean.getData().getTbUser().getUserName();
-                creater_deptid = jsonRootBean.getData().getDeps().get(0).getId();
-                creater_deptname = jsonRootBean.getData().getDeps().get(0).getDepName();
+                creater_deptid = jsonRootBean.getData().getTbUser().getDepId();
             }
         }
-        return getResult(answerParam, creater, creater_name, creater_deptid, creater_deptname,AnswerConstant.SOURCE_PC);
+        TbDep tbDep = new TbDep();
+        if (org.apache.commons.lang.StringUtils.isNotBlank(creater_deptid)) {
+            tbDep = tbDepService.getById(creater_deptid);
+        }
+        return getResult(answerParam, creater, creater_name, tbDep.getId(), tbDep.getDepname(),AnswerConstant.SOURCE_PC);
     }
 
 

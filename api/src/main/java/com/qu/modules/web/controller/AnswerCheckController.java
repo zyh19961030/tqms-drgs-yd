@@ -52,7 +52,7 @@ public class AnswerCheckController {
 		 Result<AnswerCheckPageVo> result = new Result<AnswerCheckPageVo>();
          AnswerCheckListRequest listRequest = new AnswerCheckListRequest();
 		 Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-		 String deptId = data.getDeps().get(0).getId();
+		 String deptId = data.getTbUser().getDepId();
          listRequest.setUserDeptId(deptId);
 		 IPage<AnswerCheckVo> answerPageVo = answerCheckService.checkQuestionFillInList(listRequest, pageNo, pageSize, AnswerCheckConstant.ANSWER_STATUS_DRAFT);
 		 result.setSuccess(true);

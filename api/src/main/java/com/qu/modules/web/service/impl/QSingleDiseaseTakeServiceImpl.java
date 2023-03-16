@@ -571,9 +571,13 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
             if (jsonRootBean.getData() != null) {
                 answer = jsonRootBean.getData().getTbUser().getId();
                 answerName = jsonRootBean.getData().getTbUser().getUserName();
-                answerDeptid = jsonRootBean.getData().getDeps().get(0).getId();
-                answerDeptname = jsonRootBean.getData().getDeps().get(0).getDepName();
+                answerDeptid = jsonRootBean.getData().getTbUser().getDepId();
             }
+        }
+        TbDep tbDep = new TbDep();
+        if (org.apache.commons.lang.StringUtils.isNotBlank(answerDeptid)) {
+            tbDep = tbDepService.getById(answerDeptid);
+            answerDeptname=tbDep.getDepname();
         }
         SingleDiseaseAnswer[] answersArray = singleDiseaseAnswerParam.getAnswers();
 

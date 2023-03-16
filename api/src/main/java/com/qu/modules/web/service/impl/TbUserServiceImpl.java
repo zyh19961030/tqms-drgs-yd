@@ -51,7 +51,7 @@ public class TbUserServiceImpl extends ServiceImpl<TbUserMapper, TbUser> impleme
 
     @Override
     public ResultBetter<QuestionSetLineVo> setLine(Data data) {
-        String deptId = data.getDeps().get(0).getId();
+        String deptId = data.getTbUser().getDepId();
         String userId = data.getTbUser().getId();
 
         //职位

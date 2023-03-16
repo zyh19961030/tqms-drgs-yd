@@ -498,7 +498,7 @@ public class QuestionController {
         Result<List<QuestionPatientCreateListVo>> result = new Result<>();
         //加科室过滤---
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        String deptId = data.getDeps().get(0).getId();
+        String deptId = data.getTbUser().getDepId();
         List<QuestionPatientCreateListVo> list = questionService.patientCreateList(name,deptId);
         result.setSuccess(true);
         result.setResult(list);
@@ -516,7 +516,7 @@ public class QuestionController {
         Result<List<QuestionMonthQuarterYearCreateListVo>> result = new Result<>();
         //加科室过滤---
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        String deptId = data.getDeps().get(0).getId();
+        String deptId = data.getTbUser().getDepId();
         List<QuestionMonthQuarterYearCreateListVo> list = questionService.monthQuarterYearCreateList(type,deptId);
         result.setSuccess(true);
         result.setResult(list);
@@ -533,7 +533,7 @@ public class QuestionController {
         Result<List<QuestionMonthQuarterYearCreateListVo>> result = new Result<>();
         //加科室过滤---
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        String deptId = data.getDeps().get(0).getId();
+        String deptId = data.getTbUser().getDepId();
         List<QuestionMonthQuarterYearCreateListVo> list = questionService.registerCreateList(deptId);
         result.setSuccess(true);
         result.setResult(list);

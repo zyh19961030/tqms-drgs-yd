@@ -1,11 +1,21 @@
 package com.qu.modules.web.controller;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.qu.constant.Constant;
+import com.qu.constant.QSingleDiseaseTakeConstant;
+import com.qu.modules.web.entity.TbDep;
+import com.qu.modules.web.entity.TbUser;
+import com.qu.modules.web.param.*;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.service.*;
+import com.qu.modules.web.vo.*;
+import com.qu.util.DeptUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultFactory;
@@ -16,81 +26,13 @@ import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.alibaba.fastjson.JSON;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.qu.constant.Constant;
-import com.qu.constant.QSingleDiseaseTakeConstant;
-import com.qu.modules.web.entity.TbDep;
-import com.qu.modules.web.entity.TbUser;
-import com.qu.modules.web.param.DepartmentQuantityStatisticsParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeByDoctorParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeNoNeedParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeNumberListParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportQuantityRankingParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticByDeptExportParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticDeptPermutationParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticExportParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewLineParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticOverviewPieParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeReportStatisticSummaryParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisByDeptParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticDepartmentComparisonChartParam;
-import com.qu.modules.web.param.SingleDiseaseAnswerNavigationParam;
-import com.qu.modules.web.param.SingleDiseaseAnswerParam;
-import com.qu.modules.web.param.SingleDiseaseExamineRecordParam;
-import com.qu.modules.web.param.SingleDiseaseRejectParam;
-import com.qu.modules.web.param.SingleDiseaseWaitUploadParam;
-import com.qu.modules.web.pojo.Data;
-import com.qu.modules.web.pojo.Deps;
-import com.qu.modules.web.service.IQSingleDiseaseStatisticDeptService;
-import com.qu.modules.web.service.IQSingleDiseaseStatisticHospitalService;
-import com.qu.modules.web.service.IQSingleDiseaseTakeService;
-import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.service.ITbUserService;
-import com.qu.modules.web.vo.DepartmentQuantityStatisticsVo;
-import com.qu.modules.web.vo.QSingleDiseaseNameVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeByDoctorPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeNumberVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportQuantityRankingVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptPermutationVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticDeptVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewLineVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticOverviewPieVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticPageVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticSummaryVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticTrendVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeReportStatisticVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticAnalysisTableVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticAnalysisVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDepartmentComparisonChartVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeStatisticDepartmentComparisonVo;
-import com.qu.modules.web.vo.QSingleDiseaseTakeVo;
-import com.qu.modules.web.vo.ReportFailureRecordParameterPageVo;
-import com.qu.modules.web.vo.ReportFailureRecordParameterVo;
-import com.qu.modules.web.vo.SingleDiseaseAnswerNavigationVo;
-import com.qu.modules.web.vo.SingleDiseaseReportCountVo;
-import com.qu.modules.web.vo.WorkbenchReminderVo;
-import com.qu.util.DeptUtil;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 单病种总表
@@ -132,7 +74,7 @@ public class QSingleDiseaseTakeController {
         Result<List<QSingleDiseaseTakeVo>> result = new Result<>();
         //加科室过滤---
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        String deptId = data.getDeps().get(0).getId();
+        String deptId = data.getTbUser().getDepId();
         List<QSingleDiseaseTakeVo> list = qSingleDiseaseTakeService.singleDiseaseList(name,deptId);
         result.setSuccess(true);
         result.setResult(list);
@@ -149,8 +91,12 @@ public class QSingleDiseaseTakeController {
         Result<List<QSingleDiseaseNameVo>> result = new Result<>();
         //加科室过滤---
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        String deptId = data.getDeps().get(0).getId();
-        String type = data.getDeps().get(0).getType();
+        String deptId = data.getTbUser().getDepId();
+        TbDep tbDep = new TbDep();
+        if (org.apache.commons.lang.StringUtils.isNotBlank(deptId)) {
+            tbDep = tbDepService.getById(deptId);
+        }
+        String type = tbDep.getType();
         List<QSingleDiseaseNameVo> list = qSingleDiseaseTakeService.singleDiseaseNameList(deptId,type);
         result.setSuccess(true);
         result.setResult(list);
@@ -170,7 +116,7 @@ public class QSingleDiseaseTakeController {
         Result<QSingleDiseaseTakeByDoctorPageVo> result = new Result<>();
         //加科室过滤---
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        String deptId = data.getDeps().get(0).getId();
+        String deptId = data.getTbUser().getDepId();
         QSingleDiseaseTakeByDoctorPageVo list = qSingleDiseaseTakeService.singleDiseaseByDoctorList(qSingleDiseaseTakeByDoctorParam, pageNo, pageSize,deptId);
         result.setSuccess(true);
         result.setResult(list);
@@ -220,7 +166,7 @@ public class QSingleDiseaseTakeController {
         Result<QSingleDiseaseTakeByDoctorPageVo> result = new Result<>();
         //加科室过滤
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        String deptId = data.getDeps().get(0).getId();
+        String deptId = data.getTbUser().getDepId();
         QSingleDiseaseTakeByDoctorPageVo list = qSingleDiseaseTakeService.singleDiseaseWaitUploadList(singleDiseaseWaitUploadParam,deptId,pageNo, pageSize);
         result.setSuccess(true);
         result.setResult(list);
@@ -282,7 +228,7 @@ public class QSingleDiseaseTakeController {
                                                                             HttpServletRequest request) {
         Result<QSingleDiseaseTakeByDoctorPageVo> result = new Result<>();
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        String deptId = data.getDeps().get(0).getId();
+        String deptId = data.getTbUser().getDepId();
         QSingleDiseaseTakeByDoctorPageVo list = qSingleDiseaseTakeService.singleDiseaseRejectList(pageNo, pageSize,deptId);
         result.setSuccess(true);
         result.setResult(list);
@@ -302,7 +248,7 @@ public class QSingleDiseaseTakeController {
         Result<QSingleDiseaseTakeByDoctorPageVo> result = new Result<>();
         //加科室过滤---
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        String deptId = data.getDeps().get(0).getId();
+        String deptId = data.getTbUser().getDepId();
         QSingleDiseaseTakeByDoctorPageVo list = qSingleDiseaseTakeService.singleDiseaseByDeptList(qSingleDiseaseTakeByDeptParam, pageNo, pageSize,deptId);
         result.setSuccess(true);
         result.setResult(list);
@@ -419,8 +365,12 @@ public class QSingleDiseaseTakeController {
                                                                                                  @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                                                                  HttpServletRequest request) {
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        String deptId = data.getDeps().get(0).getId();
-        String type = data.getDeps().get(0).getType();
+        String deptId = data.getTbUser().getDepId();
+        TbDep tbDep = new TbDep();
+        if (org.apache.commons.lang.StringUtils.isNotBlank(deptId)) {
+            tbDep = tbDepService.getById(deptId);
+        }
+        String type = tbDep.getType();
         QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam qSingleDiseaseTakeStatisticAnalysisByDeptConditionParam = new QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam();
         List <TbDep> tbDepList = questionService.singleDiseaseStatisticAnalysisByDeptCondition(qSingleDiseaseTakeStatisticAnalysisByDeptConditionParam,deptId,type);
         List<String> deptIdList = tbDepList.stream().map(TbDep::getId).distinct().collect(Collectors.toList());
@@ -485,8 +435,12 @@ public class QSingleDiseaseTakeController {
     public Result<List<TbDep>> singleDiseaseStatisticAnalysisByDeptCondition(@Validated QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam qSingleDiseaseTakeStatisticAnalysisByDeptConditionParam,
                                                                              HttpServletRequest request) {
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        String deptId = data.getDeps().get(0).getId();
-        String type = data.getDeps().get(0).getType();
+        String deptId = data.getTbUser().getDepId();
+        TbDep tbDep = new TbDep();
+        if (org.apache.commons.lang.StringUtils.isNotBlank(deptId)) {
+            tbDep = tbDepService.getById(deptId);
+        }
+        String type = tbDep.getType();
         List <TbDep> tbDepList = questionService.singleDiseaseStatisticAnalysisByDeptCondition(qSingleDiseaseTakeStatisticAnalysisByDeptConditionParam,deptId,type);
         Result<List<TbDep>> result = new Result<>();
         result.setSuccess(true);
@@ -568,8 +522,12 @@ public class QSingleDiseaseTakeController {
                                                                                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                                                            HttpServletRequest request) {
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        String deptId = data.getDeps().get(0).getId();
-        String type = data.getDeps().get(0).getType();
+        String deptId = data.getTbUser().getDepId();
+        TbDep tbDep = new TbDep();
+        if (org.apache.commons.lang.StringUtils.isNotBlank(deptId)) {
+            tbDep = tbDepService.getById(deptId);
+        }
+        String type = tbDep.getType();
         Result<QSingleDiseaseTakeReportStatisticPageVo> result = new Result<>();
         QSingleDiseaseTakeReportStatisticPageVo list = qSingleDiseaseStatisticHospitalService.allSingleDiseaseReportStatistic(qSingleDiseaseTakeReportStatisticParam, pageNo, pageSize,deptId,type);
         result.setSuccess(true);
@@ -922,10 +880,10 @@ public class QSingleDiseaseTakeController {
 //        String[] dept = qSingleDiseaseTakeReportStatisticParam.getDept();
 //        if(dept!=null){
 //            ArrayList<String> strings = Lists.newArrayList(dept);
-//            strings.add(data.getDeps().get(0).getId());
+//            strings.add(data.getTbUser().getDepId(););
 //            dept= strings.toArray(new String[0]);
 //        }else{
-//            dept= new String[]{data.getDeps().get(0).getId()};
+//            dept= new String[]{data.getTbUser().getDepId()};
 //        }
 //        qSingleDiseaseTakeReportStatisticParam.setDept(dept);
 //        QSingleDiseaseTakeReportStatisticPageVo list = qSingleDiseaseTakeService.allSingleDiseaseReportStatistic(qSingleDiseaseTakeReportStatisticParam, pageNo, pageSize);
@@ -945,11 +903,15 @@ public class QSingleDiseaseTakeController {
         Result<List<QSingleDiseaseTakeReportStatisticDeptVo>> result = new Result<>();
         //加科室过滤---
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        Deps deps = data.getDeps().get(0);
+        String deptId = data.getTbUser().getDepId();
+        TbDep tbDep = new TbDep();
+        if (org.apache.commons.lang.StringUtils.isNotBlank(deptId)) {
+            tbDep = tbDepService.getById(deptId);
+        }
         List<QSingleDiseaseTakeReportStatisticDeptVo> list= Lists.newArrayList();
         QSingleDiseaseTakeReportStatisticDeptVo q= new QSingleDiseaseTakeReportStatisticDeptVo();
-        q.setDepartmentId(deps.getId());
-        q.setDepartment(deps.getDepName());
+        q.setDepartmentId(tbDep.getId());
+        q.setDepartment(tbDep.getDepname());
         list.add(q);
 //        List<QSingleDiseaseTakeReportStatisticDeptVo> list = qSingleDiseaseTakeService.deptSingleDiseaseReportStatisticDept(deptId);
         result.setSuccess(true);
@@ -1073,10 +1035,10 @@ public class QSingleDiseaseTakeController {
 //        String[] dept = qSingleDiseaseTakeReportStatisticOverviewLineParam.getDept();
 //        if(dept!=null){
 //            ArrayList<String> strings = Lists.newArrayList(dept);
-//            strings.add(data.getDeps().get(0).getId());
+//            strings.add(data.getTbUser().getDepId());
 //            dept= strings.toArray(new String[0]);
 //        }else{
-//            dept= new String[]{data.getDeps().get(0).getId()};
+//            dept= new String[]{data.getTbUser().getDepId()};
 //        }
 //        qSingleDiseaseTakeReportStatisticOverviewLineParam.setDept(dept);
 //        List<QSingleDiseaseTakeReportStatisticOverviewLineVo> list = qSingleDiseaseTakeService
@@ -1105,10 +1067,10 @@ public class QSingleDiseaseTakeController {
 //        String[] dept = qSingleDiseaseTakeReportStatisticOverviewParam.getDept();
 //        if(dept!=null){
 //            ArrayList<String> strings = Lists.newArrayList(dept);
-//            strings.add(data.getDeps().get(0).getId());
+//            strings.add(data.getTbUser().getDepId());
 //            dept= strings.toArray(new String[0]);
 //        }else{
-//            dept= new String[]{data.getDeps().get(0).getId()};
+//            dept= new String[]{data.getTbUser().getDepId()};
 //        }
 //        qSingleDiseaseTakeReportStatisticOverviewParam.setDept(dept);
 //
@@ -1137,10 +1099,10 @@ public class QSingleDiseaseTakeController {
 //        String[] dept = qSingleDiseaseTakeReportStatisticOverviewParam.getDept();
 //        if(dept!=null){
 //            ArrayList<String> strings = Lists.newArrayList(dept);
-//            strings.add(data.getDeps().get(0).getId());
+//            strings.add(data.getTbUser().getDepId());
 //            dept= strings.toArray(new String[0]);
 //        }else{
-//            dept= new String[]{data.getDeps().get(0).getId()};
+//            dept= new String[]{data.getTbUser().getDepId()};
 //        }
 //        qSingleDiseaseTakeReportStatisticOverviewParam.setDept(dept);
 //        List<QSingleDiseaseTakeReportStatisticTrendVo> list = qSingleDiseaseTakeService.allSingleDiseaseReportStatisticTrend(qSingleDiseaseTakeReportStatisticOverviewParam);
@@ -1182,7 +1144,7 @@ public class QSingleDiseaseTakeController {
 //        Result<List<QSingleDiseaseTakeReportStatisticSummaryVo>> result = new Result<>();
 //        // 加科室过滤---
 //        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-//        qSingleDiseaseTakeReportStatisticSummaryParam.setDept(data.getDeps().get(0).getId());
+//        qSingleDiseaseTakeReportStatisticSummaryParam.setDept(data.getTbUser().getDepId());
 //        List<QSingleDiseaseTakeReportStatisticSummaryVo> list = qSingleDiseaseTakeService.allSingleDiseaseReportStatisticSummary(qSingleDiseaseTakeReportStatisticSummaryParam);
 //        result.setSuccess(true);
 //        result.setResult(list);
@@ -1200,10 +1162,15 @@ public class QSingleDiseaseTakeController {
         Result<WorkbenchReminderVo> result = new Result<>();
         // 加科室过滤---
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        String type = data.getDeps().get(0).getType();
+        String deptId = data.getTbUser().getDepId();
+        TbDep tbDep = new TbDep();
+        if (org.apache.commons.lang.StringUtils.isNotBlank(deptId)) {
+            tbDep = tbDepService.getById(deptId);
+        }
+        String type = tbDep.getType();
         String dept=null;
         if(DeptUtil.isClinical(type)){
-            dept=data.getDeps().get(0).getId();
+            dept=deptId;
         }
         WorkbenchReminderVo workbenchReminderVo = qSingleDiseaseTakeService.workbenchReminder(dept);
         if(DeptUtil.isClinical(type)){
@@ -1286,12 +1253,17 @@ public class QSingleDiseaseTakeController {
         if(data==null){
             return ResultFactory.fail("登录过期,请重新登录");
         }
-        String type = data.getDeps().get(0).getType();
-        String deptId=null;
-        if(DeptUtil.isClinical(type)){
-            deptId=data.getDeps().get(0).getId();
+        String deptId = data.getTbUser().getDepId();
+        TbDep tbDep = new TbDep();
+        if (org.apache.commons.lang.StringUtils.isNotBlank(deptId)) {
+            tbDep = tbDepService.getById(deptId);
         }
-        SingleDiseaseReportCountVo singleDiseaseReportCount = qSingleDiseaseTakeService.singleDiseaseReportCount(deptId);
+        String type = tbDep.getType();
+        String dept=null;
+        if(DeptUtil.isClinical(type)){
+            dept=data.getTbUser().getDepId();
+        }
+        SingleDiseaseReportCountVo singleDiseaseReportCount = qSingleDiseaseTakeService.singleDiseaseReportCount(dept);
 //        if(DeptUtil.isClinical(type)){
 //            singleDiseaseReportCount.setClinical(0);
 //        }else{

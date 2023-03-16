@@ -73,7 +73,7 @@ public class AnswerCheckUserSetController {
     @PostMapping(value = "/saveAnswerCheckUserSet")
     public ResultBetter saveAnswerCheckUserSet(@RequestBody @Validated AnswerCheckUserSetSaveParam param, HttpServletRequest request) {
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        String deptId = data.getDeps().get(0).getId();
+        String deptId = data.getTbUser().getDepId();
 //        String userId = data.getTbUser().getId();
         return  answerCheckUserSetService.saveAnswerCheckUserSet(param,deptId);
     }
@@ -87,7 +87,7 @@ public class AnswerCheckUserSetController {
 	 public ResultBetter<AnswerCheckSetAllDataVo> selectAnswerCheckUserSet(HttpServletRequest request) {
 		 //加科室过滤---
 		 Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-		 String deptId = data.getDeps().get(0).getId();
+         String deptId = data.getTbUser().getDepId();
 		 return answerCheckUserSetService.selectAnswerCheckUserSet(deptId);
 	 }
 
@@ -100,7 +100,7 @@ public class AnswerCheckUserSetController {
     @PostMapping(value = "/saveService")
     public ResultBetter saveService(@RequestBody @Validated List<AnswerCheckUserSetSaveServiceParam> param, HttpServletRequest request) {
         Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        String deptId = data.getDeps().get(0).getId();
+        String deptId = data.getTbUser().getDepId();
 //        String userId = data.getTbUser().getId();
         return  answerCheckUserSetService.saveService(param,deptId);
     }
@@ -117,7 +117,7 @@ public class AnswerCheckUserSetController {
 //	 public ResultBetter<AnswerAllDataVo> answerAllData(HttpServletRequest request, @Validated AnswerAllDataParam param) {
 //		 //加科室过滤---
 //		 Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-//		 String deptId = data.getDeps().get(0).getId();
+//		 String deptId = data.getTbUser().getDepId();
 //		 return answerService.answerAllData(deptId,param);
 //	 }
 
