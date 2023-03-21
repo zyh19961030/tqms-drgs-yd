@@ -1,12 +1,14 @@
 package com.qu.modules.web.request;
 
+import java.util.Date;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.util.Date;
 
 @Data
 @ApiModel(value="AnswerCheckListRequest", description="AnswerCheckListRequest")
@@ -36,5 +38,8 @@ public class AnswerCheckListRequest {
 
     @ApiModelProperty(value = "用户id")
     private String userId;
+
+    @ApiModelProperty(value = "检查月份")
+    private String checkMonth;
 
 }

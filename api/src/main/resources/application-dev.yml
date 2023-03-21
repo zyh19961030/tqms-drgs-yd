@@ -47,7 +47,8 @@ spring:
           #          pashsword: root
           #          password: gzyjy123@
 #          password: 123456
-          password: tqms$2021@Shijiyunyi
+#          password: tqms$2021@Shijiyunyi
+          password: T9m5n@2022!
           driver-class-name: com.mysql.jdbc.Driver
 
 

@@ -36,4 +36,7 @@ public class AnswerCheckListMiniAppParam {
     @ApiModelProperty(value = "检查人：1本人 2本科室全部")
     private Integer checkUserType;
 
+    @ApiModelProperty(value = "检查月份")
+    private String checkMonth;
+
 }
