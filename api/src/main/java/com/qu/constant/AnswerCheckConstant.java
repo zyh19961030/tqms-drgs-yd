@@ -9,6 +9,8 @@ public class AnswerCheckConstant {
 
     public static final Integer DEL_NORMAL = 0;
     public static final Integer DEL_DELETED = 1;
+    public static final Integer SOURCE_PC = 0;
+    public static final Integer SOURCE_MINIAPP = 1;
 
     public static final String COLUMN_NAME_CHECK_TIME = "check_month";
     public static final String COLUMN_NAME_CHECKED_DEPT = "checked_dept";

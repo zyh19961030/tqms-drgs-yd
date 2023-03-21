@@ -1,48 +1,20 @@
 package com.qu.modules.web.service.impl;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang3.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import cn.hutool.core.date.*;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
-import com.qu.constant.AnswerCheckConstant;
-import com.qu.constant.AnswerConstant;
-import com.qu.constant.QoptionConstant;
-import com.qu.constant.QsubjectConstant;
-import com.qu.constant.QuestionConstant;
-import com.qu.modules.web.entity.Answer;
-import com.qu.modules.web.entity.AnswerCheck;
-import com.qu.modules.web.entity.QSingleDiseaseTake;
-import com.qu.modules.web.entity.Qoption;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.mapper.AnswerCheckMapper;
-import com.qu.modules.web.mapper.AnswerMapper;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.OptionMapper;
-import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
-import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.constant.*;
+import com.qu.event.AnswerCheckStatisticDetailEvent;
+import com.qu.modules.web.dto.AnswerCheckStatisticDetailEventDto;
+import com.qu.modules.web.entity.*;
+import com.qu.modules.web.mapper.*;
 import com.qu.modules.web.param.AdminPrivateParam;
 import com.qu.modules.web.param.AdminPrivateUpdateOptionValueParam;
 import com.qu.modules.web.param.AdminPrivateUpdateTableAddDelFeeParam;
@@ -50,14 +22,23 @@ import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
 import com.qu.modules.web.service.IAdminPrivateService;
 import com.qu.modules.web.service.IOptionService;
 import com.qu.modules.web.service.ISubjectService;
+import com.qu.modules.web.vo.SubjectVo;
 import com.qu.util.PriceUtil;
-
-import cn.hutool.core.date.DateException;
-import cn.hutool.core.date.DateField;
-import cn.hutool.core.date.DatePattern;
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -88,6 +69,9 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
 
     @Resource
     private AnswerMapper answerMapper;
+
+    @Resource
+    private ApplicationEventPublisher applicationEventPublisher;
 
     private static String[] parsePatterns = new String[]{"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"};
 
@@ -717,5 +701,53 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
             }
         }
         return ResultFactory.success(errorMsg);
+    }
+
+    @Override
+    public Result updateAnswerCheckStatisticDetail(AdminPrivateUpdateTableDrugFeeParam param) {
+        //查出来所有的AnswerCheck
+        LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
+        lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
+        lambda.eq(AnswerCheck::getAnswerStatus, AnswerCheckConstant.ANSWER_STATUS_RELEASE);
+        List<AnswerCheck> answerCheckList = answerCheckMapper.selectList(lambda);
+
+        //查出来所有的检查表
+        LambdaQueryWrapper<Question> questionLambda = new QueryWrapper<Question>().lambda();
+//        questionLambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
+        questionLambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_CHECK);
+        questionLambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
+        List<Question> questionList = questionMapper.selectList(questionLambda);
+        Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
+        for (AnswerCheck answerCheck : answerCheckList) {
+            Question question = questionMap.get(answerCheck.getQuId());
+            if (question == null || QuestionConstant.DEL_DELETED.equals(question.getDel())) {
+                return ResultFactory.error("问卷不存在,无法保存。");
+            }
+
+            JSONArray answers = (JSONArray)JSONArray.parse(answerCheck.getAnswerJson());
+            Map<String, String> mapCache = new HashMap<>();
+            for (Object a : answers) {
+                JSONObject jsonObject = (JSONObject)a;
+                mapCache.put((String)jsonObject.get("subColumnName"), (String)jsonObject.get("subValue"));
+            }
+
+            List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(answerCheck.getQuId());
+
+            //保存统计明细
+            AnswerCheckStatisticDetailEventDto dto = new AnswerCheckStatisticDetailEventDto();
+            dto.setQuestion(question);
+            dto.setSubjectList(subjectList);
+            dto.setMapCache(mapCache);
+            dto.setAnswerCheck(answerCheck);
+            dto.setAnswerUser(answerCheck.getCreater());
+            dto.setAnswerUserName(answerCheck.getCreaterName());
+            dto.setDepId(answerCheck.getCreaterDeptId());
+            dto.setDepName(answerCheck.getCreaterDeptName());
+            dto.setSource(AnswerCheckConstant.SOURCE_PC);
+            AnswerCheckStatisticDetailEvent questionVersionEvent = new AnswerCheckStatisticDetailEvent(this, dto);
+            applicationEventPublisher.publishEvent(questionVersionEvent);
+        }
+
+        return ResultFactory.success();
     }
 }

@@ -126,4 +126,15 @@ public class AdminPrivateController {
         return adminPrivateService.updateTableAddMark(param);
     }
 
+
+    @ApiOperation(value = "处理历史检查表统计明细数据已提交数据", notes = "处理历史检查表统计明细数据已提交数据")
+    @PostMapping(value = "/updateAnswerCheckStatisticDetail")
+    public Result updateAnswerCheckStatisticDetail(@RequestBody AdminPrivateUpdateTableDrugFeeParam param) {
+        if(!"y1r3".equals(param.getName())){
+            return ResultFactory.fail();
+        }
+        log.info("-----------updateAnswerCheckStatisticDetail={}", JSON.toJSONString(param));
+        return adminPrivateService.updateAnswerCheckStatisticDetail(param);
+    }
+
 }

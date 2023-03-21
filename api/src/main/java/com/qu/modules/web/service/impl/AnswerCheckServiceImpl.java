@@ -1,28 +1,6 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultBetter;
-import org.jeecg.common.api.vo.ResultBetterFactory;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.jeecg.common.util.UUIDGenerator;
-import org.joda.time.DateTime;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
+import cn.hutool.core.util.NumberUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -35,47 +13,44 @@ import com.qu.constant.AnswerCheckConstant;
 import com.qu.constant.CheckDetailSetConstant;
 import com.qu.constant.QsubjectConstant;
 import com.qu.constant.QuestionConstant;
+import com.qu.event.AnswerCheckStatisticDetailEvent;
 import com.qu.exporter.AnswerCheckeDetailExporter;
-import com.qu.modules.web.entity.AnswerCheck;
-import com.qu.modules.web.entity.Qoption;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.entity.QuestionCheckedDept;
-import com.qu.modules.web.entity.TbDep;
-import com.qu.modules.web.entity.TbUser;
+import com.qu.modules.web.dto.AnswerCheckStatisticDetailEventDto;
+import com.qu.modules.web.entity.*;
 import com.qu.modules.web.mapper.AnswerCheckMapper;
 import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.AnswerCheckAddParam;
-import com.qu.modules.web.param.AnswerCheckDeleteParam;
-import com.qu.modules.web.param.AnswerCheckDetailListExportParam;
-import com.qu.modules.web.param.AnswerCheckDetailListParam;
-import com.qu.modules.web.param.AnswerCheckMiniAppParam;
-import com.qu.modules.web.param.Answers;
-import com.qu.modules.web.param.SingleDiseaseAnswer;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.request.AnswerCheckListRequest;
 import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListExportRequest;
 import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListRequest;
 import com.qu.modules.web.request.CheckQuestionHistoryStatisticRecordListRequest;
-import com.qu.modules.web.service.IAnswerCheckService;
-import com.qu.modules.web.service.ICheckDetailSetService;
-import com.qu.modules.web.service.IQuestionCheckedDeptService;
-import com.qu.modules.web.service.ISubjectService;
-import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.service.ITbUserService;
-import com.qu.modules.web.vo.AnswerCheckDetailListVo;
-import com.qu.modules.web.vo.AnswerCheckVo;
-import com.qu.modules.web.vo.CheckDetailSetVo;
-import com.qu.modules.web.vo.CheckQuestionHistoryStatisticRecordListVo;
-import com.qu.modules.web.vo.SubjectVo;
+import com.qu.modules.web.service.*;
+import com.qu.modules.web.vo.*;
 import com.qu.util.ExcelExportUtil;
 import com.qu.util.HttpClient;
-
-import cn.hutool.core.util.NumberUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.jeecg.common.api.vo.ResultBetterFactory;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.util.UUIDGenerator;
+import org.joda.time.DateTime;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 检查表问卷总表
@@ -112,6 +87,9 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
 
     @Autowired
     private IQuestionCheckedDeptService questionCheckedDeptService;
+
+    @Resource
+    private ApplicationEventPublisher applicationEventPublisher;
 
 
     @Override
@@ -307,7 +285,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         if (org.apache.commons.lang.StringUtils.isNotBlank(creater_deptid)) {
             tbDep = tbDepService.getById(creater_deptid);
         }
-        return getResult(answerCheckAddParam, creater, creater_name, tbDep.getId(), tbDep.getDepname());
+        return getResult(answerCheckAddParam, creater, creater_name, tbDep.getId(), tbDep.getDepname(),AnswerCheckConstant.SOURCE_PC);
     }
 
 
@@ -331,10 +309,10 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             tbDep = tbDepService.getById(tbUser.getDepid());
         }
 
-        return getResult(answerCheckAddParam, tbUser.getId(), tbUser.getUsername(), tbDep.getId(), tbDep.getDepname());
+        return getResult(answerCheckAddParam, tbUser.getId(), tbUser.getUsername(), tbDep.getId(), tbDep.getDepname(),AnswerCheckConstant.SOURCE_MINIAPP);
     }
 
-    private Result getResult(AnswerCheckAddParam answerCheckAddParam, String creater, String creater_name, String creater_deptid, String creater_deptname) {
+    private Result getResult(AnswerCheckAddParam answerCheckAddParam, String creater, String creater_name, String creater_deptid, String creater_deptname,Integer source) {
         AnswerCheck answerCheck = this.getById(answerCheckAddParam.getId());
         if (answerCheck == null) {
             answerCheck = new AnswerCheck();
@@ -428,13 +406,11 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         }
         //插入子表
         StringBuffer sqlAns = new StringBuffer();
+        List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(quId);
         if (insertOrUpdate) {
-
             sqlAns.append("update `" + question.getTableName() + "` set ");
-//            List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(quId);
-            List<Qsubject> subjectList = subjectService.selectSubjectByQuId(quId);
             for (int i = 0; i < subjectList.size(); i++) {
-                Qsubject qsubjectDynamicTable = subjectList.get(i);
+                SubjectVo qsubjectDynamicTable = subjectList.get(i);
                 String subType = qsubjectDynamicTable.getSubType();
                 Integer del = qsubjectDynamicTable.getDel();
                 if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
@@ -503,11 +479,8 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             dynamicTableMapper.updateDynamicTable(sqlAns.toString());
         } else {
             sqlAns.append("insert into `" + question.getTableName() + "` (");
-
-//            List<Qsubject> subjectList = qsubjectMapper.selectSubjectByQuId(quId);
-            List<Qsubject> subjectList = subjectService.selectSubjectByQuId(quId);
             for (int i = 0; i < subjectList.size(); i++) {
-                Qsubject qsubjectDynamicTable = subjectList.get(i);
+                SubjectVo qsubjectDynamicTable = subjectList.get(i);
                 String subType = qsubjectDynamicTable.getSubType();
                 Integer del = qsubjectDynamicTable.getDel();
                 if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
@@ -516,9 +489,8 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
                     continue;
                 }
 
-                Qsubject qsubject = subjectList.get(i);
                 sqlAns.append("`");
-                sqlAns.append(qsubject.getColumnName());
+                sqlAns.append(qsubjectDynamicTable.getColumnName());
                 sqlAns.append("`");
                 sqlAns.append(",");
 
@@ -526,7 +498,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
                     String columnNameMark = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark");
                     if (StringUtils.isNotBlank(columnNameMark)) {
                         sqlAns.append("`");
-                        sqlAns.append(qsubject.getColumnName());
+                        sqlAns.append(qsubjectDynamicTable.getColumnName());
                         sqlAns.append("_mark");
                         sqlAns.append("`");
                         sqlAns.append(",");
@@ -535,7 +507,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
                     String columnNameMarkImg = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark_img");
                     if (StringUtils.isNotBlank(columnNameMarkImg)) {
                         sqlAns.append("`");
-                        sqlAns.append(qsubject.getColumnName());
+                        sqlAns.append(qsubjectDynamicTable.getColumnName());
                         sqlAns.append("_mark_img");
                         sqlAns.append("`");
                         sqlAns.append(",");
@@ -552,7 +524,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
 //                sqlAns.delete(sqlAns.length()-1,sqlAns.length());
             sqlAns.append(") values (");
             for (int i = 0; i < subjectList.size(); i++) {
-                Qsubject qsubjectDynamicTable = subjectList.get(i);
+                SubjectVo qsubjectDynamicTable = subjectList.get(i);
                 String subType = qsubjectDynamicTable.getSubType();
                 Integer del = qsubjectDynamicTable.getDel();
                 if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
@@ -610,6 +582,23 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             log.info("answerCheck-----insert sqlAns:{}", sqlAns.toString());
             dynamicTableMapper.insertDynamicTable(sqlAns.toString());
         }
+
+        if (status.equals(AnswerCheckConstant.ANSWER_STATUS_RELEASE)) {
+            //保存统计明细
+            AnswerCheckStatisticDetailEventDto dto = new AnswerCheckStatisticDetailEventDto();
+            dto.setQuestion(question);
+            dto.setSubjectList(subjectList);
+            dto.setMapCache(mapCache);
+            dto.setAnswerCheck(answerCheck);
+            dto.setAnswerUser(creater);
+            dto.setAnswerUserName(creater_name);
+            dto.setDepId(creater_deptid);
+            dto.setDepName(creater_deptname);
+            dto.setSource(source);
+            AnswerCheckStatisticDetailEvent questionVersionEvent = new AnswerCheckStatisticDetailEvent(this, dto);
+            applicationEventPublisher.publishEvent(questionVersionEvent);
+        }
+
 
         return ResultFactory.success();
     }
