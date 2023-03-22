@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -28,7 +29,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.qu.constant.AnswerCheckConstant;
 import com.qu.constant.AnswerConstant;
 import com.qu.constant.QoptionConstant;
@@ -59,6 +62,7 @@ import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.SubjectVo;
 import com.qu.util.PriceUtil;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateException;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DatePattern;
@@ -744,12 +748,11 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         questionLambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
         List<Question> questionList = questionMapper.selectList(questionLambda);
         Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
-        StringBuffer res = new StringBuffer();
+        HashSet<Integer> quIdSet = Sets.newHashSet();
         for (AnswerCheck answerCheck : answerCheckList) {
             Question question = questionMap.get(answerCheck.getQuId());
             if (question == null || QuestionConstant.DEL_DELETED.equals(question.getDel())) {
-                res.append("问卷id->");
-                res.append(answerCheck.getQuId());
+                quIdSet.add(answerCheck.getQuId());
                 continue;
             }
 
@@ -776,7 +779,10 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
             AnswerCheckStatisticDetailEvent questionVersionEvent = new AnswerCheckStatisticDetailEvent(this, dto);
             applicationEventPublisher.publishEvent(questionVersionEvent);
         }
-
-        return ResultFactory.success(res);
+        if(CollectionUtil.isNotEmpty(quIdSet)){
+            String join = Joiner.on("、").join(quIdSet);
+            return ResultFactory.success(join);
+        }
+        return ResultFactory.success();
     }
 }
