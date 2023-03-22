@@ -1,25 +1,31 @@
 package com.qu.event;
 
 
-import com.google.common.collect.Lists;
-import com.qu.constant.QsubjectConstant;
-import com.qu.constant.QuestionConstant;
-import com.qu.modules.web.dto.AnswerCheckStatisticDetailEventDto;
-import com.qu.modules.web.entity.*;
-import com.qu.modules.web.service.IAnswerCheckStatisticDetailService;
-import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.vo.SubjectVo;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import com.google.common.collect.Lists;
+import com.qu.constant.QsubjectConstant;
+import com.qu.constant.QuestionConstant;
+import com.qu.modules.web.dto.AnswerCheckStatisticDetailEventDto;
+import com.qu.modules.web.entity.AnswerCheck;
+import com.qu.modules.web.entity.AnswerCheckStatisticDetail;
+import com.qu.modules.web.entity.Qoption;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.entity.TbDep;
+import com.qu.modules.web.service.IAnswerCheckStatisticDetailService;
+import com.qu.modules.web.service.ITbDepService;
+import com.qu.modules.web.vo.SubjectVo;
 
 @Component
 public class AnswerCheckStatisticDetailEventListener implements ApplicationListener<AnswerCheckStatisticDetailEvent> {
@@ -101,11 +107,12 @@ public class AnswerCheckStatisticDetailEventListener implements ApplicationListe
             detail.setSubjectColumnName(qsubjectDynamicTable.getColumnName());
             detail.setSubjectId(qsubjectDynamicTable.getId());
             detail.setSubjectScoreType(qsubjectDynamicTable.getScoreType());
-            detail.setAnswerText(optionColumnName);
+            detail.setAnswerValue(optionColumnName);
             List<Qoption> optionList = qsubjectDynamicTable.getOptionList();
             for (Qoption qoption : optionList) {
                 if(optionColumnName.equals(qoption.getOpValue())){
                     detail.setAnswerScore(qoption.getOptionScore().toPlainString());
+                    detail.setAnswerText(qoption.getOpName());
                 }
             }
             String columnNameMark = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark");

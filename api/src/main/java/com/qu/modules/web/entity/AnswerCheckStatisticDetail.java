@@ -1,14 +1,16 @@
 package com.qu.modules.web.entity;
 
+import org.jeecgframework.poi.excel.annotation.Excel;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.jeecgframework.poi.excel.annotation.Excel;
 
 /**
  * @Description: 查检表的统计明细表
@@ -111,6 +113,10 @@ public class AnswerCheckStatisticDetail {
 	@Excel(name = "答案文字", width = 15)
     @ApiModelProperty(value = "答案文字")
 	private String answerText;
+	/**答案选项值*/
+	@Excel(name = "答案选项值", width = 15)
+    @ApiModelProperty(value = "答案选项值")
+	private String answerValue;
 	/**答案对应分值*/
 	@Excel(name = "答案对应分值", width = 15)
     @ApiModelProperty(value = "答案对应分值")
