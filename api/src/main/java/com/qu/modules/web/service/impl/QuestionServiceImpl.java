@@ -888,7 +888,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
         //判断职位
         if(Constant.POSITION_ID_LCKSZR.equals(positionId)){
-            lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YL).or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_YL));
+            lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YL)
+                    .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_YL)
+                    .or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YG));
         }else if(Constant.POSITION_ID_LCKSZKY.equals(positionId) ){
             lambda.and(w->w.eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YL).or().eq(Question::getCategoryId, Constant.QUESTION_CHECK_CATEGORY_YS_YL));
             //分配给自己的查检表
