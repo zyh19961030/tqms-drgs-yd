@@ -1,6 +1,7 @@
 package com.qu.event;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -36,6 +37,7 @@ public class AnswerCheckStatisticDetailEventListener implements ApplicationListe
     @Autowired
     private ITbDepService tbDepService;
 
+    ArrayList<String> integers = Lists.newArrayList("13","14","16","19","20","21","22");
 
     @Async
     @Override
@@ -68,6 +70,9 @@ public class AnswerCheckStatisticDetailEventListener implements ApplicationListe
             if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
                     || QuestionConstant.DEL_DELETED.equals(del) || optionColumnName == null
                     || StringUtils.isBlank(optionColumnName)) {
+                continue;
+            }
+            if(!integers.contains(subType)){
                 continue;
             }
 
