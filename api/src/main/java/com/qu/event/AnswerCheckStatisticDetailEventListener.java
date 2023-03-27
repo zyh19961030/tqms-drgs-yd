@@ -1,32 +1,26 @@
 package com.qu.event;
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
+import com.google.common.collect.Lists;
+import com.qu.constant.QsubjectConstant;
+import com.qu.constant.QuestionConstant;
+import com.qu.modules.web.dto.AnswerCheckStatisticDetailEventDto;
+import com.qu.modules.web.entity.*;
+import com.qu.modules.web.service.IAnswerCheckStatisticDetailService;
+import com.qu.modules.web.service.ITbDepService;
+import com.qu.modules.web.vo.SubjectVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Lists;
-import com.qu.constant.QsubjectConstant;
-import com.qu.constant.QuestionConstant;
-import com.qu.modules.web.dto.AnswerCheckStatisticDetailEventDto;
-import com.qu.modules.web.entity.AnswerCheck;
-import com.qu.modules.web.entity.AnswerCheckStatisticDetail;
-import com.qu.modules.web.entity.Qoption;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.entity.TbDep;
-import com.qu.modules.web.service.IAnswerCheckStatisticDetailService;
-import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.vo.SubjectVo;
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component
 public class AnswerCheckStatisticDetailEventListener implements ApplicationListener<AnswerCheckStatisticDetailEvent> {
@@ -37,7 +31,7 @@ public class AnswerCheckStatisticDetailEventListener implements ApplicationListe
     @Autowired
     private ITbDepService tbDepService;
 
-    ArrayList<String> integers = Lists.newArrayList("13","14","16","19","20","21","22");
+    ArrayList<String> integers = Lists.newArrayList("13","14","16","19","20","21");
 
     @Async
     @Override
