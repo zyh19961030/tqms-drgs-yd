@@ -1,5 +1,21 @@
 package com.qu.modules.web.controller.miniapp;
 
+import java.util.List;
+
+import javax.validation.Valid;
+
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.aspect.annotation.AutoLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.qu.constant.QuestionConstant;
 import com.qu.modules.web.param.AnswerCheckMiniAppParam;
@@ -10,17 +26,10 @@ import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.QuestionMiniAppPageVo;
 import com.qu.modules.web.vo.QuestionVo;
 import com.qu.modules.web.vo.ViewNameVo;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.jeecg.common.aspect.annotation.AutoLog;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import java.util.List;
 
 /**
  * @Description: 小程序后台调用_问卷表
@@ -46,8 +55,8 @@ public class QuestionMiniAppController {
      * @param pageSize
      * @return
      */
-    @AutoLog(value = "检查填报-分页列表查询")
-    @ApiOperation(value = "检查填报-分页列表查询", notes = "检查填报-分页列表查询",response = QuestionMiniAppPageVo.class)
+    @AutoLog(value = "检查填报(移动查检)-分页列表查询")
+    @ApiOperation(value = "检查填报(移动查检)-分页列表查询", notes = "检查填报(移动查检)-分页列表查询",response = QuestionMiniAppPageVo.class)
     @GetMapping(value = "/list")
     public Result<QuestionMiniAppPageVo> queryPageList(String deptId, @RequestHeader(name = "userId") String userId,
                                                            @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
