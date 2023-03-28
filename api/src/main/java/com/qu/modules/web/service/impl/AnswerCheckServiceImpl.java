@@ -1,30 +1,6 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultBetter;
-import org.jeecg.common.api.vo.ResultBetterFactory;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.jeecg.common.util.UUIDGenerator;
-import org.joda.time.DateTime;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
+import cn.hutool.core.util.NumberUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -40,46 +16,41 @@ import com.qu.constant.QuestionConstant;
 import com.qu.event.AnswerCheckStatisticDetailEvent;
 import com.qu.exporter.AnswerCheckeDetailExporter;
 import com.qu.modules.web.dto.AnswerCheckStatisticDetailEventDto;
-import com.qu.modules.web.entity.AnswerCheck;
-import com.qu.modules.web.entity.Qoption;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.entity.QuestionCheckedDept;
-import com.qu.modules.web.entity.TbDep;
-import com.qu.modules.web.entity.TbUser;
+import com.qu.modules.web.entity.*;
 import com.qu.modules.web.mapper.AnswerCheckMapper;
 import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.AnswerCheckAddParam;
-import com.qu.modules.web.param.AnswerCheckDeleteParam;
-import com.qu.modules.web.param.AnswerCheckDetailListExportParam;
-import com.qu.modules.web.param.AnswerCheckDetailListParam;
-import com.qu.modules.web.param.AnswerCheckMiniAppParam;
-import com.qu.modules.web.param.Answers;
-import com.qu.modules.web.param.SingleDiseaseAnswer;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.request.AnswerCheckListRequest;
 import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListExportRequest;
 import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListRequest;
 import com.qu.modules.web.request.CheckQuestionHistoryStatisticRecordListRequest;
-import com.qu.modules.web.service.IAnswerCheckService;
-import com.qu.modules.web.service.ICheckDetailSetService;
-import com.qu.modules.web.service.IQuestionCheckedDeptService;
-import com.qu.modules.web.service.ISubjectService;
-import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.service.ITbUserService;
-import com.qu.modules.web.vo.AnswerCheckDetailListVo;
-import com.qu.modules.web.vo.AnswerCheckVo;
-import com.qu.modules.web.vo.CheckDetailSetVo;
-import com.qu.modules.web.vo.CheckQuestionHistoryStatisticRecordListVo;
-import com.qu.modules.web.vo.SubjectVo;
+import com.qu.modules.web.service.*;
+import com.qu.modules.web.vo.*;
 import com.qu.util.ExcelExportUtil;
 import com.qu.util.HttpClient;
-
-import cn.hutool.core.util.NumberUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.jeecg.common.api.vo.ResultBetterFactory;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.jeecg.common.util.UUIDGenerator;
+import org.joda.time.DateTime;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 检查表问卷总表
@@ -1079,6 +1050,106 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         return build;
     }
 
+    @Override
+    public List<CheckQuestionDefectStatisticListVo> checkQuestionDefectStatisticList(CheckQuestionDefectStatisticListParam listParam) {
+        List<CheckQuestionDefectStatisticListVo> resList = Lists.newArrayList();
+
+        Integer quId = listParam.getQuId();
+        //查询题目
+        List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(quId);
+        Map<Integer, SubjectVo> subjectMap = subjectList.stream().collect(Collectors.toMap(SubjectVo::getId, q -> q));
+        //数据
+        LambdaQueryWrapper<Question> questionLambdaQueryWrapper = new QueryWrapper<Question>().lambda();
+        questionLambdaQueryWrapper.eq(Question::getId, listParam.getQuId());
+        questionLambdaQueryWrapper.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
+        questionLambdaQueryWrapper.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
+        questionLambdaQueryWrapper.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_CHECK);
+        String deptId = listParam.getDeptId();
+        if (StringUtils.isNotBlank(deptId)) {
+            questionLambdaQueryWrapper.like(Question::getDeptIds, deptId);
+        }
+        List<Question> questionList = questionMapper.selectList(questionLambdaQueryWrapper);
+        List<Integer> questionSearchIdList = questionList.stream().map(Question::getId).distinct().collect(Collectors.toList());
+        if (questionSearchIdList.isEmpty()) {
+            return resList;
+        }
+        LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
+        lambda.eq(AnswerCheck::getQuId, listParam.getQuId());
+        lambda.eq(AnswerCheck::getAnswerStatus, AnswerCheckConstant.ANSWER_STATUS_RELEASE);
+        lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
+        String checkMonth = listParam.getCheckMonth();
+        if (StringUtils.isNotBlank(checkMonth)) {
+            lambda.eq(AnswerCheck::getCheckMonth, checkMonth);
+        }
+
+        if (StringUtils.isNotBlank(deptId)) {
+            lambda.eq(AnswerCheck::getCreaterDeptId, deptId);
+        }
+        lambda.orderByDesc(AnswerCheck::getAnswerTime);
+        List<AnswerCheck> answerCheckList = this.list(lambda);
+        if (answerCheckList.isEmpty()) {
+            return resList;
+        }
+        List<String> summaryMappingTableIdList = answerCheckList.stream().map(AnswerCheck::getSummaryMappingTableId).collect(Collectors.toList());
+        Map<String, AnswerCheck> answerCheckMap = answerCheckList.stream().collect(Collectors.toMap(AnswerCheck::getSummaryMappingTableId, a -> a));
+        //查子表
+        Question question = questionMapper.selectById(quId);
+        StringBuffer sqlSelect = new StringBuffer();
+        sqlSelect.append("select * from `");
+        sqlSelect.append(question.getTableName());
+        sqlSelect.append("`");
+        sqlSelect.append(" where summary_mapping_table_id in (");
+        for (String summaryMappingTableId : summaryMappingTableIdList) {
+            sqlSelect.append("'");
+            sqlSelect.append(summaryMappingTableId);
+            sqlSelect.append("'");
+            sqlSelect.append(",");
+        }
+        sqlSelect.delete(sqlSelect.length() - 1, sqlSelect.length());
+        sqlSelect.append(")");
+        List<Map<String, String>> dataList = dynamicTableMapper.selectDynamicTableColumnList(sqlSelect.toString());
+        List<String> tbksdmIdList = dataList.stream().map(m -> m.get("tbksdm")).filter(StringUtils::isNotBlank).distinct().collect(Collectors.toList());
+        List<String> checkedDeptIdList = dataList.stream().map(m -> m.get("checked_dept")).filter(StringUtils::isNotBlank).distinct().collect(Collectors.toList());
+        tbksdmIdList.addAll(checkedDeptIdList);
+        List<TbDep> tbDepList = tbDepService.listByIdList(tbksdmIdList);
+        Map<String, TbDep> tbDeptMap = tbDepList.stream().collect(Collectors.toMap(TbDep::getId, t -> t));
+        for (Map<String, String> dataItemMap : dataList) {
+            CheckQuestionDefectStatisticListVo valueItem = new CheckQuestionDefectStatisticListVo();
+            resList.add(valueItem);
+
+            //检查科室填充名称
+            String tbksdm = dataItemMap.get("tbksdm");
+            if (StringUtils.isNotBlank(tbksdm)) {
+                TbDep tbDep = tbDeptMap.get(tbksdm);
+                valueItem.setDeptId(tbDep.getId());
+                valueItem.setDeptName(tbDep.getDepname());
+            }
+            //被检查科室id填充名称
+            String checkedDept = dataItemMap.get("checked_dept");
+            if (StringUtils.isNotBlank(checkedDept)) {
+                TbDep tbDep = tbDeptMap.get(checkedDept);
+                valueItem.setCheckedDept(tbDep.getId());
+                valueItem.setCheckedDeptName(tbDep.getDepname());
+            }
+            String checkMonthData = dataItemMap.get("check_month");
+            if (StringUtils.isNotBlank(checkMonthData)) {
+                valueItem.setCheckMonth(checkMonthData);
+            }
+            String totalScore = dataItemMap.get("total_score");
+            if (StringUtils.isNotBlank(totalScore)) {
+                valueItem.setTotalScore(totalScore);
+            }
+            String totalFault = dataItemMap.get("total_fault");
+            if (StringUtils.isNotBlank(totalFault)) {
+                valueItem.setTotalFault(totalFault);
+            }
+            String passStatus = dataItemMap.get("pass_status");
+            if (StringUtils.isNotBlank(passStatus)) {
+                valueItem.setPassStatus(passStatus);
+            }
+        }
+        return resList;
+    }
 
     @Override
     public void exportXlsCheckQuestionHistoryStatisticDetailList(CheckQuestionHistoryStatisticDetailListExportRequest exportRequest, HttpServletResponse response) {

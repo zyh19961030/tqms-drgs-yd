@@ -12,10 +12,7 @@ import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListExportR
 import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListRequest;
 import com.qu.modules.web.request.CheckQuestionHistoryStatisticRecordListRequest;
 import com.qu.modules.web.service.IAnswerCheckService;
-import com.qu.modules.web.vo.AnswerCheckDetailListVo;
-import com.qu.modules.web.vo.AnswerCheckPageVo;
-import com.qu.modules.web.vo.AnswerCheckVo;
-import com.qu.modules.web.vo.CheckQuestionHistoryStatisticRecordListVo;
+import com.qu.modules.web.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @Description: 检查表问卷总表
@@ -242,6 +240,16 @@ public class AnswerCheckController {
 		answerCheckService.exportXlsCheckQuestionHistoryStatisticDetailList(exportRequest, response);
 	}
 
+
+	@ApiOperation(value = "缺陷统计_科室平均分等相关", notes = "缺陷统计_科室平均分等相关",response = CheckQuestionDefectStatisticListVo.class)
+	@GetMapping(value = "/checkQuestionDefectStatisticList")
+	public ResultBetter<List<CheckQuestionDefectStatisticListVo>> checkQuestionDefectStatisticList(@Valid CheckQuestionDefectStatisticListParam listParam) {
+		ResultBetter<List<CheckQuestionDefectStatisticListVo>> result = new ResultBetter<>();
+		List<CheckQuestionDefectStatisticListVo> vo =  answerCheckService.checkQuestionDefectStatisticList(listParam);
+		result.setSuccess(true);
+		result.setResult(vo);
+		return result;
+	}
 
 
 
