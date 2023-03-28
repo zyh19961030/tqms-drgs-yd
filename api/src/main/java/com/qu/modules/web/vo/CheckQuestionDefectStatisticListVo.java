@@ -14,6 +14,11 @@ import lombok.NoArgsConstructor;
 @ApiModel(value = "CheckQuestionDefectStatisticListVo", description = "CheckQuestionDefectStatisticListVo")
 public class CheckQuestionDefectStatisticListVo {
 
+    @ApiModelProperty(value = "问卷id")
+    private Integer quId;
+
+    @ApiModelProperty(value = "问卷名称")
+    private String quName;
 
     /**
      * 检查科室id

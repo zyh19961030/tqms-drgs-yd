@@ -1114,38 +1114,41 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         List<TbDep> tbDepList = tbDepService.listByIdList(tbksdmIdList);
         Map<String, TbDep> tbDeptMap = tbDepList.stream().collect(Collectors.toMap(TbDep::getId, t -> t));
         for (Map<String, String> dataItemMap : dataList) {
-            CheckQuestionDefectStatisticListVo valueItem = new CheckQuestionDefectStatisticListVo();
-            resList.add(valueItem);
+            CheckQuestionDefectStatisticListVo vo = new CheckQuestionDefectStatisticListVo();
+            resList.add(vo);
+
+            vo.setQuId(quId);
+            vo.setQuName(question.getQuName());
 
             //检查科室填充名称
             String tbksdm = dataItemMap.get("tbksdm");
             if (StringUtils.isNotBlank(tbksdm)) {
                 TbDep tbDep = tbDeptMap.get(tbksdm);
-                valueItem.setDeptId(tbDep.getId());
-                valueItem.setDeptName(tbDep.getDepname());
+                vo.setDeptId(tbDep.getId());
+                vo.setDeptName(tbDep.getDepname());
             }
             //被检查科室id填充名称
             String checkedDept = dataItemMap.get("checked_dept");
             if (StringUtils.isNotBlank(checkedDept)) {
                 TbDep tbDep = tbDeptMap.get(checkedDept);
-                valueItem.setCheckedDept(tbDep.getId());
-                valueItem.setCheckedDeptName(tbDep.getDepname());
+                vo.setCheckedDept(tbDep.getId());
+                vo.setCheckedDeptName(tbDep.getDepname());
             }
             String checkMonthData = dataItemMap.get("check_month");
             if (StringUtils.isNotBlank(checkMonthData)) {
-                valueItem.setCheckMonth(checkMonthData);
+                vo.setCheckMonth(checkMonthData);
             }
             String totalScore = dataItemMap.get("total_score");
             if (StringUtils.isNotBlank(totalScore)) {
-                valueItem.setTotalScore(totalScore);
+                vo.setTotalScore(totalScore);
             }
             String totalFault = dataItemMap.get("total_fault");
             if (StringUtils.isNotBlank(totalFault)) {
-                valueItem.setTotalFault(totalFault);
+                vo.setTotalFault(totalFault);
             }
             String passStatus = dataItemMap.get("pass_status");
             if (StringUtils.isNotBlank(passStatus)) {
-                valueItem.setPassStatus(passStatus);
+                vo.setPassStatus(passStatus);
             }
         }
         return resList;
