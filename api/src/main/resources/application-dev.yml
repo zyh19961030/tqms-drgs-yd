@@ -10,7 +10,7 @@ spring:
     druid:
       stat-view-servlet:
         loginUsername: admin
-        loginPassword: admin
+        loginPassword: ad12min
     dynamic:
       druid: # 全局druid参数，绝大部分值和默认保持一致。(现已支持的参数如下,不清楚含义不要乱设置)
         # 连接池的配置信息
@@ -41,12 +41,12 @@ spring:
           #          username: question
           #          password: question01
 #          url: jdbc:mysql://localhost:3306/tqmsn?characterEncoding=UTF-8&useUnicode=true&useSSL=false
-          url: jdbc:mysql://39.98.69.134:13307/tqmsn?characterEncoding=UTF-8&useUnicode=true&useSSL=false
-#          url: jdbc:mysql://localhost:13307/tqmsn?characterEncoding=UTF-8&useUnicode=true&useSSL=false
-          username: tqmsn
-#          username: root
-          password: T9m5n@2022!
-#          password: tqms$2021@Shijiyunyi
+#          url: jdbc:mysql://39.98.69.134:13307/tqmsn?characterEncoding=UTF-8&useUnicode=true&useSSL=false
+          url: jdbc:mysql://localhost:13307/tqmsn?characterEncoding=UTF-8&useUnicode=true&useSSL=false
+#          username: tqmsn
+          username: root
+#          password: T9m5n@2022!
+          password: tqms$2021@Shijiyunyi
           driver-class-name: com.mysql.jdbc.Driver
 
 
@@ -60,8 +60,8 @@ mybatis-plus:
 
 #token解析url
 system:
-  tokenUrl: http://cstqmskszkservice.shijiyunyi.com/business/tbUser/currentInfo
-#  tokenUrl: http://localhost:19101/business/tbUser/currentInfo
+#  tokenUrl: http://cstqmskszkservice.shijiyunyi.com/business/tbUser/currentInfo
+  tokenUrl: http://localhost:19101/business/tbUser/currentInfo
 #  singleDiseaseReportUrl: http://drgs.0060.cn:80/interface/010102/%s/1.2/put/
   singleDiseaseReportUrl: http://192.168.1.23:80/interface/010102/%s/1.2/put/
 #  writeMetabaseUrl: http://tqmszbservice.shijiyunyi.com/business/metadata/updateMetaData
