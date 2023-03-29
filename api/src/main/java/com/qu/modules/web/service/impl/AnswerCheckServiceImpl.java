@@ -4,15 +4,14 @@ import cn.hutool.core.util.NumberUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.qu.constant.AnswerCheckConstant;
-import com.qu.constant.CheckDetailSetConstant;
-import com.qu.constant.QsubjectConstant;
-import com.qu.constant.QuestionConstant;
+import com.qu.constant.*;
 import com.qu.event.AnswerCheckStatisticDetailEvent;
 import com.qu.exporter.AnswerCheckeDetailExporter;
 import com.qu.modules.web.dto.AnswerCheckStatisticDetailEventDto;
@@ -90,6 +89,9 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
 
     @Resource
     private ApplicationEventPublisher applicationEventPublisher;
+
+    @Resource
+    private IAnswerCheckStatisticDetailService answerCheckStatisticDetailService;
 
 
     @Override
@@ -1294,6 +1296,15 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             dynamicTableMapper.updateDynamicTable(sqlAns.toString());
 
             this.updateById(byId);
+
+            //删除查检表的统计明细表
+            LambdaUpdateWrapper<AnswerCheckStatisticDetail> answerCheckStatisticDetailLambdaUpdateWrapper = new UpdateWrapper<AnswerCheckStatisticDetail>().lambda();
+            answerCheckStatisticDetailLambdaUpdateWrapper
+                    .eq(AnswerCheckStatisticDetail::getAnswerCheckId,id)
+                    .set(AnswerCheckStatisticDetail::getDel, AnswerCheckConstant.DEL_DELETED);
+            AnswerCheckStatisticDetail a = new AnswerCheckStatisticDetail();
+            answerCheckStatisticDetailService.update(a,answerCheckStatisticDetailLambdaUpdateWrapper);
+
             return ResultBetterFactory.success();
         }
 
