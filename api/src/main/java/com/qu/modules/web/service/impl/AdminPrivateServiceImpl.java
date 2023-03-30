@@ -713,7 +713,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
 
         //查出来所有的检查表
         LambdaQueryWrapper<Question> questionLambda = new QueryWrapper<Question>().lambda();
-//        questionLambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
+        questionLambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
         questionLambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_CHECK);
         questionLambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
         List<Question> questionList = questionMapper.selectList(questionLambda);
