@@ -1,6 +1,18 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.jeecg.common.api.vo.ResultBetter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -20,14 +32,8 @@ import com.qu.modules.web.service.IQuestionCheckedDeptService;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.service.ITbUserService;
 import com.qu.modules.web.vo.AnswerCheckSetAllDataVo;
-import org.jeecg.common.api.vo.ResultBetter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import cn.hutool.core.collection.CollectionUtil;
 
 /**
  * @Description: 检查表的检查人员设置表
@@ -129,7 +135,7 @@ public class AnswerCheckUserSetServiceImpl extends ServiceImpl<AnswerCheckUserSe
         fieldItemUser.put("fieldTxt", "人员");
         fieldItemUser.put("fieldId", "tb_user");
         List<Integer> quIdList = columnList.stream().map(AnswerCheckUserSet::getQuId).distinct().collect(Collectors.toList());
-        List<Question> questionList = questionService.getByIds(quIdList);
+        List<Question> questionList = questionService.getCheckByIds(quIdList);
         Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
         for (Integer quId : quIdList) {
             Question question = questionMap.get(quId);

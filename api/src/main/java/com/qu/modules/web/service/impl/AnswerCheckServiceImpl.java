@@ -1,37 +1,18 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.util.NumberUtil;
-import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.qu.constant.*;
-import com.qu.event.AnswerCheckStatisticDetailEvent;
-import com.qu.exporter.AnswerCheckeDetailExporter;
-import com.qu.modules.web.dto.AnswerCheckStatisticDetailEventDto;
-import com.qu.modules.web.entity.*;
-import com.qu.modules.web.mapper.AnswerCheckMapper;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.*;
-import com.qu.modules.web.pojo.Data;
-import com.qu.modules.web.pojo.JsonRootBean;
-import com.qu.modules.web.request.AnswerCheckListRequest;
-import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListExportRequest;
-import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListRequest;
-import com.qu.modules.web.request.CheckQuestionHistoryStatisticRecordListRequest;
-import com.qu.modules.web.service.*;
-import com.qu.modules.web.vo.*;
-import com.qu.util.ExcelExportUtil;
-import com.qu.util.HttpClient;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultBetter;
@@ -45,11 +26,71 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.qu.constant.AnswerCheckConstant;
+import com.qu.constant.CheckDetailSetConstant;
+import com.qu.constant.QsubjectConstant;
+import com.qu.constant.QuestionConstant;
+import com.qu.constant.TbDepConstant;
+import com.qu.event.AnswerCheckStatisticDetailEvent;
+import com.qu.exporter.AnswerCheckeDetailExporter;
+import com.qu.modules.web.dto.AnswerCheckStatisticDetailEventDto;
+import com.qu.modules.web.entity.AnswerCheck;
+import com.qu.modules.web.entity.AnswerCheckStatisticDetail;
+import com.qu.modules.web.entity.Qoption;
+import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.entity.QuestionCheckedDept;
+import com.qu.modules.web.entity.TbDep;
+import com.qu.modules.web.entity.TbUser;
+import com.qu.modules.web.mapper.AnswerCheckMapper;
+import com.qu.modules.web.mapper.DynamicTableMapper;
+import com.qu.modules.web.mapper.QsubjectMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.param.AnswerCheckAddParam;
+import com.qu.modules.web.param.AnswerCheckDeleteParam;
+import com.qu.modules.web.param.AnswerCheckDetailListExportParam;
+import com.qu.modules.web.param.AnswerCheckDetailListParam;
+import com.qu.modules.web.param.AnswerCheckMiniAppParam;
+import com.qu.modules.web.param.Answers;
+import com.qu.modules.web.param.CheckQuestionCountStatisticParam;
+import com.qu.modules.web.param.CheckQuestionDefectStatisticListParam;
+import com.qu.modules.web.param.SingleDiseaseAnswer;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.pojo.JsonRootBean;
+import com.qu.modules.web.request.AnswerCheckListRequest;
+import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListExportRequest;
+import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListRequest;
+import com.qu.modules.web.request.CheckQuestionHistoryStatisticRecordListRequest;
+import com.qu.modules.web.service.IAnswerCheckService;
+import com.qu.modules.web.service.IAnswerCheckStatisticDetailService;
+import com.qu.modules.web.service.ICheckDetailSetService;
+import com.qu.modules.web.service.IQuestionCheckedDeptService;
+import com.qu.modules.web.service.ISubjectService;
+import com.qu.modules.web.service.ITbDepService;
+import com.qu.modules.web.service.ITbUserService;
+import com.qu.modules.web.vo.AnswerCheckDetailListVo;
+import com.qu.modules.web.vo.AnswerCheckVo;
+import com.qu.modules.web.vo.CheckDetailSetVo;
+import com.qu.modules.web.vo.CheckQuestionCountStatisticVo;
+import com.qu.modules.web.vo.CheckQuestionDefectStatisticListVo;
+import com.qu.modules.web.vo.CheckQuestionHistoryStatisticRecordListVo;
+import com.qu.modules.web.vo.SubjectVo;
+import com.qu.util.ExcelExportUtil;
+import com.qu.util.HttpClient;
+
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.NumberUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: 检查表问卷总表
@@ -1309,5 +1350,66 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         }
 
         return ResultBetterFactory.fail("不是记录创建人，无法删除");
+    }
+
+
+    @Override
+    public List<CheckQuestionCountStatisticVo> checkQuestionCountStatistic(CheckQuestionCountStatisticParam statisticParam) {
+        //查询职能科室
+        LambdaQueryWrapper<TbDep> lambda = new QueryWrapper<TbDep>().lambda();
+        lambda.eq(TbDep::getStatus, TbDepConstant.STATUS_OPEN);
+        lambda.eq(TbDep::getIsdelete, TbDepConstant.IS_DELETE_NO);
+        lambda.and(a -> a.eq(TbDep::getType, "bb9b8649a3564c149a27cf13c60c8bb4"));
+        List<TbDep> depList = tbDepService.list(lambda);
+        List<String> collect = depList.stream().map(TbDep::getId).distinct().collect(Collectors.toList());
+        statisticParam.setIdList(collect);
+
+        List<CheckQuestionCountStatisticVo> voList = this.baseMapper.checkQuestionCountStatistic(statisticParam);
+        if(CollectionUtil.isEmpty(voList)){
+            return Lists.newArrayList();
+        }
+
+
+        List<String> deptIdList = voList.stream().map(CheckQuestionCountStatisticVo::getDeptId).distinct().collect(Collectors.toList());
+        List<TbDep> deptList = tbDepService.listByIdList(deptIdList);
+        Map<String, TbDep> deptListMap = deptList.stream().collect(Collectors.toMap(TbDep::getId, t -> t));
+
+
+        List<String> userIdList = voList.stream().map(CheckQuestionCountStatisticVo::getUserId).distinct().collect(Collectors.toList());
+        List<TbUser> userList = tbUserService.getByIds(userIdList);
+        Map<String, TbUser> userListMap = userList.stream().collect(Collectors.toMap(TbUser::getId, t -> t));
+
+        List<Integer> quIdList = voList.stream().map(CheckQuestionCountStatisticVo::getQuId).distinct().collect(Collectors.toList());
+        List<Question> quList = questionMapper.selectBatchIds(quIdList);
+        Map<Integer, Question> quListMap = quList.stream().collect(Collectors.toMap(Question::getId, t -> t));
+
+
+        for (CheckQuestionCountStatisticVo checkQuestionCountStatisticVo : voList) {
+            String deptId = checkQuestionCountStatisticVo.getDeptId();
+            if(StringUtils.isNotBlank(deptId)){
+                TbDep tbDep = deptListMap.get(deptId);
+                if(Objects.nonNull(tbDep)){
+                    checkQuestionCountStatisticVo.setDeptName(tbDep.getDepname());
+                }
+            }
+
+            String userId = checkQuestionCountStatisticVo.getUserId();
+            if(StringUtils.isNotBlank(userId)){
+                TbUser tbUser = userListMap.get(userId);
+                if(Objects.nonNull(tbUser)){
+                    checkQuestionCountStatisticVo.setUserName(tbUser.getUsername());
+                }
+            }
+
+            Integer quId = checkQuestionCountStatisticVo.getQuId();
+            if(Objects.nonNull(quId)){
+                Question question = quListMap.get(quId);
+                if(Objects.nonNull(question)){
+                    checkQuestionCountStatisticVo.setQuName(question.getQuName());
+                }
+            }
+
+        }
+        return voList;
     }
 }

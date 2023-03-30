@@ -1,9 +1,20 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.jeecg.common.api.vo.ResultBetter;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
 import com.qu.constant.AnswerCheckUserSetConstant;
 import com.qu.constant.Constant;
 import com.qu.modules.web.entity.AnswerCheckUserSet;
@@ -19,16 +30,8 @@ import com.qu.modules.web.service.ITbUserService;
 import com.qu.modules.web.vo.QuestionSetLineAllVo;
 import com.qu.modules.web.vo.QuestionSetLineChooseVo;
 import com.qu.modules.web.vo.QuestionSetLineVo;
-import org.jeecg.common.api.vo.ResultBetter;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import cn.hutool.core.collection.CollectionUtil;
 
 /**
  * @Description: 用户表
@@ -142,6 +145,9 @@ public class TbUserServiceImpl extends ServiceImpl<TbUserMapper, TbUser> impleme
 
     @Override
     public List<TbUser> getByIds(List<String> userIdList) {
+        if(CollectionUtil.isEmpty(userIdList)){
+            return Lists.newArrayList();
+        }
         LambdaQueryWrapper<TbUser> lambda = new QueryWrapper<TbUser>().lambda();
         lambda.in(TbUser::getId,userIdList);
         lambda.eq(TbUser::getIsdelete, Constant.IS_DELETE_NO);

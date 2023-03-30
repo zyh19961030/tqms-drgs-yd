@@ -1,9 +1,22 @@
 package com.qu.modules.web.service;
 
+import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultBetter;
+
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.AnswerCheck;
-import com.qu.modules.web.param.*;
+import com.qu.modules.web.param.AnswerCheckAddParam;
+import com.qu.modules.web.param.AnswerCheckDeleteParam;
+import com.qu.modules.web.param.AnswerCheckDetailListExportParam;
+import com.qu.modules.web.param.AnswerCheckDetailListParam;
+import com.qu.modules.web.param.AnswerCheckMiniAppParam;
+import com.qu.modules.web.param.CheckQuestionCountStatisticParam;
+import com.qu.modules.web.param.CheckQuestionDefectStatisticListParam;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.request.AnswerCheckListRequest;
 import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListExportRequest;
@@ -11,13 +24,9 @@ import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListRequest
 import com.qu.modules.web.request.CheckQuestionHistoryStatisticRecordListRequest;
 import com.qu.modules.web.vo.AnswerCheckDetailListVo;
 import com.qu.modules.web.vo.AnswerCheckVo;
+import com.qu.modules.web.vo.CheckQuestionCountStatisticVo;
 import com.qu.modules.web.vo.CheckQuestionDefectStatisticListVo;
 import com.qu.modules.web.vo.CheckQuestionHistoryStatisticRecordListVo;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultBetter;
-
-import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 
 /**
  * @Description: 检查表问卷总表
@@ -63,5 +72,8 @@ public interface IAnswerCheckService extends IService<AnswerCheck> {
     void exportXlsCheckQuestionHistoryStatisticDetailList(CheckQuestionHistoryStatisticDetailListExportRequest exportRequest, HttpServletResponse response);
 
     ResultBetter checkQuestionRecordDelete(AnswerCheckDeleteParam param, String userId);
+
+    List<CheckQuestionCountStatisticVo> checkQuestionCountStatistic(CheckQuestionCountStatisticParam statisticParam);
+
 
 }

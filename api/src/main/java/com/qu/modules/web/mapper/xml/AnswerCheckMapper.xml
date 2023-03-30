@@ -2,4 +2,35 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.qu.modules.web.mapper.AnswerCheckMapper">
 
+    <select id="checkQuestionCountStatistic" resultType="com.qu.modules.web.vo.CheckQuestionCountStatisticVo">
+         SELECT creater_dept_id deptId,creater userId,qu_id quId,count(1) count FROM `answer_check`
+         <where>
+             <if test="param.deptId!=null and param.deptId != '' ">
+                 and creater_dept_id = #{param.deptId}
+             </if>
+             <if test="param.deptType!=null and param.deptType == 1 ">
+                 <if test="param.idList!=null and param.idList.size() > 0">
+                     and creater_dept_id in
+                     <foreach close=")" collection="param.idList" item="listItem" open="(" separator=",">
+                         #{listItem}
+                     </foreach>
+                 </if>
+             </if>
+
+             <if test="param.deptType!=null and param.deptType == 2 ">
+                 <if test="param.idList!=null and param.idList.size() > 0">
+                     and creater_dept_id not in
+                     <foreach close=")" collection="param.idList" item="listItem" open="(" separator=",">
+                         #{listItem}
+                     </foreach>
+                 </if>
+             </if>
+             <if test="param.checkMonth!=null and param.checkMonth != '' ">
+                 and check_month = #{param.checkMonth}
+             </if>
+         </where>
+              GROUP BY creater_dept_id,creater,qu_id order by creater_dept_id
+
+    </select>
+
 </mapper>

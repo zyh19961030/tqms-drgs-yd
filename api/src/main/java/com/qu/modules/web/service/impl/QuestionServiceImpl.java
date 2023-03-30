@@ -1935,7 +1935,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     }
 
     @Override
-    public List<Question> getByIds(List<Integer> quIdList) {
+    public List<Question> getCheckByIds(List<Integer> quIdList) {
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
         lambda.in(Question::getId,quIdList);
         lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
