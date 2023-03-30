@@ -69,6 +69,9 @@ public class AnswerCheckStatisticDetailEventListener implements ApplicationListe
             if(!integers.contains(subType)){
                 continue;
             }
+            if(!subType.equals("21") && "y".equals(optionColumnName)){
+                continue;
+            }
 
             AnswerCheckStatisticDetail detail = new AnswerCheckStatisticDetail();
             detail.setAnswerCheckId(answerCheck.getId());
