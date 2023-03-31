@@ -1374,7 +1374,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
     }
 
     @Override
-    public List<CheckQuestionCountStatisticDeptListVo> checkQuestionCountStatisticDeptList(CheckQuestionCountStatisticParam statisticParam) {
+    public List<CheckQuestionCountStatisticDeptListVo> checkQuestionCountStatisticDeptList() {
         //查询拥有填报检查表的科室
         LambdaQueryWrapper<Question> questionLambdaQueryWrapper = new QueryWrapper<Question>().lambda();
         questionLambdaQueryWrapper.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);

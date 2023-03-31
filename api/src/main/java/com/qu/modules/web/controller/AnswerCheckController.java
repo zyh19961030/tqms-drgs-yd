@@ -1,31 +1,57 @@
 package com.qu.modules.web.controller;
 
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.qu.constant.AnswerCheckConstant;
 import com.qu.constant.Constant;
 import com.qu.modules.web.entity.AnswerCheck;
-import com.qu.modules.web.param.*;
+import com.qu.modules.web.param.AnswerCheckAddParam;
+import com.qu.modules.web.param.AnswerCheckDeleteParam;
+import com.qu.modules.web.param.AnswerCheckDetailListExportParam;
+import com.qu.modules.web.param.AnswerCheckDetailListParam;
+import com.qu.modules.web.param.AnswerCheckListParam;
+import com.qu.modules.web.param.CheckQuestionCountStatisticParam;
+import com.qu.modules.web.param.CheckQuestionDefectStatisticListParam;
+import com.qu.modules.web.param.CheckQuestionHistoryStatisticDeptDetailListExportParam;
+import com.qu.modules.web.param.CheckQuestionHistoryStatisticDeptDetailListParam;
+import com.qu.modules.web.param.CheckQuestionHistoryStatisticDeptRecordListParam;
+import com.qu.modules.web.param.CheckQuestionHistoryStatisticDetailListExportParam;
+import com.qu.modules.web.param.CheckQuestionHistoryStatisticDetailListParam;
+import com.qu.modules.web.param.CheckQuestionHistoryStatisticRecordListParam;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.request.AnswerCheckListRequest;
 import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListExportRequest;
 import com.qu.modules.web.request.CheckQuestionHistoryStatisticDetailListRequest;
 import com.qu.modules.web.request.CheckQuestionHistoryStatisticRecordListRequest;
 import com.qu.modules.web.service.IAnswerCheckService;
-import com.qu.modules.web.vo.*;
+import com.qu.modules.web.vo.AnswerCheckDetailListVo;
+import com.qu.modules.web.vo.AnswerCheckPageVo;
+import com.qu.modules.web.vo.AnswerCheckVo;
+import com.qu.modules.web.vo.CheckQuestionCountStatisticDeptListVo;
+import com.qu.modules.web.vo.CheckQuestionCountStatisticVo;
+import com.qu.modules.web.vo.CheckQuestionDefectStatisticListVo;
+import com.qu.modules.web.vo.CheckQuestionHistoryStatisticRecordListVo;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultBetter;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.util.List;
 
 /**
  * @Description: 检查表问卷总表
@@ -263,9 +289,9 @@ public class AnswerCheckController {
 
 	@ApiOperation(value = "查检数量统计_职能科室列表专用接口(只返回拥有填报查检表的职能科室)", notes = "查检数量统计_职能科室列表专用接口(只返回拥有填报查检表的职能科室)",response = CheckQuestionCountStatisticDeptListVo.class)
 	@PostMapping(value = "/checkQuestionCountStatisticDeptList")
-	public ResultBetter<List<CheckQuestionCountStatisticDeptListVo>> checkQuestionCountStatisticDeptList(@RequestBody @Valid CheckQuestionCountStatisticParam statisticParam) {
+	public ResultBetter<List<CheckQuestionCountStatisticDeptListVo>> checkQuestionCountStatisticDeptList() {
 		ResultBetter<List<CheckQuestionCountStatisticDeptListVo>> result = new ResultBetter<>();
-		List<CheckQuestionCountStatisticDeptListVo> vo =  answerCheckService.checkQuestionCountStatisticDeptList(statisticParam);
+		List<CheckQuestionCountStatisticDeptListVo> vo =  answerCheckService.checkQuestionCountStatisticDeptList();
 		result.setSuccess(true);
 		result.setResult(vo);
 		return result;
