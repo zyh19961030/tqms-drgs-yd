@@ -1,6 +1,7 @@
 package com.qu.modules.web.controller.test;
 
 import com.alibaba.fastjson.JSON;
+import com.qu.modules.web.param.AdminPrivateUpdateAnswerCheckAllTableParam;
 import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
 import com.qu.modules.web.service.IAdminPrivateService;
 import io.swagger.annotations.Api;
@@ -85,7 +86,7 @@ public class AdminPrivateController {
         return adminPrivateService.updateTableAddAnswerStatus(param);
     }
 
-    @ApiOperation(value = "给子表answerStatus赋值", notes = "给子表answerStatus赋值")
+    @ApiOperation(value = "给检查表子表answerStatus赋值", notes = "给检查表子表answerStatus赋值")
     @PostMapping(value = "/updateAnswerStatus")
     public Result updateAnswerStatus(@RequestBody AdminPrivateUpdateTableDrugFeeParam param) {
         if(!"f4r6".equals(param.getName())){
@@ -94,6 +95,38 @@ public class AdminPrivateController {
         log.info("-----------updateAnswerStatus={}", JSON.toJSONString(param));
         return adminPrivateService.updateAnswerStatus(param);
     }
+
+    @ApiOperation(value = "给普通问卷和单病种子表添加answerStatus", notes = "给普通问卷和单病种子表添加answerStatus")
+    @PostMapping(value = "/updateQuestionTableAddAnswerStatus")
+    public Result updateQuestionTableAddAnswerStatus(@RequestBody AdminPrivateUpdateTableDrugFeeParam param) {
+        if(!"f4r1".equals(param.getName())){
+            return ResultFactory.fail();
+        }
+        log.info("-----------updateQuestionTableAddAnswerStatus={}", JSON.toJSONString(param));
+        return adminPrivateService.updateQuestionTableAddAnswerStatus(param);
+    }
+
+    @ApiOperation(value = "给普通问卷子表answerStatus赋值", notes = "给普通问卷子表answerStatus赋值")
+    @PostMapping(value = "/updateQuestionAnswerStatus")
+    public Result updateQuestionAnswerStatus(@RequestBody AdminPrivateUpdateTableDrugFeeParam param) {
+        if(!"f4r1".equals(param.getName())){
+            return ResultFactory.fail();
+        }
+        log.info("-----------updateQuestionAnswerStatus={}", JSON.toJSONString(param));
+        return adminPrivateService.updateQuestionAnswerStatus(param);
+    }
+
+    @ApiOperation(value = "给单病种问卷子表answerStatus赋值", notes = "给单病种问卷子表answerStatus赋值")
+    @PostMapping(value = "/updateQSingleDiseaseTakeAnswerStatus")
+    public Result updateQSingleDiseaseTakeAnswerStatus(@RequestBody AdminPrivateUpdateTableDrugFeeParam param) {
+        if(!"f4r1".equals(param.getName())){
+            return ResultFactory.fail();
+        }
+        log.info("-----------updateQSingleDiseaseTakeAnswerStatus={}", JSON.toJSONString(param));
+        return adminPrivateService.updateQSingleDiseaseTakeAnswerStatus(param);
+    }
+
+
 
 
     @ApiOperation(value = "给查检表总表caseId的历史数据赋值", notes = "给查检表总表caseId的历史数据赋值")
@@ -135,6 +168,26 @@ public class AdminPrivateController {
         }
         log.info("-----------updateAnswerCheckStatisticDetail={}", JSON.toJSONString(param));
         return adminPrivateService.updateAnswerCheckStatisticDetail(param);
+    }
+
+    @ApiOperation(value = "处理检查表总表与子表数据不一致问题,quId不传查所有问卷", notes = "处理检查表总表与子表数据不一致问题,quId不传查所有问卷")
+    @PostMapping(value = "/updateAnswerCheckAllTable")
+    public Result updateAnswerCheckAllTable(@RequestBody AdminPrivateUpdateAnswerCheckAllTableParam param) {
+        if(!"r5t8".equals(param.getName())){
+            return ResultFactory.fail();
+        }
+        log.info("-----------updateAnswerCheckAllTable={}", JSON.toJSONString(param));
+        return adminPrivateService.updateAnswerCheckAllTable(param);
+    }
+
+    @ApiOperation(value = "查询所有问卷子表数据是否缺失并自动添加缺少字段,quId不传查所有问卷", notes = "查询所有问卷子表数据是否缺失并自动添加缺少字段,quId不传查所有问卷")
+    @PostMapping(value = "/selectQuestionAllTable")
+    public Result selectQuestionAllTable(@RequestBody AdminPrivateUpdateAnswerCheckAllTableParam param) {
+        if(!"r5z7".equals(param.getName())){
+            return ResultFactory.fail();
+        }
+        log.info("-----------selectQuestionAllTable={}", JSON.toJSONString(param));
+        return adminPrivateService.selectQuestionAllTable(param);
     }
 
 }

@@ -1,13 +1,9 @@
 package com.qu.modules.web.service;
 
-import org.jeecg.common.api.vo.Result;
-
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.Answer;
-import com.qu.modules.web.param.AdminPrivateParam;
-import com.qu.modules.web.param.AdminPrivateUpdateOptionValueParam;
-import com.qu.modules.web.param.AdminPrivateUpdateTableAddDelFeeParam;
-import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
+import com.qu.modules.web.param.*;
+import org.jeecg.common.api.vo.Result;
 
 public interface IAdminPrivateService extends IService<Answer> {
 
@@ -22,6 +18,12 @@ public interface IAdminPrivateService extends IService<Answer> {
 
     Result updateTableAddAnswerStatus(AdminPrivateUpdateTableDrugFeeParam param);
 
+    Result updateQuestionTableAddAnswerStatus(AdminPrivateUpdateTableDrugFeeParam param);
+
+    Result updateQuestionAnswerStatus(AdminPrivateUpdateTableDrugFeeParam param);
+
+    Result updateQSingleDiseaseTakeAnswerStatus(AdminPrivateUpdateTableDrugFeeParam param);
+
     Result updateAnswerStatus(AdminPrivateUpdateTableDrugFeeParam param);
 
     Result updateAnswerCheckCaseId(AdminPrivateUpdateTableDrugFeeParam param);
@@ -31,4 +33,11 @@ public interface IAdminPrivateService extends IService<Answer> {
     Result updateTableAddMark(AdminPrivateUpdateTableDrugFeeParam param);
 
     Result updateAnswerCheckStatisticDetail(AdminPrivateUpdateTableDrugFeeParam param);
+
+    Result updateAnswerCheckAllTable(AdminPrivateUpdateAnswerCheckAllTableParam param);
+
+    Result selectQuestionAllTable(AdminPrivateUpdateAnswerCheckAllTableParam param);
+
+
+
 }
