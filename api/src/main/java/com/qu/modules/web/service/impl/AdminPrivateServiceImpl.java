@@ -1365,4 +1365,123 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
             }
         }
     }
+
+    @Override
+    public Result addQuestionSubject(AdminPrivateUpdateTableDrugFeeParam param) {
+        //查出来所有的问卷
+        LambdaQueryWrapper<Question> questionLambda = new QueryWrapper<Question>().lambda();
+        questionLambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
+//        questionLambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_CHECK);
+        questionLambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
+        questionLambda.orderByAsc(Question::getId);
+        List<Question> questionList = questionMapper.selectList(questionLambda);
+        Date date = new Date();
+        for (Question question : questionList) {
+            //先查查有没有
+            LambdaQueryWrapper<Qsubject> qsubjectLambdaQueryWrapper = new QueryWrapper<Qsubject>().lambda();
+            qsubjectLambdaQueryWrapper.eq(Qsubject::getQuId,question.getId())
+                    .eq(Qsubject::getSubType,QsubjectConstant.SUB_TYPE_RESULT)
+                    .eq(Qsubject::getColumnName,"tbrid")
+                    .eq(Qsubject::getDel, QsubjectConstant.DEL_NORMAL);
+            List<Qsubject> subjectList = qsubjectMapper.selectList(qsubjectLambdaQueryWrapper);
+            if(CollectionUtil.isEmpty(subjectList)){
+                //插入
+                Qsubject qsubject = new Qsubject();
+                qsubject.setColumnName("tbrid");
+                qsubject.setColumnType("字符串");
+                qsubject.setDisplay(0);
+                qsubject.setGrabType("person");
+                qsubject.setQuId(question.getId());
+                qsubject.setRequired(0);
+                qsubject.setSubName("填报人");
+                qsubject.setSubType("6");
+                qsubject.setTextCheck("none");
+                qsubject.setColumnTypeDatabase("varchar");
+                //计算题号
+                Integer subSumCount = qsubjectMapper.selectSumCount(question.getId());
+                if(subSumCount==null){
+                    qsubject.setOrderNum(1);
+                }else{
+                    qsubject.setOrderNum(subSumCount + 1);
+                }
+                qsubject.setDel(QsubjectConstant.DEL_NORMAL);
+                qsubject.setCreateTime(date);
+                qsubject.setUpdateTime(date);
+                qsubjectMapper.insert(qsubject);
+            }
+
+            //先查查有没有
+            LambdaQueryWrapper<Qsubject> lambda = new QueryWrapper<Qsubject>().lambda();
+            lambda.eq(Qsubject::getQuId,question.getId())
+                    .eq(Qsubject::getSubType,QsubjectConstant.SUB_TYPE_RESULT)
+                    .eq(Qsubject::getColumnName,"tbksmc")
+                    .eq(Qsubject::getDel, QsubjectConstant.DEL_NORMAL);
+            List<Qsubject> qsubjects = qsubjectMapper.selectList(lambda);
+            if(CollectionUtil.isEmpty(qsubjects)){
+                //插入
+                Qsubject qsubject = new Qsubject();
+                qsubject.setColumnName("tbksmc");
+                qsubject.setColumnType("字符串");
+                qsubject.setDisplay(0);
+                qsubject.setGrabType("person");
+                qsubject.setQuId(question.getId());
+                qsubject.setRequired(0);
+                qsubject.setSubName("填报科室名称");
+                qsubject.setSubType("6");
+                qsubject.setTextCheck("none");
+                qsubject.setColumnTypeDatabase("varchar");
+                //计算题号
+                Integer subSumCount = qsubjectMapper.selectSumCount(question.getId());
+                if(subSumCount==null){
+                    qsubject.setOrderNum(1);
+                }else{
+                    qsubject.setOrderNum(subSumCount + 1);
+                }
+                qsubject.setDel(QsubjectConstant.DEL_NORMAL);
+                qsubject.setCreateTime(date);
+                qsubject.setUpdateTime(date);
+                qsubjectMapper.insert(qsubject);
+            }
+
+            //先查查有没有
+            LambdaQueryWrapper<Qsubject> queryWrapper = new QueryWrapper<Qsubject>().lambda();
+            queryWrapper.eq(Qsubject::getQuId,question.getId())
+                    .eq(Qsubject::getSubType,QsubjectConstant.SUB_TYPE_RESULT)
+                    .eq(Qsubject::getColumnName,"tbksdm")
+                    .eq(Qsubject::getDel, QsubjectConstant.DEL_NORMAL);
+            List<Qsubject> qsubjectList = qsubjectMapper.selectList(queryWrapper);
+            if(CollectionUtil.isEmpty(qsubjectList)){
+                //插入
+                Qsubject qsubject = new Qsubject();
+                qsubject.setColumnName("tbksdm");
+                qsubject.setColumnType("字符串");
+                qsubject.setDisplay(0);
+                qsubject.setGrabType("person");
+                qsubject.setQuId(question.getId());
+                qsubject.setRequired(0);
+                qsubject.setSubName("填报科室代码");
+                qsubject.setSubType("6");
+                qsubject.setTextCheck("none");
+                qsubject.setColumnTypeDatabase("varchar");
+                //计算题号
+                Integer subSumCount = qsubjectMapper.selectSumCount(question.getId());
+                if(subSumCount==null){
+                    qsubject.setOrderNum(1);
+                }else{
+                    qsubject.setOrderNum(subSumCount + 1);
+                }
+                qsubject.setDel(QsubjectConstant.DEL_NORMAL);
+                qsubject.setCreateTime(date);
+                qsubject.setUpdateTime(date);
+                qsubjectMapper.insert(qsubject);
+            }
+        }
+
+        return ResultFactory.success();
+    }
+
+
+
+
+
 }

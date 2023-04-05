@@ -190,4 +190,14 @@ public class AdminPrivateController {
         return adminPrivateService.selectQuestionAllTable(param);
     }
 
+    @ApiOperation(value = "查询所有问卷题目增加默认(填报人、填报科室名称、填报科室代码)三道题", notes = "查询所有问卷题目增加默认(填报人、填报科室名称、填报科室代码)三道题")
+    @PostMapping(value = "/addQuestionSubject")
+    public Result addQuestionSubject(@RequestBody AdminPrivateUpdateTableDrugFeeParam param) {
+        if(!"r9u7".equals(param.getName())){
+            return ResultFactory.fail();
+        }
+        log.info("-----------addQuestionSubject={}", JSON.toJSONString(param));
+        return adminPrivateService.addQuestionSubject(param);
+    }
+
 }

@@ -38,6 +38,8 @@ public interface IAdminPrivateService extends IService<Answer> {
 
     Result selectQuestionAllTable(AdminPrivateUpdateAnswerCheckAllTableParam param);
 
+    Result addQuestionSubject(AdminPrivateUpdateTableDrugFeeParam param);
+
 
 
 }
