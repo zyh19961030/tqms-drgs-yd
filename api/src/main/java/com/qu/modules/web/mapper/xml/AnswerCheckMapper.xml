@@ -5,6 +5,7 @@
     <select id="checkQuestionCountStatistic" resultType="com.qu.modules.web.vo.CheckQuestionCountStatisticVo">
          SELECT creater_dept_id deptId,creater userId,qu_id quId,count(1) count FROM `answer_check`
          <where>
+             del = 0
              <if test="param.deptId!=null and param.deptId != '' ">
                  and creater_dept_id = #{param.deptId}
              </if>
