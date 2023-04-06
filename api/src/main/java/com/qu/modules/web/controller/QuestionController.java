@@ -1,5 +1,6 @@
 package com.qu.modules.web.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.qu.constant.Constant;
 import com.qu.constant.QuestionConstant;
@@ -447,6 +448,17 @@ public class QuestionController {
         result.setResult(true);
         result.success("更新成功！");
         return result;
+    }
+
+    @ApiOperation(value = "设置关联检查项目", notes = "设置关联检查项目")
+    @PostMapping(value = "/updateCheckProjectIdParam")
+    public ResultBetter<Boolean> updateCheckProjectIdParam(@RequestBody @Valid UpdateCheckProjectIdParam param) {
+        List<Integer> quIds = param.getQuId();
+        if(CollectionUtil.isEmpty(quIds)){
+            return ResultBetter.error("问卷id不能为空");
+        }
+        questionService.updateCheckProjectIdParam(param);
+        return ResultBetter.ok();
     }
 
 

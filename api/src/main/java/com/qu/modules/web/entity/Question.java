@@ -112,4 +112,12 @@ public class Question {
 	@Excel(name = "溯源状态 1未生成 2已生成", width = 15)
 	@ApiModelProperty(value = "溯源状态 1未生成 2已生成")
 	private java.lang.Integer traceabilityStatus;
+	/**关联检查项目id*/
+	@Excel(name = "关联检查项目id", width = 15)
+	@ApiModelProperty(value = "关联检查项目id")
+	private java.lang.String checkProjectId;
+	/**关联检查项目类型*/
+	@Excel(name = "关联检查项目类型", width = 15)
+	@ApiModelProperty(value = "关联检查项目类型")
+	private java.lang.String checkProjectType;
 }

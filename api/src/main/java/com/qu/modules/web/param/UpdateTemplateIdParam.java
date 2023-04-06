@@ -12,7 +12,7 @@ public class UpdateTemplateIdParam {
     @NotNull(message = "问卷id不能为空")
     @ApiModelProperty(value = "问卷id")
     private Integer quId;
-    @NotNull(message = "模板id数组不能为空")
-    @ApiModelProperty(value = "模板id数组")
+    @NotNull(message = "模板id不能为空")
+    @ApiModelProperty(value = "模板id")
     private String templateId;
 }
