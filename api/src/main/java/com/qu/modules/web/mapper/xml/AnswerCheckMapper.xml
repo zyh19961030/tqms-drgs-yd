@@ -9,6 +9,12 @@
              <if test="param.deptId!=null and param.deptId != '' ">
                  and creater_dept_id = #{param.deptId}
              </if>
+             <if test="param.startDate!=null">
+                 and answer_time >= #{param.startDate}
+             </if>
+             <if test="param.endDate!=null">
+                 and answer_time  &lt; #{param.endDate}
+             </if>
              <if test="param.deptType!=null and param.deptType == 1 ">
                  <if test="param.idList!=null and param.idList.size() > 0">
                      and creater_dept_id in
