@@ -23,7 +23,7 @@ public class CheckQuestionDefectStatisticListParam {
     @ApiModelProperty(value = "检查科室id")
     private String deptId;
 
-    @NotBlank(message = "被检查科室id不能为空")
+//    @NotBlank(message = "被检查科室id不能为空")
     @ApiModelProperty(value = "被检查科室id")
     private String checkedDeptId;
 
