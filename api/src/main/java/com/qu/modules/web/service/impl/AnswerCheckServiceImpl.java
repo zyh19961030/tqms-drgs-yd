@@ -1101,8 +1101,8 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
 
         Integer quId = listParam.getQuId();
         //查询题目
-        List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(quId);
-        Map<Integer, SubjectVo> subjectMap = subjectList.stream().collect(Collectors.toMap(SubjectVo::getId, q -> q));
+//        List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(quId);
+//        Map<Integer, SubjectVo> subjectMap = subjectList.stream().collect(Collectors.toMap(SubjectVo::getId, q -> q));
         //数据
         LambdaQueryWrapper<Question> questionLambdaQueryWrapper = new QueryWrapper<Question>().lambda();
         questionLambdaQueryWrapper.eq(Question::getId, listParam.getQuId());
@@ -1126,6 +1126,10 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         if (StringUtils.isNotBlank(checkMonth)) {
             lambda.eq(AnswerCheck::getCheckMonth, checkMonth);
         }
+        String checkedDeptId = listParam.getCheckedDeptId();
+        if (StringUtils.isNotBlank(checkedDeptId)) {
+            lambda.eq(AnswerCheck::getCheckedDept, checkedDeptId);
+        }
 
         if (StringUtils.isNotBlank(deptId)) {
             lambda.eq(AnswerCheck::getCreaterDeptId, deptId);
@@ -1136,7 +1140,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             return resList;
         }
         List<String> summaryMappingTableIdList = answerCheckList.stream().map(AnswerCheck::getSummaryMappingTableId).collect(Collectors.toList());
-        Map<String, AnswerCheck> answerCheckMap = answerCheckList.stream().collect(Collectors.toMap(AnswerCheck::getSummaryMappingTableId, a -> a));
+//        Map<String, AnswerCheck> answerCheckMap = answerCheckList.stream().collect(Collectors.toMap(AnswerCheck::getSummaryMappingTableId, a -> a));
         //查子表
         Question question = questionMapper.selectById(quId);
         StringBuffer sqlSelect = new StringBuffer();
