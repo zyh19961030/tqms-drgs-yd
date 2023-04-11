@@ -842,6 +842,16 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
                     TbDep byId = tbDepService.getById(depId);
                     valueItem.put(qsubject.getColumnName(), byId.getDepname());
                 }
+            } else if ("tbrid".equals(columnName)) {
+                valueItem.put(qsubject.getColumnName(), dataItemMap.get(qsubject.getColumnName()));
+                //填报人
+                String userId = dataItemMap.get(qsubject.getColumnName());
+                if (StringUtils.isNotBlank(userId)) {
+                    TbUser byId = tbUserService.getById(userId);
+                    if(Objects.nonNull(byId)){
+                        valueItem.put(qsubject.getColumnName(), byId.getUsername());
+                    }
+                }
             } else if (StringUtils.isNotBlank(columnName)) {
                 valueItem.put(qsubject.getColumnName(), dataItemMap.get(qsubject.getColumnName()));
                 String value = dataItemMap.get(qsubject.getColumnName());
