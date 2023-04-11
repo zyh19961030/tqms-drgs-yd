@@ -588,6 +588,19 @@ public class QuestionController {
         return result;
     }
 
+    @AutoLog(value = "质控报告中变量多行输入框选择查检表")
+    @ApiOperation(value = "质控报告中变量多行输入框选择查检表", notes = "质控报告中变量多行输入框选择查检表")
+    @GetMapping(value = "/queryCheckQuestion")
+    public Result<QuestionNameVo> queryCheckQuestion(HttpServletRequest request,String name) {
+        Result<QuestionNameVo> result = new Result<QuestionNameVo>();
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String deptId = data.getTbUser().getDepId();
+        List<QuestionNameVo> queryByQuestionName = questionService.queryCheckQuestion(name,deptId);
+        result.setResult(queryByQuestionName);
+        result.setSuccess(true);
+        return result;
+    }
+
 
 
 

@@ -157,5 +157,7 @@ public interface IQuestionService extends IService<Question> {
 
     List<QuestionNameVo> queryByQuestionName(String name);
 
+    List<QuestionNameVo> queryCheckQuestion(String name, String deptId);
+
 
 }

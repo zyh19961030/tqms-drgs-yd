@@ -2024,4 +2024,28 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         }).collect(Collectors.toList());
         return resList;
     }
+
+    @Override
+    public List<QuestionNameVo> queryCheckQuestion(String name, String deptId) {
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        if(StringUtils.isNotBlank(name)){
+            lambda.in(Question::getQuName,name);
+        }
+        lambda.like(Question::getSeeDeptIds,deptId);
+        lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+        lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
+        lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+        List<Question> list = this.list(lambda);
+        List<QuestionNameVo> resList = list.stream().map(q -> {
+            QuestionNameVo vo = new QuestionNameVo();
+            BeanUtils.copyProperties(q, vo);
+            return vo;
+        }).collect(Collectors.toList());
+        return resList;
+    }
+
+
+
+
+
 }
