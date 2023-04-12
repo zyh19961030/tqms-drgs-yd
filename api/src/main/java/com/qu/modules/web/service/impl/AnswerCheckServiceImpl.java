@@ -80,6 +80,7 @@ import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.service.ITbDepService;
 import com.qu.modules.web.service.ITbUserService;
 import com.qu.modules.web.vo.AnswerCheckDetailListVo;
+import com.qu.modules.web.vo.AnswerCheckIdVo;
 import com.qu.modules.web.vo.AnswerCheckVo;
 import com.qu.modules.web.vo.CheckDetailSetVo;
 import com.qu.modules.web.vo.CheckQuestionCountStatisticDeptListVo;
@@ -644,8 +645,9 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             applicationEventPublisher.publishEvent(questionVersionEvent);
         }
 
-
-        return ResultFactory.success();
+        AnswerCheckIdVo vo = new AnswerCheckIdVo();
+        vo.setAnswerCheckId(answerCheck.getId());
+        return ResultFactory.success(vo);
     }
 
 
