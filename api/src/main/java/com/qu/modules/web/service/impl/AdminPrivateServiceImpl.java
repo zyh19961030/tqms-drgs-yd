@@ -808,11 +808,16 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         questionLambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_CHECK);
         questionLambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
         List<Question> questionList = questionMapper.selectList(questionLambda);
+        if(CollectionUtil.isEmpty(questionList)){
+            return ResultFactory.fail("未查到需要更新的查检表");
+        }
+        List<Integer> questionIdList = questionList.stream().map(Question::getId).distinct().collect(Collectors.toList());
         Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
 
         for (int i = 0; ; i++) {
             //查出来所有的Answer
             LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
+            lambda.in(AnswerCheck::getQuId, questionIdList);
             lambda.eq(AnswerCheck::getDel, AnswerConstant.DEL_NORMAL);
             lambda.isNull(AnswerCheck::getPassStatus);
             lambda.last(" limit 500");
