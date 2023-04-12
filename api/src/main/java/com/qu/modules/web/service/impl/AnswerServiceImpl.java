@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -817,8 +818,12 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         List<AnswerMonthQuarterYearFillingInAndSubmitVo> answerMonthQuarterYearFillingInVos = answerList.stream().map(answer -> {
             AnswerMonthQuarterYearFillingInAndSubmitVo answerMonthQuarterYearFillingInVo = new AnswerMonthQuarterYearFillingInAndSubmitVo();
             BeanUtils.copyProperties(answer,answerMonthQuarterYearFillingInVo);
-            answerMonthQuarterYearFillingInVo.setQuName(questionMap.get(answer.getQuId()).getQuName());
-            answerMonthQuarterYearFillingInVo.setIcon(questionMap.get(answer.getQuId()).getIcon());
+            Question question = questionMap.get(answer.getQuId());
+            if(Objects.nonNull(question)){
+                answerMonthQuarterYearFillingInVo.setQuName(question.getQuName());
+                answerMonthQuarterYearFillingInVo.setIcon(question.getIcon());
+                answerMonthQuarterYearFillingInVo.setWriteFrequency(question.getWriteFrequency());
+            }
             return answerMonthQuarterYearFillingInVo;
         }).collect(Collectors.toList());
         res.setTotal(answerIPage.getTotal());

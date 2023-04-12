@@ -36,5 +36,8 @@ public class AnswerMonthQuarterYearFillingInAndSubmitVo {
     private java.util.Date submitTime;
     @ApiModelProperty(value = "状态 0:可编辑1:已提交无法编辑")
     private Integer answerStatus;
+    /**填报频次 0患者登记表 1月度汇总表 2季度汇总表 3年度汇总表*/
+    @ApiModelProperty(value = "填报频次 0患者登记表 1月度汇总表 2季度汇总表 3年度汇总表")
+    private java.lang.Integer writeFrequency;
 
 }
