@@ -200,4 +200,14 @@ public class AdminPrivateController {
         return adminPrivateService.addQuestionSubject(param);
     }
 
+    @ApiOperation(value = "给answerCheck总表passStatus的历史数据赋值", notes = "给answerCheck总表passStatus的历史数据赋值")
+    @PostMapping(value = "/updateAnswerCheckPassStatus")
+    public Result updateAnswerCheckPassStatus(@RequestBody AdminPrivateUpdateTableDrugFeeParam param) {
+        if(!"z1x8".equals(param.getName())){
+            return ResultFactory.fail();
+        }
+        log.info("-----------updateAnswerOutTime={}", JSON.toJSONString(param));
+        return adminPrivateService.updateAnswerCheckPassStatus(param);
+    }
+
 }

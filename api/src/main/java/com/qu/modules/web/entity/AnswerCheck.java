@@ -96,7 +96,7 @@ public class AnswerCheck {
 	/**是否合格  0合格  1不合格*/
 	@Excel(name = "是否合格  0合格  1不合格", width = 15)
     @ApiModelProperty(value = "是否合格  0合格  1不合格")
-	private Integer passStatus;
+	private String passStatus;
 	/**提交时间*/
     @ApiModelProperty(value = "提交时间")
 	private Date submitTime;
