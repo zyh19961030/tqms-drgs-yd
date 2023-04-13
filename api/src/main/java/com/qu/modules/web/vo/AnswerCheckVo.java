@@ -37,6 +37,14 @@ public class AnswerCheckVo {
     @ApiModelProperty(value = "答题人姓名")
     private String createrName;
 
+    /**检查科室id*/
+    @ApiModelProperty(value = "检查科室id")
+    private String createrDeptId;
+
+    /**检查科室名称*/
+    @ApiModelProperty(value = "检查科室名称")
+    private String createrDeptName;
+
     /**0:草稿1:已提交*/
     @ApiModelProperty(value = "0:草稿(填报中)1:已提交(已完成)")
     private Integer answerStatus;
