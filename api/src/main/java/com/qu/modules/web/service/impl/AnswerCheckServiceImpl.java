@@ -777,6 +777,10 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         if (answerCheck == null) {
             valueItem.put("detailDataId", null);
         } else {
+            Date submitTime = answerCheck.getSubmitTime();
+            if(Objects.nonNull(submitTime)){
+                valueItem.put("answerTime", new DateTime(submitTime).toString("yyyy-MM-dd HH:mm:ss"));
+            }
             valueItem.put("detailDataId", answerCheck.getId());
         }
         for (int i = 0; i < checkDetailSet.size(); i++) {
@@ -967,6 +971,11 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         fieldItemCheckDept.put("fieldId", "checkDept");
         fieldItemCheckDept.put("fieldSubType", 0);
         setItems(checkDetailSet, subjectMap, fieldItems);
+        LinkedHashMap<String, Object> fieldItemAnswerTime = Maps.newLinkedHashMap();
+        fieldItems.add(fieldItemAnswerTime);
+        fieldItemAnswerTime.put("fieldTxt", "检查时间");
+        fieldItemAnswerTime.put("fieldId", "answerTime");
+        fieldItemAnswerTime.put("fieldSubType", 0);
         //数据
         Page<AnswerCheck> page = new Page<>(pageNo, pageSize);
 
