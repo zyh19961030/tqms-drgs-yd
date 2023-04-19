@@ -814,11 +814,13 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         List<Integer> questionIdList = questionList.stream().map(Question::getId).distinct().collect(Collectors.toList());
         Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
 
+        Integer lastId = 0;
         for (int i = 0; ; i++) {
             //查出来所有的Answer
             LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
             lambda.in(AnswerCheck::getQuId, questionIdList);
             lambda.eq(AnswerCheck::getDel, AnswerConstant.DEL_NORMAL);
+            lambda.gt(AnswerCheck::getId, lastId);
             lambda.isNull(AnswerCheck::getPassStatus);
             lambda.last(" limit 500");
             List<AnswerCheck> answerCheckList = answerCheckMapper.selectList(lambda);
@@ -828,6 +830,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
 
             StringBuilder sqlSelect = new StringBuilder();
             for (AnswerCheck answerCheck : answerCheckList) {
+                lastId =  answerCheck.getId();
                 Integer quId = answerCheck.getQuId();
                 if (quId == null) {
                     log.info("continue answerCheck.quId is null --answerId-------{}", answerCheck.getId());
