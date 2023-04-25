@@ -56,12 +56,11 @@ public class AnswerMiniAppController {
         Result<AnswerCheckPageVo> result = new Result<AnswerCheckPageVo>();
         AnswerCheckListRequest listRequest = new AnswerCheckListRequest();
         BeanUtils.copyProperties(answerCheckListMiniAppParam,listRequest);
+        listRequest.setCreaterDeptId(answerCheckListMiniAppParam.getUserDeptId());
         Integer checkUserType = answerCheckListMiniAppParam.getCheckUserType();
         if(AnswerCheckConstant.ANSWER_CHECK_LIST_MINIAPP_PARAM_CHECK_USER_TYPE_USER.equals(checkUserType)){
             listRequest.setUserId(userId);
-            listRequest.setCreaterDeptId(null);
         }else{
-            listRequest.setCreaterDeptId(answerCheckListMiniAppParam.getUserDeptId());
             listRequest.setUserId(null);
         }
         IPage<AnswerCheckVo> answerPageVo = answerCheckService.checkQuestionFillInList(listRequest,pageNo, pageSize, null);

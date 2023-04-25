@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.qu.constant.QuestionConstant;
 import com.qu.modules.web.param.AnswerCheckMiniAppParam;
@@ -139,6 +140,7 @@ public class QuestionMiniAppController {
     @ApiOperation(value = "检查表_答题", notes = "检查表_答题")
     @PostMapping(value = "/answer")
     public Result answer(@RequestBody AnswerCheckMiniAppParam answerMiniAppParam) {
+        log.info("-----------answerMiniAppParam={}", JSON.toJSONString(answerMiniAppParam));
         try {
             return answerCheckService.answerByMiniApp(answerMiniAppParam);
         }catch (Exception e){
