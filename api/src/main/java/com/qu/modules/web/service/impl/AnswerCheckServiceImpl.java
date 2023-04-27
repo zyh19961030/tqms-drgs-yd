@@ -329,9 +329,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         if (question == null || QuestionConstant.DEL_DELETED.equals(question.getDel())) {
             return ResultFactory.error("问卷不存在,无法保存。");
         }
-        //插入总表
-        answerCheck.setQuId(quId);
-        answerCheck.setQuestionVersion(question.getQuestionVersion());
+
         answerCheck.setAnswerJson(JSON.toJSONString(answerCheckAddParam.getAnswers()));
         Integer status = answerCheckAddParam.getStatus();
         answerCheck.setAnswerStatus(status);
@@ -398,6 +396,9 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         if (insertOrUpdate) {
             baseMapper.updateById(answerCheck);
         } else {
+            //插入总表
+            answerCheck.setQuId(quId);
+            answerCheck.setQuestionVersion(question.getQuestionVersion());
             answerCheck.setCreateTime(date);
             answerCheck.setDel(AnswerCheckConstant.DEL_NORMAL);
 

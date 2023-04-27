@@ -58,7 +58,13 @@ public interface IQuestionService extends IService<Question> {
 
     QuestionPageVo questionFillInList(QuestionParam questionParam, Integer pageNo, Integer pageSize);
 
-    IPage<QuestionCheckVo> checkQuestionList(QuestionCheckParam questionParam, Integer pageNo, Integer pageSize,Data data);
+    IPage<QuestionCheckVo> checkQuestionList(QuestionCheckParam questionCheckParam, Integer pageNo, Integer pageSize,Data data);
+
+    List<QuestionCheckClassificationVo> checkQuestionClassificationList(QuestionCheckParam questionCheckParam, Data data);
+
+    List<QuestionCheckVo> checkQuestionClassificationSubsetList(QuestionCheckClassificationParam param, Data data);
+
+    List<QuestionNameVo> queryCheckQuestionClassification(String name, String userId);
 
     List<QuestionStatisticsCheckVo> statisticsCheckList(QuestionCheckParam questionParam);
 
@@ -158,6 +164,7 @@ public interface IQuestionService extends IService<Question> {
     List<QuestionNameVo> queryByQuestionName(String name);
 
     List<QuestionNameVo> queryCheckQuestion(String name, String deptId);
+
 
 
 }

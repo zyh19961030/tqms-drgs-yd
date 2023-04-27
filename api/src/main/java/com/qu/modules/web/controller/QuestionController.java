@@ -291,6 +291,45 @@ public class QuestionController {
     }
 
 
+    @ApiOperation(value = "检查表_开始检查_带分类", notes = "检查表_开始检查_带分类")
+    @GetMapping(value = "/checkQuestionClassificationList")
+    public Result<QuestionCheckClassificationVo> checkQuestionClassificationList(QuestionCheckParam questionCheckParam,
+                                                     HttpServletRequest request) {
+        Result<QuestionCheckClassificationVo> result = new Result<>();
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        List<QuestionCheckClassificationVo> questionCheckPageVoIPage = questionService.checkQuestionClassificationList(questionCheckParam, data);
+        result.setSuccess(true);
+        result.setResult(questionCheckPageVoIPage);
+        return result;
+    }
+
+    @ApiOperation(value = "检查表_开始检查_某个分类下的查检表", notes = "检查表_开始检查_某个分类下的查检表")
+    @GetMapping(value = "/checkQuestionClassificationSubsetList")
+    public Result<QuestionCheckVo> checkQuestionClassificationSubsetList(QuestionCheckClassificationParam param,
+                                                                                 HttpServletRequest request) {
+        Result<QuestionCheckVo> result = new Result<>();
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        List<QuestionCheckVo> questionCheckPageVoIPage = questionService.checkQuestionClassificationSubsetList(param, data);
+        result.setSuccess(true);
+        result.setResult(questionCheckPageVoIPage);
+        return result;
+    }
+
+
+    @AutoLog(value = "查检表设置分类时选择查检表")
+    @ApiOperation(value = "查检表设置分类时选择查检表", notes = "查检表设置分类时选择查检表")
+    @GetMapping(value = "/queryCheckQuestionClassification")
+    public Result<QuestionNameVo> queryCheckQuestionClassification(HttpServletRequest request,String name) {
+        Result<QuestionNameVo> result = new Result<QuestionNameVo>();
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        String userId = data.getTbUser().getId();
+        List<QuestionNameVo> queryByQuestionName = questionService.queryCheckQuestionClassification(name,userId);
+        result.setResult(queryByQuestionName);
+        result.setSuccess(true);
+        return result;
+    }
+
+
     @ApiOperation(value = "检查表统计中使用_数据源SQL下拉的接口", notes = "检查表统计中使用_数据源SQL下拉的接口")
     @GetMapping(value = "/statisticsCheckList")
     public Result<QuestionStatisticsCheckVo> statisticsCheckList(QuestionCheckParam questionCheckParam) {

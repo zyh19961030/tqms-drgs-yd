@@ -1,28 +1,6 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang3.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultBetter;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -33,105 +11,38 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.qu.constant.AnswerCheckConstant;
-import com.qu.constant.AnswerCheckUserSetConstant;
-import com.qu.constant.AnswerConstant;
-import com.qu.constant.Constant;
-import com.qu.constant.QSingleDiseaseTakeConstant;
-import com.qu.constant.QoptionConstant;
-import com.qu.constant.QsubjectConstant;
-import com.qu.constant.QuestionCheckedDeptConstant;
-import com.qu.constant.QuestionConstant;
-import com.qu.constant.TbDataConstant;
-import com.qu.constant.TbInspectStatsTemplateDepConstant;
+import com.qu.constant.*;
 import com.qu.event.DeleteCheckDetailSetEvent;
 import com.qu.event.QuestionVersionEvent;
 import com.qu.modules.web.dto.SubjectCopyVo;
-import com.qu.modules.web.entity.Answer;
-import com.qu.modules.web.entity.AnswerCheck;
-import com.qu.modules.web.entity.AnswerCheckUserSet;
-import com.qu.modules.web.entity.QSingleDiseaseTake;
-import com.qu.modules.web.entity.Qoption;
-import com.qu.modules.web.entity.QoptionVersion;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.QsubjectVersion;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.entity.QuestionCheckedDept;
-import com.qu.modules.web.entity.QuestionVersion;
-import com.qu.modules.web.entity.TbCheckProject;
-import com.qu.modules.web.entity.TbData;
-import com.qu.modules.web.entity.TbDep;
-import com.qu.modules.web.entity.TbInspectStatsTemplateDep;
-import com.qu.modules.web.entity.TbUserAuxiliaryDep;
-import com.qu.modules.web.entity.TqmsQuotaCategory;
+import com.qu.modules.web.entity.*;
 import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.QuestionMapper;
 import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
-import com.qu.modules.web.param.CheckQuestionHistoryStatisticDeptListParam;
-import com.qu.modules.web.param.CopyQuestionParam;
-import com.qu.modules.web.param.IdParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam;
-import com.qu.modules.web.param.QuestionAgainReleaseParam;
-import com.qu.modules.web.param.QuestionCheckParam;
-import com.qu.modules.web.param.QuestionCheckedDepParam;
-import com.qu.modules.web.param.QuestionEditParam;
-import com.qu.modules.web.param.QuestionListParam;
-import com.qu.modules.web.param.QuestionParam;
-import com.qu.modules.web.param.QuestionQueryByIdParam;
-import com.qu.modules.web.param.SelectCheckedDeptIdsParam;
-import com.qu.modules.web.param.SelectResponsibilityUserIdsParam;
-import com.qu.modules.web.param.UpdateCategoryIdParam;
-import com.qu.modules.web.param.UpdateCheckProjectIdParam;
-import com.qu.modules.web.param.UpdateCheckedDeptIdsParam;
-import com.qu.modules.web.param.UpdateDeptIdsParam;
-import com.qu.modules.web.param.UpdateQuestionIconParam;
-import com.qu.modules.web.param.UpdateResponsibilityUserIdsParam;
-import com.qu.modules.web.param.UpdateTemplateIdParam;
-import com.qu.modules.web.param.UpdateWriteFrequencyIdsParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.pojo.TbUser;
-import com.qu.modules.web.service.IAnswerCheckService;
-import com.qu.modules.web.service.IAnswerCheckUserSetService;
-import com.qu.modules.web.service.IAnswerService;
-import com.qu.modules.web.service.IOptionService;
-import com.qu.modules.web.service.IQSingleDiseaseTakeService;
-import com.qu.modules.web.service.IQoptionVersionService;
-import com.qu.modules.web.service.IQsubjectVersionService;
-import com.qu.modules.web.service.IQuestionCheckedDeptService;
-import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.service.IQuestionVersionService;
-import com.qu.modules.web.service.ISubjectService;
-import com.qu.modules.web.service.ITbCheckProjectService;
-import com.qu.modules.web.service.ITbDataService;
-import com.qu.modules.web.service.ITbDepService;
-import com.qu.modules.web.service.ITbInspectStatsTemplateDepService;
-import com.qu.modules.web.service.ITbUserAuxiliaryDepService;
-import com.qu.modules.web.service.ITbUserService;
-import com.qu.modules.web.vo.CheckQuestionHistoryStatisticDeptListDeptVo;
-import com.qu.modules.web.vo.CheckQuestionHistoryStatisticVo;
-import com.qu.modules.web.vo.CheckQuestionParameterSetListVo;
-import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
-import com.qu.modules.web.vo.QuestionAndCategoryVo;
-import com.qu.modules.web.vo.QuestionCheckVo;
-import com.qu.modules.web.vo.QuestionMiniAppPageVo;
-import com.qu.modules.web.vo.QuestionMonthQuarterYearCreateListVo;
-import com.qu.modules.web.vo.QuestionNameVo;
-import com.qu.modules.web.vo.QuestionPageVo;
-import com.qu.modules.web.vo.QuestionPatientCreateListVo;
-import com.qu.modules.web.vo.QuestionSetColumnAllVo;
-import com.qu.modules.web.vo.QuestionSetColumnChooseVo;
-import com.qu.modules.web.vo.QuestionSetColumnVo;
-import com.qu.modules.web.vo.QuestionStatisticsCheckVo;
-import com.qu.modules.web.vo.QuestionVo;
-import com.qu.modules.web.vo.SubjectVo;
-import com.qu.modules.web.vo.ViewNameVo;
+import com.qu.modules.web.service.*;
+import com.qu.modules.web.vo.*;
 import com.qu.util.DeptUtil;
 import com.qu.util.IntegerUtil;
 import com.qu.util.StringUtil;
 import com.qu.util.VersionNumberUtil;
-
-import cn.hutool.core.collection.CollectionUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 问卷表
@@ -207,6 +118,12 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Autowired
     private ITbCheckProjectService tbCheckProjectService;
+
+    @Autowired
+    private IQuestionCheckClassificationService questionCheckClassificationService;
+
+    @Autowired
+    private IQuestionCheckClassificationRelService questionCheckClassificationRelService;
 
 
 
@@ -873,6 +790,152 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         questionCheckPageVoPage.setTotal(iPage.getTotal());
         return questionCheckPageVoPage;
     }
+
+    @Override
+    public List<QuestionCheckClassificationVo> checkQuestionClassificationList(QuestionCheckParam questionCheckParam, Data data) {
+        String quName = questionCheckParam.getQuName();
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+//        String deptId = data.getTbUser().getDepId();
+        String deptId = data.getTbUser().getDepId();
+        String positionId = data.getTbUser().getPositionId();
+        String userId = data.getTbUser().getId();
+        lambda.like(Question::getDeptIds,deptId);
+        boolean checkPositionFlag = checkPosition(quName, deptId,positionId,userId, lambda);
+        if(checkPositionFlag){
+            return Lists.newArrayList();
+        }
+
+        List<Question> questionList = this.list(lambda);
+        if(questionList.isEmpty()){
+            return Lists.newArrayList();
+        }
+
+        //查分类
+        List<QuestionCheckClassification> questionCheckClassificationList = questionCheckClassificationService.selectByUserId(userId);
+        if(CollectionUtil.isEmpty(questionCheckClassificationList)){
+            List<QuestionCheckClassificationVo> resList = questionList.stream().map(q -> {
+                QuestionCheckClassificationVo vo = new QuestionCheckClassificationVo();
+                vo.setQuId(q.getId());
+                vo.setIcon(q.getIcon());
+                vo.setQuName(q.getQuName());
+                vo.setType(QuestionCheckClassificationConstant.QUESTION_CHECK_CLASSIFICATION_VO_TYPE_QUESTION);
+                return vo;
+            }).collect(Collectors.toList());
+            return resList;
+        }
+
+        List<Integer> questionCheckClassificationIdList = questionCheckClassificationList.stream().map(QuestionCheckClassification::getId).collect(Collectors.toList());
+        //查分类关联关系
+        List<QuestionCheckClassificationRel> questionCheckClassificationRelList = questionCheckClassificationRelService.selectByQuestionCheckClassification(questionCheckClassificationIdList);
+        if(CollectionUtil.isEmpty(questionCheckClassificationRelList)){
+            List<QuestionCheckClassificationVo> resList = questionCheckClassificationList.stream().map(classification -> {
+                QuestionCheckClassificationVo vo = new QuestionCheckClassificationVo();
+                vo.setQuestionCheckClassificationId(classification.getId());
+                vo.setQuestionCheckClassificationName(classification.getName());
+                vo.setType(QuestionCheckClassificationConstant.QUESTION_CHECK_CLASSIFICATION_VO_TYPE_CLASSIFICATION);
+                return vo;
+            }).collect(Collectors.toList());
+            List<QuestionCheckClassificationVo> questionResList = questionList.stream().map(q -> {
+                QuestionCheckClassificationVo vo = new QuestionCheckClassificationVo();
+                vo.setQuId(q.getId());
+                vo.setIcon(q.getIcon());
+                vo.setQuName(q.getQuName());
+                vo.setType(QuestionCheckClassificationConstant.QUESTION_CHECK_CLASSIFICATION_VO_TYPE_QUESTION);
+                return vo;
+            }).collect(Collectors.toList());
+            resList.addAll(questionResList);
+            return resList;
+        }
+
+        List<Integer> questionCheckClassificationRelQuestionIdList = questionCheckClassificationRelList.stream().map(QuestionCheckClassificationRel::getQuestionId).distinct().collect(Collectors.toList());
+        questionList.removeIf(q->questionCheckClassificationRelQuestionIdList.contains(q.getId()));
+
+        List<QuestionCheckClassificationVo> resList = questionCheckClassificationList.stream().map(classification -> {
+            QuestionCheckClassificationVo vo = new QuestionCheckClassificationVo();
+            vo.setQuestionCheckClassificationId(classification.getId());
+            vo.setQuestionCheckClassificationName(classification.getName());
+            vo.setType(QuestionCheckClassificationConstant.QUESTION_CHECK_CLASSIFICATION_VO_TYPE_CLASSIFICATION);
+            return vo;
+        }).collect(Collectors.toList());
+        List<QuestionCheckClassificationVo> questionResList = questionList.stream().map(q -> {
+            QuestionCheckClassificationVo vo = new QuestionCheckClassificationVo();
+            vo.setQuId(q.getId());
+            vo.setIcon(q.getIcon());
+            vo.setQuName(q.getQuName());
+            vo.setType(QuestionCheckClassificationConstant.QUESTION_CHECK_CLASSIFICATION_VO_TYPE_QUESTION);
+            return vo;
+        }).collect(Collectors.toList());
+        resList.addAll(questionResList);
+        return resList;
+    }
+
+    @Override
+    public List<QuestionCheckVo> checkQuestionClassificationSubsetList(QuestionCheckClassificationParam param, Data data) {
+        String quName = param.getQuName();
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+//        String deptId = data.getTbUser().getDepId();
+        String deptId = data.getTbUser().getDepId();
+        String positionId = data.getTbUser().getPositionId();
+        String userId = data.getTbUser().getId();
+        lambda.like(Question::getDeptIds,deptId);
+        boolean checkPositionFlag = checkPosition(quName, deptId,positionId,userId, lambda);
+        if(checkPositionFlag){
+            return Lists.newArrayList();
+        }
+
+        //查分类
+        List<QuestionCheckClassificationRel> questionCheckClassificationRelList = questionCheckClassificationRelService.selectByQuestionCheckClassification(Lists.newArrayList(param.getQuestionCheckClassificationId()));
+        if(CollectionUtil.isEmpty(questionCheckClassificationRelList)){
+            return Lists.newArrayList();
+        }
+
+        List<Integer> questionCheckClassificationRelIdList = questionCheckClassificationRelList.stream().map(QuestionCheckClassificationRel::getQuestionId).distinct().collect(Collectors.toList());
+        lambda.in(Question::getId,questionCheckClassificationRelIdList);
+
+        List<Question> questionList =  this.list(lambda);
+        if(questionList.isEmpty()){
+            return Lists.newArrayList();
+        }
+
+        List<QuestionCheckVo> answerPatientFillingInVos = questionList.stream().map(q -> {
+            QuestionCheckVo vo = new QuestionCheckVo();
+            BeanUtils.copyProperties(q,vo);
+            return vo;
+        }).collect(Collectors.toList());
+
+        return answerPatientFillingInVos;
+    }
+
+    @Override
+    public List<QuestionNameVo> queryCheckQuestionClassification(String name, String userId) {
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        if(StringUtils.isNotBlank(name)){
+            lambda.in(Question::getQuName,name);
+        }
+        lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
+        lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
+        lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+
+        List<QuestionCheckClassification> questionCheckClassificationList = questionCheckClassificationService.selectByUserId(userId);
+        if(CollectionUtil.isNotEmpty(questionCheckClassificationList)){
+            List<Integer> questionCheckClassificationIdList = questionCheckClassificationList.stream().map(QuestionCheckClassification::getId).collect(Collectors.toList());
+            List<QuestionCheckClassificationRel> questionCheckClassificationRelList = questionCheckClassificationRelService.selectByQuestionCheckClassification(questionCheckClassificationIdList);
+            if(CollectionUtil.isNotEmpty(questionCheckClassificationRelList)){
+                List<Integer> questionIdList = questionCheckClassificationRelList.stream().map(QuestionCheckClassificationRel::getQuestionId).distinct().collect(Collectors.toList());
+                lambda.notIn(Question::getId,questionIdList);
+            }
+        }
+
+        List<Question> list = this.list(lambda);
+        List<QuestionNameVo> resList = list.stream().map(q -> {
+            QuestionNameVo vo = new QuestionNameVo();
+            BeanUtils.copyProperties(q, vo);
+            return vo;
+        }).collect(Collectors.toList());
+        return resList;
+    }
+
+
 
     @Override
     public List<QuestionStatisticsCheckVo> statisticsCheckList(QuestionCheckParam questionCheckParam) {
