@@ -1,34 +1,18 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.qu.constant.*;
-import com.qu.event.DeleteCheckDetailSetEvent;
-import com.qu.event.QuestionVersionEvent;
-import com.qu.modules.web.dto.SubjectCopyVo;
-import com.qu.modules.web.entity.*;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
-import com.qu.modules.web.param.*;
-import com.qu.modules.web.pojo.Data;
-import com.qu.modules.web.pojo.TbUser;
-import com.qu.modules.web.service.*;
-import com.qu.modules.web.vo.*;
-import com.qu.util.DeptUtil;
-import com.qu.util.IntegerUtil;
-import com.qu.util.StringUtil;
-import com.qu.util.VersionNumberUtil;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultBetter;
@@ -39,10 +23,122 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.qu.constant.AnswerCheckConstant;
+import com.qu.constant.AnswerCheckUserSetConstant;
+import com.qu.constant.AnswerConstant;
+import com.qu.constant.Constant;
+import com.qu.constant.QSingleDiseaseTakeConstant;
+import com.qu.constant.QoptionConstant;
+import com.qu.constant.QsubjectConstant;
+import com.qu.constant.QuestionCheckClassificationConstant;
+import com.qu.constant.QuestionCheckedDeptConstant;
+import com.qu.constant.QuestionConstant;
+import com.qu.constant.TbDataConstant;
+import com.qu.constant.TbInspectStatsTemplateDepConstant;
+import com.qu.event.DeleteCheckDetailSetEvent;
+import com.qu.event.QuestionVersionEvent;
+import com.qu.modules.web.dto.SubjectCopyVo;
+import com.qu.modules.web.entity.Answer;
+import com.qu.modules.web.entity.AnswerCheck;
+import com.qu.modules.web.entity.AnswerCheckUserSet;
+import com.qu.modules.web.entity.QSingleDiseaseTake;
+import com.qu.modules.web.entity.Qoption;
+import com.qu.modules.web.entity.QoptionVersion;
+import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.entity.QsubjectVersion;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.entity.QuestionCheckClassification;
+import com.qu.modules.web.entity.QuestionCheckClassificationRel;
+import com.qu.modules.web.entity.QuestionCheckedDept;
+import com.qu.modules.web.entity.QuestionVersion;
+import com.qu.modules.web.entity.TbCheckProject;
+import com.qu.modules.web.entity.TbData;
+import com.qu.modules.web.entity.TbDep;
+import com.qu.modules.web.entity.TbInspectStatsTemplateDep;
+import com.qu.modules.web.entity.TbUserAuxiliaryDep;
+import com.qu.modules.web.entity.TqmsQuotaCategory;
+import com.qu.modules.web.mapper.DynamicTableMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.mapper.TqmsQuotaCategoryMapper;
+import com.qu.modules.web.param.CheckQuestionHistoryStatisticDeptListParam;
+import com.qu.modules.web.param.CopyQuestionParam;
+import com.qu.modules.web.param.IdParam;
+import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam;
+import com.qu.modules.web.param.QuestionAgainReleaseParam;
+import com.qu.modules.web.param.QuestionCheckClassificationParam;
+import com.qu.modules.web.param.QuestionCheckParam;
+import com.qu.modules.web.param.QuestionCheckedDepParam;
+import com.qu.modules.web.param.QuestionEditParam;
+import com.qu.modules.web.param.QuestionListParam;
+import com.qu.modules.web.param.QuestionParam;
+import com.qu.modules.web.param.QuestionQueryByIdParam;
+import com.qu.modules.web.param.SelectCheckedDeptIdsParam;
+import com.qu.modules.web.param.SelectResponsibilityUserIdsParam;
+import com.qu.modules.web.param.UpdateCategoryIdParam;
+import com.qu.modules.web.param.UpdateCheckProjectIdParam;
+import com.qu.modules.web.param.UpdateCheckedDeptIdsParam;
+import com.qu.modules.web.param.UpdateDeptIdsParam;
+import com.qu.modules.web.param.UpdateQuestionIconParam;
+import com.qu.modules.web.param.UpdateResponsibilityUserIdsParam;
+import com.qu.modules.web.param.UpdateTemplateIdParam;
+import com.qu.modules.web.param.UpdateWriteFrequencyIdsParam;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.pojo.TbUser;
+import com.qu.modules.web.service.IAnswerCheckService;
+import com.qu.modules.web.service.IAnswerCheckUserSetService;
+import com.qu.modules.web.service.IAnswerService;
+import com.qu.modules.web.service.IOptionService;
+import com.qu.modules.web.service.IQSingleDiseaseTakeService;
+import com.qu.modules.web.service.IQoptionVersionService;
+import com.qu.modules.web.service.IQsubjectVersionService;
+import com.qu.modules.web.service.IQuestionCheckClassificationRelService;
+import com.qu.modules.web.service.IQuestionCheckClassificationService;
+import com.qu.modules.web.service.IQuestionCheckedDeptService;
+import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.service.IQuestionVersionService;
+import com.qu.modules.web.service.ISubjectService;
+import com.qu.modules.web.service.ITbCheckProjectService;
+import com.qu.modules.web.service.ITbDataService;
+import com.qu.modules.web.service.ITbDepService;
+import com.qu.modules.web.service.ITbInspectStatsTemplateDepService;
+import com.qu.modules.web.service.ITbUserAuxiliaryDepService;
+import com.qu.modules.web.service.ITbUserService;
+import com.qu.modules.web.vo.CheckQuestionHistoryStatisticDeptListDeptVo;
+import com.qu.modules.web.vo.CheckQuestionHistoryStatisticVo;
+import com.qu.modules.web.vo.CheckQuestionParameterSetListVo;
+import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
+import com.qu.modules.web.vo.QuestionAndCategoryVo;
+import com.qu.modules.web.vo.QuestionCheckClassificationVo;
+import com.qu.modules.web.vo.QuestionCheckVo;
+import com.qu.modules.web.vo.QuestionMiniAppPageVo;
+import com.qu.modules.web.vo.QuestionMonthQuarterYearCreateListVo;
+import com.qu.modules.web.vo.QuestionNameVo;
+import com.qu.modules.web.vo.QuestionPageVo;
+import com.qu.modules.web.vo.QuestionPatientCreateListVo;
+import com.qu.modules.web.vo.QuestionSetColumnAllVo;
+import com.qu.modules.web.vo.QuestionSetColumnChooseVo;
+import com.qu.modules.web.vo.QuestionSetColumnVo;
+import com.qu.modules.web.vo.QuestionStatisticsCheckVo;
+import com.qu.modules.web.vo.QuestionVo;
+import com.qu.modules.web.vo.SubjectVo;
+import com.qu.modules.web.vo.ViewNameVo;
+import com.qu.util.DeptUtil;
+import com.qu.util.IntegerUtil;
+import com.qu.util.StringUtil;
+import com.qu.util.VersionNumberUtil;
+
+import cn.hutool.core.collection.CollectionUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: 问卷表
@@ -907,7 +1003,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     }
 
     @Override
-    public List<QuestionNameVo> queryCheckQuestionClassification(String name, String userId) {
+    public List<QuestionNameVo> queryCheckQuestionClassification(String name, Data data) {
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
         if(StringUtils.isNotBlank(name)){
             lambda.in(Question::getQuName,name);
@@ -915,6 +1011,16 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         lambda.eq(Question::getQuStatus,QuestionConstant.QU_STATUS_RELEASE);
         lambda.eq(Question::getCategoryType,QuestionConstant.CATEGORY_TYPE_CHECK);
         lambda.eq(Question::getDel,QuestionConstant.DEL_NORMAL);
+        String userId = data.getTbUser().getId();
+        String deptId = data.getTbUser().getDepId();
+        String positionId = data.getTbUser().getPositionId();
+
+        lambda.like(Question::getDeptIds,deptId);
+
+        boolean checkPositionFlag = checkPosition(name, deptId,positionId,userId, lambda);
+        if(checkPositionFlag){
+            return Lists.newArrayList();
+        }
 
         List<QuestionCheckClassification> questionCheckClassificationList = questionCheckClassificationService.selectByUserId(userId);
         if(CollectionUtil.isNotEmpty(questionCheckClassificationList)){
