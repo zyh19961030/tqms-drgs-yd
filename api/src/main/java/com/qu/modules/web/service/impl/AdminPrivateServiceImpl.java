@@ -1,7 +1,27 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -13,32 +33,45 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.qu.constant.*;
+import com.qu.constant.AnswerCheckConstant;
+import com.qu.constant.AnswerConstant;
+import com.qu.constant.QSingleDiseaseTakeConstant;
+import com.qu.constant.QoptionConstant;
+import com.qu.constant.QsubjectConstant;
+import com.qu.constant.QuestionConstant;
 import com.qu.event.AnswerCheckStatisticDetailEvent;
 import com.qu.modules.web.dto.AnswerCheckStatisticDetailEventDto;
-import com.qu.modules.web.entity.*;
-import com.qu.modules.web.mapper.*;
-import com.qu.modules.web.param.*;
+import com.qu.modules.web.entity.Answer;
+import com.qu.modules.web.entity.AnswerCheck;
+import com.qu.modules.web.entity.QSingleDiseaseTake;
+import com.qu.modules.web.entity.Qoption;
+import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.mapper.AnswerCheckMapper;
+import com.qu.modules.web.mapper.AnswerMapper;
+import com.qu.modules.web.mapper.DynamicTableMapper;
+import com.qu.modules.web.mapper.OptionMapper;
+import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
+import com.qu.modules.web.mapper.QsubjectMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.param.AdminPrivateParam;
+import com.qu.modules.web.param.AdminPrivateUpdateAnswerCheckAllTableParam;
+import com.qu.modules.web.param.AdminPrivateUpdateOptionValueParam;
+import com.qu.modules.web.param.AdminPrivateUpdateTableAddDelFeeParam;
+import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
 import com.qu.modules.web.service.IAdminPrivateService;
 import com.qu.modules.web.service.IOptionService;
 import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.SubjectVo;
 import com.qu.util.PriceUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateException;
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -1040,7 +1073,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
     public Result updateAnswerCheckAllTable(AdminPrivateUpdateAnswerCheckAllTableParam param) {
         //查出来所有的检查表
         LambdaQueryWrapper<Question> questionLambda = new QueryWrapper<Question>().lambda();
-        questionLambda.ne(Question::getId, 435);
+//        questionLambda.ne(Question::getId, 435);
         questionLambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
         questionLambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_CHECK);
         questionLambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
@@ -1061,17 +1094,19 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
             sqlAns.append(question.getTableName());
             sqlAns.append("`");
             List<Map<String, String>> dataList = dynamicTableMapper.selectDynamicTableColumnList(sqlAns.toString());
-            if(CollectionUtil.isEmpty(dataList)){
-                log.info("question.getTableName() 子表数据 getTableName data is null---questionId-------{},{}", question.getTableName(), question.getId());
-                continue;
-            }
+//            if(CollectionUtil.isEmpty(dataList)){
+//                log.info("question.getTableName() 子表数据 getTableName data is null---questionId-------{},{}", question.getTableName(), question.getId());
+//                continue;
+//            }
             List<String> summary_mapping_table_id = dataList.stream().map(m -> m.get("summary_mapping_table_id")).filter(Objects::nonNull).distinct().collect(Collectors.toList());
             //查询总表
             LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
             lambda.in(AnswerCheck::getQuId, question.getId());
             lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
 //            lambda.eq(AnswerCheck::getAnswerStatus, AnswerCheckConstant.ANSWER_STATUS_RELEASE);
-            lambda.notIn(AnswerCheck::getSummaryMappingTableId, summary_mapping_table_id);
+            if(CollectionUtil.isNotEmpty(summary_mapping_table_id)){
+                lambda.notIn(AnswerCheck::getSummaryMappingTableId, summary_mapping_table_id);
+            }
             List<AnswerCheck> answerCheckList = answerCheckMapper.selectList(lambda);
 
             if(CollectionUtil.isEmpty(answerCheckList)){
@@ -1127,10 +1162,10 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
 
                     }
                 }
-                sqlAnsInsert.append("`tbrid`,");
+//                sqlAnsInsert.append("`tbrid`,");
                 sqlAnsInsert.append("`tbrxm`,");
-                sqlAnsInsert.append("`tbksmc`,");
-                sqlAnsInsert.append("`tbksdm`,");
+//                sqlAnsInsert.append("`tbksmc`,");
+//                sqlAnsInsert.append("`tbksdm`,");
                 sqlAnsInsert.append("`table_answer_status`,");
                 sqlAnsInsert.append("`summary_mapping_table_id`");
 //                sqlAnsInsert.delete(sqlAnsInsert.length()-1,sqlAnsInsert.length());
@@ -1165,21 +1200,21 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
                         }
                     }
                 }
-                sqlAnsInsert.append("'");
-                sqlAnsInsert.append(answerCheck.getCreater());
-                sqlAnsInsert.append("',");
+//                sqlAnsInsert.append("'");
+//                sqlAnsInsert.append(answerCheck.getCreater());
+//                sqlAnsInsert.append("',");
 
                 sqlAnsInsert.append("'");
                 sqlAnsInsert.append(answerCheck.getCreaterName());
                 sqlAnsInsert.append("',");
 
-                sqlAnsInsert.append("'");
-                sqlAnsInsert.append(answerCheck.getCreaterDeptName());
-                sqlAnsInsert.append("',");
-
-                sqlAnsInsert.append("'");
-                sqlAnsInsert.append(answerCheck.getCreaterDeptId());
-                sqlAnsInsert.append("',");
+//                sqlAnsInsert.append("'");
+//                sqlAnsInsert.append(answerCheck.getCreaterDeptName());
+//                sqlAnsInsert.append("',");
+//
+//                sqlAnsInsert.append("'");
+//                sqlAnsInsert.append(answerCheck.getCreaterDeptId());
+//                sqlAnsInsert.append("',");
 
                 sqlAnsInsert.append("'");
                 sqlAnsInsert.append(answerCheck.getAnswerStatus());
