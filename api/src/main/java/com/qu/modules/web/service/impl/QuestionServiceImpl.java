@@ -825,8 +825,10 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         }
 
         List<Integer> questionCheckClassificationIdList = questionCheckClassificationList.stream().map(QuestionCheckClassification::getId).collect(Collectors.toList());
+        List<Integer> questionIdList = questionList.stream().map(Question::getId).distinct().collect(Collectors.toList());
         //查分类关联关系
-        List<QuestionCheckClassificationRel> questionCheckClassificationRelList = questionCheckClassificationRelService.selectByQuestionCheckClassification(questionCheckClassificationIdList);
+        List<QuestionCheckClassificationRel> questionCheckClassificationRelList = questionCheckClassificationRelService
+                .selectByQuestionCheckClassificationAndQuestionIdList(questionIdList,questionCheckClassificationIdList);
         if(CollectionUtil.isEmpty(questionCheckClassificationRelList)){
             List<QuestionCheckClassificationVo> resList = questionCheckClassificationList.stream().map(classification -> {
                 QuestionCheckClassificationVo vo = new QuestionCheckClassificationVo();
@@ -850,11 +852,15 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         List<Integer> questionCheckClassificationRelQuestionIdList = questionCheckClassificationRelList.stream().map(QuestionCheckClassificationRel::getQuestionId).distinct().collect(Collectors.toList());
         questionList.removeIf(q->questionCheckClassificationRelQuestionIdList.contains(q.getId()));
 
-        List<QuestionCheckClassificationVo> resList = questionCheckClassificationList.stream().map(classification -> {
+        Map<Integer, QuestionCheckClassification> questionCheckClassificationMap = questionCheckClassificationList.stream().collect(Collectors.toMap(QuestionCheckClassification::getId, Function.identity()));
+        List<QuestionCheckClassificationVo> resList = questionCheckClassificationRelList.stream().map(classificationRel -> {
             QuestionCheckClassificationVo vo = new QuestionCheckClassificationVo();
-            vo.setQuestionCheckClassificationId(classification.getId());
-            vo.setQuestionCheckClassificationName(classification.getName());
-            vo.setType(QuestionCheckClassificationConstant.QUESTION_CHECK_CLASSIFICATION_VO_TYPE_CLASSIFICATION);
+            QuestionCheckClassification classification = questionCheckClassificationMap.get(classificationRel.getQuestionCheckClassificationId());
+            if(Objects.nonNull(classification)){
+                vo.setQuestionCheckClassificationId(classification.getId());
+                vo.setQuestionCheckClassificationName(classification.getName());
+                vo.setType(QuestionCheckClassificationConstant.QUESTION_CHECK_CLASSIFICATION_VO_TYPE_CLASSIFICATION);
+            }
             return vo;
         }).collect(Collectors.toList());
         List<QuestionCheckClassificationVo> questionResList = questionList.stream().map(q -> {

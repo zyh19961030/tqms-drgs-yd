@@ -25,4 +25,12 @@ public class QuestionCheckClassificationRelServiceImpl extends ServiceImpl<Quest
         lambda.in(QuestionCheckClassificationRel::getQuestionCheckClassificationId,questionCheckClassificationIdList);
         return this.list(lambda);
     }
+
+    @Override
+    public List<QuestionCheckClassificationRel> selectByQuestionCheckClassificationAndQuestionIdList(List<Integer> questionIdList, List<Integer> questionCheckClassificationIdList) {
+        LambdaQueryWrapper<QuestionCheckClassificationRel> lambda = new QueryWrapper<QuestionCheckClassificationRel>().lambda();
+        lambda.in(QuestionCheckClassificationRel::getQuestionId,questionIdList);
+        lambda.in(QuestionCheckClassificationRel::getQuestionCheckClassificationId,questionCheckClassificationIdList);
+        return this.list(lambda);
+    }
 }

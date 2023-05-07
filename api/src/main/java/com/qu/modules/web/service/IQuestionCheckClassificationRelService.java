@@ -15,4 +15,6 @@ public interface IQuestionCheckClassificationRelService extends IService<Questio
 
     List<QuestionCheckClassificationRel> selectByQuestionCheckClassification(List<Integer> questionCheckClassificationIdList);
 
+    List<QuestionCheckClassificationRel> selectByQuestionCheckClassificationAndQuestionIdList(List<Integer> questionIdList, List<Integer> questionCheckClassificationIdList);
+
 }
