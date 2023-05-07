@@ -1,54 +1,17 @@
 package com.qu.modules.web.service;
 
-import java.util.List;
-
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultBetter;
-
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.Question;
 import com.qu.modules.web.entity.TbDep;
-import com.qu.modules.web.param.CheckQuestionHistoryStatisticDeptListParam;
-import com.qu.modules.web.param.CopyQuestionParam;
-import com.qu.modules.web.param.IdParam;
-import com.qu.modules.web.param.QSingleDiseaseTakeStatisticAnalysisByDeptConditionParam;
-import com.qu.modules.web.param.QuestionAgainReleaseParam;
-import com.qu.modules.web.param.QuestionCheckClassificationParam;
-import com.qu.modules.web.param.QuestionCheckParam;
-import com.qu.modules.web.param.QuestionCheckedDepParam;
-import com.qu.modules.web.param.QuestionEditParam;
-import com.qu.modules.web.param.QuestionListParam;
-import com.qu.modules.web.param.QuestionParam;
-import com.qu.modules.web.param.QuestionQueryByIdParam;
-import com.qu.modules.web.param.SelectCheckedDeptIdsParam;
-import com.qu.modules.web.param.SelectResponsibilityUserIdsParam;
-import com.qu.modules.web.param.UpdateCategoryIdParam;
-import com.qu.modules.web.param.UpdateCheckProjectIdParam;
-import com.qu.modules.web.param.UpdateCheckedDeptIdsParam;
-import com.qu.modules.web.param.UpdateDeptIdsParam;
-import com.qu.modules.web.param.UpdateQuestionIconParam;
-import com.qu.modules.web.param.UpdateResponsibilityUserIdsParam;
-import com.qu.modules.web.param.UpdateTemplateIdParam;
-import com.qu.modules.web.param.UpdateWriteFrequencyIdsParam;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.pojo.TbUser;
-import com.qu.modules.web.vo.CheckQuestionHistoryStatisticDeptListDeptVo;
-import com.qu.modules.web.vo.CheckQuestionHistoryStatisticVo;
-import com.qu.modules.web.vo.CheckQuestionParameterSetListVo;
-import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
-import com.qu.modules.web.vo.QuestionCheckClassificationVo;
-import com.qu.modules.web.vo.QuestionCheckVo;
-import com.qu.modules.web.vo.QuestionMiniAppPageVo;
-import com.qu.modules.web.vo.QuestionMonthQuarterYearCreateListVo;
-import com.qu.modules.web.vo.QuestionNameVo;
-import com.qu.modules.web.vo.QuestionPageVo;
-import com.qu.modules.web.vo.QuestionPatientCreateListVo;
-import com.qu.modules.web.vo.QuestionSetColumnVo;
-import com.qu.modules.web.vo.QuestionStatisticsCheckVo;
-import com.qu.modules.web.vo.QuestionVo;
-import com.qu.modules.web.vo.SubjectVo;
-import com.qu.modules.web.vo.ViewNameVo;
+import com.qu.modules.web.vo.*;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultBetter;
+
+import java.util.List;
 
 /**
  * @Description: 问卷表
@@ -106,6 +69,10 @@ public interface IQuestionService extends IService<Question> {
     List<QuestionStatisticsCheckVo> statisticsCheckList(QuestionCheckParam questionParam);
 
     List<CheckQuestionHistoryStatisticVo> checkQuestionHistoryStatisticList(QuestionCheckParam questionCheckParam,Data data);
+
+    List<CheckQuestionHistoryStatisticClassificationVo> checkQuestionHistoryStatisticClassificationList(QuestionCheckParam questionCheckParam,Data data);
+
+    List<CheckQuestionHistoryStatisticVo> checkQuestionHistoryStatisticClassificationSubsetList(QuestionCheckClassificationParam questionCheckClassificationParam,Data data);
 
     /**
      * 检查管理_参数设置列表

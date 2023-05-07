@@ -793,14 +793,13 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Override
     public List<QuestionCheckClassificationVo> checkQuestionClassificationList(QuestionCheckParam questionCheckParam, Data data) {
-        String quName = questionCheckParam.getQuName();
-        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
-//        String deptId = data.getTbUser().getDepId();
         String deptId = data.getTbUser().getDepId();
         String positionId = data.getTbUser().getPositionId();
         String userId = data.getTbUser().getId();
+
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
         lambda.like(Question::getDeptIds,deptId);
-        boolean checkPositionFlag = checkPosition(quName, deptId,positionId,userId, lambda);
+        boolean checkPositionFlag = checkPosition(questionCheckParam.getQuName(), deptId,positionId,userId, lambda);
         if(checkPositionFlag){
             return Lists.newArrayList();
         }
@@ -853,9 +852,11 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         questionList.removeIf(q->questionCheckClassificationRelQuestionIdList.contains(q.getId()));
 
         Map<Integer, QuestionCheckClassification> questionCheckClassificationMap = questionCheckClassificationList.stream().collect(Collectors.toMap(QuestionCheckClassification::getId, Function.identity()));
-        List<QuestionCheckClassificationVo> resList = questionCheckClassificationRelList.stream().map(classificationRel -> {
+
+        List<Integer> questionCheckClassificationRelClassificationIdList = questionCheckClassificationRelList.stream().map(QuestionCheckClassificationRel::getQuestionCheckClassificationId).distinct().collect(Collectors.toList());
+        List<QuestionCheckClassificationVo> resList = questionCheckClassificationRelClassificationIdList.stream().map(classificationRel -> {
             QuestionCheckClassificationVo vo = new QuestionCheckClassificationVo();
-            QuestionCheckClassification classification = questionCheckClassificationMap.get(classificationRel.getQuestionCheckClassificationId());
+            QuestionCheckClassification classification = questionCheckClassificationMap.get(classificationRel);
             if(Objects.nonNull(classification)){
                 vo.setQuestionCheckClassificationId(classification.getId());
                 vo.setQuestionCheckClassificationName(classification.getName());
@@ -877,14 +878,13 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Override
     public List<QuestionCheckVo> checkQuestionClassificationSubsetList(QuestionCheckClassificationParam param, Data data) {
-        String quName = param.getQuName();
-        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
-//        String deptId = data.getTbUser().getDepId();
         String deptId = data.getTbUser().getDepId();
         String positionId = data.getTbUser().getPositionId();
         String userId = data.getTbUser().getId();
+
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
         lambda.like(Question::getDeptIds,deptId);
-        boolean checkPositionFlag = checkPosition(quName, deptId,positionId,userId, lambda);
+        boolean checkPositionFlag = checkPosition(param.getQuName(), deptId,positionId,userId, lambda);
         if(checkPositionFlag){
             return Lists.newArrayList();
         }
@@ -1005,6 +1005,211 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         }));
 
         List<CheckQuestionHistoryStatisticVo> checkQuestionHistoryStatisticVos = list.stream().map(q -> {
+            CheckQuestionHistoryStatisticVo vo = new CheckQuestionHistoryStatisticVo();
+            BeanUtils.copyProperties(q,vo);
+            ArrayList<TbInspectStatsTemplateDep> tbInspectStatsTemplateDepList = templateDepMap.get(String.valueOf(q.getId()));
+            vo.setDeptStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_NO);
+            vo.setDefectStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_NO);
+            vo.setCategoryStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_NO);
+            if(tbInspectStatsTemplateDepList!=null && !tbInspectStatsTemplateDepList.isEmpty()){
+                for (TbInspectStatsTemplateDep tbInspectStatsTemplateDep : tbInspectStatsTemplateDepList) {
+                    if(TbInspectStatsTemplateDepConstant.TYPE_DEPT.equals(tbInspectStatsTemplateDep.getType())){
+                        vo.setDeptStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_YES);
+                    }else if(TbInspectStatsTemplateDepConstant.TYPE_DEFECT.equals(tbInspectStatsTemplateDep.getType())){
+                        vo.setDefectStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_YES);
+                    }else if(TbInspectStatsTemplateDepConstant.TYPE_CATEGORY.equals(tbInspectStatsTemplateDep.getType())){
+                        vo.setCategoryStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_YES);
+                    }
+                }
+            }
+            return vo;
+        }).collect(Collectors.toList());
+        return checkQuestionHistoryStatisticVos;
+    }
+
+    @Override
+    public List<CheckQuestionHistoryStatisticClassificationVo> checkQuestionHistoryStatisticClassificationList(QuestionCheckParam questionCheckParam, Data data) {
+        String deptId = data.getTbUser().getDepId();
+        String positionId = data.getTbUser().getPositionId();
+        String userId = data.getTbUser().getId();
+
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        lambda.like(Question::getSeeDeptIds,deptId);
+        boolean checkPositionFlag = checkPosition(questionCheckParam.getQuName(), deptId,positionId,userId, lambda);
+        if(checkPositionFlag){
+            return Lists.newArrayList();
+        }
+
+        List<Question> questionList = this.list(lambda);
+        if(questionList.isEmpty()){
+            return Lists.newArrayList();
+        }
+
+        List<String> questionIds = questionList.stream().map(q-> String.valueOf(q.getId())).collect(Collectors.toList());
+        //查询是否显示后面三个类型
+        List<TbInspectStatsTemplateDep> templateDepList= tbInspectStatsTemplateDepService.selectByQuestionIds(deptId,questionIds);
+        Map<String, ArrayList<TbInspectStatsTemplateDep>> templateDepMap = templateDepList.stream().collect(
+                Collectors.toMap(TbInspectStatsTemplateDep::getQuId, Lists::newArrayList, (ArrayList<TbInspectStatsTemplateDep> k1, ArrayList<TbInspectStatsTemplateDep> k2) -> {
+                    k1.addAll(k2);
+                    return k1;
+                }));
+
+        //查分类
+        List<QuestionCheckClassification> questionCheckClassificationList = questionCheckClassificationService.selectByUserId(userId);
+        if(CollectionUtil.isEmpty(questionCheckClassificationList)){
+            List<CheckQuestionHistoryStatisticClassificationVo> resList = questionList.stream().map(q -> {
+                CheckQuestionHistoryStatisticClassificationVo vo = new CheckQuestionHistoryStatisticClassificationVo();
+                vo.setQuId(q.getId());
+                vo.setIcon(q.getIcon());
+                vo.setQuName(q.getQuName());
+                vo.setType(QuestionCheckClassificationConstant.QUESTION_CHECK_CLASSIFICATION_VO_TYPE_QUESTION);
+
+                ArrayList<TbInspectStatsTemplateDep> tbInspectStatsTemplateDepList = templateDepMap.get(String.valueOf(q.getId()));
+                vo.setDeptStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_NO);
+                vo.setDefectStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_NO);
+                vo.setCategoryStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_NO);
+                if(tbInspectStatsTemplateDepList!=null && !tbInspectStatsTemplateDepList.isEmpty()){
+                    for (TbInspectStatsTemplateDep tbInspectStatsTemplateDep : tbInspectStatsTemplateDepList) {
+                        if(TbInspectStatsTemplateDepConstant.TYPE_DEPT.equals(tbInspectStatsTemplateDep.getType())){
+                            vo.setDeptStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_YES);
+                        }else if(TbInspectStatsTemplateDepConstant.TYPE_DEFECT.equals(tbInspectStatsTemplateDep.getType())){
+                            vo.setDefectStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_YES);
+                        }else if(TbInspectStatsTemplateDepConstant.TYPE_CATEGORY.equals(tbInspectStatsTemplateDep.getType())){
+                            vo.setCategoryStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_YES);
+                        }
+                    }
+                }
+
+                return vo;
+            }).collect(Collectors.toList());
+            return resList;
+        }
+
+        List<Integer> questionCheckClassificationIdList = questionCheckClassificationList.stream().map(QuestionCheckClassification::getId).collect(Collectors.toList());
+        List<Integer> questionIdList = questionList.stream().map(Question::getId).distinct().collect(Collectors.toList());
+        //查分类关联关系
+        List<QuestionCheckClassificationRel> questionCheckClassificationRelList = questionCheckClassificationRelService
+                .selectByQuestionCheckClassificationAndQuestionIdList(questionIdList,questionCheckClassificationIdList);
+        if(CollectionUtil.isEmpty(questionCheckClassificationRelList)){
+            List<CheckQuestionHistoryStatisticClassificationVo> resList = questionCheckClassificationList.stream().map(classification -> {
+                CheckQuestionHistoryStatisticClassificationVo vo = new CheckQuestionHistoryStatisticClassificationVo();
+                vo.setQuestionCheckClassificationId(classification.getId());
+                vo.setQuestionCheckClassificationName(classification.getName());
+                vo.setType(QuestionCheckClassificationConstant.QUESTION_CHECK_CLASSIFICATION_VO_TYPE_CLASSIFICATION);
+                return vo;
+            }).collect(Collectors.toList());
+            List<CheckQuestionHistoryStatisticClassificationVo> questionResList = questionList.stream().map(q -> {
+                CheckQuestionHistoryStatisticClassificationVo vo = new CheckQuestionHistoryStatisticClassificationVo();
+                vo.setQuId(q.getId());
+                vo.setIcon(q.getIcon());
+                vo.setQuName(q.getQuName());
+                vo.setType(QuestionCheckClassificationConstant.QUESTION_CHECK_CLASSIFICATION_VO_TYPE_QUESTION);
+
+                ArrayList<TbInspectStatsTemplateDep> tbInspectStatsTemplateDepList = templateDepMap.get(String.valueOf(q.getId()));
+                vo.setDeptStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_NO);
+                vo.setDefectStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_NO);
+                vo.setCategoryStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_NO);
+                if(tbInspectStatsTemplateDepList!=null && !tbInspectStatsTemplateDepList.isEmpty()){
+                    for (TbInspectStatsTemplateDep tbInspectStatsTemplateDep : tbInspectStatsTemplateDepList) {
+                        if(TbInspectStatsTemplateDepConstant.TYPE_DEPT.equals(tbInspectStatsTemplateDep.getType())){
+                            vo.setDeptStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_YES);
+                        }else if(TbInspectStatsTemplateDepConstant.TYPE_DEFECT.equals(tbInspectStatsTemplateDep.getType())){
+                            vo.setDefectStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_YES);
+                        }else if(TbInspectStatsTemplateDepConstant.TYPE_CATEGORY.equals(tbInspectStatsTemplateDep.getType())){
+                            vo.setCategoryStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_YES);
+                        }
+                    }
+                }
+
+                return vo;
+            }).collect(Collectors.toList());
+            resList.addAll(questionResList);
+            return resList;
+        }
+
+        List<Integer> questionCheckClassificationRelQuestionIdList = questionCheckClassificationRelList.stream().map(QuestionCheckClassificationRel::getQuestionId).distinct().collect(Collectors.toList());
+        questionList.removeIf(q->questionCheckClassificationRelQuestionIdList.contains(q.getId()));
+
+        List<Integer> questionCheckClassificationRelClassificationIdList = questionCheckClassificationRelList.stream().map(QuestionCheckClassificationRel::getQuestionCheckClassificationId).distinct().collect(Collectors.toList());
+        Map<Integer, QuestionCheckClassification> questionCheckClassificationMap = questionCheckClassificationList.stream().collect(Collectors.toMap(QuestionCheckClassification::getId, Function.identity()));
+        List<CheckQuestionHistoryStatisticClassificationVo> resList = questionCheckClassificationRelClassificationIdList.stream().map(classificationRel -> {
+            CheckQuestionHistoryStatisticClassificationVo vo = new CheckQuestionHistoryStatisticClassificationVo();
+            QuestionCheckClassification classification = questionCheckClassificationMap.get(classificationRel);
+            if(Objects.nonNull(classification)){
+                vo.setQuestionCheckClassificationId(classification.getId());
+                vo.setQuestionCheckClassificationName(classification.getName());
+                vo.setType(QuestionCheckClassificationConstant.QUESTION_CHECK_CLASSIFICATION_VO_TYPE_CLASSIFICATION);
+            }
+            return vo;
+        }).collect(Collectors.toList());
+        List<CheckQuestionHistoryStatisticClassificationVo> questionResList = questionList.stream().map(q -> {
+            CheckQuestionHistoryStatisticClassificationVo vo = new CheckQuestionHistoryStatisticClassificationVo();
+            vo.setQuId(q.getId());
+            vo.setIcon(q.getIcon());
+            vo.setQuName(q.getQuName());
+            vo.setType(QuestionCheckClassificationConstant.QUESTION_CHECK_CLASSIFICATION_VO_TYPE_QUESTION);
+
+            ArrayList<TbInspectStatsTemplateDep> tbInspectStatsTemplateDepList = templateDepMap.get(String.valueOf(q.getId()));
+            vo.setDeptStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_NO);
+            vo.setDefectStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_NO);
+            vo.setCategoryStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_NO);
+            if(tbInspectStatsTemplateDepList!=null && !tbInspectStatsTemplateDepList.isEmpty()){
+                for (TbInspectStatsTemplateDep tbInspectStatsTemplateDep : tbInspectStatsTemplateDepList) {
+                    if(TbInspectStatsTemplateDepConstant.TYPE_DEPT.equals(tbInspectStatsTemplateDep.getType())){
+                        vo.setDeptStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_YES);
+                    }else if(TbInspectStatsTemplateDepConstant.TYPE_DEFECT.equals(tbInspectStatsTemplateDep.getType())){
+                        vo.setDefectStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_YES);
+                    }else if(TbInspectStatsTemplateDepConstant.TYPE_CATEGORY.equals(tbInspectStatsTemplateDep.getType())){
+                        vo.setCategoryStatisticShow(TbInspectStatsTemplateDepConstant.SHOW_TYPE_YES);
+                    }
+                }
+            }
+
+            return vo;
+        }).collect(Collectors.toList());
+        resList.addAll(questionResList);
+
+        return resList;
+    }
+
+    @Override
+    public List<CheckQuestionHistoryStatisticVo> checkQuestionHistoryStatisticClassificationSubsetList(QuestionCheckClassificationParam param, Data data) {
+        String deptId = data.getTbUser().getDepId();
+        String positionId = data.getTbUser().getPositionId();
+        String userId = data.getTbUser().getId();
+
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        lambda.like(Question::getSeeDeptIds,deptId);
+        boolean checkPositionFlag = checkPosition(param.getQuName(), deptId,positionId,userId, lambda);
+        if(checkPositionFlag){
+            return Lists.newArrayList();
+        }
+
+        //查分类
+        List<QuestionCheckClassificationRel> questionCheckClassificationRelList = questionCheckClassificationRelService.selectByQuestionCheckClassification(Lists.newArrayList(param.getQuestionCheckClassificationId()));
+        if(CollectionUtil.isEmpty(questionCheckClassificationRelList)){
+            return Lists.newArrayList();
+        }
+
+        List<Integer> questionCheckClassificationRelIdList = questionCheckClassificationRelList.stream().map(QuestionCheckClassificationRel::getQuestionId).distinct().collect(Collectors.toList());
+        lambda.in(Question::getId,questionCheckClassificationRelIdList);
+
+        List<Question> questionList = this.list(lambda);
+        if(questionList.isEmpty()){
+            return Lists.newArrayList();
+        }
+
+
+        List<String> questionIds = questionList.stream().map(q-> String.valueOf(q.getId())).collect(Collectors.toList());
+        //查询是否显示后面三个类型
+        List<TbInspectStatsTemplateDep> templateDepList= tbInspectStatsTemplateDepService.selectByQuestionIds(deptId,questionIds);
+        Map<String, ArrayList<TbInspectStatsTemplateDep>> templateDepMap = templateDepList.stream().collect(
+                Collectors.toMap(TbInspectStatsTemplateDep::getQuId, Lists::newArrayList, (ArrayList<TbInspectStatsTemplateDep> k1, ArrayList<TbInspectStatsTemplateDep> k2) -> {
+                    k1.addAll(k2);
+                    return k1;
+                }));
+
+        List<CheckQuestionHistoryStatisticVo> checkQuestionHistoryStatisticVos = questionList.stream().map(q -> {
             CheckQuestionHistoryStatisticVo vo = new CheckQuestionHistoryStatisticVo();
             BeanUtils.copyProperties(q,vo);
             ArrayList<TbInspectStatsTemplateDep> tbInspectStatsTemplateDepList = templateDepMap.get(String.valueOf(q.getId()));

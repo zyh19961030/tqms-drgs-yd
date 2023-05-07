@@ -3,6 +3,8 @@ package com.qu.modules.web.service.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.qu.constant.Constant;
@@ -11,12 +13,15 @@ import com.qu.modules.web.entity.QuestionCheckClassification;
 import com.qu.modules.web.entity.QuestionCheckClassificationRel;
 import com.qu.modules.web.mapper.QuestionCheckClassificationMapper;
 import com.qu.modules.web.param.QuestionCheckClassificationAddParam;
+import com.qu.modules.web.param.QuestionCheckClassificationUpdateParam;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.IQuestionCheckClassificationRelService;
 import com.qu.modules.web.service.IQuestionCheckClassificationService;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.ClassificationQuestionVo;
 import com.qu.modules.web.vo.QuestionCheckClassificationListVo;
+import org.apache.poi.ss.formula.functions.T;
+import org.jeecg.common.api.vo.ResultBetter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -140,6 +145,56 @@ public class QuestionCheckClassificationServiceImpl extends ServiceImpl<Question
         }
     }
 
+    @Override
+    public ResultBetter<T> edit(QuestionCheckClassificationUpdateParam param, Data data) {
+        Integer id = param.getId();
+        QuestionCheckClassification byId = this.getById(id);
+        if(Objects.isNull(byId) || Constant.DEL_DELETED.equals(byId.getDel())){
+            return ResultBetter.error("分类不存在");
+        }
+        byId.setName(param.getName());
+        Date date = new Date();
+        byId.setUpdateTime(date);
+        byId.setDel(Constant.DEL_NORMAL);
+        byId.setUserId(data.getTbUser().getId());
+        this.updateById(byId);
 
+        LambdaUpdateWrapper<QuestionCheckClassificationRel> questionCheckClassificationRelLambdaUpdateWrapper = new UpdateWrapper<QuestionCheckClassificationRel>().lambda();
+        questionCheckClassificationRelLambdaUpdateWrapper
+                .eq(QuestionCheckClassificationRel::getQuestionCheckClassificationId,id);
+        questionCheckClassificationRelService.remove(questionCheckClassificationRelLambdaUpdateWrapper);
 
+        List<Integer> questionIdList = param.getQuestionIdList();
+        if(CollectionUtil.isNotEmpty(questionIdList)){
+            ArrayList<QuestionCheckClassificationRel> relAddList = Lists.newArrayList();
+            for (Integer questionId : questionIdList) {
+                QuestionCheckClassificationRel rel = new QuestionCheckClassificationRel();
+                rel.setQuestionCheckClassificationId(byId.getId());
+                rel.setQuestionId(questionId);
+                rel.setCreateTime(date);
+                relAddList.add(rel);
+            }
+            questionCheckClassificationRelService.saveBatch(relAddList);
+        }
+        return ResultBetter.ok();
+    }
+
+    @Override
+    public ResultBetter<T> delete(String id, Data data) {
+        QuestionCheckClassification byId = this.getById(id);
+        if(Objects.isNull(byId) || Constant.DEL_DELETED.equals(byId.getDel())){
+            return ResultBetter.error("分类不存在");
+        }
+        Date date = new Date();
+        byId.setUpdateTime(date);
+        byId.setDel(Constant.DEL_DELETED);
+        this.updateById(byId);
+
+        LambdaUpdateWrapper<QuestionCheckClassificationRel> questionCheckClassificationRelLambdaUpdateWrapper = new UpdateWrapper<QuestionCheckClassificationRel>().lambda();
+        questionCheckClassificationRelLambdaUpdateWrapper
+                .eq(QuestionCheckClassificationRel::getQuestionCheckClassificationId,id);
+        questionCheckClassificationRelService.remove(questionCheckClassificationRelLambdaUpdateWrapper);
+
+        return ResultBetter.ok();
+    }
 }

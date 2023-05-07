@@ -1,10 +1,13 @@
 package com.qu.modules.web.service;
 
-import com.qu.modules.web.entity.QuestionCheckClassification;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.qu.modules.web.entity.QuestionCheckClassification;
 import com.qu.modules.web.param.QuestionCheckClassificationAddParam;
+import com.qu.modules.web.param.QuestionCheckClassificationUpdateParam;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.vo.QuestionCheckClassificationListVo;
+import org.apache.poi.ss.formula.functions.T;
+import org.jeecg.common.api.vo.ResultBetter;
 
 import java.util.List;
 
@@ -22,4 +25,7 @@ public interface IQuestionCheckClassificationService extends IService<QuestionCh
 
     void add(QuestionCheckClassificationAddParam param, Data data);
 
+    ResultBetter<T> edit(QuestionCheckClassificationUpdateParam param, Data data);
+
+    ResultBetter<T> delete(String id, Data data);
 }

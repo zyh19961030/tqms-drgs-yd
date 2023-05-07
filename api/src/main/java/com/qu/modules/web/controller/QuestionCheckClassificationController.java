@@ -2,6 +2,7 @@ package com.qu.modules.web.controller;
 
 import com.qu.constant.Constant;
 import com.qu.modules.web.param.QuestionCheckClassificationAddParam;
+import com.qu.modules.web.param.QuestionCheckClassificationUpdateParam;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.IQuestionCheckClassificationService;
 import com.qu.modules.web.vo.QuestionCheckClassificationListVo;
@@ -57,6 +58,32 @@ public class QuestionCheckClassificationController {
 		 questionCheckClassificationService.add(param,data);
 		 return ResultBetter.ok();
 	 }
+
+	 /**
+	 *  编辑
+	 * @param param
+	 * @return
+	 */
+	@AutoLog(value = "查检表分类表-编辑")
+	@ApiOperation(value="查检表分类表-编辑", notes="查检表分类表-编辑")
+	@PostMapping(value = "/edit")
+	public ResultBetter<T> edit(@RequestBody QuestionCheckClassificationUpdateParam param,HttpServletRequest request) {
+		Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+		return questionCheckClassificationService.edit(param,data);
+	}
+
+	/**
+	 *  删除
+	 * @param id
+	 * @return
+	 */
+	@AutoLog(value = "查检表分类表-删除")
+	@ApiOperation(value="查检表分类表-删除", notes="查检表分类表-删除")
+	@DeleteMapping(value = "/delete")
+	public ResultBetter<T> delete(@RequestParam(name="id",required=true) String id,HttpServletRequest request) {
+		Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+		return questionCheckClassificationService.delete(id,data);
+	}
 
 
 //	 /**
