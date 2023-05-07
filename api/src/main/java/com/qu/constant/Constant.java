@@ -71,8 +71,14 @@ public class Constant {
 //    //职位code 职能科室干事
 //    public static final String POSITION_CODE_ZNKSZKY = "ZNKSZKY";
 
+    //职位id 临床科室主任
+    public static final String POSITION_ID_LCKSZR = "55f051452e354a7c92663fe66443e024";
+
     //职位id 临床科室质控员_医生
     public static final String POSITION_ID_LCKSZKY = "80bd4043ad9345e692a39df9611a6213";
+
+    //职位id 临床科室护士长
+    public static final String POSITION_ID_LCKHSZ = "fb86ed0f2439463e8b9a99d48140535c";
 
     //职位id 临床科室质控员_护士
     public static final String POSITION_ID_LCKSZKYHL = "b616a51307384e82aaeb747099642442";
@@ -89,11 +95,12 @@ public class Constant {
     //职位id 医技科室护士长
     public static final String POSITION_ID_YJKSHSZ = "526b8c27193440f89e934c9849643b2b";
 
-    //职位id 临床科室主任
-    public static final String POSITION_ID_LCKSZR = "55f051452e354a7c92663fe66443e024";
+    //职位id 医技科室质控员-医疗
+    public static final String POSITION_ID_YJKSZKY = "cb32f69046ff49c78d4753b0b75042d1";
 
-    //职位id 临床科室护士长
-    public static final String POSITION_ID_LCKHSZ = "fb86ed0f2439463e8b9a99d48140535c";
+    //职位id 医技科室质控员-护理
+    public static final String POSITION_ID_YJKSZKYHL = "48ee900778db4491b2ab6c7280ca586e";
+
 
 
 
