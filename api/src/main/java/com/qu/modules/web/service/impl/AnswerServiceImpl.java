@@ -919,7 +919,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
         List<LinkedHashMap<String, String>> fieldItems = Lists.newArrayList();
         LinkedHashMap<String, String> fieldItemCheckDept = Maps.newLinkedHashMap();
         fieldItems.add(fieldItemCheckDept);
-        fieldItemCheckDept.put("fieldTxt", "检查项目");
+        fieldItemCheckDept.put("fieldTxt", "登记内容");
         fieldItemCheckDept.put("fieldId", "tb_check_project");
         setItems(param, fieldItems);
         vo.setFieldItems(fieldItems);
@@ -938,6 +938,7 @@ public class AnswerServiceImpl extends ServiceImpl<AnswerMapper, Answer> impleme
             LinkedHashMap<String, String> valueItem = Maps.newLinkedHashMap();
             detailDataList.add(valueItem);
             valueItem.put("tb_check_project", subjectVo.getSubName());
+            valueItem.put("subjectType", subjectVo.getSubType());
             valueItem.put("dataKey", columnName);
         }
 
