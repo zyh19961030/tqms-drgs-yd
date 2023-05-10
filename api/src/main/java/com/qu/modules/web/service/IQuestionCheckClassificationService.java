@@ -1,15 +1,16 @@
 package com.qu.modules.web.service;
 
+import java.util.List;
+
+import org.apache.poi.ss.formula.functions.T;
+import org.jeecg.common.api.vo.ResultBetter;
+
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.QuestionCheckClassification;
 import com.qu.modules.web.param.QuestionCheckClassificationAddParam;
 import com.qu.modules.web.param.QuestionCheckClassificationUpdateParam;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.vo.QuestionCheckClassificationListVo;
-import org.apache.poi.ss.formula.functions.T;
-import org.jeecg.common.api.vo.ResultBetter;
-
-import java.util.List;
 
 /**
  * @Description: 查检表分类表
@@ -20,6 +21,8 @@ import java.util.List;
 public interface IQuestionCheckClassificationService extends IService<QuestionCheckClassification> {
 
     List<QuestionCheckClassification> selectByUserId(String userId);
+
+    List<QuestionCheckClassification> selectByUserIdNotEqualId(String userId,Integer questionCheckClassificationId);
 
     List<QuestionCheckClassificationListVo> queryList(Data data);
 

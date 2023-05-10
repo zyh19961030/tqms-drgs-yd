@@ -1,6 +1,20 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.apache.poi.ss.formula.functions.T;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -20,16 +34,8 @@ import com.qu.modules.web.service.IQuestionCheckClassificationService;
 import com.qu.modules.web.service.IQuestionService;
 import com.qu.modules.web.vo.ClassificationQuestionVo;
 import com.qu.modules.web.vo.QuestionCheckClassificationListVo;
-import org.apache.poi.ss.formula.functions.T;
-import org.jeecg.common.api.vo.ResultBetter;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import cn.hutool.core.collection.CollectionUtil;
 
 /**
  * @Description: 查检表分类表
@@ -51,6 +57,15 @@ public class QuestionCheckClassificationServiceImpl extends ServiceImpl<Question
     public List<QuestionCheckClassification> selectByUserId(String userId) {
         LambdaQueryWrapper<QuestionCheckClassification> lambda = new QueryWrapper<QuestionCheckClassification>().lambda();
         lambda.eq(QuestionCheckClassification::getUserId,userId);
+        lambda.eq(QuestionCheckClassification::getDel, Constant.DEL_NORMAL);
+        return this.list(lambda);
+    }
+
+    @Override
+    public List<QuestionCheckClassification> selectByUserIdNotEqualId(String userId,Integer questionCheckClassificationId) {
+        LambdaQueryWrapper<QuestionCheckClassification> lambda = new QueryWrapper<QuestionCheckClassification>().lambda();
+        lambda.eq(QuestionCheckClassification::getUserId,userId);
+        lambda.ne(QuestionCheckClassification::getId,questionCheckClassificationId);
         lambda.eq(QuestionCheckClassification::getDel, Constant.DEL_NORMAL);
         return this.list(lambda);
     }
