@@ -1,16 +1,18 @@
 package com.qu.modules.web.entity;
 
+import org.jeecgframework.poi.excel.annotation.Excel;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.jeecgframework.poi.excel.annotation.Excel;
-import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * @Description: 单病种总表
@@ -234,6 +236,14 @@ public class QSingleDiseaseTake {
 	@Excel(name = "对应子表的id，可以当主键，(子表中同字段)", width = 15)
     @ApiModelProperty(value = "对应子表的id，可以当主键，(子表中同字段)")
 	private java.lang.String summaryMappingTableId;
+	/**离院方式 a 医嘱离院  b 医嘱转院  c 医嘱转社区卫生服务机构/乡镇卫生院 d 非医嘱离院 e 死亡 oth 其他*/
+	@Excel(name = "离院方式 a 医嘱离院  b 医嘱转院  c 医嘱转社区卫生服务机构/乡镇卫生院 d 非医嘱离院 e 死亡 oth 其他", width = 15)
+    @ApiModelProperty(value = "离院方式 a 医嘱离院  b 医嘱转院  c 医嘱转社区卫生服务机构/乡镇卫生院 d 非医嘱离院 e 死亡 oth 其他")
+	private java.lang.String leaveHospitalWay;
+	/**是否有手术并发症 0否 1是*/
+	@Excel(name = "是否有手术并发症 0否 1是", width = 15)
+    @ApiModelProperty(value = "是否有手术并发症 0否 1是")
+	private java.lang.String operationComplication;
 	/**0:正常1:已删除*/
 	@Excel(name = "0:正常1:已删除", width = 15)
 	@ApiModelProperty(value = "0:正常1:已删除")
