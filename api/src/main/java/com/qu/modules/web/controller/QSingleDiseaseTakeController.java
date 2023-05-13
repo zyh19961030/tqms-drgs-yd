@@ -30,8 +30,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -1274,6 +1276,15 @@ public class QSingleDiseaseTakeController {
         return result;
     }
 
+    /**
+     * 单病种数据接收
+     */
+    @AutoLog(value = "单病种数据接收")
+    @ApiOperation(value = "单病种数据接收", notes = "单病种数据接收")
+    @PostMapping(value = "/singleDiseaseTakeRecsiveSave")
+    public void runSingleDiseaseTakeRecsiveSave(@Valid @RequestBody Map<String, Object> map) {
+        qSingleDiseaseTakeService.runSingleDiseaseTakeRecsiveSave(map);
+    }
 
 
 

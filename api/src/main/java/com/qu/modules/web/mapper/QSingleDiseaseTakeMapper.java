@@ -61,4 +61,6 @@ public interface QSingleDiseaseTakeMapper extends BaseMapper<QSingleDiseaseTake>
 
     List<DepartmentQuantityStatisticsVo> departmentQuantityStatistics(Map<String, Object> params);
 
+    void saveqSingleDiseaseTake(@Param("qSingleDiseaseTake")QSingleDiseaseTake qSingleDiseaseTake);
+
 }

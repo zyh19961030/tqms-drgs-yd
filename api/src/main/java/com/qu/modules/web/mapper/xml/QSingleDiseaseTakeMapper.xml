@@ -323,6 +323,23 @@
         update q_single_disease_take set status = #{status}, country_examine_reason = #{countryExamineReason}, country_report_time = #{time} where id = #{id}
     </update>
 
+    <insert id="saveqSingleDiseaseTake" parameterType="com.qu.modules.web.entity.QSingleDiseaseTake">
+        INSERT INTO q_single_disease_take VALUES (null,#{qSingleDiseaseTake.patientId},#{qSingleDiseaseTake.patientName},#{qSingleDiseaseTake.patientGender},#{qSingleDiseaseTake.age},
+                                                  #{qSingleDiseaseTake.hospitalInNo},#{qSingleDiseaseTake.icdTen},#{qSingleDiseaseTake.icdName},#{qSingleDiseaseTake.status},
+                                                  #{qSingleDiseaseTake.inTime},#{qSingleDiseaseTake.outTime},#{qSingleDiseaseTake.operationName},#{qSingleDiseaseTake.doctorName},
+                                                  #{qSingleDiseaseTake.doctorId},#{qSingleDiseaseTake.questionId},#{qSingleDiseaseTake.questionName},#{qSingleDiseaseTake.reportStatus},
+                                                  #{qSingleDiseaseTake.reportNoReasonId},#{qSingleDiseaseTake.reportNoReason},#{qSingleDiseaseTake.reportNoReasonNote},#{qSingleDiseaseTake.departmentId},
+                                                  #{qSingleDiseaseTake.department},#{qSingleDiseaseTake.examineStatus},#{qSingleDiseaseTake.examineReason},#{qSingleDiseaseTake.countryExamineReason},
+                                                  #{qSingleDiseaseTake.icon},#{qSingleDiseaseTake.idCard},#{qSingleDiseaseTake.createTime},#{qSingleDiseaseTake.writeTime},
+                                                  #{qSingleDiseaseTake.mainDiagnosis},#{qSingleDiseaseTake.submitTime},#{qSingleDiseaseTake.secondaryDiagnosis},#{qSingleDiseaseTake.inHospitalDay},
+                                                  #{qSingleDiseaseTake.inHospitalFee},#{qSingleDiseaseTake.drugFee},#{qSingleDiseaseTake.operationTreatmentFee},#{qSingleDiseaseTake.disposableConsumable},
+                                                  #{qSingleDiseaseTake.answerJson},#{qSingleDiseaseTake.answerStatus},#{qSingleDiseaseTake.answer},#{qSingleDiseaseTake.answerName},
+                                                  #{qSingleDiseaseTake.answerTime},#{qSingleDiseaseTake.answerDeptid},#{qSingleDiseaseTake.answerDeptname},#{qSingleDiseaseTake.tableId},
+                                                  #{qSingleDiseaseTake.dynamicTableName},#{qSingleDiseaseTake.countryReportTime},#{qSingleDiseaseTake.categoryId},#{qSingleDiseaseTake.tqmsDept},
+                                                  #{qSingleDiseaseTake.tqmsDeptName},#{qSingleDiseaseTake.nlpAnalysisId},#{qSingleDiseaseTake.nlpAnalysisTable},#{qSingleDiseaseTake.summaryMappingTableId},
+                                                  #{qSingleDiseaseTake.leaveHospitalWay},#{qSingleDiseaseTake.operationComplication},#{qSingleDiseaseTake.del},#{qSingleDiseaseTake.questionVersion});
+    </insert>
+
     <select id="queryErrorQuestion" resultType="com.qu.modules.web.vo.ReportFailureRecordVo" >
         select id, hospital_in_no, patient_name, question_id, question_name, department, country_examine_reason, status, country_report_time, write_time
         from q_single_disease_take where status in (7, 9) order by id asc limit #{pageNo}, #{pageSize}

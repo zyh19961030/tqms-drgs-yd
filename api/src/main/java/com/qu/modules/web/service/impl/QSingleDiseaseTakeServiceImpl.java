@@ -84,6 +84,9 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
     @Autowired
     private ITbDepService tbDepService;
 
+    @Autowired
+    private GenTableColumnMapper genTableColumnMapper;
+
 
     @Value("${system.tokenUrl}")
     private String tokenUrl;
@@ -1673,6 +1676,27 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         return departmentQuantityStatisticsVoList;
     }
 
+    @Override
+    public void runSingleDiseaseTakeRecsiveSave(Map<String, Object> map) {
 
+        //保存单病种子表数据
+        Map<String, String> mapCache = (Map<String, String>) map.get("mapCache");
+        LinkedHashMap linkedHashMap = (LinkedHashMap) map.get("qSingleDiseaseTake");
+        QSingleDiseaseTake qSingleDiseaseTake = JSON.parseObject(JSON.toJSONString(linkedHashMap), QSingleDiseaseTake.class);
+        Map<String, String> mapCacheNew = new HashMap<>();
+        if (!mapCache.isEmpty()) {
+            Set<String> keySet = mapCache.keySet();
+            for (String key: keySet) {
+                String value = mapCache.get(key);
+                key = "`"+key+"`";
+                mapCacheNew.put(key, value);
+            }
+            genTableColumnMapper.insertData(mapCacheNew, qSingleDiseaseTake.getDynamicTableName());
+        }
+
+        //保存单病种总表数据
+        qSingleDiseaseTakeMapper.saveqSingleDiseaseTake(qSingleDiseaseTake);
+
+    }
 
 }

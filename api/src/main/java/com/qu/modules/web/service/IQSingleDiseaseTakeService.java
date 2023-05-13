@@ -7,6 +7,7 @@ import com.qu.modules.web.param.*;
 import com.qu.modules.web.vo.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Description: 单病种总表
@@ -74,5 +75,7 @@ public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake>
     SingleDiseaseReportCountVo singleDiseaseReportCount(String deptId);
 
     List<DepartmentQuantityStatisticsVo> departmentQuantityStatistics(DepartmentQuantityStatisticsParam departmentQuantityStatisticsParam);
+
+    void runSingleDiseaseTakeRecsiveSave(Map<String, Object> map);
 
 }
