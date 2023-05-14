@@ -1,27 +1,7 @@
 package com.qu.modules.web.service.impl;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang3.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -33,45 +13,33 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.qu.constant.AnswerCheckConstant;
-import com.qu.constant.AnswerConstant;
-import com.qu.constant.QSingleDiseaseTakeConstant;
-import com.qu.constant.QoptionConstant;
-import com.qu.constant.QsubjectConstant;
-import com.qu.constant.QuestionConstant;
+import com.qu.constant.*;
 import com.qu.event.AnswerCheckStatisticDetailEvent;
 import com.qu.modules.web.dto.AnswerCheckStatisticDetailEventDto;
-import com.qu.modules.web.entity.Answer;
-import com.qu.modules.web.entity.AnswerCheck;
-import com.qu.modules.web.entity.QSingleDiseaseTake;
-import com.qu.modules.web.entity.Qoption;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.mapper.AnswerCheckMapper;
-import com.qu.modules.web.mapper.AnswerMapper;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.OptionMapper;
-import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
-import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.AdminPrivateParam;
-import com.qu.modules.web.param.AdminPrivateUpdateAnswerCheckAllTableParam;
-import com.qu.modules.web.param.AdminPrivateUpdateOptionValueParam;
-import com.qu.modules.web.param.AdminPrivateUpdateTableAddDelFeeParam;
-import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
+import com.qu.modules.web.entity.*;
+import com.qu.modules.web.mapper.*;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.service.IAdminPrivateService;
+import com.qu.modules.web.service.IAnswerCheckStatisticDetailService;
 import com.qu.modules.web.service.IOptionService;
 import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.SubjectVo;
 import com.qu.util.PriceUtil;
-
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateException;
-import cn.hutool.core.date.DateField;
-import cn.hutool.core.date.DatePattern;
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -91,6 +59,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
 
     @Resource
     private OptionMapper optionMapper;
+
     @Autowired
     private IOptionService optionService;
 
@@ -105,6 +74,9 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
 
     @Resource
     private ApplicationEventPublisher applicationEventPublisher;
+
+    @Resource
+    private IAnswerCheckStatisticDetailService answerCheckStatisticDetailService;
 
     private static String[] parsePatterns = new String[]{"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"};
 
@@ -1070,7 +1042,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
 
 
     @Override
-    public Result updateAnswerCheckAllTable(AdminPrivateUpdateAnswerCheckAllTableParam param) {
+    public Result updateAnswerCheckAllTable(AdminPrivateUpdateAnswerCheckAllTableParam param, Boolean tbrFlag) {
         //查出来所有的检查表
         LambdaQueryWrapper<Question> questionLambda = new QueryWrapper<Question>().lambda();
 //        questionLambda.ne(Question::getId, 435);
@@ -1162,10 +1134,12 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
 
                     }
                 }
-//                sqlAnsInsert.append("`tbrid`,");
+                if(tbrFlag){
+                    sqlAnsInsert.append("`tbrid`,");
+                    sqlAnsInsert.append("`tbksmc`,");
+                    sqlAnsInsert.append("`tbksdm`,");
+                }
                 sqlAnsInsert.append("`tbrxm`,");
-//                sqlAnsInsert.append("`tbksmc`,");
-//                sqlAnsInsert.append("`tbksdm`,");
                 sqlAnsInsert.append("`table_answer_status`,");
                 sqlAnsInsert.append("`summary_mapping_table_id`");
 //                sqlAnsInsert.delete(sqlAnsInsert.length()-1,sqlAnsInsert.length());
@@ -1200,21 +1174,23 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
                         }
                     }
                 }
-//                sqlAnsInsert.append("'");
-//                sqlAnsInsert.append(answerCheck.getCreater());
-//                sqlAnsInsert.append("',");
+                if(tbrFlag){
+                    sqlAnsInsert.append("'");
+                    sqlAnsInsert.append(answerCheck.getCreater());
+                    sqlAnsInsert.append("',");
+
+                    sqlAnsInsert.append("'");
+                    sqlAnsInsert.append(answerCheck.getCreaterDeptName());
+                    sqlAnsInsert.append("',");
+
+                    sqlAnsInsert.append("'");
+                    sqlAnsInsert.append(answerCheck.getCreaterDeptId());
+                    sqlAnsInsert.append("',");
+                }
 
                 sqlAnsInsert.append("'");
                 sqlAnsInsert.append(answerCheck.getCreaterName());
                 sqlAnsInsert.append("',");
-
-//                sqlAnsInsert.append("'");
-//                sqlAnsInsert.append(answerCheck.getCreaterDeptName());
-//                sqlAnsInsert.append("',");
-//
-//                sqlAnsInsert.append("'");
-//                sqlAnsInsert.append(answerCheck.getCreaterDeptId());
-//                sqlAnsInsert.append("',");
 
                 sqlAnsInsert.append("'");
                 sqlAnsInsert.append(answerCheck.getAnswerStatus());
@@ -1230,6 +1206,126 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
                 try {
                     dynamicTableMapper.insertDynamicTable(sqlAnsInsert.toString());
                 }catch (Exception e){
+                    log.error("问卷quId--add table_answer_status error--quId---->"+question.getId(),e);
+                    quIdSet.add(question.getId());
+                    quNameSet.add(question.getQuName());
+                }
+            }
+        }
+
+        if(CollectionUtil.isNotEmpty(quIdSet)){
+            String join = Joiner.on("、").join(quIdSet);
+            String joinName = Joiner.on("、").join(quNameSet);
+            join = "查询到问卷id为"+join+",名称为"+joinName+"的报错，其他已经验证完毕";
+            return ResultFactory.fail(join);
+        }
+
+        return ResultFactory.success();
+    }
+
+    @Override
+    public Result updateAnswerCheckStatisticDetailBySubtable(AdminPrivateUpdateAnswerCheckAllTableParam param) {
+        //查出来所有的检查表
+        LambdaQueryWrapper<Question> questionLambda = new QueryWrapper<Question>().lambda();
+//        questionLambda.ne(Question::getId, 435);
+        questionLambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
+        questionLambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_CHECK);
+        questionLambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
+        List<Integer> quId = param.getQuId();
+        if(CollectionUtil.isNotEmpty(quId)){
+            questionLambda.in(Question::getId, quId);
+        }
+        List<Question> questionList = questionMapper.selectList(questionLambda);
+        if(CollectionUtil.isEmpty(questionList)){
+            return ResultFactory.fail("没有查到需要统计的问卷");
+        }
+        HashSet<Integer> quIdSet = Sets.newHashSet();
+        HashSet<String> quNameSet = Sets.newHashSet();
+        for (Question question : questionList) {
+            //查询总表
+            LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
+            lambda.in(AnswerCheck::getQuId, question.getId());
+            lambda.eq(AnswerCheck::getDel, AnswerCheckConstant.DEL_NORMAL);
+            lambda.eq(AnswerCheck::getAnswerStatus, AnswerCheckConstant.ANSWER_STATUS_RELEASE);
+            List<AnswerCheck> answerCheckList = answerCheckMapper.selectList(lambda);
+
+            if(CollectionUtil.isEmpty(answerCheckList)){
+                log.info("question.getTableName() 总表数据 answerCheckList data is null---questionId-------{},{}", question.getTableName(), question.getId());
+                continue;
+            }
+
+            List<String> summaryMappingTableIdAnswerCheckList = answerCheckList.stream().map(AnswerCheck::getSummaryMappingTableId).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+
+            //查询子表
+            StringBuffer sqlAns = new StringBuffer();
+            sqlAns.append("select * from `");
+            sqlAns.append(question.getTableName());
+            sqlAns.append("` where summary_mapping_table_id in (");
+            for (String s : summaryMappingTableIdAnswerCheckList) {
+                sqlAns.append("'");
+                sqlAns.append(s);
+                sqlAns.append("',");
+            }
+            sqlAns.delete(sqlAns.length()-1,sqlAns.length());
+            sqlAns.append(")");
+            List<Map<String, String>> dataList = dynamicTableMapper.selectDynamicTableColumnList(sqlAns.toString());
+            if(CollectionUtil.isEmpty(dataList)){
+                log.info("question.getTableName() 子表数据 getTableName data is null---questionId-------{},{}", question.getTableName(), question.getId());
+                continue;
+            }
+            Map<String, Map<String, String>> dataMap = dataList.stream().collect(Collectors.toMap(m->m.get("summary_mapping_table_id"), Function.identity()));
+
+            List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(question.getId());
+            Map<String, SubjectVo> subjectMap = subjectList.stream().filter(s-> QuestionConstant.DEL_NORMAL.equals(s.getDel()) && StringUtils.isNotBlank(s.getColumnName())).collect(Collectors.toMap(SubjectVo::getColumnName, Function.identity()));
+
+            //将子表数据放入统计
+            for (AnswerCheck answerCheck : answerCheckList) {
+                try {
+                    Map<String, String> stringStringMap = dataMap.get(answerCheck.getSummaryMappingTableId());
+                    if(CollectionUtil.isEmpty(stringStringMap)){
+                        log.info("question.getTableName() 子表数据 CollectionUtil.isEmpty(stringStringMap) data is null---questionIdName,questionId,answerCheckId-------{},{},{}", question.getTableName(), question.getId(),answerCheck.getId());
+                        continue;
+                    }
+                    //查询统计表有没有数据，有数据则跳过这条记录
+                    LambdaQueryWrapper<AnswerCheckStatisticDetail> answerCheckStatisticDetailLambdaQueryWrapper = new QueryWrapper<AnswerCheckStatisticDetail>().lambda();
+                    answerCheckStatisticDetailLambdaQueryWrapper
+                            .eq(AnswerCheckStatisticDetail::getAnswerCheckId,answerCheck.getId());
+                    List<AnswerCheckStatisticDetail> answerCheckStatisticDetailList = answerCheckStatisticDetailService.list(answerCheckStatisticDetailLambdaQueryWrapper);
+                    if(CollectionUtil.isNotEmpty(answerCheckStatisticDetailList)){
+                        continue;
+                    }
+
+                    JSONArray answers = (JSONArray) JSONArray.parse(answerCheck.getAnswerJson());
+                    Map<String, String> mapCache = new HashMap<>();
+                    for (Object a : answers) {
+                        JSONObject jsonObject = (JSONObject) a;
+                        mapCache.put((String) jsonObject.get("subColumnName"), (String) jsonObject.get("subValue"));
+                    }
+
+                    for (Map.Entry<String, String> entry : stringStringMap.entrySet()) {
+                        SubjectVo qsubject = subjectMap.get(entry.getKey());
+                        if (qsubject == null) {
+                            continue;
+                        }
+                        mapCache.put(qsubject.getColumnName(), String.valueOf(entry.getValue()));
+                    }
+
+                    Integer status = answerCheck.getAnswerStatus();
+                    if (status.equals(AnswerCheckConstant.ANSWER_STATUS_RELEASE)) {
+                        //保存统计明细
+                        AnswerCheckStatisticDetailEventDto dto = new AnswerCheckStatisticDetailEventDto();
+                        dto.setQuestion(question);
+                        dto.setSubjectList(subjectList);
+                        dto.setMapCache(mapCache);
+                        dto.setAnswerCheck(answerCheck);
+                        dto.setAnswerUser(answerCheck.getCreater());
+                        dto.setAnswerUserName(answerCheck.getCreaterName());
+                        dto.setDepId(answerCheck.getCreaterDeptId());
+                        dto.setDepName(answerCheck.getCreaterDeptName());
+                        AnswerCheckStatisticDetailEvent questionVersionEvent = new AnswerCheckStatisticDetailEvent(this, dto);
+                        applicationEventPublisher.publishEvent(questionVersionEvent);
+                    }
+                } catch (Exception e) {
                     log.error("问卷quId--add table_answer_status error--quId---->"+question.getId(),e);
                     quIdSet.add(question.getId());
                     quNameSet.add(question.getQuName());

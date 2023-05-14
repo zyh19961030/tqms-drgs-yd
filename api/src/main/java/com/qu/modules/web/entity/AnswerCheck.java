@@ -121,4 +121,8 @@ public class AnswerCheck {
     @Excel(name = "被检查患者住院号", width = 15)
     @ApiModelProperty(value = "被检查患者住院号")
     private String caseId;
+	/**来源 0:PC 1:小程序*/
+	@Excel(name = "来源 0:PC 1:小程序", width = 15)
+	@ApiModelProperty(value = "来源 0:PC 1:小程序")
+	private Integer source;
 }

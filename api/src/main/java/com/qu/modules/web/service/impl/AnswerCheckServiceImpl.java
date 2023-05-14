@@ -349,6 +349,7 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         answerCheck.setCreaterDeptName(creater_deptname);
         answerCheck.setAnswerTime(date);
         answerCheck.setUpdateTime(date);
+        answerCheck.setSource(source);
 
         Answers[] answers = answerCheckAddParam.getAnswers();
         Map<String, String> mapCache = new HashMap<>();

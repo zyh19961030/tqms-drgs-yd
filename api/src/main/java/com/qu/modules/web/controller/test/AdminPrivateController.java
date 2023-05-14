@@ -177,8 +177,31 @@ public class AdminPrivateController {
             return ResultFactory.fail();
         }
         log.info("-----------updateAnswerCheckAllTable={}", JSON.toJSONString(param));
-        return adminPrivateService.updateAnswerCheckAllTable(param);
+        return adminPrivateService.updateAnswerCheckAllTable(param,false);
     }
+
+
+    @ApiOperation(value = "处理检查表总表与子表数据不一致问题,quId不传查所有问卷_带填报人的", notes = "处理检查表总表与子表数据不一致问题,quId不传查所有问卷_带填报人的")
+    @PostMapping(value = "/updateAnswerCheckAllTableAndTBR")
+    public Result updateAnswerCheckAllTableAndTBR(@RequestBody AdminPrivateUpdateAnswerCheckAllTableParam param) {
+        if(!"r59y".equals(param.getName())){
+            return ResultFactory.fail();
+        }
+        log.info("-----------updateAnswerCheckAllTable={}", JSON.toJSONString(param));
+        return adminPrivateService.updateAnswerCheckAllTable(param,true);
+    }
+
+
+    @ApiOperation(value = "处理查检表统计明细表没有数据问题,子表有数据但统计表没有问题,quId不传查所有问卷", notes = "处理查检表统计明细表没有数据问题,子表有数据但统计表没有问题,quId不传查所有问卷")
+    @PostMapping(value = "/updateAnswerCheckStatisticDetailBySubtable")
+    public Result updateAnswerCheckStatisticDetailBySubtable(@RequestBody AdminPrivateUpdateAnswerCheckAllTableParam param) {
+        if(!"r5t2".equals(param.getName())){
+            return ResultFactory.fail();
+        }
+        log.info("-----------updateAnswerCheckStatisticDetailBySubtable={}", JSON.toJSONString(param));
+        return adminPrivateService.updateAnswerCheckStatisticDetailBySubtable(param);
+    }
+
 
     @ApiOperation(value = "查询所有问卷子表数据是否缺失并自动添加缺少字段,quId不传查所有问卷", notes = "查询所有问卷子表数据是否缺失并自动添加缺少字段,quId不传查所有问卷")
     @PostMapping(value = "/selectQuestionAllTable")
@@ -189,6 +212,7 @@ public class AdminPrivateController {
         log.info("-----------selectQuestionAllTable={}", JSON.toJSONString(param));
         return adminPrivateService.selectQuestionAllTable(param);
     }
+
 
     @ApiOperation(value = "查询所有问卷题目增加默认(填报人、填报科室名称、填报科室代码)三道题", notes = "查询所有问卷题目增加默认(填报人、填报科室名称、填报科室代码)三道题")
     @PostMapping(value = "/addQuestionSubject")
