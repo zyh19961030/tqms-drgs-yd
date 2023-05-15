@@ -1,7 +1,27 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -13,33 +33,47 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.qu.constant.*;
+import com.qu.constant.AnswerCheckConstant;
+import com.qu.constant.AnswerConstant;
+import com.qu.constant.QSingleDiseaseTakeConstant;
+import com.qu.constant.QoptionConstant;
+import com.qu.constant.QsubjectConstant;
+import com.qu.constant.QuestionConstant;
 import com.qu.event.AnswerCheckStatisticDetailEvent;
 import com.qu.modules.web.dto.AnswerCheckStatisticDetailEventDto;
-import com.qu.modules.web.entity.*;
-import com.qu.modules.web.mapper.*;
-import com.qu.modules.web.param.*;
+import com.qu.modules.web.entity.Answer;
+import com.qu.modules.web.entity.AnswerCheck;
+import com.qu.modules.web.entity.AnswerCheckStatisticDetail;
+import com.qu.modules.web.entity.QSingleDiseaseTake;
+import com.qu.modules.web.entity.Qoption;
+import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.mapper.AnswerCheckMapper;
+import com.qu.modules.web.mapper.AnswerMapper;
+import com.qu.modules.web.mapper.DynamicTableMapper;
+import com.qu.modules.web.mapper.OptionMapper;
+import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
+import com.qu.modules.web.mapper.QsubjectMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.param.AdminPrivateParam;
+import com.qu.modules.web.param.AdminPrivateUpdateAnswerCheckAllTableParam;
+import com.qu.modules.web.param.AdminPrivateUpdateOptionValueParam;
+import com.qu.modules.web.param.AdminPrivateUpdateTableAddDelFeeParam;
+import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
 import com.qu.modules.web.service.IAdminPrivateService;
 import com.qu.modules.web.service.IAnswerCheckStatisticDetailService;
 import com.qu.modules.web.service.IOptionService;
 import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.SubjectVo;
 import com.qu.util.PriceUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateException;
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -1481,6 +1515,32 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
                 sqlSelect.append("ALTER TABLE `");
                 sqlSelect.append(question.getTableName());
                 sqlSelect.append("` ADD COLUMN `tbrxm` varchar(128) NULL COMMENT 'a_填报人名称' ");
+                try {
+                    dynamicTableMapper.createDynamicTable(sqlSelect.toString());
+                    dynamicTableMapper.selectDynamicTableColumnList(sqlAnsSelect);
+                }catch (Exception e1){
+                    alterTable(question,e1, subjectMap, sqlAnsSelect);
+                    log.error("问卷quId--add alterTable tbrxm error--quId---->"+question.getId(),e);
+                }
+            }
+            if("tbksmc".equals(substring1)){
+                StringBuffer sqlSelect = new StringBuffer();
+                sqlSelect.append("ALTER TABLE `");
+                sqlSelect.append(question.getTableName());
+                sqlSelect.append("` ADD COLUMN `tbksmc` varchar(128) NULL COMMENT 'a_填报科室名称' ");
+                try {
+                    dynamicTableMapper.createDynamicTable(sqlSelect.toString());
+                    dynamicTableMapper.selectDynamicTableColumnList(sqlAnsSelect);
+                }catch (Exception e1){
+                    alterTable(question,e1, subjectMap, sqlAnsSelect);
+                    log.error("问卷quId--add alterTable tbrxm error--quId---->"+question.getId(),e);
+                }
+            }
+            if("tbksdm".equals(substring1)){
+                StringBuffer sqlSelect = new StringBuffer();
+                sqlSelect.append("ALTER TABLE `");
+                sqlSelect.append(question.getTableName());
+                sqlSelect.append("` ADD COLUMN `tbksdm` varchar(128) NULL COMMENT 'a_填报科室代码' ");
                 try {
                     dynamicTableMapper.createDynamicTable(sqlSelect.toString());
                     dynamicTableMapper.selectDynamicTableColumnList(sqlAnsSelect);
