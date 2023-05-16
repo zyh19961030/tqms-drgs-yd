@@ -1492,6 +1492,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             }
             lambda.in(Question::getId,quIdList);
         }
+        else if( Constant.POSITION_ID_YJKSZR.equals(positionId) || Constant.POSITION_ID_YJKSHSZ.equals(positionId) ){
+            return  true;
+        }
         return false;
     }
 
