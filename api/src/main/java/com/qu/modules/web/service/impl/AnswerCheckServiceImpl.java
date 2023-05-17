@@ -100,6 +100,9 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
     @Autowired
     private IQoptionVersionService qoptionVersionService;
 
+    @Autowired
+    private IQuestionVersionService questionVersionService;
+
 
     @Override
     public IPage<AnswerCheckVo> checkQuestionFillInList(AnswerCheckListRequest request, Integer pageNo, Integer pageSize, Integer answerStatus) {
@@ -415,35 +418,38 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
         }
         //插入子表
         StringBuffer sqlAns = new StringBuffer();
-        String questionVersion = answerCheck.getQuestionVersion();
+        String questionVersionString = answerCheck.getQuestionVersion();
         List<SubjectVo> subjectList =Lists.newArrayList();
-        if(StringUtils.isBlank(questionVersion)){
+        if(StringUtils.isBlank(questionVersionString) ){
             subjectList = subjectService.selectSubjectAndOptionByQuId(quId);
         }else{
             //查历史问卷题目
-            List<QsubjectVersion> subjectVersionList = qsubjectVersionService.selectSubjectVersionByQuIdAndVersion(quId, questionVersion);
-            List<Integer> subjectVersionIdList = subjectVersionList.stream().map(QsubjectVersion::getSubjectId).distinct().collect(Collectors.toList());
-            List<QoptionVersion> qoptionVersions = qoptionVersionService.selectOptionVersionByQuIdAndVersion(questionVersion, subjectVersionIdList);
+            QuestionVersion questionVersion = questionVersionService.selectByQuestionAndVersion(quId, questionVersionString);
+            if(Objects.nonNull(questionVersion)){
+                String questionVersionId = questionVersion.getId();
+                List<QsubjectVersion> subjectVersionList = qsubjectVersionService.selectSubjectVersionByQuIdAndVersion(quId, questionVersionId);
+                List<Integer> subjectVersionIdList = subjectVersionList.stream().map(QsubjectVersion::getSubjectId).distinct().collect(Collectors.toList());
+                List<QoptionVersion> qoptionVersions = qoptionVersionService.selectOptionVersionByQuIdAndVersion(questionVersionId, subjectVersionIdList);
+                Map<Integer, ArrayList<Qoption>> optionMap = qoptionVersions.stream().collect(Collectors.toMap(QoptionVersion::getSubjectId, qoptionVersion -> {
+                            Qoption qoption = new Qoption();
+                            BeanUtils.copyProperties(qoptionVersion, qoption);
+                            qoption.setId(qoptionVersion.getOptionId());
+                            return Lists.newArrayList(qoption);
+                        },
+                        (ArrayList<Qoption> k1, ArrayList<Qoption> k2) -> {
+                            k1.addAll(k2);
+                            return k1;
+                        }));
+                ArrayList<Qoption> optionEmptyList = Lists.newArrayList();
+                for (QsubjectVersion subjectVersion : subjectVersionList) {
+                    SubjectVo subjectVo = new SubjectVo();
+                    BeanUtils.copyProperties(subjectVersion, subjectVo);
+                    subjectVo.setId(subjectVersion.getSubjectId());
 
-            Map<Integer, ArrayList<Qoption>> optionMap = qoptionVersions.stream().collect(Collectors.toMap(QoptionVersion::getSubjectId, qoptionVersion -> {
-                        Qoption qoption = new Qoption();
-                        BeanUtils.copyProperties(qoptionVersion, qoption);
-                        qoption.setId(qoptionVersion.getOptionId());
-                        return Lists.newArrayList(qoption);
-                    },
-                    (ArrayList<Qoption> k1, ArrayList<Qoption> k2) -> {
-                        k1.addAll(k2);
-                        return k1;
-                    }));
-            ArrayList<Qoption> optionEmptyList = Lists.newArrayList();
-            for (QsubjectVersion subjectVersion : subjectVersionList) {
-                SubjectVo subjectVo = new SubjectVo();
-                BeanUtils.copyProperties(subjectVersion, subjectVo);
-                subjectVo.setId(subjectVersion.getSubjectId());
-
-                ArrayList<Qoption> qoptionsList = optionMap.get(subjectVersion.getSubjectId());
-                subjectVo.setOptionList(qoptionsList == null ? optionEmptyList : qoptionsList);
-                subjectList.add(subjectVo);
+                    ArrayList<Qoption> qoptionsList = optionMap.get(subjectVersion.getSubjectId());
+                    subjectVo.setOptionList(qoptionsList == null ? optionEmptyList : qoptionsList);
+                    subjectList.add(subjectVo);
+                }
             }
         }
 
