@@ -1,27 +1,7 @@
 package com.qu.modules.web.service.impl;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang3.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -33,47 +13,33 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.qu.constant.AnswerCheckConstant;
-import com.qu.constant.AnswerConstant;
-import com.qu.constant.QSingleDiseaseTakeConstant;
-import com.qu.constant.QoptionConstant;
-import com.qu.constant.QsubjectConstant;
-import com.qu.constant.QuestionConstant;
+import com.qu.constant.*;
 import com.qu.event.AnswerCheckStatisticDetailEvent;
 import com.qu.modules.web.dto.AnswerCheckStatisticDetailEventDto;
-import com.qu.modules.web.entity.Answer;
-import com.qu.modules.web.entity.AnswerCheck;
-import com.qu.modules.web.entity.AnswerCheckStatisticDetail;
-import com.qu.modules.web.entity.QSingleDiseaseTake;
-import com.qu.modules.web.entity.Qoption;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.mapper.AnswerCheckMapper;
-import com.qu.modules.web.mapper.AnswerMapper;
-import com.qu.modules.web.mapper.DynamicTableMapper;
-import com.qu.modules.web.mapper.OptionMapper;
-import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
-import com.qu.modules.web.mapper.QsubjectMapper;
-import com.qu.modules.web.mapper.QuestionMapper;
-import com.qu.modules.web.param.AdminPrivateParam;
-import com.qu.modules.web.param.AdminPrivateUpdateAnswerCheckAllTableParam;
-import com.qu.modules.web.param.AdminPrivateUpdateOptionValueParam;
-import com.qu.modules.web.param.AdminPrivateUpdateTableAddDelFeeParam;
-import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
+import com.qu.modules.web.entity.*;
+import com.qu.modules.web.mapper.*;
+import com.qu.modules.web.param.*;
 import com.qu.modules.web.service.IAdminPrivateService;
 import com.qu.modules.web.service.IAnswerCheckStatisticDetailService;
 import com.qu.modules.web.service.IOptionService;
 import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.SubjectVo;
 import com.qu.util.PriceUtil;
-
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateException;
-import cn.hutool.core.date.DateField;
-import cn.hutool.core.date.DatePattern;
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -1068,7 +1034,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         }
         if(CollectionUtil.isNotEmpty(quIdSet)){
             String join = Joiner.on("、").join(quIdSet);
-            return ResultFactory.success(join);
+            return ResultFactory.fail(join);
 
         }
         return ResultFactory.success();
@@ -1104,7 +1070,10 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
 //                log.info("question.getTableName() 子表数据 getTableName data is null---questionId-------{},{}", question.getTableName(), question.getId());
 //                continue;
 //            }
-            List<String> summary_mapping_table_id = dataList.stream().map(m -> m.get("summary_mapping_table_id")).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+
+            List<String> checkMonthBlankSummaryMappingTableIdList = dataList.stream().filter(m -> StringUtils.isBlank(m.get("check_month"))).map(m -> m.get("summary_mapping_table_id")).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+
+            List<String> summary_mapping_table_id = dataList.stream().filter(m-> StringUtils.isNotBlank(m.get("check_month"))).map(m -> m.get("summary_mapping_table_id")).filter(Objects::nonNull).distinct().collect(Collectors.toList());
             //查询总表
             LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
             lambda.in(AnswerCheck::getQuId, question.getId());
@@ -1121,15 +1090,96 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
             }
             //将总表数据放入子表
             for (AnswerCheck answerCheck : answerCheckList) {
+
                 JSONArray answers = (JSONArray)JSONArray.parse(answerCheck.getAnswerJson());
                 Map<String, String> mapCache = new HashMap<>();
                 for (Object a : answers) {
                     JSONObject jsonObject = (JSONObject)a;
-                    mapCache.put((String)jsonObject.get("subColumnName"), (String)jsonObject.get("subValue"));
+                    String subValue = (String)jsonObject.get("subValue");
+                    subValue = subValue.replaceAll("'","’");
+                    mapCache.put((String)jsonObject.get("subColumnName"), subValue);
+                }
+
+                List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(question.getId());
+
+                if(checkMonthBlankSummaryMappingTableIdList.contains(answerCheck.getSummaryMappingTableId())){
+                    //更新
+                    StringBuffer sqlAnsUpdate = new StringBuffer();
+                    sqlAnsUpdate.append("update `" + question.getTableName() + "` set ");
+                    for (int i = 0; i < subjectList.size(); i++) {
+                        SubjectVo qsubjectDynamicTable = subjectList.get(i);
+                        String subType = qsubjectDynamicTable.getSubType();
+                        Integer del = qsubjectDynamicTable.getDel();
+                        if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                                || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName()) == null
+                            /*|| StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))*/) {
+                            continue;
+                        }
+                        sqlAnsUpdate.append("`");
+                        sqlAnsUpdate.append(qsubjectDynamicTable.getColumnName());
+                        sqlAnsUpdate.append("`");
+                        sqlAnsUpdate.append("=");
+                        sqlAnsUpdate.append("'");
+                        sqlAnsUpdate.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
+                        sqlAnsUpdate.append("'");
+                        sqlAnsUpdate.append(",");
+
+                        if (QsubjectConstant.MARK_OPEN.equals(qsubjectDynamicTable.getMark())) {
+                            String columnNameMark = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark");
+                            if (org.apache.commons.lang.StringUtils.isNotBlank(columnNameMark)) {
+                                sqlAnsUpdate.append("`");
+                                sqlAnsUpdate.append(qsubjectDynamicTable.getColumnName());
+                                sqlAnsUpdate.append("_mark");
+                                sqlAnsUpdate.append("`");
+                                sqlAnsUpdate.append("=");
+                                sqlAnsUpdate.append("'");
+                                sqlAnsUpdate.append(columnNameMark);
+                                sqlAnsUpdate.append("'");
+                                sqlAnsUpdate.append(",");
+                            }
+                            String columnNameMarkImg = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark_img");
+                            if (org.apache.commons.lang.StringUtils.isNotBlank(columnNameMarkImg)) {
+                                sqlAnsUpdate.append("`");
+                                sqlAnsUpdate.append(qsubjectDynamicTable.getColumnName());
+                                sqlAnsUpdate.append("_mark_img");
+                                sqlAnsUpdate.append("`");
+                                sqlAnsUpdate.append("=");
+                                sqlAnsUpdate.append("'");
+                                sqlAnsUpdate.append(columnNameMarkImg);
+                                sqlAnsUpdate.append("'");
+                                sqlAnsUpdate.append(",");
+                            }
+
+                        }
+
+                    }
+                    if(tbrFlag){
+                        sqlAnsUpdate.append("`tbrid`='");
+                        sqlAnsUpdate.append(answerCheck.getCreater());
+                        sqlAnsUpdate.append("',");
+                        sqlAnsUpdate.append("`tbksmc`='");
+                        sqlAnsUpdate.append(answerCheck.getCreaterDeptName());
+                        sqlAnsUpdate.append("',");
+                        sqlAnsUpdate.append("`tbksdm`='");
+                        sqlAnsUpdate.append(answerCheck.getCreaterDeptId());
+                        sqlAnsUpdate.append("',");
+                    }
+                    sqlAnsUpdate.append("`tbrxm`='");
+                    sqlAnsUpdate.append(answerCheck.getCreaterName());
+                    sqlAnsUpdate.append("',");
+                    sqlAnsUpdate.append("`table_answer_status`='");
+                    sqlAnsUpdate.append(answerCheck.getAnswerStatus());
+                    sqlAnsUpdate.append("'");
+                    sqlAnsUpdate.append(" where summary_mapping_table_id = '");
+                    sqlAnsUpdate.append(answerCheck.getSummaryMappingTableId());
+                    sqlAnsUpdate.append("'");
+                    log.info("answerCheck-----update sqlAnsUpdate:{}", sqlAnsUpdate.toString());
+                    dynamicTableMapper.updateDynamicTable(sqlAnsUpdate.toString());
+                    continue;
                 }
                 //插入子表
                 StringBuffer sqlAnsInsert = new StringBuffer();
-                List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(question.getId());
+
 
                 sqlAnsInsert.append("insert into `" + question.getTableName() + "` (");
                 for (int i = 0; i < subjectList.size(); i++) {
@@ -1250,7 +1300,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         if(CollectionUtil.isNotEmpty(quIdSet)){
             String join = Joiner.on("、").join(quIdSet);
             String joinName = Joiner.on("、").join(quNameSet);
-            join = "查询到问卷id为"+join+",名称为"+joinName+"的报错，其他已经验证完毕";
+            join = "处理检查表总表与子表数据不一致问题-查询到问卷id为"+join+",名称为"+joinName+"的报错，其他已经验证完毕";
             return ResultFactory.fail(join);
         }
 
@@ -1370,7 +1420,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         if(CollectionUtil.isNotEmpty(quIdSet)){
             String join = Joiner.on("、").join(quIdSet);
             String joinName = Joiner.on("、").join(quNameSet);
-            join = "查询到问卷id为"+join+",名称为"+joinName+"的报错，其他已经验证完毕";
+            join = "处理查检表统计明细表没有数据问题,子表有数据但统计表没有问题-查询到问卷id为"+join+",名称为"+joinName+"的报错，其他已经验证完毕";
             return ResultFactory.fail(join);
         }
 
@@ -1464,14 +1514,14 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         if(CollectionUtil.isNotEmpty(existQuIdSet)){
             String join = Joiner.on("、").join(existQuIdSet);
             String joinName = Joiner.on("、").join(existQuNameSet);
-            join = "查询到问卷id为"+join+",名称为"+joinName+"的报错，已发布但未查到子表，处理后再次执行该方法";
-            return ResultFactory.success(join);
+            join = "查询所有问卷子表数据是否缺失并自动添加缺少字段-查询到问卷id为"+join+",名称为"+joinName+"的报错，已发布但未查到子表，处理后再次执行该方法";
+            return ResultFactory.fail(join);
         }
         if(CollectionUtil.isNotEmpty(quIdSet)){
             String join = Joiner.on("、").join(quIdSet);
             String joinName = Joiner.on("、").join(quNameSet);
-            join = "查询到问卷id为"+join+",名称为"+joinName+"的报错，已经为报错问卷增加字段，其他已经验证完毕，再次执行该方法";
-            return ResultFactory.success(join);
+            join = "查询所有问卷子表数据是否缺失并自动添加缺少字段-查询到问卷id为"+join+",名称为"+joinName+"的报错，已经为报错问卷增加字段，其他已经验证完毕，再次执行该方法";
+            return ResultFactory.fail(join);
         }
         return ResultFactory.success();
     }

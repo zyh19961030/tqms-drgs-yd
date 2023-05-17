@@ -234,4 +234,35 @@ public class AdminPrivateController {
         return adminPrivateService.updateAnswerCheckPassStatus(param);
     }
 
+
+    @ApiOperation(value = "统一处理子表数据缺少问题", notes = "统一处理子表数据缺少问题")
+    @PostMapping(value = "/updateTableData")
+    public Result updateTableData(@RequestBody AdminPrivateUpdateAnswerCheckAllTableParam param) {
+        if(!"z1x1".equals(param.getName())){
+            return ResultFactory.fail();
+        }
+        log.info("updateTableData-----------selectQuestionAllTable={}", JSON.toJSONString(param));
+        Result result = adminPrivateService.selectQuestionAllTable(param);
+        if(!result.isSuccess()){
+            for (int i = 0; i < 3; i++) {
+                result = adminPrivateService.selectQuestionAllTable(param);
+            }
+            if(!result.isSuccess()){
+                return result;
+            }
+        }
+        //第二部
+        log.info("updateTableData-----------updateAnswerCheckAllTable={}", JSON.toJSONString(param));
+        result = adminPrivateService.updateAnswerCheckAllTable(param,true);
+        if(!result.isSuccess()){
+            log.info("-----------updateAnswerCheckAllTable={}", JSON.toJSONString(param));
+            result =  adminPrivateService.updateAnswerCheckAllTable(param,false);
+            if(!result.isSuccess()){
+                return result;
+            }
+        }
+        log.info("-----------updateAnswerCheckStatisticDetailBySubtable={}", JSON.toJSONString(param));
+        return adminPrivateService.updateAnswerCheckStatisticDetailBySubtable(param);
+    }
+
 }
