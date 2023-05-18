@@ -85,7 +85,7 @@ public class AnswerMiniAppController {
 
 
 
-    @ApiOperation(value = "检查表_问卷填报记录_通过id查询", notes = "检查表_问卷填报记录_通过id查询")
+    @ApiOperation(value = "检查表_问卷填报记录_通过id查询_查询的答案", notes = "检查表_问卷填报记录_通过id查询_查询的答案")
     @GetMapping(value = "/queryById")
     public Result<AnswerCheck> queryById(@RequestParam(name = "id", required = true) String id) {
         Result<AnswerCheck> result = new Result<>();
@@ -100,7 +100,7 @@ public class AnswerMiniAppController {
     }
 
 
-    @ApiOperation(value = "登记表_通过id查询", notes = "登记表_通过id查询")
+    @ApiOperation(value = "登记表_通过id查询_查询的答案", notes = "登记表_通过id查询_查询的答案")
     @GetMapping(value = "/answerQueryById")
     public Result<Answer> answerQueryById(@RequestParam(name = "id", required = true) String id) {
         Result<Answer> result = new Result<Answer>();

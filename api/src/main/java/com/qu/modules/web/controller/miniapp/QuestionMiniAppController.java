@@ -82,6 +82,8 @@ public class QuestionMiniAppController {
     public Result<QuestionMiniAppPageVo> answerList(String deptId, @RequestHeader(name = "userId") String userId,
                                                        @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                        @RequestParam(name = "pageSize", defaultValue = "100") Integer pageSize) {
+        log.info("登记表-分页列表查询-QuestionMiniAppController-answerList----deptId---->{}", deptId);
+        log.info("登记表-分页列表查询-QuestionMiniAppController-answerList-----userId--->{}", userId);
         IPage<QuestionMiniAppPageVo> iPage = questionService.answerQueryPageListByMiniApp(deptId, userId, pageNo, pageSize);
         return ResultFactory.success(iPage);
     }
@@ -92,8 +94,8 @@ public class QuestionMiniAppController {
      * @param id
      * @return
      */
-    @AutoLog(value = "检查填报问卷-通过id查询")
-    @ApiOperation(value = "检查填报问卷-通过id查询", notes = "检查填报问卷-通过id查询")
+    @AutoLog(value = "检查填报问卷-通过id查询-查询的题目")
+    @ApiOperation(value = "检查填报问卷-通过id查询-查询的题目", notes = "检查填报问卷-通过id查询-查询的题目")
     @GetMapping(value = "/queryById")
     public Result<QuestionVo> queryById(@RequestParam(name = "id", required = true) Integer id) {
         Result<QuestionVo> result = new Result<QuestionVo>();
@@ -109,10 +111,11 @@ public class QuestionMiniAppController {
      * @param param
      * @return
      */
-    @AutoLog(value = "普通问卷_通过id查询_new")
-    @ApiOperation(value = "普通问卷_通过id查询_new", notes = "普通问卷_通过id查询_new")
+    @AutoLog(value = "普通问卷_通过id查询_new_查询的题目")
+    @ApiOperation(value = "普通问卷_通过id查询_new_查询的题目", notes = "普通问卷_通过id查询_new_查询的题目")
     @GetMapping(value = "/answerQueryById")
     public Result<QuestionVo> answerQueryById(@Valid QuestionQueryByIdParam param) {
+        log.info("普通问卷_通过id查询_new-QuestionMiniAppController-answerQueryById------>{}", JSON.toJSONString(param));
         Result<QuestionVo> result = new Result<QuestionVo>();
         QuestionVo questionVo = questionService.queryByIdNew(param, QuestionConstant.CATEGORY_TYPE_NORMAL);
         result.setResult(questionVo);
@@ -126,10 +129,11 @@ public class QuestionMiniAppController {
      * @param param
      * @return
      */
-    @AutoLog(value = "单病种_通过id查询")
-    @ApiOperation(value = "单病种_通过id查询", notes = "单病种_通过id查询")
+    @AutoLog(value = "单病种_通过id查询_查询的题目")
+    @ApiOperation(value = "单病种_通过id查询_查询的题目", notes = "单病种_通过id查询_查询的题目")
     @GetMapping(value = "/singleDiseaseQueryById")
     public Result<QuestionVo> singleDiseaseQueryById(@Valid QuestionQueryByIdParam param) {
+        log.info("单病种_通过id查询-QuestionMiniAppController-singleDiseaseQueryById------>{}", JSON.toJSONString(param));
         Result<QuestionVo> result = new Result<QuestionVo>();
         QuestionVo questionVo = questionService.queryByIdNew(param, QuestionConstant.CATEGORY_TYPE_SINGLE_DISEASE);
         result.setResult(questionVo);
