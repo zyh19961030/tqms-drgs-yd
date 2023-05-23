@@ -1,19 +1,5 @@
 package com.qu.modules.web.controller.miniapp;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.qu.constant.AnswerCheckConstant;
@@ -28,10 +14,16 @@ import com.qu.modules.web.service.IAnswerService;
 import com.qu.modules.web.vo.AnswerCheckPageVo;
 import com.qu.modules.web.vo.AnswerCheckVo;
 import com.qu.modules.web.vo.AnswerMonthQuarterYearFillingInAndSubmitPageVo;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Slf4j
 @Api(tags = "小程序后台调用_答案")
@@ -58,10 +50,10 @@ public class AnswerMiniAppController {
         BeanUtils.copyProperties(answerCheckListMiniAppParam,listRequest);
         listRequest.setCreaterDeptId(answerCheckListMiniAppParam.getUserDeptId());
         Integer checkUserType = answerCheckListMiniAppParam.getCheckUserType();
-        if(AnswerCheckConstant.ANSWER_CHECK_LIST_MINIAPP_PARAM_CHECK_USER_TYPE_USER.equals(checkUserType)){
-            listRequest.setUserId(userId);
-        }else{
+        if(AnswerCheckConstant.ANSWER_CHECK_LIST_MINIAPP_PARAM_CHECK_USER_TYPE_DEPT.equals(checkUserType)){
             listRequest.setUserId(null);
+        }else{
+            listRequest.setUserId(userId);
         }
         IPage<AnswerCheckVo> answerPageVo = answerCheckService.checkQuestionFillInList(listRequest,pageNo, pageSize, null);
         result.setSuccess(true);
