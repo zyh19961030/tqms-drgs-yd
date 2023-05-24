@@ -7,6 +7,7 @@ import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.QsubjectIdAndNameVo;
 import com.qu.modules.web.vo.StatisticsCheckTableSubjectVo;
+import com.qu.modules.web.vo.SubjectNameVo;
 import com.qu.modules.web.vo.SubjectVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -254,6 +255,19 @@ public class SubjectController {
         return ResultFactory.success(statisticsCheckTableList);
     }
 
+
+    @AutoLog(value = "录入表单时选择列和选择题目")
+    @ApiOperation(value = "录入表单时选择列和选择题目", notes = "录入表单时选择列和选择题目")
+    @PostMapping(value = "/enterQuestionSelectSubject")
+    public Result<List<SubjectNameVo>> enterQuestionSelectSubject(@RequestBody @Valid EnterQuestionSelectSubjectParam param,HttpServletRequest request) {
+        Result<List<SubjectNameVo>> result = new Result<List<SubjectNameVo>>();
+//        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+//        String deptId = data.getTbUser().getDepId();
+        List<SubjectNameVo> selectSubject = subjectService.enterQuestionSelectSubject(param);
+        result.setResult(selectSubject);
+        result.setSuccess(true);
+        return result;
+    }
 
 
 

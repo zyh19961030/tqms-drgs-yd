@@ -6,6 +6,7 @@ import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.TbUser;
 import com.qu.modules.web.vo.QsubjectIdAndNameVo;
 import com.qu.modules.web.vo.StatisticsCheckTableSubjectVo;
+import com.qu.modules.web.vo.SubjectNameVo;
 import com.qu.modules.web.vo.SubjectVo;
 
 import java.util.List;
@@ -60,5 +61,9 @@ public interface ISubjectService extends IService<Qsubject> {
     List<Qsubject> selectSubjectByQuId(Integer quId);
 
     List<Qsubject> selectPersonSubjectByQuId(Integer quId);
+
+    List<SubjectNameVo> enterQuestionSelectSubject(EnterQuestionSelectSubjectParam param);
+
+    List<Qsubject> selectByIds(List<Integer> subjectIdList);
 
 }

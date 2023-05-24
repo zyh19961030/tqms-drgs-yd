@@ -1,75 +1,30 @@
 package com.qu.modules.web.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-
+import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.qu.constant.Constant;
+import com.qu.constant.QuestionConstant;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.param.*;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.vo.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.api.vo.ResultBetter;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.qu.constant.Constant;
-import com.qu.constant.QuestionConstant;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.param.CheckQuestionHistoryStatisticDeptListParam;
-import com.qu.modules.web.param.CopyQuestionParam;
-import com.qu.modules.web.param.IdParam;
-import com.qu.modules.web.param.QueryCheckQuestionClassificationByUpdateParam;
-import com.qu.modules.web.param.QuestionAgainReleaseParam;
-import com.qu.modules.web.param.QuestionCheckClassificationParam;
-import com.qu.modules.web.param.QuestionCheckParam;
-import com.qu.modules.web.param.QuestionCheckedDepParam;
-import com.qu.modules.web.param.QuestionEditParam;
-import com.qu.modules.web.param.QuestionListParam;
-import com.qu.modules.web.param.QuestionParam;
-import com.qu.modules.web.param.QuestionQueryByIdParam;
-import com.qu.modules.web.param.SelectCheckedDeptIdsParam;
-import com.qu.modules.web.param.SelectResponsibilityUserIdsParam;
-import com.qu.modules.web.param.UpdateCategoryIdParam;
-import com.qu.modules.web.param.UpdateCheckProjectIdParam;
-import com.qu.modules.web.param.UpdateCheckedDeptIdsParam;
-import com.qu.modules.web.param.UpdateDeptIdsParam;
-import com.qu.modules.web.param.UpdateQuestionIconParam;
-import com.qu.modules.web.param.UpdateResponsibilityUserIdsParam;
-import com.qu.modules.web.param.UpdateTemplateIdParam;
-import com.qu.modules.web.param.UpdateWriteFrequencyIdsParam;
-import com.qu.modules.web.pojo.Data;
-import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.vo.CheckQuestionHistoryStatisticClassificationVo;
-import com.qu.modules.web.vo.CheckQuestionHistoryStatisticDeptListDeptVo;
-import com.qu.modules.web.vo.CheckQuestionHistoryStatisticVo;
-import com.qu.modules.web.vo.CheckQuestionParameterSetListVo;
-import com.qu.modules.web.vo.QuestionAndCategoryPageVo;
-import com.qu.modules.web.vo.QuestionCheckClassificationVo;
-import com.qu.modules.web.vo.QuestionCheckProject;
-import com.qu.modules.web.vo.QuestionCheckVo;
-import com.qu.modules.web.vo.QuestionMonthQuarterYearCreateListVo;
-import com.qu.modules.web.vo.QuestionNameVo;
-import com.qu.modules.web.vo.QuestionPageVo;
-import com.qu.modules.web.vo.QuestionPatientCreateListVo;
-import com.qu.modules.web.vo.QuestionStatisticsCheckVo;
-import com.qu.modules.web.vo.QuestionVo;
-import com.qu.modules.web.vo.ViewNameVo;
-
-import cn.hutool.core.collection.CollectionUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Description: 问卷表
@@ -721,6 +676,19 @@ public class QuestionController {
         return result;
     }
 
+
+    @AutoLog(value = "录入表单时选择登记表")
+    @ApiOperation(value = "录入表单时选择登记表", notes = "录入表单时选择登记表")
+    @GetMapping(value = "/enterQuestionSelectRegister")
+    public Result<List<QuestionNameVo>> enterQuestionSelectRegister(HttpServletRequest request,String name) {
+        Result<List<QuestionNameVo>> result = new Result<List<QuestionNameVo>>();
+//        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+//        String deptId = data.getTbUser().getDepId();
+        List<QuestionNameVo> queryByQuestionName = questionService.enterQuestionSelectRegister(name);
+        result.setResult(queryByQuestionName);
+        result.setSuccess(true);
+        return result;
+    }
 
 
 
