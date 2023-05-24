@@ -88,51 +88,51 @@ public class SingleEnterQuestionController {
     }
 
 
-    /**
-     * 通过id查询
-     *
-     * @param id
-     * @return
-     */
-    @AutoLog(value = "录入表单表-通过id查询")
-    @ApiOperation(value = "录入表单表-通过id查询", notes = "录入表单表-通过id查询")
-    @GetMapping(value = "/queryById")
-    public Result<SingleEnterQuestion> queryById(@RequestParam(name = "id", required = true) String id) {
-        Result<SingleEnterQuestion> result = new Result<SingleEnterQuestion>();
-        SingleEnterQuestion singleEnterQuestion = singleEnterQuestionService.getById(id);
-        if (singleEnterQuestion == null) {
-            result.error500("未找到对应实体");
-        } else {
-            result.setResult(singleEnterQuestion);
-            result.setSuccess(true);
-        }
-        return result;
-    }
-
-
-    /**
-     * 编辑
-     *
-     * @param singleEnterQuestion
-     * @return
-     */
-    @AutoLog(value = "录入表单表-编辑")
-    @ApiOperation(value = "录入表单表-编辑", notes = "录入表单表-编辑")
-    @PutMapping(value = "/edit")
-    public Result<SingleEnterQuestion> edit(@RequestBody SingleEnterQuestion singleEnterQuestion) {
-        Result<SingleEnterQuestion> result = new Result<SingleEnterQuestion>();
-        SingleEnterQuestion singleEnterQuestionEntity = singleEnterQuestionService.getById(singleEnterQuestion.getId());
-        if (singleEnterQuestionEntity == null) {
-            result.error500("未找到对应实体");
-        } else {
-            boolean ok = singleEnterQuestionService.updateById(singleEnterQuestion);
-            //TODO 返回false说明什么？
-            if (ok) {
-                result.success("修改成功!");
-            }
-        }
-
-        return result;
-    }
+//    /**
+//     * 通过id查询
+//     *
+//     * @param id
+//     * @return
+//     */
+//    @AutoLog(value = "录入表单表-通过id查询")
+//    @ApiOperation(value = "录入表单表-通过id查询", notes = "录入表单表-通过id查询")
+//    @GetMapping(value = "/queryById")
+//    public Result<SingleEnterQuestion> queryById(@RequestParam(name = "id", required = true) String id) {
+//        Result<SingleEnterQuestion> result = new Result<SingleEnterQuestion>();
+//        SingleEnterQuestion singleEnterQuestion = singleEnterQuestionService.getById(id);
+//        if (singleEnterQuestion == null) {
+//            result.error500("未找到对应实体");
+//        } else {
+//            result.setResult(singleEnterQuestion);
+//            result.setSuccess(true);
+//        }
+//        return result;
+//    }
+//
+//
+//    /**
+//     * 编辑
+//     *
+//     * @param singleEnterQuestion
+//     * @return
+//     */
+//    @AutoLog(value = "录入表单表-编辑")
+//    @ApiOperation(value = "录入表单表-编辑", notes = "录入表单表-编辑")
+//    @PutMapping(value = "/edit")
+//    public Result<SingleEnterQuestion> edit(@RequestBody SingleEnterQuestion singleEnterQuestion) {
+//        Result<SingleEnterQuestion> result = new Result<SingleEnterQuestion>();
+//        SingleEnterQuestion singleEnterQuestionEntity = singleEnterQuestionService.getById(singleEnterQuestion.getId());
+//        if (singleEnterQuestionEntity == null) {
+//            result.error500("未找到对应实体");
+//        } else {
+//            boolean ok = singleEnterQuestionService.updateById(singleEnterQuestion);
+//            //TODO 返回false说明什么？
+//            if (ok) {
+//                result.success("修改成功!");
+//            }
+//        }
+//
+//        return result;
+//    }
 
 }
