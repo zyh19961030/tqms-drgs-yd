@@ -1,7 +1,27 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultFactory;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -13,33 +33,47 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.qu.constant.*;
+import com.qu.constant.AnswerCheckConstant;
+import com.qu.constant.AnswerConstant;
+import com.qu.constant.QSingleDiseaseTakeConstant;
+import com.qu.constant.QoptionConstant;
+import com.qu.constant.QsubjectConstant;
+import com.qu.constant.QuestionConstant;
 import com.qu.event.AnswerCheckStatisticDetailEvent;
 import com.qu.modules.web.dto.AnswerCheckStatisticDetailEventDto;
-import com.qu.modules.web.entity.*;
-import com.qu.modules.web.mapper.*;
-import com.qu.modules.web.param.*;
+import com.qu.modules.web.entity.Answer;
+import com.qu.modules.web.entity.AnswerCheck;
+import com.qu.modules.web.entity.AnswerCheckStatisticDetail;
+import com.qu.modules.web.entity.QSingleDiseaseTake;
+import com.qu.modules.web.entity.Qoption;
+import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.mapper.AnswerCheckMapper;
+import com.qu.modules.web.mapper.AnswerMapper;
+import com.qu.modules.web.mapper.DynamicTableMapper;
+import com.qu.modules.web.mapper.OptionMapper;
+import com.qu.modules.web.mapper.QSingleDiseaseTakeMapper;
+import com.qu.modules.web.mapper.QsubjectMapper;
+import com.qu.modules.web.mapper.QuestionMapper;
+import com.qu.modules.web.param.AdminPrivateParam;
+import com.qu.modules.web.param.AdminPrivateUpdateAnswerCheckAllTableParam;
+import com.qu.modules.web.param.AdminPrivateUpdateOptionValueParam;
+import com.qu.modules.web.param.AdminPrivateUpdateTableAddDelFeeParam;
+import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
 import com.qu.modules.web.service.IAdminPrivateService;
 import com.qu.modules.web.service.IAnswerCheckStatisticDetailService;
 import com.qu.modules.web.service.IOptionService;
 import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.SubjectVo;
 import com.qu.util.PriceUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultFactory;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateException;
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -388,8 +422,8 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
             return ResultFactory.fail("未找到需要更新的问卷");
         }
         StringBuilder sqlSelect = new StringBuilder();
-        HashSet<Integer> quIdSet = Sets.newHashSet();
-        HashSet<String> quNameSet = Sets.newHashSet();
+        HashSet<Integer> quIdSet = Sets.newLinkedHashSet();
+        HashSet<String> quNameSet = Sets.newLinkedHashSet();
         for (Question question : questionList) {
             sqlSelect.setLength(0);
             String tableName = question.getTableName();
@@ -438,8 +472,8 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
             return ResultFactory.fail("未找到需要更新的问卷");
         }
         StringBuilder sqlSelect = new StringBuilder();
-        HashSet<Integer> quIdSet = Sets.newHashSet();
-        HashSet<String> quNameSet = Sets.newHashSet();
+        HashSet<Integer> quIdSet = Sets.newLinkedHashSet();
+        HashSet<String> quNameSet = Sets.newLinkedHashSet();
         for (Question question : questionList) {
             sqlSelect.setLength(0);
             String tableName = question.getTableName();
@@ -486,8 +520,8 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
 
 
         StringBuffer sqlAns = new StringBuffer();
-        HashSet<Integer> quIdSet = Sets.newHashSet();
-        HashSet<String> quNameSet = Sets.newHashSet();
+        HashSet<Integer> quIdSet = Sets.newLinkedHashSet();
+        HashSet<String> quNameSet = Sets.newLinkedHashSet();
         for (Answer answer : answerCheckList) {
             sqlAns.setLength(0);
             Integer quId = answer.getQuId();
@@ -552,8 +586,8 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
 
 
         StringBuffer sqlAns = new StringBuffer();
-        HashSet<Integer> quIdSet = Sets.newHashSet();
-        HashSet<String> quNameSet = Sets.newHashSet();
+        HashSet<Integer> quIdSet = Sets.newLinkedHashSet();
+        HashSet<String> quNameSet = Sets.newLinkedHashSet();
         for (QSingleDiseaseTake qSingleDiseaseTake : qSingleDiseaseTakeList) {
             sqlAns.setLength(0);
             Integer quId = qSingleDiseaseTake.getQuestionId();
@@ -618,8 +652,8 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
 
 
         StringBuffer sqlAns = new StringBuffer();
-        HashSet<Integer> quIdSet = Sets.newHashSet();
-        HashSet<String> quNameSet = Sets.newHashSet();
+        HashSet<Integer> quIdSet = Sets.newLinkedHashSet();
+        HashSet<String> quNameSet = Sets.newLinkedHashSet();
         for (AnswerCheck answerCheck : answerCheckList) {
             sqlAns.setLength(0);
             Integer quId = answerCheck.getQuId();
@@ -898,8 +932,8 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
             return ResultFactory.fail("没有已发布的检查表");
         }
         Date date = new Date();
-        HashSet<Integer> quIdSet = Sets.newHashSet();
-        HashSet<String> quNameSet = Sets.newHashSet();
+        HashSet<Integer> quIdSet = Sets.newLinkedHashSet();
+        HashSet<String> quNameSet = Sets.newLinkedHashSet();
         for (Question question : questionList) {
             StringBuffer sql = new StringBuffer();
             sql.append("ALTER TABLE `" + question.getTableName() + "` ");
@@ -988,7 +1022,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         questionLambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
         List<Question> questionList = questionMapper.selectList(questionLambda);
         Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
-        HashSet<Integer> quIdSet = Sets.newHashSet();
+        HashSet<Integer> quIdSet = Sets.newLinkedHashSet();
         for (AnswerCheck answerCheck : answerCheckList) {
             Question question = questionMap.get(answerCheck.getQuId());
             if (question == null || QuestionConstant.DEL_DELETED.equals(question.getDel())) {
@@ -1057,8 +1091,8 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         if(CollectionUtil.isEmpty(questionList)){
             return ResultFactory.fail("没有查到需要更新的问卷");
         }
-        HashSet<Integer> quIdSet = Sets.newHashSet();
-        HashSet<String> quNameSet = Sets.newHashSet();
+        HashSet<Integer> quIdSet = Sets.newLinkedHashSet();
+        HashSet<String> quNameSet = Sets.newLinkedHashSet();
         for (Question question : questionList) {
             //查询子表
             StringBuffer sqlAns = new StringBuffer();
@@ -1323,8 +1357,8 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         if(CollectionUtil.isEmpty(questionList)){
             return ResultFactory.fail("没有查到需要统计的问卷");
         }
-        HashSet<Integer> quIdSet = Sets.newHashSet();
-        HashSet<String> quNameSet = Sets.newHashSet();
+        HashSet<Integer> quIdSet = Sets.newLinkedHashSet();
+        HashSet<String> quNameSet = Sets.newLinkedHashSet();
         for (Question question : questionList) {
             //查询总表
             LambdaQueryWrapper<AnswerCheck> lambda = new QueryWrapper<AnswerCheck>().lambda();
@@ -1443,10 +1477,10 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         if(CollectionUtil.isEmpty(questionList)){
             return ResultFactory.fail("没有查到需要查询的问卷");
         }
-        HashSet<Integer> quIdSet = Sets.newHashSet();
-        HashSet<Integer> existQuIdSet = Sets.newHashSet();
-        HashSet<String> existQuNameSet = Sets.newHashSet();
-        HashSet<String> quNameSet = Sets.newHashSet();
+        HashSet<Integer> quIdSet = Sets.newLinkedHashSet();
+        HashSet<Integer> existQuIdSet = Sets.newLinkedHashSet();
+        HashSet<String> existQuNameSet = Sets.newLinkedHashSet();
+        HashSet<String> quNameSet = Sets.newLinkedHashSet();
         for (Question question : questionList) {
             List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(question.getId());
             Map<String, SubjectVo> subjectMap = subjectList.stream()
