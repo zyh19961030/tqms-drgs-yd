@@ -7,8 +7,12 @@ import com.qu.modules.web.entity.SingleEnterQuestion;
 import com.qu.modules.web.param.IdIntegerParam;
 import com.qu.modules.web.param.SingleEnterQuestionAddParam;
 import com.qu.modules.web.param.SingleEnterQuestionListParam;
+import com.qu.modules.web.param.SingleEnterQuestionUpdateParam;
+import com.qu.modules.web.vo.SingleEnterQuestionInfoVo;
 import com.qu.modules.web.vo.SingleEnterQuestionListVo;
 import org.jeecg.common.api.vo.ResultBetter;
+
+import java.util.List;
 
 /**
  * @Description: 录入表单表
@@ -23,5 +27,13 @@ public interface ISingleEnterQuestionService extends IService<SingleEnterQuestio
     IPage<SingleEnterQuestionListVo> queryPageList(Page<SingleEnterQuestion> page, SingleEnterQuestionListParam param);
 
     ResultBetter delete(IdIntegerParam param);
+
+    SingleEnterQuestionInfoVo info(String id);
+
+    ResultBetter edit(SingleEnterQuestionUpdateParam param);
+
+    List<SingleEnterQuestion> selectAll();
+
+
 
 }

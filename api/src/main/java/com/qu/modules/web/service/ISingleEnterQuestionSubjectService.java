@@ -15,4 +15,5 @@ public interface ISingleEnterQuestionSubjectService extends IService<SingleEnter
 
     List<SingleEnterQuestionSubject> selectBySingleEnterQuestionIdList(List<Integer> singleEnterQuestionIdList);
 
+    List<SingleEnterQuestionSubject> selectBySingleEnterQuestionId(Integer singleEnterQuestionId);
 }

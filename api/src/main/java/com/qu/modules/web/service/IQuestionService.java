@@ -172,4 +172,7 @@ public interface IQuestionService extends IService<Question> {
     List<QuestionNameVo> queryCheckQuestion(String name, String deptId);
 
     List<QuestionNameVo> enterQuestionSelectRegister(String name);
+
+    IPage<QuestionCheckVo> startCheckList(QuestionCheckParam questionCheckParam, Integer pageNo, Integer pageSize, Data data);
+
 }

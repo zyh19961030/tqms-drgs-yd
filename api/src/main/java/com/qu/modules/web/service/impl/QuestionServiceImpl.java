@@ -125,6 +125,11 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     @Autowired
     private IQuestionCheckClassificationRelService questionCheckClassificationRelService;
 
+    @Lazy
+    @Autowired
+    private ISingleEnterQuestionService singleEnterQuestionService;
+
+
 
 
     @Override
@@ -2497,4 +2502,46 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         }).collect(Collectors.toList());
         return resList;
     }
+
+    @Override
+    public IPage<QuestionCheckVo> startCheckList(QuestionCheckParam questionCheckParam, Integer pageNo, Integer pageSize, Data data) {
+        String quName = questionCheckParam.getQuName();
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+//        String deptId = data.getTbUser().getDepId();
+        String deptId = data.getTbUser().getDepId();
+        String positionId = data.getTbUser().getPositionId();
+        String userId = data.getTbUser().getId();
+        lambda.like(Question::getDeptIds,deptId);
+//        boolean checkPositionFlag = checkPosition(quName, deptId,positionId,userId, lambda);
+//        if(checkPositionFlag){
+//            return new Page<>();
+//        }
+
+        List<SingleEnterQuestion> selectAllList= singleEnterQuestionService.selectAll();
+        if(CollectionUtil.isNotEmpty(selectAllList)){
+            List<Integer> collect = selectAllList.stream().map(SingleEnterQuestion::getQuestionId).distinct().collect(Collectors.toList());
+            lambda.in(Question::getId,collect);
+        }
+
+        Page<Question> page = new Page<>(pageNo, pageSize);
+        IPage<Question> iPage = this.page(page,lambda);
+        List<Question> questionList = iPage.getRecords();
+        if(questionList.isEmpty()){
+            return new Page<>();
+        }
+
+        List<QuestionCheckVo> answerPatientFillingInVos = questionList.stream().map(q -> {
+            QuestionCheckVo vo = new QuestionCheckVo();
+            BeanUtils.copyProperties(q,vo);
+            return vo;
+        }).collect(Collectors.toList());
+
+        IPage<QuestionCheckVo> questionCheckPageVoPage = new Page<>(pageNo,pageSize);
+        questionCheckPageVoPage.setRecords(answerPatientFillingInVos);
+        questionCheckPageVoPage.setTotal(iPage.getTotal());
+        return questionCheckPageVoPage;
+    }
+
+
+
 }

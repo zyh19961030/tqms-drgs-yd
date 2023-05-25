@@ -1,13 +1,15 @@
 package com.qu.modules.web.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
+import com.qu.constant.Constant;
 import com.qu.modules.web.entity.SingleEnterQuestionSubject;
 import com.qu.modules.web.mapper.SingleEnterQuestionSubjectMapper;
 import com.qu.modules.web.service.ISingleEnterQuestionSubjectService;
 import org.springframework.stereotype.Service;
-
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import java.util.List;
 
@@ -25,6 +27,20 @@ public class SingleEnterQuestionSubjectServiceImpl extends ServiceImpl<SingleEnt
         if(CollectionUtil.isEmpty(singleEnterQuestionIdList)){
             return Lists.newArrayList();
         }
-        return this.baseMapper.selectBatchIds(singleEnterQuestionIdList);
+        LambdaQueryWrapper<SingleEnterQuestionSubject> lambda = new QueryWrapper<SingleEnterQuestionSubject>().lambda();
+        lambda.in(SingleEnterQuestionSubject::getEnterQuestionId,singleEnterQuestionIdList);
+        lambda.in(SingleEnterQuestionSubject::getDel, Constant.DEL_NORMAL);
+        return this.list(lambda);
+    }
+
+    @Override
+    public List<SingleEnterQuestionSubject> selectBySingleEnterQuestionId(Integer singleEnterQuestionId) {
+        if(singleEnterQuestionId==null){
+            return Lists.newArrayList();
+        }
+        LambdaQueryWrapper<SingleEnterQuestionSubject> lambda = new QueryWrapper<SingleEnterQuestionSubject>().lambda();
+        lambda.eq(SingleEnterQuestionSubject::getEnterQuestionId,singleEnterQuestionId);
+        lambda.in(SingleEnterQuestionSubject::getDel, Constant.DEL_NORMAL);
+        return this.list(lambda);
     }
 }

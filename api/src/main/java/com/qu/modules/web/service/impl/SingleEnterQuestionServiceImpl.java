@@ -1,43 +1,34 @@
 package com.qu.modules.web.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.jeecg.common.api.vo.ResultBetter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.qu.constant.Constant;
 import com.qu.constant.QuestionConstant;
-import com.qu.modules.web.entity.Qsubject;
-import com.qu.modules.web.entity.Question;
-import com.qu.modules.web.entity.SingleEnterQuestion;
-import com.qu.modules.web.entity.SingleEnterQuestionColumn;
-import com.qu.modules.web.entity.SingleEnterQuestionSubject;
+import com.qu.modules.web.entity.*;
 import com.qu.modules.web.mapper.SingleEnterQuestionMapper;
 import com.qu.modules.web.param.IdIntegerParam;
 import com.qu.modules.web.param.SingleEnterQuestionAddParam;
 import com.qu.modules.web.param.SingleEnterQuestionListParam;
-import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.service.ISingleEnterQuestionColumnService;
-import com.qu.modules.web.service.ISingleEnterQuestionService;
-import com.qu.modules.web.service.ISingleEnterQuestionSubjectService;
-import com.qu.modules.web.service.ISubjectService;
+import com.qu.modules.web.param.SingleEnterQuestionUpdateParam;
+import com.qu.modules.web.service.*;
+import com.qu.modules.web.vo.SingleEnterQuestionInfoSubjectVo;
+import com.qu.modules.web.vo.SingleEnterQuestionInfoVo;
 import com.qu.modules.web.vo.SingleEnterQuestionListVo;
+import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import cn.hutool.core.collection.CollectionUtil;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 录入表单表
@@ -184,12 +175,134 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
     public ResultBetter delete(IdIntegerParam param) {
         Integer id = param.getId();
         SingleEnterQuestion byId = this.getById(id);
-        if(Objects.isNull(byId)){
+        if(Objects.isNull(byId) || Constant.DEL_DELETED.equals(byId.getDel())){
             return ResultBetter.error("数据错误");
         }
         byId.setDel(Constant.DEL_DELETED);
         byId.setUpdateTime(new Date());
         this.updateById(byId);
         return ResultBetter.ok();
+    }
+
+    @Override
+    public SingleEnterQuestionInfoVo info(String id) {
+        SingleEnterQuestion byId = this.getById(id);
+        if(Objects.isNull(byId) || Constant.DEL_DELETED.equals(byId.getDel())){
+            return null;
+        }
+        SingleEnterQuestionInfoVo vo = new SingleEnterQuestionInfoVo();
+        vo.setId(byId.getId());
+        vo.setQuestionId(byId.getQuestionId());
+        Integer questionId = byId.getQuestionId();
+        Question question = questionService.getById(questionId);
+        if(Objects.nonNull(question)){
+            vo.setQuestionName(question.getQuName());
+        }
+
+        List<SingleEnterQuestionColumn> singleEnterQuestionColumnList =  singleEnterQuestionColumnService.selectBySingleEnterQuestionId(byId.getId());
+        List<SingleEnterQuestionSubject> singleEnterQuestionSubjectList =  singleEnterQuestionSubjectService.selectBySingleEnterQuestionId(byId.getId());
+
+        List<Integer> subjectIdList = singleEnterQuestionColumnList.stream().map(SingleEnterQuestionColumn::getSubjectId).distinct().collect(Collectors.toList());
+        subjectIdList.addAll( singleEnterQuestionSubjectList.stream().map(SingleEnterQuestionSubject::getSubjectId).distinct().collect(Collectors.toList()));
+
+        List<Qsubject> subjectList = subjectService.selectByIds(subjectIdList);
+        Map<Integer, Qsubject> subjectMap = subjectList.stream().collect(Collectors.toMap(Qsubject::getId, Function.identity()));
+
+        List<SingleEnterQuestionInfoSubjectVo> columnList = Lists.newArrayList();
+        for (SingleEnterQuestionColumn singleEnterQuestionColumn : singleEnterQuestionColumnList) {
+            SingleEnterQuestionInfoSubjectVo singleEnterQuestionInfoSubjectVo = new SingleEnterQuestionInfoSubjectVo();
+            columnList.add(singleEnterQuestionInfoSubjectVo);
+            Qsubject qsubject = subjectMap.get(singleEnterQuestionColumn.getSubjectId());
+            if(Objects.nonNull(qsubject)){
+                singleEnterQuestionInfoSubjectVo.setId(qsubject.getId());
+                singleEnterQuestionInfoSubjectVo.setName(qsubject.getSubName());
+            }
+        }
+        vo.setColumnList(columnList);
+
+
+        List<SingleEnterQuestionInfoSubjectVo> resSubjectList = Lists.newArrayList();
+        for (SingleEnterQuestionSubject singleEnterQuestionSubject : singleEnterQuestionSubjectList) {
+            SingleEnterQuestionInfoSubjectVo singleEnterQuestionInfoSubjectVo = new SingleEnterQuestionInfoSubjectVo();
+            resSubjectList.add(singleEnterQuestionInfoSubjectVo);
+            Qsubject qsubject = subjectMap.get(singleEnterQuestionSubject.getSubjectId());
+            if(Objects.nonNull(qsubject)){
+                singleEnterQuestionInfoSubjectVo.setId(qsubject.getId());
+                singleEnterQuestionInfoSubjectVo.setName(qsubject.getSubName());
+            }
+        }
+        vo.setSubjectList(resSubjectList);
+        return vo;
+    }
+
+    @Override
+    public ResultBetter edit(SingleEnterQuestionUpdateParam param) {
+        SingleEnterQuestion singleEnterQuestion = this.getById(param.getId());
+        if(Objects.isNull(singleEnterQuestion) || Constant.DEL_DELETED.equals(singleEnterQuestion.getDel())){
+            return ResultBetter.error("数据错误");
+        }
+
+        singleEnterQuestion.setQuestionId(param.getQuestionId());
+        singleEnterQuestion.setDel(Constant.DEL_NORMAL);
+        Date date = new Date();
+        singleEnterQuestion.setUpdateTime(date);
+        this.updateById(singleEnterQuestion);
+
+        //删除列
+        LambdaUpdateWrapper<SingleEnterQuestionColumn> lambda = new UpdateWrapper<SingleEnterQuestionColumn>().lambda();
+        SingleEnterQuestionColumn emptyEntity = new SingleEnterQuestionColumn();
+        lambda.eq(SingleEnterQuestionColumn::getEnterQuestionId, singleEnterQuestion.getId())
+                .eq(SingleEnterQuestionColumn::getDel, Constant.DEL_NORMAL)
+                .set(SingleEnterQuestionColumn::getDel, Constant.DEL_DELETED)
+                .set(SingleEnterQuestionColumn::getUpdateTime, date);
+        singleEnterQuestionColumnService.update(emptyEntity, lambda);
+
+        //保存展示列
+        List<Integer> columnIdList = param.getColumnId();
+        if (CollectionUtil.isNotEmpty(columnIdList)) {
+            List<SingleEnterQuestionColumn> saveColumnList = columnIdList.stream().map(columnId -> {
+                SingleEnterQuestionColumn column = new SingleEnterQuestionColumn();
+                column.setEnterQuestionId(singleEnterQuestion.getId());
+                column.setSubjectId(columnId);
+                column.setDel(Constant.DEL_NORMAL);
+                column.setCreateTime(date);
+                column.setUpdateTime(date);
+                return column;
+            }).collect(Collectors.toList());
+            singleEnterQuestionColumnService.saveBatch(saveColumnList);
+        }
+
+        //删除填报题目
+        LambdaUpdateWrapper<SingleEnterQuestionSubject> subjectLambdaUpdateWrapper = new UpdateWrapper<SingleEnterQuestionSubject>().lambda();
+        SingleEnterQuestionSubject subjectEmptyEntity = new SingleEnterQuestionSubject();
+        subjectLambdaUpdateWrapper.eq(SingleEnterQuestionSubject::getEnterQuestionId, singleEnterQuestion.getId())
+                .eq(SingleEnterQuestionSubject::getDel, Constant.DEL_NORMAL)
+                .set(SingleEnterQuestionSubject::getDel, Constant.DEL_DELETED)
+                .set(SingleEnterQuestionSubject::getUpdateTime, date);
+        singleEnterQuestionSubjectService.update(subjectEmptyEntity, subjectLambdaUpdateWrapper);
+
+        //保存填报题目
+        List<Integer> subjectIdList = param.getSubjectId();
+        if (CollectionUtil.isNotEmpty(subjectIdList)) {
+            List<SingleEnterQuestionSubject> saveSubjectList = subjectIdList.stream().map(columnId -> {
+                SingleEnterQuestionSubject subject = new SingleEnterQuestionSubject();
+                subject.setEnterQuestionId(singleEnterQuestion.getId());
+                subject.setSubjectId(columnId);
+                subject.setDel(Constant.DEL_NORMAL);
+                subject.setCreateTime(date);
+                subject.setUpdateTime(date);
+                return subject;
+            }).collect(Collectors.toList());
+            singleEnterQuestionSubjectService.saveBatch(saveSubjectList);
+        }
+
+        return ResultBetter.ok();
+    }
+
+    @Override
+    public List<SingleEnterQuestion> selectAll() {
+        LambdaQueryWrapper<SingleEnterQuestion> enterQuestionLambdaQueryWrapper = new QueryWrapper<SingleEnterQuestion>().lambda();
+        enterQuestionLambdaQueryWrapper.eq(SingleEnterQuestion::getDel, Constant.DEL_NORMAL);
+        return this.list(enterQuestionLambdaQueryWrapper);
     }
 }
