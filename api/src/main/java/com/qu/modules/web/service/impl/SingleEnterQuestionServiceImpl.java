@@ -1,6 +1,18 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -9,21 +21,23 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.qu.constant.Constant;
 import com.qu.constant.QuestionConstant;
-import com.qu.modules.web.entity.*;
+import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.entity.SingleEnterQuestion;
+import com.qu.modules.web.entity.SingleEnterQuestionColumn;
+import com.qu.modules.web.entity.SingleEnterQuestionSubject;
 import com.qu.modules.web.mapper.SingleEnterQuestionMapper;
 import com.qu.modules.web.param.IdIntegerParam;
 import com.qu.modules.web.param.SingleEnterQuestionAddParam;
 import com.qu.modules.web.param.SingleEnterQuestionListParam;
-import com.qu.modules.web.service.*;
+import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.service.ISingleEnterQuestionColumnService;
+import com.qu.modules.web.service.ISingleEnterQuestionService;
+import com.qu.modules.web.service.ISingleEnterQuestionSubjectService;
+import com.qu.modules.web.service.ISubjectService;
 import com.qu.modules.web.vo.SingleEnterQuestionListVo;
-import org.apache.commons.lang3.StringUtils;
-import org.jeecg.common.api.vo.ResultBetter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import cn.hutool.core.collection.CollectionUtil;
 
 /**
  * @Description: 录入表单表
@@ -113,6 +127,7 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
 
         LambdaQueryWrapper<SingleEnterQuestion> enterQuestionLambdaQueryWrapper = new QueryWrapper<SingleEnterQuestion>().lambda();
         enterQuestionLambdaQueryWrapper.in(SingleEnterQuestion::getQuestionId, questionIdList);
+        enterQuestionLambdaQueryWrapper.eq(SingleEnterQuestion::getDel, Constant.DEL_NORMAL);
         IPage<SingleEnterQuestion> singleEnterQuestionIPage = this.page(page, enterQuestionLambdaQueryWrapper);
 
         List<SingleEnterQuestion> singleEnterQuestionList = singleEnterQuestionIPage.getRecords();
