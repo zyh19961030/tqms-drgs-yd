@@ -215,7 +215,7 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
             Qsubject qsubject = subjectMap.get(singleEnterQuestionColumn.getSubjectId());
             if(Objects.nonNull(qsubject)){
                 singleEnterQuestionInfoSubjectVo.setId(qsubject.getId());
-                singleEnterQuestionInfoSubjectVo.setName(qsubject.getSubName());
+                singleEnterQuestionInfoSubjectVo.setSubName(qsubject.getSubName());
             }
         }
         vo.setColumnList(columnList);
@@ -228,7 +228,7 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
             Qsubject qsubject = subjectMap.get(singleEnterQuestionSubject.getSubjectId());
             if(Objects.nonNull(qsubject)){
                 singleEnterQuestionInfoSubjectVo.setId(qsubject.getId());
-                singleEnterQuestionInfoSubjectVo.setName(qsubject.getSubName());
+                singleEnterQuestionInfoSubjectVo.setSubName(qsubject.getSubName());
             }
         }
         vo.setSubjectList(resSubjectList);

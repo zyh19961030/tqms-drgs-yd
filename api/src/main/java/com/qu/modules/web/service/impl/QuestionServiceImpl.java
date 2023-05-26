@@ -2504,9 +2504,12 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     }
 
     @Override
-    public IPage<QuestionCheckVo> startCheckList(QuestionCheckParam questionCheckParam, Integer pageNo, Integer pageSize, Data data) {
+    public List<QuestionCheckVo> startCheckList(QuestionCheckParam questionCheckParam, Data data) {
         String quName = questionCheckParam.getQuName();
         LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        if(StringUtils.isNotBlank(quName)){
+            lambda.like(Question::getQuName, quName);
+        }
 //        String deptId = data.getTbUser().getDepId();
         String deptId = data.getTbUser().getDepId();
         String positionId = data.getTbUser().getPositionId();
@@ -2523,11 +2526,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             lambda.in(Question::getId,collect);
         }
 
-        Page<Question> page = new Page<>(pageNo, pageSize);
-        IPage<Question> iPage = this.page(page,lambda);
-        List<Question> questionList = iPage.getRecords();
+        List<Question> questionList = this.list(lambda);
         if(questionList.isEmpty()){
-            return new Page<>();
+            return Lists.newArrayList();
         }
 
         List<QuestionCheckVo> answerPatientFillingInVos = questionList.stream().map(q -> {
@@ -2536,10 +2537,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             return vo;
         }).collect(Collectors.toList());
 
-        IPage<QuestionCheckVo> questionCheckPageVoPage = new Page<>(pageNo,pageSize);
-        questionCheckPageVoPage.setRecords(answerPatientFillingInVos);
-        questionCheckPageVoPage.setTotal(iPage.getTotal());
-        return questionCheckPageVoPage;
+        return answerPatientFillingInVos;
     }
 
 

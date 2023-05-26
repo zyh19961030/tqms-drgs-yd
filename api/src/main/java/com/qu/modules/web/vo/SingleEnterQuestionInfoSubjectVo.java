@@ -22,6 +22,6 @@ public class SingleEnterQuestionInfoSubjectVo {
     private Integer id;
 
     @ApiModelProperty(value = "题目名称")
-    private String name;
+    private String subName;
 
 }
