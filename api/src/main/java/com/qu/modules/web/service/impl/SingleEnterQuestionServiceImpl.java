@@ -1,6 +1,8 @@
 package com.qu.modules.web.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -9,23 +11,29 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.qu.constant.AnswerConstant;
 import com.qu.constant.Constant;
+import com.qu.constant.QsubjectConstant;
 import com.qu.constant.QuestionConstant;
 import com.qu.modules.web.entity.*;
+import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.SingleEnterQuestionMapper;
-import com.qu.modules.web.param.IdIntegerParam;
-import com.qu.modules.web.param.SingleEnterQuestionAddParam;
-import com.qu.modules.web.param.SingleEnterQuestionListParam;
-import com.qu.modules.web.param.SingleEnterQuestionUpdateParam;
+import com.qu.modules.web.param.*;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.*;
-import com.qu.modules.web.vo.SingleEnterQuestionInfoSubjectVo;
-import com.qu.modules.web.vo.SingleEnterQuestionInfoVo;
-import com.qu.modules.web.vo.SingleEnterQuestionListVo;
+import com.qu.modules.web.vo.*;
+import com.qu.util.HttpClient;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.ResultBetter;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -36,6 +44,7 @@ import java.util.stream.Collectors;
  * @Date: 2023-05-24
  * @Version: V1.0
  */
+@Slf4j
 @Service
 public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuestionMapper, SingleEnterQuestion> implements ISingleEnterQuestionService {
 
@@ -51,11 +60,30 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
     @Autowired
     private ISubjectService subjectService;
 
+    @Resource
+    private DynamicTableMapper dynamicTableMapper;
+
+    @Value("${system.tokenUrl}")
+    private String tokenUrl;
+
+    @Autowired
+    private ITbDepService tbDepService;
+
+    @Autowired
+    private IAnswerService answerService;
+
+
 
     @Override
-    public void add(SingleEnterQuestionAddParam param) {
+    public ResultBetter add(SingleEnterQuestionAddParam param) {
+
+        Integer questionId = param.getQuestionId();
+        SingleEnterQuestion selectByQuestionId = this.selectByQuestionId(questionId);
+        if(Objects.nonNull(selectByQuestionId) && Constant.DEL_NORMAL.equals(selectByQuestionId.getDel())){
+            return ResultBetter.error("已存在该登记表,无法添加");
+        }
         SingleEnterQuestion singleEnterQuestion = new SingleEnterQuestion();
-        singleEnterQuestion.setQuestionId(param.getQuestionId());
+        singleEnterQuestion.setQuestionId(questionId);
         singleEnterQuestion.setDel(Constant.DEL_NORMAL);
         Date date = new Date();
         singleEnterQuestion.setCreateTime(date);
@@ -90,6 +118,15 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
             }).collect(Collectors.toList());
             singleEnterQuestionSubjectService.saveBatch(saveSubjectList);
         }
+        return null;
+    }
+
+    private SingleEnterQuestion selectByQuestionId(Integer questionId) {
+        LambdaQueryWrapper<SingleEnterQuestion> lambda = new QueryWrapper<SingleEnterQuestion>().lambda();
+        lambda.eq(SingleEnterQuestion::getQuestionId, questionId);
+        lambda.eq(SingleEnterQuestion::getDel, Constant.DEL_NORMAL);
+        List<SingleEnterQuestion> list = this.list(lambda);
+        return list.isEmpty()?null:list.get(0);
     }
 
     @Override
@@ -299,10 +336,349 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
         return ResultBetter.ok();
     }
 
-    @Override
-    public List<SingleEnterQuestion> selectAll() {
+    public List<SingleEnterQuestion> selectAllByQuestionIdList(List<Integer> questionIdList) {
+        if(CollectionUtil.isEmpty(questionIdList)){
+            return Collections.emptyList();
+        }
         LambdaQueryWrapper<SingleEnterQuestion> enterQuestionLambdaQueryWrapper = new QueryWrapper<SingleEnterQuestion>().lambda();
+        enterQuestionLambdaQueryWrapper.in(SingleEnterQuestion::getQuestionId, questionIdList);
         enterQuestionLambdaQueryWrapper.eq(SingleEnterQuestion::getDel, Constant.DEL_NORMAL);
         return this.list(enterQuestionLambdaQueryWrapper);
     }
+
+
+    @Override
+    public List<SingleEnterQuestionQuestionCheckVo> startCheckList(QuestionCheckParam questionCheckParam, Data data) {
+        String quName = questionCheckParam.getQuName();
+        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
+        if(StringUtils.isNotBlank(quName)){
+            lambda.like(Question::getQuName, quName);
+        }
+//        String deptId = data.getTbUser().getDepId();
+        String deptId = data.getTbUser().getDepId();
+        String positionId = data.getTbUser().getPositionId();
+        String userId = data.getTbUser().getId();
+        lambda.like(Question::getDeptIds,deptId);
+//        boolean checkPositionFlag = checkPosition(quName, deptId,positionId,userId, lambda);
+//        if(checkPositionFlag){
+//            return new Page<>();
+//        }
+
+        List<Question> questionList = questionService.list(lambda);
+        if(questionList.isEmpty()){
+            return Lists.newArrayList();
+        }
+
+        List<Integer> questionIdList = questionList.stream().map(Question::getId).distinct().collect(Collectors.toList());
+        Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
+
+        List<SingleEnterQuestion> selectAllList= this.selectAllByQuestionIdList(questionIdList);
+        if(CollectionUtil.isEmpty(selectAllList)){
+            return Lists.newArrayList();
+        }
+
+
+        List<Integer> collect = selectAllList.stream().map(SingleEnterQuestion::getQuestionId).distinct().collect(Collectors.toList());
+        lambda.in(Question::getId,collect);
+
+        List<SingleEnterQuestionQuestionCheckVo> answerPatientFillingInVos = selectAllList.stream().map(singleEnterQuestion -> {
+            SingleEnterQuestionQuestionCheckVo vo = new SingleEnterQuestionQuestionCheckVo();
+            Question question = questionMap.get(singleEnterQuestion.getQuestionId());
+            if(Objects.nonNull(question)){
+                BeanUtils.copyProperties(question,vo);
+                vo.setSingleEnterQuestionId(singleEnterQuestion.getId());
+                return vo;
+            }
+            return null;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+
+        return answerPatientFillingInVos;
+    }
+
+
+    @Override
+    public ResultBetter<SingleEnterQuestionEnterQuestionHeadListVo> enterQuestionHeadList(SingleEnterQuestionEnterQuestionHeadListParam param) {
+        SingleEnterQuestion selectByQuestionId = this.getById(param.getSingleEnterQuestionId());
+        if(Objects.isNull(selectByQuestionId) || Constant.DEL_DELETED.equals(selectByQuestionId.getDel())) {
+            return ResultBetter.error("录入表不存在");
+        }
+        Integer questionId = selectByQuestionId.getQuestionId();
+        Question question = questionService.getById(questionId);
+        if(Objects.isNull(question) || QuestionConstant.DEL_DELETED.equals(question.getDel())) {
+            return ResultBetter.error("登记表不存在");
+        }
+
+        SingleEnterQuestionEnterQuestionHeadListVo vo = new SingleEnterQuestionEnterQuestionHeadListVo();
+
+        List<SingleEnterQuestionColumn> singleEnterQuestionColumnList =  singleEnterQuestionColumnService.selectBySingleEnterQuestionId(selectByQuestionId.getId());
+        List<SingleEnterQuestionSubject> singleEnterQuestionSubjectList =  singleEnterQuestionSubjectService.selectBySingleEnterQuestionId(selectByQuestionId.getId());
+
+        List<Integer> subjectIdList = singleEnterQuestionColumnList.stream().map(SingleEnterQuestionColumn::getSubjectId).distinct().collect(Collectors.toList());
+        subjectIdList.addAll( singleEnterQuestionSubjectList.stream().map(SingleEnterQuestionSubject::getSubjectId).distinct().collect(Collectors.toList()));
+
+        List<Qsubject> subjectList = subjectService.selectByIds(subjectIdList);
+        Map<Integer, Qsubject> subjectMap = subjectList.stream().collect(Collectors.toMap(Qsubject::getId, Function.identity()));
+
+        List<SingleEnterQuestionEnterQuestionHeadListDetailVo> columnList = Lists.newArrayList();
+        for (SingleEnterQuestionColumn singleEnterQuestionColumn : singleEnterQuestionColumnList) {
+            SingleEnterQuestionEnterQuestionHeadListDetailVo singleEnterQuestionInfoSubjectVo = new SingleEnterQuestionEnterQuestionHeadListDetailVo();
+            columnList.add(singleEnterQuestionInfoSubjectVo);
+            Qsubject qsubject = subjectMap.get(singleEnterQuestionColumn.getSubjectId());
+            if(Objects.nonNull(qsubject)){
+                singleEnterQuestionInfoSubjectVo.setColumnName(qsubject.getColumnName());
+                singleEnterQuestionInfoSubjectVo.setSubName(qsubject.getSubName());
+            }
+        }
+        vo.setColumnList(columnList);
+
+
+        List<SingleEnterQuestionEnterQuestionHeadListDetailVo> resSubjectList = Lists.newArrayList();
+        for (SingleEnterQuestionSubject singleEnterQuestionSubject : singleEnterQuestionSubjectList) {
+            SingleEnterQuestionEnterQuestionHeadListDetailVo singleEnterQuestionInfoSubjectVo = new SingleEnterQuestionEnterQuestionHeadListDetailVo();
+            resSubjectList.add(singleEnterQuestionInfoSubjectVo);
+            Qsubject qsubject = subjectMap.get(singleEnterQuestionSubject.getSubjectId());
+            if(Objects.nonNull(qsubject)){
+                singleEnterQuestionInfoSubjectVo.setColumnName(qsubject.getColumnName());
+                singleEnterQuestionInfoSubjectVo.setSubName(qsubject.getSubName());
+            }
+        }
+        vo.setSubjectList(resSubjectList);
+
+        return ResultBetter.ok(vo);
+    }
+
+    @Override
+    public IPage<LinkedHashMap<String, Object>> enterQuestionDataList(SingleEnterQuestionEnterQuestionListParam param, Integer pageNo, Integer pageSize) {
+
+        SingleEnterQuestion selectByQuestionId = this.getById(param.getSingleEnterQuestionId());
+        if(Objects.isNull(selectByQuestionId) || Constant.DEL_DELETED.equals(selectByQuestionId.getDel())) {
+            return new Page<>();
+        }
+        Integer questionId = selectByQuestionId.getQuestionId();
+        Question question = questionService.getById(questionId);
+        if(Objects.isNull(question) || QuestionConstant.DEL_DELETED.equals(question.getDel())) {
+            return new Page<>();
+        }
+
+        StringBuffer sqlCount = new StringBuffer();
+        sqlCount.append("select count(1) from `");
+        sqlCount.append(question.getTableName());
+        sqlCount.append("` where need_fill = 'y' and del = '0' and table_answer_status = '0' ");
+        Long total = dynamicTableMapper.countDynamicTable(sqlCount.toString());
+        if(total ==null || total<=0){
+            return new Page<>();
+        }
+
+
+        List<SingleEnterQuestionColumn> singleEnterQuestionColumnList =  singleEnterQuestionColumnService.selectBySingleEnterQuestionId(selectByQuestionId.getId());
+        List<SingleEnterQuestionSubject> singleEnterQuestionSubjectList =  singleEnterQuestionSubjectService.selectBySingleEnterQuestionId(selectByQuestionId.getId());
+
+        List<Integer> subjectIdList = singleEnterQuestionColumnList.stream().map(SingleEnterQuestionColumn::getSubjectId).distinct().collect(Collectors.toList());
+        subjectIdList.addAll( singleEnterQuestionSubjectList.stream().map(SingleEnterQuestionSubject::getSubjectId).distinct().collect(Collectors.toList()));
+
+        List<Qsubject> subjectList = subjectService.selectByIds(subjectIdList);
+        Map<Integer, Qsubject> subjectMap = subjectList.stream().collect(Collectors.toMap(Qsubject::getId, Function.identity()));
+
+        StringBuffer sqlSelect = new StringBuffer();
+        sqlSelect.append("select * from `");
+        sqlSelect.append(question.getTableName());
+        sqlSelect.append("` where need_fill = 'y' and del = '0' and table_answer_status = '0'  ");
+        sqlSelect.append("limit ");
+        sqlSelect.append((pageNo - 1) * pageSize);
+        sqlSelect.append(",");
+        sqlSelect.append(pageSize);
+        List<Map<String, String>> dataList = dynamicTableMapper.selectDynamicTableColumnList(sqlSelect.toString());
+        List<LinkedHashMap<String, Object>> detailDataList = Lists.newArrayList();
+        for (Map<String, String> dataItemMap : dataList) {
+            LinkedHashMap<String, Object> valueItem = Maps.newLinkedHashMap();
+            valueItem.put("mappingTableId",dataItemMap.get("summary_mapping_table_id"));
+            for (SingleEnterQuestionColumn singleEnterQuestionColumn : singleEnterQuestionColumnList) {
+                Qsubject qsubject = subjectMap.get(singleEnterQuestionColumn.getSubjectId());
+                if (qsubject == null || QsubjectConstant.SUB_TYPE_TITLE.equals(qsubject.getSubType())) {
+                    continue;
+                }
+                String columnName = qsubject.getColumnName();
+                if(StringUtils.isNotBlank(columnName)){
+                    valueItem.put(qsubject.getColumnName(), dataItemMap.get(qsubject.getColumnName()));
+                }
+            }
+
+            for (SingleEnterQuestionSubject singleEnterQuestionSubject : singleEnterQuestionSubjectList) {
+                Qsubject qsubject = subjectMap.get(singleEnterQuestionSubject.getSubjectId());
+                if (qsubject == null || QsubjectConstant.SUB_TYPE_TITLE.equals(qsubject.getSubType())) {
+                    continue;
+                }
+                String columnName = qsubject.getColumnName();
+                if(StringUtils.isNotBlank(columnName)){
+                    valueItem.put(qsubject.getColumnName(), dataItemMap.get(qsubject.getColumnName()));
+                }
+            }
+            detailDataList.add(valueItem);
+        }
+        IPage<LinkedHashMap<String, Object>> singleEnterQuestionListVoPage = new Page<>(pageNo, pageSize);
+        singleEnterQuestionListVoPage.setTotal(total);
+        singleEnterQuestionListVoPage.setRecords(detailDataList);
+        return singleEnterQuestionListVoPage;
+    }
+
+    @Override
+    public ResultBetter saveData(String cookie, SingleEnterQuestionSaveParam saveParam) {
+
+        //解析token
+        String res = HttpClient.doPost(tokenUrl, cookie, null);
+        JsonRootBean jsonRootBean = JSON.parseObject(res, JsonRootBean.class);
+        String creater = "";
+        String creater_name = "";
+        String creater_deptid = "";
+        if (jsonRootBean != null) {
+            if (jsonRootBean.getData() != null) {
+                creater = jsonRootBean.getData().getTbUser().getId();
+                creater_name = jsonRootBean.getData().getTbUser().getUserName();
+                creater_deptid = jsonRootBean.getData().getTbUser().getDepId();
+            }
+        }
+        TbDep tbDep = new TbDep();
+        if (org.apache.commons.lang.StringUtils.isNotBlank(creater_deptid)) {
+            tbDep = tbDepService.getById(creater_deptid);
+        }
+
+        String mappingTableId = saveParam.getMappingTableId();
+        Answer answer = answerService.selectBySummaryMappingTableId(mappingTableId);
+
+        if(answer==null){
+            return ResultBetter.error("数据不存在。");
+        }else{
+            if(AnswerConstant.ANSWER_STATUS_RELEASE.equals(answer.getAnswerStatus())){
+                return ResultBetter.error("该记录已提交,无法更改。");
+            }
+        }
+
+        Integer quId = answer.getQuId();
+        Question question = questionService.getById(quId);
+        if (question == null || QuestionConstant.DEL_DELETED.equals(question.getDel())) {
+            return ResultBetter.error("问卷不存在,无法保存。");
+        }
+
+        //插入总表
+        Integer status = saveParam.getStatus();
+        answer.setAnswerStatus(status);
+        Date date = new Date();
+        if(status.equals(1)){
+            answer.setSubmitTime(date);
+        }
+        answer.setCreater(creater);
+        answer.setCreaterName(creater_name);
+        answer.setCreaterDeptid(creater_deptid);
+        answer.setCreaterDeptname(tbDep.getDepname());
+        answer.setAnswerTime(date);
+
+        Answers[] answers = saveParam.getAnswers();
+        Map<String, String> mapCache = new HashMap<>();
+        for (Answers a : answers) {
+            mapCache.put(a.getSubColumnName(), a.getSubValue());
+        }
+
+        if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_TH_MONTH)
+                && mapCache.get(AnswerConstant.COLUMN_NAME_TH_MONTH)!=null){
+            answer.setQuestionAnswerTime(mapCache.get(AnswerConstant.COLUMN_NAME_TH_MONTH));
+        }
+        if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_TH_QUARTER)
+                && mapCache.get(AnswerConstant.COLUMN_NAME_TH_QUARTER)!=null){
+            answer.setQuestionAnswerTime(mapCache.get(AnswerConstant.COLUMN_NAME_TH_QUARTER));
+        }
+        if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_TH_YEAR)
+                && mapCache.get(AnswerConstant.COLUMN_NAME_TH_YEAR)!=null){
+            answer.setQuestionAnswerTime(mapCache.get(AnswerConstant.COLUMN_NAME_TH_YEAR));
+        }
+
+        if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_CASE_ID)
+                && mapCache.get(AnswerConstant.COLUMN_NAME_CASE_ID)!=null){
+            answer.setHospitalInNo(mapCache.get(AnswerConstant.COLUMN_NAME_CASE_ID));
+        }
+
+        if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_PATIENT_NAME)
+                && mapCache.get(AnswerConstant.COLUMN_NAME_PATIENT_NAME)!=null){
+            answer.setPatientName(mapCache.get(AnswerConstant.COLUMN_NAME_PATIENT_NAME));
+        }
+
+        if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_PATIENT_NAME_LOWER_CASE)
+                && mapCache.get(AnswerConstant.COLUMN_NAME_PATIENT_NAME_LOWER_CASE)!=null){
+            answer.setPatientName(mapCache.get(AnswerConstant.COLUMN_NAME_PATIENT_NAME_LOWER_CASE));
+        }
+
+        if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_AGE)
+                && mapCache.get(AnswerConstant.COLUMN_NAME_AGE)!=null){
+            answer.setAge(Integer.parseInt(mapCache.get(AnswerConstant.COLUMN_NAME_AGE)));
+        }
+
+        if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_AGE_LOWER_CASE)
+                && mapCache.get(AnswerConstant.COLUMN_NAME_AGE_LOWER_CASE)!=null){
+            answer.setAge(Integer.parseInt(mapCache.get(AnswerConstant.COLUMN_NAME_AGE_LOWER_CASE)));
+        }
+
+        if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_IN_TIME)
+                && mapCache.get(AnswerConstant.COLUMN_NAME_IN_TIME)!=null){
+            String dateInTimeString = mapCache.get(AnswerConstant.COLUMN_NAME_IN_TIME);
+            Date dateInTime = DateUtil.parse(dateInTimeString).toJdkDate();
+            answer.setInTime(dateInTime);
+        }
+
+        if(mapCache.containsKey(AnswerConstant.COLUMN_NAME_OUT_TIME)
+                && mapCache.get(AnswerConstant.COLUMN_NAME_OUT_TIME)!=null){
+            String dateOutTimeString = mapCache.get(AnswerConstant.COLUMN_NAME_OUT_TIME);
+            Date dateInTime = DateUtil.parse(dateOutTimeString).toJdkDate();
+            answer.setOutTime(dateInTime);
+        }
+
+        List<Qsubject> subjectList = subjectService.selectSubjectByQuId(question.getId());
+
+            answer.setUpdateTime(date);
+        answerService.updateById(answer);
+        //保存痕迹相关
+        answerService.saveAnswerMark(mapCache,subjectList,answer,question,creater,AnswerConstant.SOURCE_PC);
+
+        //插入子表
+        StringBuffer sqlAns = new StringBuffer();
+        sqlAns.append("update `").append(question.getTableName()).append( "` set ");
+        for (int i = 0; i < subjectList.size(); i++) {
+            Qsubject qsubjectDynamicTable = subjectList.get(i);
+            String subType = qsubjectDynamicTable.getSubType();
+            Integer del = qsubjectDynamicTable.getDel();
+            if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                    || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName())==null
+                    || StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
+                continue;
+            }
+            sqlAns.append("`");
+            sqlAns.append(qsubjectDynamicTable.getColumnName());
+            sqlAns.append("`");
+            sqlAns.append("=");
+            sqlAns.append("'");
+            sqlAns.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
+            sqlAns.append("'");
+            sqlAns.append(",");
+        }
+        sqlAns.append("`need_fill`='y1',");
+
+        sqlAns.append("`tbksmc`='");
+        sqlAns.append(tbDep.getDepname());
+        sqlAns.append("',");
+        sqlAns.append("`tbksdm`='");
+        sqlAns.append(creater_deptid);
+        sqlAns.append("'");
+        //                    sqlAns.delete(sqlAns.length()-1,sqlAns.length());
+        sqlAns.append(" where summary_mapping_table_id = '");
+        sqlAns.append(answer.getSummaryMappingTableId());
+        sqlAns.append("'");
+        log.info("SingleEnterQuestionSaveParam-----update sqlAns:{}", sqlAns.toString());
+        dynamicTableMapper.updateDynamicTable(sqlAns.toString());
+
+
+        AnswerIdVo vo = new AnswerIdVo();
+        vo.setAnswerId(answer.getId());
+        return ResultBetter.ok(vo);
+    }
+
+
+
 }

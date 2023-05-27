@@ -4,14 +4,15 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qu.modules.web.entity.SingleEnterQuestion;
-import com.qu.modules.web.param.IdIntegerParam;
-import com.qu.modules.web.param.SingleEnterQuestionAddParam;
-import com.qu.modules.web.param.SingleEnterQuestionListParam;
-import com.qu.modules.web.param.SingleEnterQuestionUpdateParam;
+import com.qu.modules.web.param.*;
+import com.qu.modules.web.pojo.Data;
+import com.qu.modules.web.vo.SingleEnterQuestionEnterQuestionHeadListVo;
 import com.qu.modules.web.vo.SingleEnterQuestionInfoVo;
 import com.qu.modules.web.vo.SingleEnterQuestionListVo;
+import com.qu.modules.web.vo.SingleEnterQuestionQuestionCheckVo;
 import org.jeecg.common.api.vo.ResultBetter;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -22,7 +23,7 @@ import java.util.List;
  */
 public interface ISingleEnterQuestionService extends IService<SingleEnterQuestion> {
 
-    void add(SingleEnterQuestionAddParam param);
+    ResultBetter add(SingleEnterQuestionAddParam param);
 
     IPage<SingleEnterQuestionListVo> queryPageList(Page<SingleEnterQuestion> page, SingleEnterQuestionListParam param);
 
@@ -32,8 +33,14 @@ public interface ISingleEnterQuestionService extends IService<SingleEnterQuestio
 
     ResultBetter edit(SingleEnterQuestionUpdateParam param);
 
-    List<SingleEnterQuestion> selectAll();
+    List<SingleEnterQuestion> selectAllByQuestionIdList(List<Integer> questionIdList);
 
+    List<SingleEnterQuestionQuestionCheckVo> startCheckList(QuestionCheckParam questionCheckParam, Data data);
 
+    ResultBetter<SingleEnterQuestionEnterQuestionHeadListVo> enterQuestionHeadList(SingleEnterQuestionEnterQuestionHeadListParam param);
+
+    IPage<LinkedHashMap<String, Object>> enterQuestionDataList(SingleEnterQuestionEnterQuestionListParam param, Integer pageNo, Integer pageSize);
+
+    ResultBetter saveData(String cookie, SingleEnterQuestionSaveParam saveParam);
 
 }

@@ -2,6 +2,7 @@ package com.qu.modules.web.controller.test;
 
 import com.alibaba.fastjson.JSON;
 import com.qu.modules.web.param.AdminPrivateUpdateAnswerCheckAllTableParam;
+import com.qu.modules.web.param.AdminPrivateUpdateTableAddDelFeeParam;
 import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
 import com.qu.modules.web.service.IAdminPrivateService;
 import io.swagger.annotations.Api;
@@ -65,15 +66,15 @@ public class AdminPrivateController {
 //    }
 
 
-//    @ApiOperation(value = "给子表添加del", notes = "给子表添加del")
-//    @PostMapping(value = "/updateTableAddDel")
-//    public Result updateTableAddDel(@RequestBody AdminPrivateUpdateTableAddDelFeeParam param) {
-//        if(!"f4r5".equals(param.getName())){
-//            return ResultFactory.fail();
-//        }
-//        log.info("-----------updateTableAddDel={}", JSON.toJSONString(param));
-//        return adminPrivateService.updateTableAddDel(param);
-//    }
+    @ApiOperation(value = "给子表添加del", notes = "给子表添加del")
+    @PostMapping(value = "/updateTableAddDel")
+    public Result updateTableAddDel(@RequestBody AdminPrivateUpdateTableAddDelFeeParam param) {
+        if(!"f4r5".equals(param.getName())){
+            return ResultFactory.fail();
+        }
+        log.info("-----------updateTableAddDel={}", JSON.toJSONString(param));
+        return adminPrivateService.updateTableAddDel(param);
+    }
 
 
     @ApiOperation(value = "给检查表子表添加answerStatus", notes = "给检查表子表添加answerStatus")

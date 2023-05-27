@@ -18,6 +18,10 @@
         ${sql}
     </update>
 
+    <select id="countDynamicTable" parameterType="java.lang.String" resultType="java.lang.Long">
+        ${sql}
+    </select>
+
     <select id="selectDynamicTableColumn" parameterType="java.lang.String" resultType="map">
         ${sql}
     </select>

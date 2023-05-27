@@ -1,12 +1,11 @@
 package com.qu.modules.web.mapper;
 
-import java.util.List;
-import java.util.Map;
-
-import org.apache.ibatis.annotations.Param;
-
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.qu.modules.web.vo.ViewNameVo;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+import java.util.Map;
 
 public interface DynamicTableMapper extends BaseMapper {
 
@@ -17,6 +16,8 @@ public interface DynamicTableMapper extends BaseMapper {
     String selectDynamicTable(@Param("sql") String sql);
 
     int updateDynamicTable(@Param("sql") String sql);
+
+    Long countDynamicTable(@Param("sql") String sql);
 
     Map<String,String> selectDynamicTableColumn(@Param("sql") String sql);
 

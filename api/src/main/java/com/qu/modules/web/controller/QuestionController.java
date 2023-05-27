@@ -690,17 +690,6 @@ public class QuestionController {
         return result;
     }
 
-    @ApiOperation(value = "录入表单_开始检查", notes = "录入表单_开始检查")
-    @GetMapping(value = "/startCheckList")
-    public Result<QuestionCheckVo> startCheckList(QuestionCheckParam questionCheckParam,
-                                                  HttpServletRequest request) {
-        Result<QuestionCheckVo> result = new Result<>();
-        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
-        List<QuestionCheckVo> questionCheckPageVoIPage = questionService.startCheckList(questionCheckParam, data);
-        result.setSuccess(true);
-        result.setResult(questionCheckPageVoIPage);
-        return result;
-    }
 
 
 

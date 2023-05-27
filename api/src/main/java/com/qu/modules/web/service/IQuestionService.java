@@ -173,6 +173,6 @@ public interface IQuestionService extends IService<Question> {
 
     List<QuestionNameVo> enterQuestionSelectRegister(String name);
 
-    List<QuestionCheckVo> startCheckList(QuestionCheckParam questionCheckParam, Data data);
+
 
 }

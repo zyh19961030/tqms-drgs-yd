@@ -1,15 +1,17 @@
 package com.qu.modules.web.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.qu.constant.Constant;
 import com.qu.modules.web.entity.SingleEnterQuestion;
-import com.qu.modules.web.param.IdIntegerParam;
-import com.qu.modules.web.param.SingleEnterQuestionAddParam;
-import com.qu.modules.web.param.SingleEnterQuestionListParam;
-import com.qu.modules.web.param.SingleEnterQuestionUpdateParam;
+import com.qu.modules.web.param.*;
+import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.ISingleEnterQuestionService;
+import com.qu.modules.web.vo.SingleEnterQuestionEnterQuestionHeadListVo;
 import com.qu.modules.web.vo.SingleEnterQuestionInfoVo;
 import com.qu.modules.web.vo.SingleEnterQuestionListVo;
+import com.qu.modules.web.vo.SingleEnterQuestionQuestionCheckVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * @Description: 录入表单表
@@ -48,8 +52,7 @@ public class SingleEnterQuestionController {
     @ApiOperation(value = "录入表单表-添加", notes = "录入表单表-添加")
     @PostMapping(value = "/add")
     public ResultBetter add(@RequestBody @Valid SingleEnterQuestionAddParam param) {
-        singleEnterQuestionService.add(param);
-        return ResultBetter.ok();
+        return singleEnterQuestionService.add(param);
     }
 
     /**
@@ -110,6 +113,50 @@ public class SingleEnterQuestionController {
     public ResultBetter edit(@RequestBody @Valid SingleEnterQuestionUpdateParam param) {
         return singleEnterQuestionService.edit(param);
     }
+
+
+    @ApiOperation(value = "录入表单_开始检查", notes = "录入表单_开始检查")
+    @GetMapping(value = "/startCheckList")
+    public Result<SingleEnterQuestionQuestionCheckVo> startCheckList(QuestionCheckParam questionCheckParam,
+                                                                     HttpServletRequest request) {
+        Result<SingleEnterQuestionQuestionCheckVo> result = new Result<>();
+        Data data = (Data) request.getSession().getAttribute(Constant.SESSION_USER);
+        List<SingleEnterQuestionQuestionCheckVo> questionCheckPageVoIPage = singleEnterQuestionService.startCheckList(questionCheckParam, data);
+        result.setSuccess(true);
+        result.setResult(questionCheckPageVoIPage);
+        return result;
+    }
+
+
+    @AutoLog(value = "录入表单表_填报列表(待处理和已完成)_表头")
+    @ApiOperation(value = "录入表单表_填报列表(待处理和已完成)_表头", notes = "录入表单表_填报列表(待处理和已完成)_表头")
+    @GetMapping(value = "/enterQuestionHeadList")
+    public ResultBetter<SingleEnterQuestionEnterQuestionHeadListVo> enterQuestionHeadList(@Valid SingleEnterQuestionEnterQuestionHeadListParam param) {
+        return singleEnterQuestionService.enterQuestionHeadList(param);
+    }
+
+    @AutoLog(value = "录入表单表_填报列表(待处理和已完成)_数据")
+    @ApiOperation(value = "录入表单表_填报列表(待处理和已完成)_数据", notes = "录入表单表_填报列表(待处理和已完成)_数据")
+    @GetMapping(value = "/enterQuestionDataList")
+    public ResultBetter<IPage<LinkedHashMap<String, Object>>> enterQuestionDataList(@Valid SingleEnterQuestionEnterQuestionListParam param,
+                                                                              @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                                              @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                                              HttpServletRequest req) {
+        IPage<LinkedHashMap<String, Object>> pageList = singleEnterQuestionService.enterQuestionDataList(param, pageNo, pageSize);
+        return ResultBetter.ok(pageList);
+    }
+
+    @ApiOperation(value = "保存", notes = "保存")
+    @PostMapping(value = "/saveData")
+    public ResultBetter saveData(@RequestBody SingleEnterQuestionSaveParam saveParam, HttpServletRequest request) {
+        String token = request.getHeader("token");
+        String cookie = "JSESSIONID=" + token;
+        log.info("-----------answerParam={}", JSON.toJSONString(saveParam));
+        return singleEnterQuestionService.saveData(cookie, saveParam);
+    }
+
+
+
 
 
 

@@ -2503,42 +2503,6 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         return resList;
     }
 
-    @Override
-    public List<QuestionCheckVo> startCheckList(QuestionCheckParam questionCheckParam, Data data) {
-        String quName = questionCheckParam.getQuName();
-        LambdaQueryWrapper<Question> lambda = new QueryWrapper<Question>().lambda();
-        if(StringUtils.isNotBlank(quName)){
-            lambda.like(Question::getQuName, quName);
-        }
-//        String deptId = data.getTbUser().getDepId();
-        String deptId = data.getTbUser().getDepId();
-        String positionId = data.getTbUser().getPositionId();
-        String userId = data.getTbUser().getId();
-        lambda.like(Question::getDeptIds,deptId);
-//        boolean checkPositionFlag = checkPosition(quName, deptId,positionId,userId, lambda);
-//        if(checkPositionFlag){
-//            return new Page<>();
-//        }
-
-        List<SingleEnterQuestion> selectAllList= singleEnterQuestionService.selectAll();
-        if(CollectionUtil.isNotEmpty(selectAllList)){
-            List<Integer> collect = selectAllList.stream().map(SingleEnterQuestion::getQuestionId).distinct().collect(Collectors.toList());
-            lambda.in(Question::getId,collect);
-        }
-
-        List<Question> questionList = this.list(lambda);
-        if(questionList.isEmpty()){
-            return Lists.newArrayList();
-        }
-
-        List<QuestionCheckVo> answerPatientFillingInVos = questionList.stream().map(q -> {
-            QuestionCheckVo vo = new QuestionCheckVo();
-            BeanUtils.copyProperties(q,vo);
-            return vo;
-        }).collect(Collectors.toList());
-
-        return answerPatientFillingInVos;
-    }
 
 
 
