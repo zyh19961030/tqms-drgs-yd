@@ -148,11 +148,21 @@ public class SingleEnterQuestionController {
 
     @ApiOperation(value = "保存", notes = "保存")
     @PostMapping(value = "/saveData")
-    public ResultBetter saveData(@RequestBody SingleEnterQuestionSaveParam saveParam, HttpServletRequest request) {
+    public ResultBetter saveData(@RequestBody SingleEnterQuestionSaveDataParam saveParam, HttpServletRequest request) {
         String token = request.getHeader("token");
         String cookie = "JSESSIONID=" + token;
-        log.info("-----------answerParam={}", JSON.toJSONString(saveParam));
+        log.info("-----------saveParam={}", JSON.toJSONString(saveParam));
         return singleEnterQuestionService.saveData(cookie, saveParam);
+    }
+
+
+    @ApiOperation(value = "修订", notes = "修订")
+    @PostMapping(value = "/amendmentSaveData")
+    public ResultBetter amendmentSaveData(@RequestBody SingleEnterQuestionAmendmentSaveDataParam amendmentSaveDataParam, HttpServletRequest request) {
+        String token = request.getHeader("token");
+        String cookie = "JSESSIONID=" + token;
+        log.info("-----------amendmentSaveDataParam={}", JSON.toJSONString(amendmentSaveDataParam));
+        return singleEnterQuestionService.amendmentSaveData(cookie, amendmentSaveDataParam);
     }
 
 

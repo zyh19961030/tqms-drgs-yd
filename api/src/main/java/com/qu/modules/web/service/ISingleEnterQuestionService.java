@@ -41,6 +41,9 @@ public interface ISingleEnterQuestionService extends IService<SingleEnterQuestio
 
     IPage<LinkedHashMap<String, Object>> enterQuestionDataList(SingleEnterQuestionEnterQuestionListParam param, Integer pageNo, Integer pageSize);
 
-    ResultBetter saveData(String cookie, SingleEnterQuestionSaveParam saveParam);
+    ResultBetter saveData(String cookie, SingleEnterQuestionSaveDataParam saveParam);
+
+    ResultBetter amendmentSaveData(String cookie, SingleEnterQuestionAmendmentSaveDataParam amendmentSaveDataParam);
+
 
 }

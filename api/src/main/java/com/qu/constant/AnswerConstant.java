@@ -24,6 +24,8 @@ public class AnswerConstant {
     public static final Integer SOURCE_PC = 1;
     public static final Integer SOURCE_MINIAPP = 2;
 
+    public static final Integer SINGLE_ENTER_QUESTION_ANSWER_STATUS_SAVE = 1;
+    public static final Integer SINGLE_ENTER_QUESTION_ANSWER_STATUS_AMENDMENT = 2;
 
 
 }

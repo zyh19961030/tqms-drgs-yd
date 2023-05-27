@@ -12,10 +12,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.qu.constant.AnswerConstant;
-import com.qu.constant.Constant;
-import com.qu.constant.QsubjectConstant;
-import com.qu.constant.QuestionConstant;
+import com.qu.constant.*;
 import com.qu.modules.web.entity.*;
 import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.SingleEnterQuestionMapper;
@@ -25,6 +22,7 @@ import com.qu.modules.web.pojo.JsonRootBean;
 import com.qu.modules.web.service.*;
 import com.qu.modules.web.vo.*;
 import com.qu.util.HttpClient;
+import com.qu.util.PojoUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.ResultBetter;
@@ -463,21 +461,23 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
         StringBuffer sqlCount = new StringBuffer();
         sqlCount.append("select count(1) from `");
         sqlCount.append(question.getTableName());
-        sqlCount.append("` where need_fill = 'y' and del = '0' and table_answer_status = '0' ");
+        sqlCount.append("` where  del = '0' and table_answer_status = '0' ");
+        if(param.getStatus().equals(SingleEnterQuestionConstant.ENTER_QUESTION_DATA_LIST_STATUS_HANDLE)){
+            sqlCount.append("and need_fill = 'y' ");
+        }else{
+            sqlCount.append("and need_fill = 'y1' ");
+        }
         Long total = dynamicTableMapper.countDynamicTable(sqlCount.toString());
         if(total ==null || total<=0){
             return new Page<>();
         }
 
+        List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(questionId);
+        Map<Integer, SubjectVo> subjectMap = subjectList.stream().collect(Collectors.toMap(SubjectVo::getId, Function.identity()));
 
         List<SingleEnterQuestionColumn> singleEnterQuestionColumnList =  singleEnterQuestionColumnService.selectBySingleEnterQuestionId(selectByQuestionId.getId());
         List<SingleEnterQuestionSubject> singleEnterQuestionSubjectList =  singleEnterQuestionSubjectService.selectBySingleEnterQuestionId(selectByQuestionId.getId());
 
-        List<Integer> subjectIdList = singleEnterQuestionColumnList.stream().map(SingleEnterQuestionColumn::getSubjectId).distinct().collect(Collectors.toList());
-        subjectIdList.addAll( singleEnterQuestionSubjectList.stream().map(SingleEnterQuestionSubject::getSubjectId).distinct().collect(Collectors.toList()));
-
-        List<Qsubject> subjectList = subjectService.selectByIds(subjectIdList);
-        Map<Integer, Qsubject> subjectMap = subjectList.stream().collect(Collectors.toMap(Qsubject::getId, Function.identity()));
 
         StringBuffer sqlSelect = new StringBuffer();
         sqlSelect.append("select * from `");
@@ -493,7 +493,7 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
             LinkedHashMap<String, Object> valueItem = Maps.newLinkedHashMap();
             valueItem.put("mappingTableId",dataItemMap.get("summary_mapping_table_id"));
             for (SingleEnterQuestionColumn singleEnterQuestionColumn : singleEnterQuestionColumnList) {
-                Qsubject qsubject = subjectMap.get(singleEnterQuestionColumn.getSubjectId());
+                SubjectVo qsubject = subjectMap.get(singleEnterQuestionColumn.getSubjectId());
                 if (qsubject == null || QsubjectConstant.SUB_TYPE_TITLE.equals(qsubject.getSubType())) {
                     continue;
                 }
@@ -504,13 +504,16 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
             }
 
             for (SingleEnterQuestionSubject singleEnterQuestionSubject : singleEnterQuestionSubjectList) {
-                Qsubject qsubject = subjectMap.get(singleEnterQuestionSubject.getSubjectId());
+                SubjectVo qsubject = subjectMap.get(singleEnterQuestionSubject.getSubjectId());
                 if (qsubject == null || QsubjectConstant.SUB_TYPE_TITLE.equals(qsubject.getSubType())) {
                     continue;
                 }
                 String columnName = qsubject.getColumnName();
                 if(StringUtils.isNotBlank(columnName)){
-                    valueItem.put(qsubject.getColumnName(), dataItemMap.get(qsubject.getColumnName()));
+                    String s = dataItemMap.get(qsubject.getColumnName());
+                    EnterQuestionDataListCompleteVo completeVo = PojoUtils.map(qsubject, EnterQuestionDataListCompleteVo.class);
+                    completeVo.setFillValue(s);
+                    valueItem.put(qsubject.getColumnName(), completeVo);
                 }
             }
             detailDataList.add(valueItem);
@@ -522,9 +525,12 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
     }
 
     @Override
-    public ResultBetter saveData(String cookie, SingleEnterQuestionSaveParam saveParam) {
-
+    public ResultBetter saveData(String cookie, SingleEnterQuestionSaveDataParam saveParam) {
         //解析token
+        return getResultBetter(cookie, saveParam.getMappingTableId(),saveParam.getAnswers(),AnswerConstant.SINGLE_ENTER_QUESTION_ANSWER_STATUS_SAVE);
+    }
+
+    private ResultBetter getResultBetter(String cookie, String mappingTableId,Answers[] answers,Integer type) {
         String res = HttpClient.doPost(tokenUrl, cookie, null);
         JsonRootBean jsonRootBean = JSON.parseObject(res, JsonRootBean.class);
         String creater = "";
@@ -542,15 +548,14 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
             tbDep = tbDepService.getById(creater_deptid);
         }
 
-        String mappingTableId = saveParam.getMappingTableId();
         Answer answer = answerService.selectBySummaryMappingTableId(mappingTableId);
 
         if(answer==null){
             return ResultBetter.error("数据不存在。");
         }else{
-            if(AnswerConstant.ANSWER_STATUS_RELEASE.equals(answer.getAnswerStatus())){
-                return ResultBetter.error("该记录已提交,无法更改。");
-            }
+//            if(AnswerConstant.ANSWER_STATUS_RELEASE.equals(answer.getAnswerStatus())){
+//                return ResultBetter.error("该记录已提交,无法更改。");
+//            }
         }
 
         Integer quId = answer.getQuId();
@@ -560,19 +565,15 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
         }
 
         //插入总表
-        Integer status = saveParam.getStatus();
-        answer.setAnswerStatus(status);
+        answer.setAnswerStatus(AnswerConstant.ANSWER_STATUS_RELEASE);
         Date date = new Date();
-        if(status.equals(1)){
-            answer.setSubmitTime(date);
-        }
+        answer.setSubmitTime(date);
         answer.setCreater(creater);
         answer.setCreaterName(creater_name);
         answer.setCreaterDeptid(creater_deptid);
         answer.setCreaterDeptname(tbDep.getDepname());
         answer.setAnswerTime(date);
 
-        Answers[] answers = saveParam.getAnswers();
         Map<String, String> mapCache = new HashMap<>();
         for (Answers a : answers) {
             mapCache.put(a.getSubColumnName(), a.getSubValue());
@@ -632,7 +633,7 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
 
         List<Qsubject> subjectList = subjectService.selectSubjectByQuId(question.getId());
 
-            answer.setUpdateTime(date);
+        answer.setUpdateTime(date);
         answerService.updateById(answer);
         //保存痕迹相关
         answerService.saveAnswerMark(mapCache,subjectList,answer,question,creater,AnswerConstant.SOURCE_PC);
@@ -658,7 +659,14 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
             sqlAns.append("'");
             sqlAns.append(",");
         }
-        sqlAns.append("`need_fill`='y1',");
+        if(type.equals(AnswerConstant.SINGLE_ENTER_QUESTION_ANSWER_STATUS_SAVE)){
+
+            sqlAns.append("`need_fill`='y1',");
+        }else if(type.equals(AnswerConstant.SINGLE_ENTER_QUESTION_ANSWER_STATUS_AMENDMENT)){
+            sqlAns.append("`need_fill`='y2',");
+        }else{
+            sqlAns.append("`need_fill`='y9',");
+        }
 
         sqlAns.append("`tbksmc`='");
         sqlAns.append(tbDep.getDepname());
@@ -679,6 +687,8 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
         return ResultBetter.ok(vo);
     }
 
-
-
+    @Override
+    public ResultBetter amendmentSaveData(String cookie, SingleEnterQuestionAmendmentSaveDataParam amendmentSaveDataParam) {
+        return getResultBetter(cookie, amendmentSaveDataParam.getMappingTableId(),amendmentSaveDataParam.getAnswers(),AnswerConstant.SINGLE_ENTER_QUESTION_ANSWER_STATUS_AMENDMENT);
+    }
 }
