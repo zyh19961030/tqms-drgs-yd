@@ -465,7 +465,7 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
         if(param.getStatus().equals(SingleEnterQuestionConstant.ENTER_QUESTION_DATA_LIST_STATUS_HANDLE)){
             sqlCount.append("and need_fill = 'y' ");
         }else{
-            sqlCount.append("and need_fill = 'y1' ");
+            sqlCount.append("and (need_fill = 'y1' or need_fill = 'y2') ");
         }
         Long total = dynamicTableMapper.countDynamicTable(sqlCount.toString());
         if(total ==null || total<=0){
@@ -486,7 +486,7 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
         if(param.getStatus().equals(SingleEnterQuestionConstant.ENTER_QUESTION_DATA_LIST_STATUS_HANDLE)){
             sqlSelect.append("and need_fill = 'y' ");
         }else{
-            sqlSelect.append("and need_fill = 'y1' ");
+            sqlSelect.append("and (need_fill = 'y1' or need_fill = 'y2') ");
         }
         sqlSelect.append("limit ");
         sqlSelect.append((pageNo - 1) * pageSize);
