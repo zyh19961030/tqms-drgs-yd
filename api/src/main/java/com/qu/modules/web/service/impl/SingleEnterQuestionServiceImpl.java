@@ -70,6 +70,9 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
     @Autowired
     private IAnswerService answerService;
 
+    @Autowired
+    private ITbDataService tbDataService;
+
 
 
     @Override
@@ -161,6 +164,9 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
             return new Page<>();
         }
 
+        List<TbData> dataList = tbDataService.selectByDataType(TbDataConstant.DATA_TYPE_QUESTION_REGISTER_CATEGORY);
+        Map<String, String> dataMap = dataList.stream().collect(Collectors.toMap(TbData::getId, TbData::getValue, (k1, k2) -> k1));
+
         List<Integer> singleEnterQuestionIdList = singleEnterQuestionList.stream().map(SingleEnterQuestion::getId).distinct().collect(Collectors.toList());
         List<SingleEnterQuestionSubject> singleEnterQuestionSubjectList = singleEnterQuestionSubjectService.selectBySingleEnterQuestionIdList(singleEnterQuestionIdList);
         Map<Integer, List<SingleEnterQuestionSubject>> singleEnterQuestionSubjectMap = singleEnterQuestionSubjectList.stream().collect(Collectors.groupingBy(SingleEnterQuestionSubject::getEnterQuestionId));
@@ -178,6 +184,11 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
             vo.setQuestionId(questionId);
             if (Objects.nonNull(question)) {
                 vo.setQuestionName(question.getQuName());
+                String categoryId = question.getCategoryId();
+                if(StringUtils.isNotBlank(categoryId)){
+                    String s = dataMap.get(categoryId);
+                    vo.setQuestionNameCategoryName(s);
+                }
             }
             List<SingleEnterQuestionSubject> singleEnterQuestionSubjects = singleEnterQuestionSubjectMap.get(singleEnterQuestion.getId());
             if (CollectionUtil.isNotEmpty(singleEnterQuestionSubjects)) {

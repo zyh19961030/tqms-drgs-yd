@@ -21,7 +21,7 @@ public class SingleEnterQuestionListParam {
     @ApiModelProperty(value = "问卷名称")
 	private String questionName;
 
-    @ApiModelProperty(value = "问卷分类-暂时隐藏")
+    @ApiModelProperty(value = "问卷分类")
 	private String questionNameCategoryId;
 
 	@ApiModelProperty(value = "填报科室id")
