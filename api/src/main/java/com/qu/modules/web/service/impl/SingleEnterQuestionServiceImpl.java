@@ -482,7 +482,12 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
         StringBuffer sqlSelect = new StringBuffer();
         sqlSelect.append("select * from `");
         sqlSelect.append(question.getTableName());
-        sqlSelect.append("` where need_fill = 'y' and del = '0' and table_answer_status = '0'  ");
+        sqlSelect.append("` where del = '0' and table_answer_status = '0'  ");
+        if(param.getStatus().equals(SingleEnterQuestionConstant.ENTER_QUESTION_DATA_LIST_STATUS_HANDLE)){
+            sqlSelect.append("and need_fill = 'y' ");
+        }else{
+            sqlSelect.append("and need_fill = 'y1' ");
+        }
         sqlSelect.append("limit ");
         sqlSelect.append((pageNo - 1) * pageSize);
         sqlSelect.append(",");
