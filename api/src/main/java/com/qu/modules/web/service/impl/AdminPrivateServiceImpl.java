@@ -1731,6 +1731,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         HashSet<Integer> existQuIdSet = Sets.newLinkedHashSet();
         HashSet<String> existQuNameSet = Sets.newLinkedHashSet();
         HashSet<String> quNameSet = Sets.newLinkedHashSet();
+        String format = DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN);
         for (Question question : questionList) {
             List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(question.getId());
             Map<String, SubjectVo> subjectMap = subjectList.stream()
@@ -1789,7 +1790,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
                     existQuIdSet.add(question.getId());
                     existQuNameSet.add(question.getQuName());
                 }
-                alterTable(question, e, subjectMap,sqlAnsSelect.toString());
+                alterTable(question, e, subjectMap,sqlAnsSelect.toString(),format);
 
                 quIdSet.add(question.getId());
                 quNameSet.add(question.getQuName());
@@ -1831,6 +1832,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         HashSet<Integer> existQuIdSet = Sets.newHashSet();
         HashSet<String> existQuNameSet = Sets.newHashSet();
         HashSet<String> quNameSet = Sets.newHashSet();
+        String format = DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN);
         for (Question question : questionList) {
             List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(question.getId());
             Map<String, SubjectVo> subjectMap = subjectList.stream()
@@ -1889,7 +1891,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
                     existQuIdSet.add(question.getId());
                     existQuNameSet.add(question.getQuName());
                 }
-                alterTable(question, e, subjectMap,sqlAnsSelect.toString());
+                alterTable(question, e, subjectMap,sqlAnsSelect.toString(),format);
 
                 quIdSet.add(question.getId());
                 quNameSet.add(question.getQuName());
@@ -1910,7 +1912,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         return ResultFactory.success();
     }
 
-    private void alterTable(Question question, Exception e, Map<String, SubjectVo> subjectMap, String sqlAnsSelect) {
+    private void alterTable(Question question, Exception e, Map<String, SubjectVo> subjectMap, String sqlAnsSelect,String format) {
         String message = e.getCause().getMessage();
         //Unknown column 'GLI-2-1-1-3' in 'field list'
         if(message.contains("Unknown column") && message.contains("in 'field list'")){
@@ -1922,12 +1924,14 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
                 StringBuffer sqlSelect = new StringBuffer();
                 sqlSelect.append("ALTER TABLE `");
                 sqlSelect.append(question.getTableName());
-                sqlSelect.append("` ADD COLUMN `del` tinyint(4) NULL DEFAULT 0 COMMENT 'a_0:正常1:已删除' ");
+                sqlSelect.append("` ADD COLUMN `del` tinyint(4) NULL DEFAULT 0 COMMENT '");
+                sqlSelect.append(format);
+                sqlSelect.append("_a_0:正常1:已删除' ");
                 try {
                     dynamicTableMapper.createDynamicTable(sqlSelect.toString());
                     dynamicTableMapper.selectDynamicTableColumnList(sqlAnsSelect);
                 }catch (Exception e1){
-                    alterTable(question,e1, subjectMap, sqlAnsSelect);
+                    alterTable(question,e1, subjectMap, sqlAnsSelect,format);
                     log.error("问卷quId--add alterTable del error--quId---->"+question.getId(),e);
                 }
             }
@@ -1935,12 +1939,14 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
                 StringBuffer sqlSelect = new StringBuffer();
                 sqlSelect.append("ALTER TABLE `");
                 sqlSelect.append(question.getTableName());
-                sqlSelect.append("` ADD COLUMN `tbrid` varchar(128) NULL COMMENT 'a_填报人id' ");
+                sqlSelect.append("` ADD COLUMN `tbrid` varchar(128) NULL COMMENT '");
+                sqlSelect.append(format);
+                sqlSelect.append("_a_填报人id' ");
                 try {
                     dynamicTableMapper.createDynamicTable(sqlSelect.toString());
                     dynamicTableMapper.selectDynamicTableColumnList(sqlAnsSelect);
                 }catch (Exception e1){
-                    alterTable(question,e1, subjectMap, sqlAnsSelect);
+                    alterTable(question,e1, subjectMap, sqlAnsSelect,format);
                     log.error("问卷quId--add alterTable tbrid error--quId---->"+question.getId(),e);
                 }
             }
@@ -1948,12 +1954,14 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
                 StringBuffer sqlSelect = new StringBuffer();
                 sqlSelect.append("ALTER TABLE `");
                 sqlSelect.append(question.getTableName());
-                sqlSelect.append("` ADD COLUMN `tbrxm` varchar(128) NULL COMMENT 'a_填报人名称' ");
+                sqlSelect.append("` ADD COLUMN `tbrxm` varchar(128) NULL COMMENT ' ");
+                sqlSelect.append(format);
+                sqlSelect.append("_a_填报人名称' ");
                 try {
                     dynamicTableMapper.createDynamicTable(sqlSelect.toString());
                     dynamicTableMapper.selectDynamicTableColumnList(sqlAnsSelect);
                 }catch (Exception e1){
-                    alterTable(question,e1, subjectMap, sqlAnsSelect);
+                    alterTable(question,e1, subjectMap, sqlAnsSelect,format);
                     log.error("问卷quId--add alterTable tbrxm error--quId---->"+question.getId(),e);
                 }
             }
@@ -1961,12 +1969,14 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
                 StringBuffer sqlSelect = new StringBuffer();
                 sqlSelect.append("ALTER TABLE `");
                 sqlSelect.append(question.getTableName());
-                sqlSelect.append("` ADD COLUMN `tbksmc` varchar(128) NULL COMMENT 'a_填报科室名称' ");
+                sqlSelect.append("` ADD COLUMN `tbksmc` varchar(128) NULL COMMENT '");
+                sqlSelect.append(format);
+                sqlSelect.append("_a_填报科室名称' ");
                 try {
                     dynamicTableMapper.createDynamicTable(sqlSelect.toString());
                     dynamicTableMapper.selectDynamicTableColumnList(sqlAnsSelect);
                 }catch (Exception e1){
-                    alterTable(question,e1, subjectMap, sqlAnsSelect);
+                    alterTable(question,e1, subjectMap, sqlAnsSelect,format);
                     log.error("问卷quId--add alterTable tbrxm error--quId---->"+question.getId(),e);
                 }
             }
@@ -1974,12 +1984,14 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
                 StringBuffer sqlSelect = new StringBuffer();
                 sqlSelect.append("ALTER TABLE `");
                 sqlSelect.append(question.getTableName());
-                sqlSelect.append("` ADD COLUMN `tbksdm` varchar(128) NULL COMMENT 'a_填报科室代码' ");
+                sqlSelect.append("` ADD COLUMN `tbksdm` varchar(128) NULL COMMENT ' ");
+                sqlSelect.append(format);
+                sqlSelect.append("_a_填报科室代码' ");
                 try {
                     dynamicTableMapper.createDynamicTable(sqlSelect.toString());
                     dynamicTableMapper.selectDynamicTableColumnList(sqlAnsSelect);
                 }catch (Exception e1){
-                    alterTable(question,e1, subjectMap, sqlAnsSelect);
+                    alterTable(question,e1, subjectMap, sqlAnsSelect,format);
                     log.error("问卷quId--add alterTable tbrxm error--quId---->"+question.getId(),e);
                 }
             }
@@ -1987,12 +1999,14 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
                 StringBuffer sqlSelect = new StringBuffer();
                 sqlSelect.append("ALTER TABLE `");
                 sqlSelect.append(question.getTableName());
-                sqlSelect.append("` ADD COLUMN `table_answer_status` int(11) NULL DEFAULT 0 COMMENT 'a_0:草稿1:已提交' ");
+                sqlSelect.append("` ADD COLUMN `table_answer_status` int(11) NULL DEFAULT 0 COMMENT '");
+                sqlSelect.append(format);
+                sqlSelect.append("_a_0:草稿1:已提交' ");
                 try {
                     dynamicTableMapper.createDynamicTable(sqlSelect.toString());
                     dynamicTableMapper.selectDynamicTableColumnList(sqlAnsSelect);
                 }catch (Exception e1){
-                    alterTable(question,e1, subjectMap, sqlAnsSelect);
+                    alterTable(question,e1, subjectMap, sqlAnsSelect,format);
                     log.error("问卷quId--add alterTable table_answer_status error--quId---->"+question.getId(),e);
                 }
             }
@@ -2010,7 +2024,9 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
                     sqlSelect.append(QsubjectConstant.MARK_TYPE)
                             .append("(")
                             .append(QsubjectConstant.MARK_LENGTH)
-                            .append(") COMMENT 'a_")
+                            .append(") COMMENT '")
+                            .append(format)
+                            .append("_a_")
                             .append(subjectVo.getId())
                             .append("的痕迹图片")
                             .append("'");
@@ -2018,7 +2034,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
                         dynamicTableMapper.createDynamicTable(sqlSelect.toString());
                         dynamicTableMapper.selectDynamicTableColumnList(sqlAnsSelect);
                     }catch (Exception e1){
-                        alterTable(question,e1, subjectMap, sqlAnsSelect);
+                        alterTable(question,e1, subjectMap, sqlAnsSelect,format);
                         log.error("问卷quId--add alterTable subjectMap error--quId---->"+question.getId(),e);
                     }
                 }
@@ -2038,7 +2054,9 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
                     sqlSelect.append(QsubjectConstant.MARK_TYPE)
                             .append("(")
                             .append(QsubjectConstant.MARK_LENGTH)
-                            .append(") COMMENT 'a_")
+                            .append(") COMMENT '")
+                            .append(format)
+                            .append("_a_")
                             .append(subjectVo.getId())
                             .append("的痕迹")
                             .append("'");
@@ -2046,7 +2064,7 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
                         dynamicTableMapper.createDynamicTable(sqlSelect.toString());
                         dynamicTableMapper.selectDynamicTableColumnList(sqlAnsSelect);
                     }catch (Exception e1){
-                        alterTable(question,e1, subjectMap, sqlAnsSelect);
+                        alterTable(question,e1, subjectMap, sqlAnsSelect,format);
                         log.error("问卷quId--add alterTable subjectMap error--quId---->"+question.getId(),e);
                     }
                 }
@@ -2068,14 +2086,16 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
                     sqlSelect.append(subjectVo.getColumnName());
                     sqlSelect.append("` varchar(");
                     sqlSelect.append(limitWords)
-                            .append(") NULL COMMENT 'a_")
+                            .append(") NULL COMMENT '")
+                            .append(format)
+                            .append("_a_")
                             .append(subjectVo.getId())
                             .append("'");
                     try {
                         dynamicTableMapper.createDynamicTable(sqlSelect.toString());
                         dynamicTableMapper.selectDynamicTableColumnList(sqlAnsSelect);
                     }catch (Exception e1){
-                        alterTable(question,e1, subjectMap, sqlAnsSelect);
+                        alterTable(question,e1, subjectMap, sqlAnsSelect,format);
                         log.error("问卷quId--add alterTable subjectMap error--quId---->"+question.getId(),e);
                     }
                 }
