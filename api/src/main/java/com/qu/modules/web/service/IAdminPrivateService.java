@@ -38,9 +38,13 @@ public interface IAdminPrivateService extends IService<Answer> {
 
     Result updateAnswerCheckAllTable(AdminPrivateUpdateAnswerCheckAllTableParam param,Boolean tbrFlag);
 
+    Result updateRegisterAnswerCheckAllTable(AdminPrivateUpdateAnswerAllTableParam param,Boolean tbrFlag);
+
     Result updateAnswerCheckStatisticDetailBySubtable(AdminPrivateUpdateAnswerCheckAllTableParam param);
 
     Result selectQuestionAllTable(AdminPrivateUpdateAnswerCheckAllTableParam param);
+
+    Result selectRegisterQuestionAllTable(AdminPrivateUpdateAnswerAllTableParam param);
 
     Result addQuestionSubject(AdminPrivateUpdateTableDrugFeeParam param);
 

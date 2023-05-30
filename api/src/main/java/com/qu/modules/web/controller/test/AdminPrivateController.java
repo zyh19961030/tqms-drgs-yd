@@ -1,6 +1,7 @@
 package com.qu.modules.web.controller.test;
 
 import com.alibaba.fastjson.JSON;
+import com.qu.modules.web.param.AdminPrivateUpdateAnswerAllTableParam;
 import com.qu.modules.web.param.AdminPrivateUpdateAnswerCheckAllTableParam;
 import com.qu.modules.web.param.AdminPrivateUpdateTableAddDelFeeParam;
 import com.qu.modules.web.param.AdminPrivateUpdateTableDrugFeeParam;
@@ -236,7 +237,7 @@ public class AdminPrivateController {
     }
 
 
-    @ApiOperation(value = "统一处理子表数据缺少问题", notes = "统一处理子表数据缺少问题")
+    @ApiOperation(value = "查检表_统一处理子表数据缺少问题", notes = "查检表_统一处理子表数据缺少问题")
     @PostMapping(value = "/updateTableData")
     public Result updateTableData(@RequestBody AdminPrivateUpdateAnswerCheckAllTableParam param) {
         if(!"z1x1".equals(param.getName())){
@@ -265,5 +266,37 @@ public class AdminPrivateController {
         log.info("-----------updateAnswerCheckStatisticDetailBySubtable={}", JSON.toJSONString(param));
         return adminPrivateService.updateAnswerCheckStatisticDetailBySubtable(param);
     }
+
+
+    @ApiOperation(value = "登记表_统一处理子表数据缺少问题", notes = "登记表_统一处理子表数据缺少问题")
+    @PostMapping(value = "/updateRegisterTableData")
+    public Result updateRegisterTableData(@RequestBody AdminPrivateUpdateAnswerAllTableParam param) {
+        if(!"z2x2".equals(param.getName())){
+            return ResultFactory.fail();
+        }
+        log.info("updateRegisterTableData-----------selectQuestionAllTable={}", JSON.toJSONString(param));
+        Result result = adminPrivateService.selectRegisterQuestionAllTable(param);
+        if(!result.isSuccess()){
+            for (int i = 0; i < 3; i++) {
+                result = adminPrivateService.selectRegisterQuestionAllTable(param);
+            }
+            if(!result.isSuccess()){
+                return result;
+            }
+        }
+        //第二部
+        log.info("updateTableData-----------updateAnswerCheckAllTable={}", JSON.toJSONString(param));
+        result = adminPrivateService.updateRegisterAnswerCheckAllTable(param,true);
+        if(!result.isSuccess()){
+            log.info("-----------updateAnswerCheckAllTable={}", JSON.toJSONString(param));
+            result =  adminPrivateService.updateRegisterAnswerCheckAllTable(param,false);
+            if(!result.isSuccess()){
+                return result;
+            }
+        }
+
+        return Result.ok();
+    }
+
 
 }

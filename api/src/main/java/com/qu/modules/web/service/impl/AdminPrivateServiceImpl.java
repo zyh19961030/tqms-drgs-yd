@@ -1322,6 +1322,276 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
     }
 
     @Override
+    public Result updateRegisterAnswerCheckAllTable(AdminPrivateUpdateAnswerAllTableParam param, Boolean tbrFlag) {
+        //查出来所有的检查表
+        LambdaQueryWrapper<Question> questionLambda = new QueryWrapper<Question>().lambda();
+        questionLambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
+        questionLambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_REGISTER);
+        questionLambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
+        List<Integer> quId = param.getQuId();
+        if(CollectionUtil.isNotEmpty(quId)){
+            questionLambda.in(Question::getId, quId);
+        }
+        List<Question> questionList = questionMapper.selectList(questionLambda);
+        if(CollectionUtil.isEmpty(questionList)){
+            return ResultFactory.fail("没有查到需要更新的问卷");
+        }
+        HashSet<Integer> quIdSet = Sets.newHashSet();
+        HashSet<String> quNameSet = Sets.newHashSet();
+        for (Question question : questionList) {
+            //查询子表
+            StringBuffer sqlAns = new StringBuffer();
+            sqlAns.append("select * from `");
+            sqlAns.append(question.getTableName());
+            sqlAns.append("`");
+            List<Map<String, String>> dataList = dynamicTableMapper.selectDynamicTableColumnList(sqlAns.toString());
+//            if(CollectionUtil.isEmpty(dataList)){
+//                log.info("question.getTableName() 子表数据 getTableName data is null---questionId-------{},{}", question.getTableName(), question.getId());
+//                continue;
+//            }
+
+            List<String> checkMonthBlankSummaryMappingTableIdList = dataList.stream().filter(m -> StringUtils.isBlank(m.get("check_month")))
+                    .map(m -> m.get("summary_mapping_table_id")).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+            List<String> summary_mapping_table_id = dataList.stream().filter(m-> StringUtils.isNotBlank(m.get("check_month")))
+                    .map(m -> m.get("summary_mapping_table_id")).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+            if("a".equals(param.getType())){
+                summary_mapping_table_id = Lists.newArrayList();
+            }
+
+            //查询总表
+            LambdaQueryWrapper<Answer> lambda = new QueryWrapper<Answer>().lambda();
+            lambda.in(Answer::getQuId, question.getId());
+            lambda.eq(Answer::getDel, AnswerConstant.DEL_NORMAL);
+//            lambda.eq(Answer::getAnswerStatus, AnswerConstant.ANSWER_STATUS_RELEASE);
+            if(CollectionUtil.isNotEmpty(summary_mapping_table_id)){
+                lambda.notIn(Answer::getSummaryMappingTableId, summary_mapping_table_id);
+            }
+            List<Answer> answerList = answerMapper.selectList(lambda);
+
+            if(CollectionUtil.isEmpty(answerList)){
+                log.info("updateRegisterAnswerCheckAllTable--question.getTableName() 总表数据 answerList data is null---questionId-------{},{}", question.getTableName(), question.getId());
+                continue;
+            }
+            //将总表数据放入子表
+            for (Answer answer : answerList) {
+
+                JSONArray answers = (JSONArray)JSONArray.parse(answer.getAnswerJson());
+                Map<String, String> mapCache = new HashMap<>();
+                for (Object a : answers) {
+                    JSONObject jsonObject = (JSONObject)a;
+                    String subValue = (String)jsonObject.get("subValue");
+                    subValue = subValue.replaceAll("'","’");
+                    mapCache.put((String)jsonObject.get("subColumnName"), subValue);
+                }
+
+                List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(question.getId());
+
+                if(checkMonthBlankSummaryMappingTableIdList.contains(answer.getSummaryMappingTableId())){
+                    //更新
+                    StringBuffer sqlAnsUpdate = new StringBuffer();
+                    sqlAnsUpdate.append("update `" + question.getTableName() + "` set ");
+                    for (int i = 0; i < subjectList.size(); i++) {
+                        SubjectVo qsubjectDynamicTable = subjectList.get(i);
+                        String subType = qsubjectDynamicTable.getSubType();
+                        Integer del = qsubjectDynamicTable.getDel();
+                        if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                                || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName()) == null
+                            /*|| StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))*/) {
+                            continue;
+                        }
+                        sqlAnsUpdate.append("`");
+                        sqlAnsUpdate.append(qsubjectDynamicTable.getColumnName());
+                        sqlAnsUpdate.append("`");
+                        sqlAnsUpdate.append("=");
+                        sqlAnsUpdate.append("'");
+                        sqlAnsUpdate.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
+                        sqlAnsUpdate.append("'");
+                        sqlAnsUpdate.append(",");
+
+                        if (QsubjectConstant.MARK_OPEN.equals(qsubjectDynamicTable.getMark())) {
+                            String columnNameMark = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark");
+                            if (org.apache.commons.lang.StringUtils.isNotBlank(columnNameMark)) {
+                                sqlAnsUpdate.append("`");
+                                sqlAnsUpdate.append(qsubjectDynamicTable.getColumnName());
+                                sqlAnsUpdate.append("_mark");
+                                sqlAnsUpdate.append("`");
+                                sqlAnsUpdate.append("=");
+                                sqlAnsUpdate.append("'");
+                                sqlAnsUpdate.append(columnNameMark);
+                                sqlAnsUpdate.append("'");
+                                sqlAnsUpdate.append(",");
+                            }
+                            String columnNameMarkImg = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark_img");
+                            if (org.apache.commons.lang.StringUtils.isNotBlank(columnNameMarkImg)) {
+                                sqlAnsUpdate.append("`");
+                                sqlAnsUpdate.append(qsubjectDynamicTable.getColumnName());
+                                sqlAnsUpdate.append("_mark_img");
+                                sqlAnsUpdate.append("`");
+                                sqlAnsUpdate.append("=");
+                                sqlAnsUpdate.append("'");
+                                sqlAnsUpdate.append(columnNameMarkImg);
+                                sqlAnsUpdate.append("'");
+                                sqlAnsUpdate.append(",");
+                            }
+
+                        }
+
+                    }
+                    if(tbrFlag){
+                        sqlAnsUpdate.append("`tbrid`='");
+                        sqlAnsUpdate.append(answer.getCreater());
+                        sqlAnsUpdate.append("',");
+                        sqlAnsUpdate.append("`tbksmc`='");
+                        sqlAnsUpdate.append(answer.getCreaterDeptname());
+                        sqlAnsUpdate.append("',");
+                        sqlAnsUpdate.append("`tbksdm`='");
+                        sqlAnsUpdate.append(answer.getCreaterDeptid());
+                        sqlAnsUpdate.append("',");
+                    }
+                    sqlAnsUpdate.append("`tbrxm`='");
+                    sqlAnsUpdate.append(answer.getCreaterName());
+                    sqlAnsUpdate.append("',");
+                    sqlAnsUpdate.append("`table_answer_status`='");
+                    sqlAnsUpdate.append(answer.getAnswerStatus());
+                    sqlAnsUpdate.append("'");
+                    sqlAnsUpdate.append(" where summary_mapping_table_id = '");
+                    sqlAnsUpdate.append(answer.getSummaryMappingTableId());
+                    sqlAnsUpdate.append("'");
+                    log.info("answer-----update sqlAnsUpdate:{}", sqlAnsUpdate.toString());
+                    dynamicTableMapper.updateDynamicTable(sqlAnsUpdate.toString());
+                    continue;
+                }
+                //插入子表
+                StringBuffer sqlAnsInsert = new StringBuffer();
+
+
+                sqlAnsInsert.append("insert into `" + question.getTableName() + "` (");
+                for (int i = 0; i < subjectList.size(); i++) {
+                    SubjectVo qsubjectDynamicTable = subjectList.get(i);
+                    String subType = qsubjectDynamicTable.getSubType();
+                    Integer del = qsubjectDynamicTable.getDel();
+                    if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                            || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName()) == null
+                            || org.apache.commons.lang.StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
+                        continue;
+                    }
+
+                    sqlAnsInsert.append("`");
+                    sqlAnsInsert.append(qsubjectDynamicTable.getColumnName());
+                    sqlAnsInsert.append("`");
+                    sqlAnsInsert.append(",");
+
+                    if (QsubjectConstant.MARK_OPEN.equals(qsubjectDynamicTable.getMark())) {
+                        String columnNameMark = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark");
+                        if (org.apache.commons.lang.StringUtils.isNotBlank(columnNameMark)) {
+                            sqlAnsInsert.append("`");
+                            sqlAnsInsert.append(qsubjectDynamicTable.getColumnName());
+                            sqlAnsInsert.append("_mark");
+                            sqlAnsInsert.append("`");
+                            sqlAnsInsert.append(",");
+                        }
+
+                        String columnNameMarkImg = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark_img");
+                        if (org.apache.commons.lang.StringUtils.isNotBlank(columnNameMarkImg)) {
+                            sqlAnsInsert.append("`");
+                            sqlAnsInsert.append(qsubjectDynamicTable.getColumnName());
+                            sqlAnsInsert.append("_mark_img");
+                            sqlAnsInsert.append("`");
+                            sqlAnsInsert.append(",");
+                        }
+
+                    }
+                }
+                if(tbrFlag){
+                    sqlAnsInsert.append("`tbrid`,");
+                    sqlAnsInsert.append("`tbksmc`,");
+                    sqlAnsInsert.append("`tbksdm`,");
+                }
+                sqlAnsInsert.append("`tbrxm`,");
+                sqlAnsInsert.append("`table_answer_status`,");
+                sqlAnsInsert.append("`summary_mapping_table_id`");
+//                sqlAnsInsert.delete(sqlAnsInsert.length()-1,sqlAnsInsert.length());
+                sqlAnsInsert.append(") values (");
+                for (int i = 0; i < subjectList.size(); i++) {
+                    SubjectVo qsubjectDynamicTable = subjectList.get(i);
+                    String subType = qsubjectDynamicTable.getSubType();
+                    Integer del = qsubjectDynamicTable.getDel();
+                    if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                            || QuestionConstant.DEL_DELETED.equals(del) || mapCache.get(qsubjectDynamicTable.getColumnName()) == null
+                            || org.apache.commons.lang.StringUtils.isBlank(mapCache.get(qsubjectDynamicTable.getColumnName()))) {
+                        continue;
+                    }
+                    sqlAnsInsert.append("'");
+                    sqlAnsInsert.append(mapCache.get(qsubjectDynamicTable.getColumnName()));
+                    sqlAnsInsert.append("',");
+
+
+                    if (QsubjectConstant.MARK_OPEN.equals(qsubjectDynamicTable.getMark())) {
+                        String columnNameMark = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark");
+                        if (org.apache.commons.lang.StringUtils.isNotBlank(columnNameMark)) {
+                            sqlAnsInsert.append("'");
+                            sqlAnsInsert.append(columnNameMark);
+                            sqlAnsInsert.append("',");
+                        }
+
+                        String columnNameMarkImg = mapCache.get(qsubjectDynamicTable.getColumnName() + "_mark_img");
+                        if (org.apache.commons.lang.StringUtils.isNotBlank(columnNameMarkImg)) {
+                            sqlAnsInsert.append("'");
+                            sqlAnsInsert.append(columnNameMarkImg);
+                            sqlAnsInsert.append("',");
+                        }
+                    }
+                }
+                if(tbrFlag){
+                    sqlAnsInsert.append("'");
+                    sqlAnsInsert.append(answer.getCreater());
+                    sqlAnsInsert.append("',");
+
+                    sqlAnsInsert.append("'");
+                    sqlAnsInsert.append(answer.getCreaterDeptname());
+                    sqlAnsInsert.append("',");
+
+                    sqlAnsInsert.append("'");
+                    sqlAnsInsert.append(answer.getCreaterDeptid());
+                    sqlAnsInsert.append("',");
+                }
+
+                sqlAnsInsert.append("'");
+                sqlAnsInsert.append(answer.getCreaterName());
+                sqlAnsInsert.append("',");
+
+                sqlAnsInsert.append("'");
+                sqlAnsInsert.append(answer.getAnswerStatus());
+                sqlAnsInsert.append("',");
+
+                sqlAnsInsert.append("'");
+                sqlAnsInsert.append(answer.getSummaryMappingTableId());
+                sqlAnsInsert.append("'");
+//                sqlAnsInsert.delete(sqlAnsInsert.length()-1,sqlAnsInsert.length());
+
+                sqlAnsInsert.append(")");
+                log.info("updateRegisterAnswerCheckAllTable---answer-----insert sqlAnsInsert:{}", sqlAnsInsert.toString());
+                try {
+                    dynamicTableMapper.insertDynamicTable(sqlAnsInsert.toString());
+                }catch (Exception e){
+                    log.error("updateRegisterAnswerCheckAllTable--问卷quId--add table_answer_status error--quId---->"+question.getId(),e);
+                    quIdSet.add(question.getId());
+                    quNameSet.add(question.getQuName());
+                }
+            }
+        }
+
+        if(CollectionUtil.isNotEmpty(quIdSet)){
+            String join = Joiner.on("、").join(quIdSet);
+            String joinName = Joiner.on("、").join(quNameSet);
+            join = "处理检查表总表与子表数据不一致问题-查询到问卷id为"+join+",名称为"+joinName+"的报错，其他已经验证完毕";
+            return ResultFactory.fail(join);
+        }
+
+        return ResultFactory.success();
+    }
+
+    @Override
     public Result updateAnswerCheckStatisticDetailBySubtable(AdminPrivateUpdateAnswerCheckAllTableParam param) {
         //查出来所有的检查表
         LambdaQueryWrapper<Question> questionLambda = new QueryWrapper<Question>().lambda();
@@ -1461,6 +1731,106 @@ public class AdminPrivateServiceImpl extends ServiceImpl<AnswerMapper, Answer> i
         HashSet<Integer> existQuIdSet = Sets.newLinkedHashSet();
         HashSet<String> existQuNameSet = Sets.newLinkedHashSet();
         HashSet<String> quNameSet = Sets.newLinkedHashSet();
+        for (Question question : questionList) {
+            List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(question.getId());
+            Map<String, SubjectVo> subjectMap = subjectList.stream()
+                    .filter(subjectVo -> QsubjectConstant.DEL_NORMAL.equals(subjectVo.getDel()))
+                    .filter(subjectVo -> !QuestionConstant.SUB_TYPE_GROUP.equals(subjectVo.getSubType()))
+                    .filter(subjectVo -> !QuestionConstant.SUB_TYPE_TITLE.equals(subjectVo.getSubType()))
+                    .collect(Collectors.toMap(SubjectVo::getColumnName, q -> q));
+            StringBuffer sqlAnsSelect = new StringBuffer();
+            sqlAnsSelect.append("select ");
+            for (int i = 0; i < subjectList.size(); i++) {
+                SubjectVo qsubjectDynamicTable = subjectList.get(i);
+                String subType = qsubjectDynamicTable.getSubType();
+                Integer del = qsubjectDynamicTable.getDel();
+                if (QuestionConstant.SUB_TYPE_GROUP.equals(subType) || QuestionConstant.SUB_TYPE_TITLE.equals(subType)
+                        || QuestionConstant.DEL_DELETED.equals(del) ) {
+                    continue;
+                }
+
+                sqlAnsSelect.append("`");
+                sqlAnsSelect.append(qsubjectDynamicTable.getColumnName());
+                sqlAnsSelect.append("`");
+                sqlAnsSelect.append(",");
+
+                if (QsubjectConstant.MARK_OPEN.equals(qsubjectDynamicTable.getMark())) {
+                    sqlAnsSelect.append("`");
+                    sqlAnsSelect.append(qsubjectDynamicTable.getColumnName());
+                    sqlAnsSelect.append("_mark");
+                    sqlAnsSelect.append("`");
+                    sqlAnsSelect.append(",");
+
+                    sqlAnsSelect.append("`");
+                    sqlAnsSelect.append(qsubjectDynamicTable.getColumnName());
+                    sqlAnsSelect.append("_mark_img");
+                    sqlAnsSelect.append("`");
+                    sqlAnsSelect.append(",");
+                }
+            }
+            if(QuestionConstant.CATEGORY_TYPE_CHECK.equals(question.getCategoryType())){
+                sqlAnsSelect.append("`tbrid`,");
+                sqlAnsSelect.append("`tbrxm`,");
+            }
+            sqlAnsSelect.append("`tbksmc`,");
+            sqlAnsSelect.append("`tbksdm`,");
+            sqlAnsSelect.append("`table_answer_status`,");
+            sqlAnsSelect.append("`summary_mapping_table_id`");
+//                sqlAnsSelect.delete(sqlAnsSelect.length()-1,sqlAnsSelect.length());
+            sqlAnsSelect.append(" from `");
+            sqlAnsSelect.append(question.getTableName());
+            sqlAnsSelect.append("` limit 1 ");
+            log.info("updateAnswerCheckAllTable---selectQuestionAllTable-----select sqlAnsSelect:{}", sqlAnsSelect.toString());
+            try {
+                dynamicTableMapper.selectDynamicTableColumnList(sqlAnsSelect.toString());
+            } catch (Exception e) {
+                log.error("问卷quId--select selectQuestionAllTable error--quId---->" + question.getId(), e);
+                if( e.getMessage().contains("Table") &&  e.getMessage().contains("doesn't exist")) {
+                    existQuIdSet.add(question.getId());
+                    existQuNameSet.add(question.getQuName());
+                }
+                alterTable(question, e, subjectMap,sqlAnsSelect.toString());
+
+                quIdSet.add(question.getId());
+                quNameSet.add(question.getQuName());
+            }
+        }
+        if(CollectionUtil.isNotEmpty(existQuIdSet)){
+            String join = Joiner.on("、").join(existQuIdSet);
+            String joinName = Joiner.on("、").join(existQuNameSet);
+            join = "查询所有问卷子表数据是否缺失并自动添加缺少字段-查询到问卷id为"+join+",名称为"+joinName+"的报错，已发布但未查到子表，处理后再次执行该方法";
+            return ResultFactory.fail(join);
+        }
+        if(CollectionUtil.isNotEmpty(quIdSet)){
+            String join = Joiner.on("、").join(quIdSet);
+            String joinName = Joiner.on("、").join(quNameSet);
+            join = "查询所有问卷子表数据是否缺失并自动添加缺少字段-查询到问卷id为"+join+",名称为"+joinName+"的报错，已经为报错问卷增加字段，其他已经验证完毕，再次执行该方法";
+            return ResultFactory.fail(join);
+        }
+        return ResultFactory.success();
+    }
+
+
+    @Override
+    public Result selectRegisterQuestionAllTable(AdminPrivateUpdateAnswerAllTableParam param) {
+        //查出来所有的问卷
+        LambdaQueryWrapper<Question> questionLambda = new QueryWrapper<Question>().lambda();
+        questionLambda.eq(Question::getQuStatus, QuestionConstant.QU_STATUS_RELEASE);
+        questionLambda.eq(Question::getCategoryType, QuestionConstant.CATEGORY_TYPE_REGISTER);
+        questionLambda.eq(Question::getDel, QuestionConstant.DEL_NORMAL);
+        questionLambda.orderByAsc(Question::getId);
+        List<Integer> quId = param.getQuId();
+        if(CollectionUtil.isNotEmpty(quId)){
+            questionLambda.in(Question::getId, quId);
+        }
+        List<Question> questionList = questionMapper.selectList(questionLambda);
+        if(CollectionUtil.isEmpty(questionList)){
+            return ResultFactory.fail("没有查到需要查询的问卷");
+        }
+        HashSet<Integer> quIdSet = Sets.newHashSet();
+        HashSet<Integer> existQuIdSet = Sets.newHashSet();
+        HashSet<String> existQuNameSet = Sets.newHashSet();
+        HashSet<String> quNameSet = Sets.newHashSet();
         for (Question question : questionList) {
             List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(question.getId());
             Map<String, SubjectVo> subjectMap = subjectList.stream()
