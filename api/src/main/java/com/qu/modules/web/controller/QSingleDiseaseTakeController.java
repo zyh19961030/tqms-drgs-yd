@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.qu.constant.Constant;
 import com.qu.constant.QSingleDiseaseTakeConstant;
+import com.qu.modules.web.entity.Getdzbxx;
 import com.qu.modules.web.entity.TbDep;
 import com.qu.modules.web.entity.TbUser;
 import com.qu.modules.web.param.*;
@@ -64,6 +65,9 @@ public class QSingleDiseaseTakeController {
 
     @Autowired
     private ITbDepService tbDepService;
+
+    @Autowired
+    private GetdzbxxService getdzbxxService;
 
 
     /**
@@ -1286,7 +1290,15 @@ public class QSingleDiseaseTakeController {
         qSingleDiseaseTakeService.runSingleDiseaseTakeRecsiveSave(map);
     }
 
-
+    /**
+     * 单病种视图接收
+     */
+    @AutoLog(value = "单病种视图接收")
+    @ApiOperation(value = "单病种视图接收", notes = "单病种视图接收")
+    @GetMapping(value = "/getdzbxx")
+    public void getdzbxx(String caseId) {
+        getdzbxxService.queryGetdzbxxInsertDrgs();
+    }
 
 
 
