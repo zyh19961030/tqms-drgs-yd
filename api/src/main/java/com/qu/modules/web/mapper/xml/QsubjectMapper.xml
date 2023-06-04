@@ -54,4 +54,9 @@
         select sub_name from qsubject where qu_id = #{quid} and column_name = #{columnName} and del = 0
     </select>
 
+    <select id="querySubColumnNameByTableName" resultType="java.lang.String">
+        select s.column_name from qsubject s, question q where s.qu_id = q.id and s.column_name is not null and q.table_name = #{tableName}
+    </select>
+
+
 </mapper>

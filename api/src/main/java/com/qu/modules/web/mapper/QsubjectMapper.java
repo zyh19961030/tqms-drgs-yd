@@ -40,4 +40,6 @@ public interface QsubjectMapper extends BaseMapper<Qsubject> {
 
     String querySubNameByQuidAndColumnName(Integer quid, String columnName);
 
+    List<String> querySubColumnNameByTableName(String tableName);
+
 }
