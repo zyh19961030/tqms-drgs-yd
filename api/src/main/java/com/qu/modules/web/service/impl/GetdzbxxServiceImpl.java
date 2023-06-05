@@ -24,7 +24,6 @@ public class GetdzbxxServiceImpl extends ServiceImpl<GetdzbxxMapper, Getdzbxx> i
     @Override
     public List<HashMap<Object, Object>> queryDRGIDList(String time_6, String time_7) {
         List<HashMap<Object, Object>> list = new ArrayList<>();
-        HashMap<Object, Object> map = new HashMap<>();
         //获取6天前上报单病种名称集合
         List<String> DRGIDList = getdzbxxMapper.queryDRGID(time_6, time_7);
         if (DRGIDList != null && DRGIDList.size() > 0) {
@@ -33,8 +32,12 @@ public class GetdzbxxServiceImpl extends ServiceImpl<GetdzbxxMapper, Getdzbxx> i
                 List<Getdzbxx> getdzbxxList = getdzbxxMapper.queryGetdzbxx(DRGID, time_6, time_7);
                 //对应试图与tqmsn中单病种子表名称
                 if ("CAPC".equals(DRGID)) {
-                    DRGID = "CAP";
+                    DRGID = "Cap";
                 }
+                if ("CAP".equals(DRGID)) {
+                    DRGID = "CapAdult";
+                }
+                HashMap<Object, Object> map = new HashMap<>();
                 map.put("DRGID", DRGID);
                 map.put("getdzbxxList", getdzbxxList);
                 list.add(map);

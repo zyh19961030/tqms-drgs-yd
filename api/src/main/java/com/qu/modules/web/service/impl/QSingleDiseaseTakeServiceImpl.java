@@ -1732,8 +1732,10 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                             map.put("`"+colid+"`", colcode);
                         }
                     }
-                    genTableColumnMapper.insertData(map, "drgs_"+DRGID.toLowerCase());
-                    log.info("添加单病种子表drgs_"+DRGID.toLowerCase()+"数据。");
+                    if (!map.isEmpty()) {
+                        genTableColumnMapper.insertData(map, "drgs_"+DRGID.toLowerCase());
+                        log.info("添加单病种子表drgs_"+DRGID.toLowerCase()+"数据。");
+                    }
                 }
             }
         }
