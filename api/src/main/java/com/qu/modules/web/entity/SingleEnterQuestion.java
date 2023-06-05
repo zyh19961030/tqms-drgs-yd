@@ -51,4 +51,16 @@ public class SingleEnterQuestion {
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "更新时间")
 	private Date updateTime;
+	/**录入表单名称*/
+	@Excel(name = "录入表单名称", width = 15)
+	@ApiModelProperty(value = "录入表单名称")
+	private String name;
+	/**题目id*/
+	@Excel(name = "题目id", width = 15)
+	@ApiModelProperty(value = "题目id")
+	private Integer subjectId;
+	/**题目数据库列名*/
+	@Excel(name = "题目数据库列名", width = 15)
+	@ApiModelProperty(value = "题目数据库列名")
+	private String subjectColumnName;
 }
