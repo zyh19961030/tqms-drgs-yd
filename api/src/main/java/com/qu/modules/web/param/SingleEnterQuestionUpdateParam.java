@@ -36,4 +36,10 @@ public class SingleEnterQuestionUpdateParam {
 	@ApiModelProperty(value = "填报题目id集合")
 	private List<Integer> subjectId;
 
+	@ApiModelProperty(value = "录入表单名称")
+	private String name;
+
+	@ApiModelProperty(value = "筛选题目id")
+	private Integer selectSubjectId;
+
 }

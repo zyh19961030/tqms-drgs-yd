@@ -29,6 +29,12 @@ public class SingleEnterQuestionInfoVo {
     @ApiModelProperty(value = "查检表名称")
     private String questionName;
 
+    @ApiModelProperty(value = "录入表单名称")
+    private String name;
+
+    @ApiModelProperty(value = "筛选题目id")
+    private Integer selectSubjectId;
+
 //    @ApiModelProperty(value = "分类名称")
 //    private String questionNameCategoryName;
 
