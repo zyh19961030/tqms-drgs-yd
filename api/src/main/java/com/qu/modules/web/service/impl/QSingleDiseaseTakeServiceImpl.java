@@ -17,10 +17,7 @@ import com.qu.modules.web.entity.*;
 import com.qu.modules.web.mapper.*;
 import com.qu.modules.web.param.*;
 import com.qu.modules.web.pojo.JsonRootBean;
-import com.qu.modules.web.service.IQSingleDiseaseTakeService;
-import com.qu.modules.web.service.IQuestionService;
-import com.qu.modules.web.service.ISubjectService;
-import com.qu.modules.web.service.ITbDepService;
+import com.qu.modules.web.service.*;
 import com.qu.modules.web.vo.*;
 import com.qu.util.*;
 import com.qu.util.HttpTools.HttpData;
@@ -42,6 +39,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -86,6 +84,12 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
 
     @Autowired
     private GenTableColumnMapper genTableColumnMapper;
+
+    @Autowired
+    private QsubjectMapper qsubjectMapper;
+
+    @Autowired
+    private GetdzbxxService getdzbxxService;
 
 
     @Value("${system.tokenUrl}")
@@ -1697,6 +1701,42 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         //保存单病种总表数据
         qSingleDiseaseTakeMapper.saveqSingleDiseaseTake(qSingleDiseaseTake);
 
+    }
+
+    @Override
+    public void getGetdzbxxInsertDrgs() {
+        SimpleDateFormat formatter  = new SimpleDateFormat("yyyyMMdd");
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DATE, -5);
+        Date date_6 = calendar.getTime();
+        String time_6 = formatter.format(date_6);
+        calendar.add(Calendar.DATE, -1);
+        Date date_7 = calendar.getTime();
+        String time_7 = formatter.format(date_7);
+        //获取6天前上报单病种名称集合
+        List<HashMap<Object, Object>> list = getdzbxxService.queryDRGIDList(time_6, time_7);
+        if (list != null && list.size() > 0) {
+            for (HashMap<Object, Object> map_all : list) {
+                if (!map_all.isEmpty()) {
+                    String DRGID = map_all.get("DRGID")+"";
+                    List<Getdzbxx> getdzbxxList = (List<Getdzbxx>)map_all.get("getdzbxxList");
+                    //获取TQMS中单病种子表的字段
+                    List<String> columnNameList = qsubjectMapper.querySubColumnNameByTableName("DRGS_"+DRGID);
+                    HashMap map = new HashMap<>();
+                    for (Getdzbxx getdzbxx : getdzbxxList) {
+                        String colid = getdzbxx.getCOLID();
+                        String colcode = getdzbxx.getCOLCODE();
+                        //只解析存在于TQMS子表字段中的数据
+                        if (columnNameList.contains(colid)){
+                            map.put("`"+colid+"`", colcode);
+                        }
+                    }
+                    genTableColumnMapper.insertData(map, "drgs_"+DRGID.toLowerCase());
+                    log.info("添加单病种子表drgs_"+DRGID.toLowerCase()+"数据。");
+                }
+            }
+        }
     }
 
 }

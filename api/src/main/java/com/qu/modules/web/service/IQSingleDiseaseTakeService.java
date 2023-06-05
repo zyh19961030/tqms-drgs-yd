@@ -78,4 +78,6 @@ public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake>
 
     void runSingleDiseaseTakeRecsiveSave(Map<String, Object> map);
 
+    void getGetdzbxxInsertDrgs();
+
 }

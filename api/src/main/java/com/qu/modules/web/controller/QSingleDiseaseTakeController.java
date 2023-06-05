@@ -1296,8 +1296,8 @@ public class QSingleDiseaseTakeController {
     @AutoLog(value = "单病种视图接收")
     @ApiOperation(value = "单病种视图接收", notes = "单病种视图接收")
     @GetMapping(value = "/getdzbxx")
-    public void getdzbxx(String caseId) {
-        getdzbxxService.queryGetdzbxxInsertDrgs();
+    public void getdzbxx() {
+        qSingleDiseaseTakeService.getGetdzbxxInsertDrgs();
     }
 
 
