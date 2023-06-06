@@ -1,7 +1,25 @@
 package com.qu.modules.web.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateUtil;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -12,29 +30,57 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.qu.constant.*;
-import com.qu.modules.web.entity.*;
+import com.qu.constant.AnswerConstant;
+import com.qu.constant.Constant;
+import com.qu.constant.QsubjectConstant;
+import com.qu.constant.QuestionConstant;
+import com.qu.constant.SingleEnterQuestionConstant;
+import com.qu.constant.TbDataConstant;
+import com.qu.modules.web.entity.Answer;
+import com.qu.modules.web.entity.Qsubject;
+import com.qu.modules.web.entity.Question;
+import com.qu.modules.web.entity.SingleEnterQuestion;
+import com.qu.modules.web.entity.SingleEnterQuestionColumn;
+import com.qu.modules.web.entity.SingleEnterQuestionSubject;
+import com.qu.modules.web.entity.TbData;
+import com.qu.modules.web.entity.TbDep;
 import com.qu.modules.web.mapper.DynamicTableMapper;
 import com.qu.modules.web.mapper.SingleEnterQuestionMapper;
-import com.qu.modules.web.param.*;
+import com.qu.modules.web.param.Answers;
+import com.qu.modules.web.param.IdIntegerParam;
+import com.qu.modules.web.param.QuestionCheckParam;
+import com.qu.modules.web.param.SingleEnterQuestionAddParam;
+import com.qu.modules.web.param.SingleEnterQuestionAmendmentSaveDataParam;
+import com.qu.modules.web.param.SingleEnterQuestionEnterQuestionHeadListParam;
+import com.qu.modules.web.param.SingleEnterQuestionEnterQuestionListParam;
+import com.qu.modules.web.param.SingleEnterQuestionListParam;
+import com.qu.modules.web.param.SingleEnterQuestionSaveDataParam;
+import com.qu.modules.web.param.SingleEnterQuestionUpdateParam;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.pojo.JsonRootBean;
-import com.qu.modules.web.service.*;
-import com.qu.modules.web.vo.*;
+import com.qu.modules.web.service.IAnswerService;
+import com.qu.modules.web.service.IQuestionService;
+import com.qu.modules.web.service.ISingleEnterQuestionColumnService;
+import com.qu.modules.web.service.ISingleEnterQuestionService;
+import com.qu.modules.web.service.ISingleEnterQuestionSubjectService;
+import com.qu.modules.web.service.ISubjectService;
+import com.qu.modules.web.service.ITbDataService;
+import com.qu.modules.web.service.ITbDepService;
+import com.qu.modules.web.vo.AnswerIdVo;
+import com.qu.modules.web.vo.EnterQuestionDataListCompleteVo;
+import com.qu.modules.web.vo.SingleEnterQuestionEnterQuestionHeadListDetailVo;
+import com.qu.modules.web.vo.SingleEnterQuestionEnterQuestionHeadListVo;
+import com.qu.modules.web.vo.SingleEnterQuestionInfoSubjectVo;
+import com.qu.modules.web.vo.SingleEnterQuestionInfoVo;
+import com.qu.modules.web.vo.SingleEnterQuestionListVo;
+import com.qu.modules.web.vo.SingleEnterQuestionQuestionCheckVo;
+import com.qu.modules.web.vo.SubjectVo;
 import com.qu.util.HttpClient;
 import com.qu.util.PojoUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.jeecg.common.api.vo.ResultBetter;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: 录入表单表
@@ -366,6 +412,7 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
         return ResultBetter.ok();
     }
 
+    @Override
     public List<SingleEnterQuestion> selectAllByQuestionIdList(List<Integer> questionIdList) {
         if(CollectionUtil.isEmpty(questionIdList)){
             return Collections.emptyList();
@@ -492,9 +539,15 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
         sqlCount.append(question.getTableName());
         sqlCount.append("` where  del = '0' and table_answer_status = '0' ");
         if(param.getStatus().equals(SingleEnterQuestionConstant.ENTER_QUESTION_DATA_LIST_STATUS_HANDLE)){
-            sqlCount.append("and need_fill = 'y' ");
+            sqlCount.append("and  ");
+            sqlCount.append(selectByQuestionId.getSubjectColumnName());
+            sqlCount.append(" = 'y' ");
         }else{
-            sqlCount.append("and (need_fill = 'y1' or need_fill = 'y2') ");
+            sqlCount.append("and (");
+            sqlCount.append(selectByQuestionId.getSubjectColumnName());
+            sqlCount.append(" = 'y1' or ");
+            sqlCount.append(selectByQuestionId.getSubjectColumnName());
+            sqlCount.append(" = 'y2') ");
         }
         Long total = dynamicTableMapper.countDynamicTable(sqlCount.toString());
         if(total ==null || total<=0){
@@ -513,9 +566,15 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
         sqlSelect.append(question.getTableName());
         sqlSelect.append("` where del = '0' and table_answer_status = '0'  ");
         if(param.getStatus().equals(SingleEnterQuestionConstant.ENTER_QUESTION_DATA_LIST_STATUS_HANDLE)){
-            sqlSelect.append("and need_fill = 'y' ");
+            sqlCount.append("and  ");
+            sqlCount.append(selectByQuestionId.getSubjectColumnName());
+            sqlCount.append(" = 'y' ");
         }else{
-            sqlSelect.append("and (need_fill = 'y1' or need_fill = 'y2') ");
+            sqlCount.append("and (");
+            sqlCount.append(selectByQuestionId.getSubjectColumnName());
+            sqlCount.append(" = 'y1' or ");
+            sqlCount.append(selectByQuestionId.getSubjectColumnName());
+            sqlCount.append(" = 'y2') ");
         }
         sqlSelect.append("limit ");
         sqlSelect.append((pageNo - 1) * pageSize);

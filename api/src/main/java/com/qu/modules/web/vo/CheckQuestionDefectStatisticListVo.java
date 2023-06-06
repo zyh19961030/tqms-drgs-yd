@@ -58,4 +58,12 @@ public class CheckQuestionDefectStatisticListVo {
     private String passStatus;
 
 
+    @ApiModelProperty(value = "缺陷项目数")
+    private Integer defectCount;
+
+    @ApiModelProperty(value = "存在问题")
+    private String problem;
+
+
+
 }

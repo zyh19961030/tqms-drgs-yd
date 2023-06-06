@@ -1269,6 +1269,24 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             if (StringUtils.isNotBlank(passStatus)) {
                 vo.setPassStatus(passStatus);
             }
+
+            //
+            Integer defectCount = 0;
+            StringBuffer problem = new StringBuffer();
+            for (Map.Entry<String, String> entry : dataItemMap.entrySet()) {
+                String key = entry.getKey();
+                String value = String.valueOf(entry.getValue());
+                if(StringUtils.isNotBlank(value) && value.contains("n") && !key.contains("_mark_img")){
+                    defectCount++;
+                }
+
+                if(StringUtils.isNotBlank(key) && key.contains("_mark") && !key.contains("_mark_img")){
+                    problem.append(value);
+                    problem.append(";");
+                }
+            }
+            vo.setDefectCount(defectCount);
+            vo.setProblem(problem.toString());
         }
         return resList;
     }
