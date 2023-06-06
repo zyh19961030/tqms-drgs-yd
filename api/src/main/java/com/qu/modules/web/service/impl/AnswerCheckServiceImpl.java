@@ -1276,11 +1276,11 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             for (Map.Entry<String, String> entry : dataItemMap.entrySet()) {
                 String key = entry.getKey();
                 String value = String.valueOf(entry.getValue());
-                if(StringUtils.isNotBlank(value) && value.contains("n") && !key.contains("_mark_img")){
+                if(StringUtils.isNotBlank(value) && value.contains("n") && !key.contains("_mark_img") && !key.contains("pass_status")){
                     defectCount++;
                 }
 
-                if(StringUtils.isNotBlank(key) && key.contains("_mark") && !key.contains("_mark_img")){
+                if(StringUtils.isNotBlank(key) && key.contains("_mark") && !key.contains("_mark_img") && !key.contains("pass_status")){
                     problem.append(value);
                     problem.append(";");
                 }
