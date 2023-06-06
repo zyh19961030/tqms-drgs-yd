@@ -1225,12 +1225,13 @@ public class AnswerCheckServiceImpl extends ServiceImpl<AnswerCheckMapper, Answe
             Integer defectCount = 0;
             StringBuffer problem = new StringBuffer();
             for (Map.Entry<String, String> entry : dataItemMap.entrySet()) {
-                String value = entry.getValue();
-                if(StringUtils.isNotBlank(value) && value.contains("n")){
+                String key = entry.getKey();
+                String value = String.valueOf(entry.getValue());
+                if(StringUtils.isNotBlank(value) && value.contains("n") && !key.contains("_mark_img")){
                     defectCount++;
                 }
-                String key = entry.getKey();
-                if(StringUtils.isNotBlank(key) && key.contains("_mark")){
+
+                if(StringUtils.isNotBlank(key) && key.contains("_mark") && !key.contains("_mark_img")){
                     problem.append(value);
                     problem.append(";");
                 }
