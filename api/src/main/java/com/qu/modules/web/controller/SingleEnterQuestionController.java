@@ -1,30 +1,46 @@
 package com.qu.modules.web.controller;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.api.vo.ResultBetter;
+import org.jeecg.common.aspect.annotation.AutoLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.qu.constant.Constant;
 import com.qu.modules.web.entity.SingleEnterQuestion;
-import com.qu.modules.web.param.*;
+import com.qu.modules.web.param.IdIntegerParam;
+import com.qu.modules.web.param.QuestionCheckParam;
+import com.qu.modules.web.param.SingleEnterQuestionAddParam;
+import com.qu.modules.web.param.SingleEnterQuestionAmendmentSaveDataParam;
+import com.qu.modules.web.param.SingleEnterQuestionEnterQuestionHeadListParam;
+import com.qu.modules.web.param.SingleEnterQuestionEnterQuestionListParam;
+import com.qu.modules.web.param.SingleEnterQuestionListParam;
+import com.qu.modules.web.param.SingleEnterQuestionSaveDataParam;
+import com.qu.modules.web.param.SingleEnterQuestionUpdateParam;
 import com.qu.modules.web.pojo.Data;
 import com.qu.modules.web.service.ISingleEnterQuestionService;
 import com.qu.modules.web.vo.SingleEnterQuestionEnterQuestionHeadListVo;
 import com.qu.modules.web.vo.SingleEnterQuestionInfoVo;
 import com.qu.modules.web.vo.SingleEnterQuestionListVo;
 import com.qu.modules.web.vo.SingleEnterQuestionQuestionCheckVo;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.api.vo.ResultBetter;
-import org.jeecg.common.aspect.annotation.AutoLog;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.util.LinkedHashMap;
-import java.util.List;
 
 /**
  * @Description: 录入表单表
@@ -148,7 +164,7 @@ public class SingleEnterQuestionController {
 
     @ApiOperation(value = "保存", notes = "保存")
     @PostMapping(value = "/saveData")
-    public ResultBetter saveData(@RequestBody SingleEnterQuestionSaveDataParam saveParam, HttpServletRequest request) {
+    public ResultBetter saveData(@RequestBody @Valid SingleEnterQuestionSaveDataParam saveParam, HttpServletRequest request) {
         String token = request.getHeader("token");
         String cookie = "JSESSIONID=" + token;
         log.info("-----------saveParam={}", JSON.toJSONString(saveParam));
@@ -158,7 +174,7 @@ public class SingleEnterQuestionController {
 
     @ApiOperation(value = "修订", notes = "修订")
     @PostMapping(value = "/amendmentSaveData")
-    public ResultBetter amendmentSaveData(@RequestBody SingleEnterQuestionAmendmentSaveDataParam amendmentSaveDataParam, HttpServletRequest request) {
+    public ResultBetter amendmentSaveData(@RequestBody @Valid SingleEnterQuestionAmendmentSaveDataParam amendmentSaveDataParam, HttpServletRequest request) {
         String token = request.getHeader("token");
         String cookie = "JSESSIONID=" + token;
         log.info("-----------amendmentSaveDataParam={}", JSON.toJSONString(amendmentSaveDataParam));
