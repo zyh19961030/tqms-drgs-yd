@@ -472,11 +472,11 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
 
     @Override
     public ResultBetter<SingleEnterQuestionEnterQuestionHeadListVo> enterQuestionHeadList(SingleEnterQuestionEnterQuestionHeadListParam param) {
-        SingleEnterQuestion selectByQuestionId = this.getById(param.getSingleEnterQuestionId());
-        if(Objects.isNull(selectByQuestionId) || Constant.DEL_DELETED.equals(selectByQuestionId.getDel())) {
+        SingleEnterQuestion singleEnterQuestion = this.getById(param.getSingleEnterQuestionId());
+        if(Objects.isNull(singleEnterQuestion) || Constant.DEL_DELETED.equals(singleEnterQuestion.getDel())) {
             return ResultBetter.error("录入表不存在");
         }
-        Integer questionId = selectByQuestionId.getQuestionId();
+        Integer questionId = singleEnterQuestion.getQuestionId();
         Question question = questionService.getById(questionId);
         if(Objects.isNull(question) || QuestionConstant.DEL_DELETED.equals(question.getDel())) {
             return ResultBetter.error("登记表不存在");
@@ -484,8 +484,8 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
 
         SingleEnterQuestionEnterQuestionHeadListVo vo = new SingleEnterQuestionEnterQuestionHeadListVo();
 
-        List<SingleEnterQuestionColumn> singleEnterQuestionColumnList =  singleEnterQuestionColumnService.selectBySingleEnterQuestionId(selectByQuestionId.getId());
-        List<SingleEnterQuestionSubject> singleEnterQuestionSubjectList =  singleEnterQuestionSubjectService.selectBySingleEnterQuestionId(selectByQuestionId.getId());
+        List<SingleEnterQuestionColumn> singleEnterQuestionColumnList =  singleEnterQuestionColumnService.selectBySingleEnterQuestionId(singleEnterQuestion.getId());
+        List<SingleEnterQuestionSubject> singleEnterQuestionSubjectList =  singleEnterQuestionSubjectService.selectBySingleEnterQuestionId(singleEnterQuestion.getId());
 
         List<Integer> subjectIdList = singleEnterQuestionColumnList.stream().map(SingleEnterQuestionColumn::getSubjectId).distinct().collect(Collectors.toList());
         subjectIdList.addAll( singleEnterQuestionSubjectList.stream().map(SingleEnterQuestionSubject::getSubjectId).distinct().collect(Collectors.toList()));
@@ -524,11 +524,11 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
     @Override
     public IPage<LinkedHashMap<String, Object>> enterQuestionDataList(SingleEnterQuestionEnterQuestionListParam param, Integer pageNo, Integer pageSize) {
 
-        SingleEnterQuestion selectByQuestionId = this.getById(param.getSingleEnterQuestionId());
-        if(Objects.isNull(selectByQuestionId) || Constant.DEL_DELETED.equals(selectByQuestionId.getDel())) {
+        SingleEnterQuestion singleEnterQuestion = this.getById(param.getSingleEnterQuestionId());
+        if(Objects.isNull(singleEnterQuestion) || Constant.DEL_DELETED.equals(singleEnterQuestion.getDel())) {
             return new Page<>();
         }
-        Integer questionId = selectByQuestionId.getQuestionId();
+        Integer questionId = singleEnterQuestion.getQuestionId();
         Question question = questionService.getById(questionId);
         if(Objects.isNull(question) || QuestionConstant.DEL_DELETED.equals(question.getDel())) {
             return new Page<>();
@@ -540,13 +540,13 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
         sqlCount.append("` where  del = '0' and table_answer_status = '0' ");
         if(param.getStatus().equals(SingleEnterQuestionConstant.ENTER_QUESTION_DATA_LIST_STATUS_HANDLE)){
             sqlCount.append("and  ");
-            sqlCount.append(selectByQuestionId.getSubjectColumnName());
+            sqlCount.append(singleEnterQuestion.getSubjectColumnName());
             sqlCount.append(" = 'y' ");
         }else{
             sqlCount.append("and (");
-            sqlCount.append(selectByQuestionId.getSubjectColumnName());
+            sqlCount.append(singleEnterQuestion.getSubjectColumnName());
             sqlCount.append(" = 'y1' or ");
-            sqlCount.append(selectByQuestionId.getSubjectColumnName());
+            sqlCount.append(singleEnterQuestion.getSubjectColumnName());
             sqlCount.append(" = 'y2') ");
         }
         Long total = dynamicTableMapper.countDynamicTable(sqlCount.toString());
@@ -557,8 +557,8 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
         List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(questionId);
         Map<Integer, SubjectVo> subjectMap = subjectList.stream().collect(Collectors.toMap(SubjectVo::getId, Function.identity()));
 
-        List<SingleEnterQuestionColumn> singleEnterQuestionColumnList =  singleEnterQuestionColumnService.selectBySingleEnterQuestionId(selectByQuestionId.getId());
-        List<SingleEnterQuestionSubject> singleEnterQuestionSubjectList =  singleEnterQuestionSubjectService.selectBySingleEnterQuestionId(selectByQuestionId.getId());
+        List<SingleEnterQuestionColumn> singleEnterQuestionColumnList =  singleEnterQuestionColumnService.selectBySingleEnterQuestionId(singleEnterQuestion.getId());
+        List<SingleEnterQuestionSubject> singleEnterQuestionSubjectList =  singleEnterQuestionSubjectService.selectBySingleEnterQuestionId(singleEnterQuestion.getId());
 
 
         StringBuffer sqlSelect = new StringBuffer();
@@ -567,13 +567,13 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
         sqlSelect.append("` where del = '0' and table_answer_status = '0'  ");
         if(param.getStatus().equals(SingleEnterQuestionConstant.ENTER_QUESTION_DATA_LIST_STATUS_HANDLE)){
             sqlCount.append("and  ");
-            sqlCount.append(selectByQuestionId.getSubjectColumnName());
+            sqlCount.append(singleEnterQuestion.getSubjectColumnName());
             sqlCount.append(" = 'y' ");
         }else{
             sqlCount.append("and (");
-            sqlCount.append(selectByQuestionId.getSubjectColumnName());
+            sqlCount.append(singleEnterQuestion.getSubjectColumnName());
             sqlCount.append(" = 'y1' or ");
-            sqlCount.append(selectByQuestionId.getSubjectColumnName());
+            sqlCount.append(singleEnterQuestion.getSubjectColumnName());
             sqlCount.append(" = 'y2') ");
         }
         sqlSelect.append("limit ");
@@ -585,6 +585,7 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
         for (Map<String, String> dataItemMap : dataList) {
             LinkedHashMap<String, Object> valueItem = Maps.newLinkedHashMap();
             valueItem.put("mappingTableId",dataItemMap.get("summary_mapping_table_id"));
+            valueItem.put("singleEnterQuestionId",singleEnterQuestion.getId());
             for (SingleEnterQuestionColumn singleEnterQuestionColumn : singleEnterQuestionColumnList) {
                 SubjectVo qsubject = subjectMap.get(singleEnterQuestionColumn.getSubjectId());
                 if (qsubject == null || QsubjectConstant.SUB_TYPE_TITLE.equals(qsubject.getSubType())) {
@@ -620,10 +621,10 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
     @Override
     public ResultBetter saveData(String cookie, SingleEnterQuestionSaveDataParam saveParam) {
         //解析token
-        return getResultBetter(cookie, saveParam.getMappingTableId(),saveParam.getAnswers(),AnswerConstant.SINGLE_ENTER_QUESTION_ANSWER_STATUS_SAVE);
+        return getResultBetter(cookie, saveParam.getMappingTableId(),saveParam.getAnswers(),AnswerConstant.SINGLE_ENTER_QUESTION_ANSWER_STATUS_SAVE,saveParam.getSingleEnterQuestionId());
     }
 
-    private ResultBetter getResultBetter(String cookie, String mappingTableId,Answers[] answers,Integer type) {
+    private ResultBetter getResultBetter(String cookie, String mappingTableId,Answers[] answers,Integer type,Integer singleEnterQuestionId) {
         String res = HttpClient.doPost(tokenUrl, cookie, null);
         JsonRootBean jsonRootBean = JSON.parseObject(res, JsonRootBean.class);
         String creater = "";
@@ -655,6 +656,11 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
         Question question = questionService.getById(quId);
         if (question == null || QuestionConstant.DEL_DELETED.equals(question.getDel())) {
             return ResultBetter.error("问卷不存在,无法保存。");
+        }
+
+        SingleEnterQuestion singleEnterQuestion = this.getById(singleEnterQuestionId);
+        if(Objects.isNull(singleEnterQuestion) || Constant.DEL_DELETED.equals(singleEnterQuestion.getDel())) {
+            return ResultBetter.error("录入表不存在");
         }
 
         //插入总表
@@ -730,8 +736,9 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
         answerService.updateById(answer);
         //保存痕迹相关
         answerService.saveAnswerMark(mapCache,subjectList,answer,question,creater,AnswerConstant.SOURCE_PC);
+        //查
 
-        //插入子表
+        //更新子表
         StringBuffer sqlAns = new StringBuffer();
         sqlAns.append("update `").append(question.getTableName()).append( "` set ");
         for (int i = 0; i < subjectList.size(); i++) {
@@ -753,12 +760,20 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
             sqlAns.append(",");
         }
         if(type.equals(AnswerConstant.SINGLE_ENTER_QUESTION_ANSWER_STATUS_SAVE)){
-
-            sqlAns.append("`need_fill`='y1',");
+            sqlAns.append("`");
+            sqlAns.append(singleEnterQuestion.getSubjectColumnName());
+            sqlAns.append("`");
+            sqlAns.append(" = 'y1',");
         }else if(type.equals(AnswerConstant.SINGLE_ENTER_QUESTION_ANSWER_STATUS_AMENDMENT)){
-            sqlAns.append("`need_fill`='y2',");
+            sqlAns.append("`");
+            sqlAns.append(singleEnterQuestion.getSubjectColumnName());
+            sqlAns.append("`");
+            sqlAns.append(" = 'y2',");
         }else{
-            sqlAns.append("`need_fill`='y9',");
+            sqlAns.append("`");
+            sqlAns.append(singleEnterQuestion.getSubjectColumnName());
+            sqlAns.append("`");
+            sqlAns.append(" = 'y9',");
         }
 
         sqlAns.append("`tbksmc`='");
@@ -782,6 +797,6 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
 
     @Override
     public ResultBetter amendmentSaveData(String cookie, SingleEnterQuestionAmendmentSaveDataParam amendmentSaveDataParam) {
-        return getResultBetter(cookie, amendmentSaveDataParam.getMappingTableId(),amendmentSaveDataParam.getAnswers(),AnswerConstant.SINGLE_ENTER_QUESTION_ANSWER_STATUS_AMENDMENT);
+        return getResultBetter(cookie, amendmentSaveDataParam.getMappingTableId(),amendmentSaveDataParam.getAnswers(),AnswerConstant.SINGLE_ENTER_QUESTION_ANSWER_STATUS_AMENDMENT,amendmentSaveDataParam.getSingleEnterQuestionId());
     }
 }
