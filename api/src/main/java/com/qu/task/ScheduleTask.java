@@ -22,6 +22,7 @@ public class ScheduleTask {
     @Autowired
     private IQSingleDiseaseTakeService qSingleDiseaseTakeService;
 
+
     // 每天凌晨1点执行
 //    @Scheduled(cron = "0 0 1 * * ?")
     // 每半小时执行一次
@@ -37,5 +38,14 @@ public class ScheduleTask {
         log.info("ScheduleTask start 单病种上报：{}-----时间----->{}",uuid,new Date());
         qSingleDiseaseTakeService.runSingleDiseaseTakeReport();
         log.info("ScheduleTask end 单病种上报：{}-----时间----->{}",uuid,new Date());
+    }
+
+    @Scheduled(cron = "0 0 1 * * ?")
+    public void getdzbxx() {
+        String uuid= UUID.randomUUID().toString();
+        log.info("{}",uuid);
+        log.info("ScheduleTask start 抓取getdzbxx视图数据：{}-----时间----->{}",uuid,new Date());
+        qSingleDiseaseTakeService.getGetdzbxxInsertDrgs();
+        log.info("ScheduleTask end 抓取getdzbxx视图数据：{}-----时间----->{}",uuid,new Date());
     }
 }

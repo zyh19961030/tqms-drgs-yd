@@ -3,11 +3,15 @@
 <mapper namespace="com.qu.modules.web.mapper.GetdzbxxMapper">
 
 
-    <select id="queryGetdzbxx" resultType="com.qu.modules.web.entity.Getdzbxx">
-        select * from getdzbxx where DRGID = #{DRGID} and SBSJ between #{time_7} and #{time_6}
-    </select>
-
     <select id="queryDRGID" resultType="java.lang.String">
         select distinct DRGID from getdzbxx where SBSJ between #{time_7} and #{time_6}
+    </select>
+
+    <select id="queryCaseId" resultType="java.lang.String">
+        select CaseId from getdzbxx where DRGID = #{DRGID} and SBSJ between #{time_7} and #{time_6} group by CaseId
+    </select>
+
+    <select id="queryGetdzbxx" resultType="com.qu.modules.web.entity.Getdzbxx">
+        select * from getdzbxx where DRGID = #{DRGID} and SBSJ between #{time_7} and #{time_6} and CaseId = #{CaseId}
     </select>
 </mapper>

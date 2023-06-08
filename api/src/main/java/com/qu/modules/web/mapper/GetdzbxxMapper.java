@@ -7,8 +7,11 @@ import java.util.List;
 
 public interface GetdzbxxMapper extends BaseMapper<Getdzbxx> {
 
-    List<Getdzbxx> queryGetdzbxx(String DRGID, String time_6, String time_7);
-
     List<String> queryDRGID(String time_6, String time_7);
+
+    List<String> queryCaseId(String DRGID, String time_6, String time_7);
+
+    List<Getdzbxx> queryGetdzbxx(String DRGID, String time_6, String time_7, String CaseId);
+
 
 }

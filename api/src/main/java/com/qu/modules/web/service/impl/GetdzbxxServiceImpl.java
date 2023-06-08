@@ -28,19 +28,38 @@ public class GetdzbxxServiceImpl extends ServiceImpl<GetdzbxxMapper, Getdzbxx> i
         List<String> DRGIDList = getdzbxxMapper.queryDRGID(time_6, time_7);
         if (DRGIDList != null && DRGIDList.size() > 0) {
             for (String DRGID : DRGIDList) {
-                //根据单病种名称获取试图数据
-                List<Getdzbxx> getdzbxxList = getdzbxxMapper.queryGetdzbxx(DRGID, time_6, time_7);
-                //对应试图与tqmsn中单病种子表名称
-                if ("CAPC".equals(DRGID)) {
-                    DRGID = "Cap";
+                //根据单病种名称获取病案号数据
+                List<String> caseIds = getdzbxxMapper.queryCaseId(DRGID, time_6, time_7);
+                for (String caseId : caseIds) {
+                    //根据病案号获取子表数据
+                    List<Getdzbxx> getdzbxxList = getdzbxxMapper.queryGetdzbxx(DRGID, time_6, time_7, caseId);
+                    //对应视图与tqmsn中单病种子表名称
+                    if ("CAPC".equals(DRGID)) {
+                        DRGID = "Cap";
+                    }
+                    if ("CAP".equals(DRGID)) {
+                        DRGID = "CapAdult";
+                    }
+                    if ("AMI".equals(DRGID)) {
+                        DRGID = "STEMI";
+                    }
+                    if ("COPD".equals(DRGID)) {
+                        DRGID = "AECOPD";
+                    }
+                    if ("HIP".equals(DRGID)) {
+                        DRGID = "Hip";
+                    }
+                    if ("KNEE".equals(DRGID)) {
+                        DRGID = "Knee";
+                    }
+//                    if ("SAP".equals(DRGID)) {
+//                        return list;
+//                    }
+                    HashMap<Object, Object> map = new HashMap<>();
+                    map.put("DRGID", DRGID);
+                    map.put("getdzbxxList", getdzbxxList);
+                    list.add(map);
                 }
-                if ("CAP".equals(DRGID)) {
-                    DRGID = "CapAdult";
-                }
-                HashMap<Object, Object> map = new HashMap<>();
-                map.put("DRGID", DRGID);
-                map.put("getdzbxxList", getdzbxxList);
-                list.add(map);
             }
         }
         return list;

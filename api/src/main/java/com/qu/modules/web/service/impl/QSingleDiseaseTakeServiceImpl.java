@@ -1714,7 +1714,9 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         calendar.add(Calendar.DATE, -1);
         Date date_7 = calendar.getTime();
         String time_7 = formatter.format(date_7);
-        //获取6天前上报单病种名称集合
+        //获取视图中6天前上报的单病种数据集合
+        time_6 = "20230607";
+        time_7 = "20230101";
         List<HashMap<Object, Object>> list = getdzbxxService.queryDRGIDList(time_6, time_7);
         if (list != null && list.size() > 0) {
             for (HashMap<Object, Object> map_all : list) {
@@ -1728,7 +1730,7 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                         String colid = getdzbxx.getCOLID();
                         String colcode = getdzbxx.getCOLCODE();
                         //只解析存在于TQMS子表字段中的数据
-                        if (columnNameList.contains(colid)){
+                        if (columnNameList.contains(colid) && colcode != null && colcode.length() > 0){
                             map.put("`"+colid+"`", colcode);
                         }
                     }
