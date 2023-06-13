@@ -1,6 +1,9 @@
 package com.qu.modules.web.service.impl;
 
+import com.google.common.collect.Lists;
+import com.qu.constant.QSingleDiseaseTakeConstant;
 import com.qu.modules.web.entity.DrgsReportData;
+import com.qu.modules.web.entity.QSingleDiseaseTake;
 import com.qu.modules.web.mapper.GenTableColumnMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.service.ReadDrgsReportDataervice;
@@ -95,8 +98,12 @@ public class ReadDrgsReportDataerviceImpl implements ReadDrgsReportDataervice {
             }
             //插入子表数据
             if (!dataNew.isEmpty()) {
-                genTableColumnMapper.insertQSingleDiseaseTake(dataNew, "drgs_"+diseaseType);
-                log.info("添加单病种子表drgs_"+diseaseType.toLowerCase()+"数据。");
+                try {
+                    genTableColumnMapper.insertQSingleDiseaseTake(dataNew, "drgs_"+diseaseType);
+                    log.info("添加单病种子表drgs_"+diseaseType.toLowerCase()+"数据。");
+                } catch (Exception e) {
+                    log.error(e.getMessage()+dataNew.get("`caseId`")+"！！！！！", e);
+                }
             }
         }
     }

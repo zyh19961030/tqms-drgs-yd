@@ -1710,13 +1710,15 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         calendar.setTime(new Date());
         calendar.add(Calendar.DATE, -5);
         Date date_6 = calendar.getTime();
+        //六天前
         String time_6 = formatter.format(date_6);
         calendar.add(Calendar.DATE, -1);
         Date date_7 = calendar.getTime();
+        //七天前
         String time_7 = formatter.format(date_7);
         //获取视图中6天前上报的单病种数据集合
-//        time_6 = "20230607";
-//        time_7 = "20230101";
+        time_6 = "20230613";
+        time_7 = "20220101";
         List<HashMap<Object, Object>> list = getdzbxxService.queryDRGIDList(time_6, time_7);
         if (list != null && list.size() > 0) {
             for (HashMap<Object, Object> map_all : list) {
@@ -1735,8 +1737,12 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
                         }
                     }
                     if (!map.isEmpty()) {
-                        genTableColumnMapper.insertData(map, "drgs_"+DRGID.toLowerCase());
-                        log.info("添加单病种子表drgs_"+DRGID.toLowerCase()+"数据。");
+                        try {
+                            genTableColumnMapper.insertData(map, "drgs_"+DRGID.toLowerCase());
+                            log.info("添加单病种子表drgs_"+DRGID.toLowerCase()+"数据。");
+                        } catch (Exception e) {
+                            log.error(e.getMessage()+map.get("`caseId`")+"！！！！！", e);
+                        }
                     }
                 }
             }
