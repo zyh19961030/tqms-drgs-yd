@@ -52,9 +52,9 @@ public class GetdzbxxServiceImpl extends ServiceImpl<GetdzbxxMapper, Getdzbxx> i
                     if ("KNEE".equals(DRGID)) {
                         DRGID = "Knee";
                     }
-//                    if ("SAP".equals(DRGID)) {
-//                        return list;
-//                    }
+                    if ("SAP".equals(DRGID)) {
+                        return list;
+                    }
                     HashMap<Object, Object> map = new HashMap<>();
                     map.put("DRGID", DRGID);
                     map.put("getdzbxxList", getdzbxxList);

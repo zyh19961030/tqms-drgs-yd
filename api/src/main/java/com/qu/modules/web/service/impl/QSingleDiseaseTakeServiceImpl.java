@@ -1715,8 +1715,8 @@ public class QSingleDiseaseTakeServiceImpl extends ServiceImpl<QSingleDiseaseTak
         Date date_7 = calendar.getTime();
         String time_7 = formatter.format(date_7);
         //获取视图中6天前上报的单病种数据集合
-        time_6 = "20230607";
-        time_7 = "20230101";
+//        time_6 = "20230607";
+//        time_7 = "20230101";
         List<HashMap<Object, Object>> list = getdzbxxService.queryDRGIDList(time_6, time_7);
         if (list != null && list.size() > 0) {
             for (HashMap<Object, Object> map_all : list) {

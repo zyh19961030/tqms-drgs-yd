@@ -32,6 +32,18 @@
             #{value}
         </foreach>
     </insert>
+
+    <insert id="insertQSingleDiseaseTake">
+        insert into ${table_name}
+        <foreach item="value" collection="map" index="key" open="("   separator="," close=")">
+            ${key}
+        </foreach>
+        values
+        <foreach item="value" collection="map" index="key"  open="("   separator="," close=")">
+            #{value}
+        </foreach>
+    </insert>
+
     <update id="updateData" >
         update ${table_name}
         set

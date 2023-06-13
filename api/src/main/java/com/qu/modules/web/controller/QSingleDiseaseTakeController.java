@@ -67,7 +67,7 @@ public class QSingleDiseaseTakeController {
     private ITbDepService tbDepService;
 
     @Autowired
-    private GetdzbxxService getdzbxxService;
+    private ReadDrgsReportDataervice readDrgsReportDataervice;
 
 
     /**
@@ -1300,6 +1300,15 @@ public class QSingleDiseaseTakeController {
         qSingleDiseaseTakeService.getGetdzbxxInsertDrgs();
     }
 
-
+    /**
+     * 读取燕达mongodb数据
+     */
+    @AutoLog(value = "读取燕达mongodb数据")
+    @ApiOperation(value = "读取燕达mongodb数据", notes = "读取燕达mongodb数据")
+    @GetMapping(value = "/readDrgsReportData")
+    public String readQSingleDiseaseTake(){
+        readDrgsReportDataervice.readQSingleDiseaseTake();
+        return "success";
+    }
 
 }

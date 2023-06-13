@@ -31,4 +31,7 @@ public interface GenTableColumnMapper {
     String selectId(@Param(value = "paramMap") Map<String, Object> map, @Param(value = "table_name") String tableName);
 
     void createTable(String sql);
+
+    void insertQSingleDiseaseTake(@Param(value = "map") Map<String, String> map, @Param(value = "table_name") String tableName);
+
 }
