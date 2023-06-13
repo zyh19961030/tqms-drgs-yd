@@ -48,13 +48,16 @@ public class ReadDrgsReportDataerviceImpl implements ReadDrgsReportDataervice {
             String diseaseType = reportContent.get("diseaseType").toString();
             //子表数据
             Map<String, Object> data = (Map<String, Object>)reportContent.get("data");
-            Map<String, Object> rawData = (Map<String, Object>)reportContent.get("rawData");
             //合并三份子表数据
-            Set<String> rawDataKey = rawData.keySet();
-            for (String key: rawDataKey) {
-                String value = rawData.get(key) + "";
-                if (!"".equals(value) && value.length() > 0) {
-                    data.put(key, value);
+            Map<String, Object> rawData;
+            if (reportContent.get("rawData") != null) {
+                rawData = (Map<String, Object>)reportContent.get("rawData");
+                Set<String> rawDataKey = rawData.keySet();
+                for (String key: rawDataKey) {
+                    String value = rawData.get(key) + "";
+                    if (!"".equals(value) && value.length() > 0) {
+                        data.put(key, value);
+                    }
                 }
             }
             Map<String, Object> funcResult;
