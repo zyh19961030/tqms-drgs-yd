@@ -549,9 +549,13 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
             sqlCount.append(singleEnterQuestion.getSubjectColumnName());
             sqlCount.append(" = 'y2') ");
         }
+        log.info("enterQuestionDataList-----select total sqlCount:{}", sqlCount.toString());
         Long total = dynamicTableMapper.countDynamicTable(sqlCount.toString());
         if(total ==null || total<=0){
             return new Page<>();
+        }
+        if(pageSize>total){
+            pageSize = total.intValue();
         }
 
         List<SubjectVo> subjectList = subjectService.selectSubjectAndOptionByQuId(questionId);
@@ -580,6 +584,7 @@ public class SingleEnterQuestionServiceImpl extends ServiceImpl<SingleEnterQuest
         sqlSelect.append((pageNo - 1) * pageSize);
         sqlSelect.append(",");
         sqlSelect.append(pageSize);
+        log.info("enterQuestionDataList-----select data sqlSelect:{}", sqlSelect.toString());
         List<Map<String, String>> dataList = dynamicTableMapper.selectDynamicTableColumnList(sqlSelect.toString());
         List<LinkedHashMap<String, Object>> detailDataList = Lists.newArrayList();
         for (Map<String, String> dataItemMap : dataList) {
