@@ -63,7 +63,7 @@ mybatis-plus:
 
 #token解析url
 system:
-  tokenUrl: http://cstqmskszkservice.shijiyunyi.com/business/tbUser/currentInfo
+  tokenUrl: http://csdemokszk.shijiyunyi.com/business/tbUser/currentInfo
 #  tokenUrl: http://localhost:19101/business/tbUser/currentInfo
 #  singleDiseaseReportUrl: http://drgs.0060.cn:80/interface/010102/%s/1.2/put/
   singleDiseaseReportUrl: http://192.168.1.23:80/interface/010102/%s/1.2/put/
