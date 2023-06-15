@@ -1,9 +1,6 @@
 package com.qu.modules.web.service.impl;
 
-import com.google.common.collect.Lists;
-import com.qu.constant.QSingleDiseaseTakeConstant;
 import com.qu.modules.web.entity.DrgsReportData;
-import com.qu.modules.web.entity.QSingleDiseaseTake;
 import com.qu.modules.web.mapper.GenTableColumnMapper;
 import com.qu.modules.web.mapper.QsubjectMapper;
 import com.qu.modules.web.service.ReadDrgsReportDataervice;
@@ -40,15 +37,18 @@ public class ReadDrgsReportDataerviceImpl implements ReadDrgsReportDataervice {
         Date date_7 = calendar.getTime();
         String time_7 = formatter.format(date_7);
         //获取视图中6天前上报的单病种数据集合
-        time_6 = "2022-01-01 00:00:00";
-        time_7 = "2023-06-12 00:00:00";
+//        time_6 = "2019-01-01 00:00:00";
+//        time_7 = "2022-01-01 00:00:00";
         //获取单病种数据
-//        List<DrgsReportData> drgsReportDatas = mongoTemplate.find(new Query(new Criteria().andOperator(Criteria.where("reportTime").gte(time_6),Criteria.where("reportTime").lte(time_7))), DrgsReportData.class);
-        List<DrgsReportData> drgsReportDatas = mongoTemplate.find(new Query(Criteria.where("reportTime").gte(time_6)), DrgsReportData.class);
+        List<DrgsReportData> drgsReportDatas = mongoTemplate.find(new Query(new Criteria().andOperator(Criteria.where("reportTime").gte(time_6),Criteria.where("reportTime").lte(time_7))), DrgsReportData.class);
+//        List<DrgsReportData> drgsReportDatas = mongoTemplate.find(new Query(Criteria.where("reportTime").gte(time_6)), DrgsReportData.class);
         for (DrgsReportData drgsReportData : drgsReportDatas) {
             Map<String, Object> reportContent = drgsReportData.getReportContent();
             //子表表名
             String diseaseType = reportContent.get("diseaseType").toString();
+            if ("Cap-Adult".equals(diseaseType)) {
+                diseaseType = "CapAdult";
+            }
             //子表数据
             Map<String, Object> data = (Map<String, Object>)reportContent.get("data");
             //合并三份子表数据
@@ -74,7 +74,6 @@ public class ReadDrgsReportDataerviceImpl implements ReadDrgsReportDataervice {
                     }
                 }
             }
-            //表字段加``
             Map<String, String> dataNew = new HashMap<>();
             if (!data.isEmpty()) {
                 //患者姓名
@@ -85,13 +84,14 @@ public class ReadDrgsReportDataerviceImpl implements ReadDrgsReportDataervice {
                 String id = drgsReportData.getId();
                 data.put("summary_mapping_table_id", id);
 
-                Set<String> dataKey = data.keySet();
                 //获取TQMS中单病种子表的字段
                 List<String> columnNameList = qsubjectMapper.querySubColumnNameByTableName("DRGS_" + diseaseType);
+                //只解析存在于TQMS子表字段中的数据
+                Set<String> dataKey = data.keySet();
                 for (String key: dataKey) {
                     String value = data.get(key)+"";
-                    //只解析存在于TQMS子表字段中的数据
                     if (columnNameList.contains(key) && !"".equals(value) && value.length() > 0){
+                        //表字段加``
                         dataNew.put("`"+key+"`", value);
                     }
                 }
@@ -102,7 +102,8 @@ public class ReadDrgsReportDataerviceImpl implements ReadDrgsReportDataervice {
                     genTableColumnMapper.insertQSingleDiseaseTake(dataNew, "drgs_"+diseaseType);
                     log.info("添加单病种子表drgs_"+diseaseType.toLowerCase()+"数据。");
                 } catch (Exception e) {
-                    log.error(e.getMessage()+dataNew.get("`caseId`")+"！！！！！", e);
+                    //可能存在表字段超长问题
+                    log.error(e.getMessage()+dataNew.get("`caseId`")+"!!!!!", e);
                 }
             }
         }

@@ -1306,7 +1306,7 @@ public class QSingleDiseaseTakeController {
     @AutoLog(value = "读取燕达mongodb数据")
     @ApiOperation(value = "读取燕达mongodb数据", notes = "读取燕达mongodb数据")
     @GetMapping(value = "/readDrgsReportData")
-    public String readQSingleDiseaseTake(){
+    public String readDrgsReportData(){
         readDrgsReportDataervice.readQSingleDiseaseTake();
         return "success";
     }
