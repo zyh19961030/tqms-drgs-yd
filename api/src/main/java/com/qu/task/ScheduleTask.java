@@ -1,7 +1,6 @@
 package com.qu.task;
 
 import com.qu.modules.web.service.IQSingleDiseaseTakeService;
-import com.qu.modules.web.service.ReadDrgsReportDataervice;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -22,9 +21,6 @@ public class ScheduleTask {
 
     @Autowired
     private IQSingleDiseaseTakeService qSingleDiseaseTakeService;
-
-    @Autowired
-    private ReadDrgsReportDataervice readDrgsReportDataervice;
 
 
     // 每天凌晨1点执行
@@ -49,7 +45,7 @@ public class ScheduleTask {
         String uuid= UUID.randomUUID().toString();
         log.info("{}",uuid);
         log.info("ScheduleTask start 抓取mongodb数据：{}-----时间----->{}",uuid,new Date());
-        readDrgsReportDataervice.readQSingleDiseaseTake();
+        qSingleDiseaseTakeService.readQSingleDiseaseTake();
         log.info("ScheduleTask end 抓取mongodb数据：{}-----时间----->{}",uuid,new Date());
     }
 }

@@ -66,9 +66,6 @@ public class QSingleDiseaseTakeController {
     @Autowired
     private ITbDepService tbDepService;
 
-    @Autowired
-    private ReadDrgsReportDataervice readDrgsReportDataervice;
-
 
     /**
      * 按单病种填报(新增上报)
@@ -1307,7 +1304,7 @@ public class QSingleDiseaseTakeController {
     @ApiOperation(value = "读取燕达mongodb数据", notes = "读取燕达mongodb数据")
     @GetMapping(value = "/readDrgsReportData")
     public String readDrgsReportData(){
-        readDrgsReportDataervice.readQSingleDiseaseTake();
+        qSingleDiseaseTakeService.readQSingleDiseaseTake();
         return "success";
     }
 

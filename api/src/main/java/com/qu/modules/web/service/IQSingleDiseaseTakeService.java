@@ -80,4 +80,7 @@ public interface IQSingleDiseaseTakeService extends IService<QSingleDiseaseTake>
 
     void getGetdzbxxInsertDrgs();
 
+    void readQSingleDiseaseTake();
+
+
 }
