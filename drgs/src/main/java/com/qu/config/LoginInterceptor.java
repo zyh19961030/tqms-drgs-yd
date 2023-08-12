@@ -37,6 +37,8 @@ public class LoginInterceptor implements HandlerInterceptor {
             "/business/qSingleDiseaseTake/departmentQuantityStatisticsExport",
             "/business/qSingleDiseaseTake/allSingleDiseaseReportStatisticByDeptExport",
             "/business/qSingleDiseaseTake/allSingleDiseaseReportStatisticExport",
+            "/business/drgs/readDrgsReportData",
+            "/error",
             "/business/questionTemp/copyTemp");
 
 
@@ -73,6 +75,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 
 
         String token = request.getHeader("token");
+//        String token = "510619E0F691CCE2EE1E4820CED9F58E";
         if (StringUtil.isEmpty(token)) {
             log.info("token is null-----{}", "preHandle");
             log.info("----------------token is empty...");

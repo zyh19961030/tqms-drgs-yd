@@ -1,5 +1,5 @@
 server:
-  port: 19107
+  port: 19117
   servlet:
     context-path: /
 
@@ -8,14 +8,14 @@ spring:
     exclude: com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure
   data:
     mongodb:
-      database: metadata
-#      database: drgs-inner-report
-#      username: reportDataview
-#      password: QWE123!#
-      host: 127.0.0.1
-#      host: 172.2.37.55
+#      database: metadata
+      database: drgs-inner-report
+      username: reportDataview
+      password: QWE123!#
+#      host: 127.0.0.1
+      host: 172.2.37.55
       port: 27017
-#      authentication-database: admin
+      authentication-database: admin
   datasource:
     druid:
       stat-view-servlet:
@@ -47,17 +47,18 @@ spring:
         connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
       datasource:
         master:
-          #          url: jdbc:mysql://47.97.123.235:3306/questiondb?characterEncoding=UTF-8&useUnicode=true&useSSL=false
-          #          username: question
-          #          password: question01
-          url: jdbc:mysql://localhost:3306/tqmsn?characterEncoding=UTF-8&useUnicode=true&useSSL=false
-          #          url: jdbc:mysql://39.98.69.134:13307/tqmsn?characterEncoding=UTF-8&useUnicode=true&useSSL=false
-#          url: jdbc:mysql://localhost:13307/tqmsn?characterEncoding=UTF-8&useUnicode=true&useSSL=false
-#          username: tqmsn
+#          url: jdbc:mysql://47.97.123.235:3306/questiondb?characterEncoding=UTF-8&useUnicode=true&useSSL=false
+#          username: question
+#          password: question01
+#          url: jdbc:mysql://localhost:3306/tqmsn?characterEncoding=UTF-8&useUnicode=true&useSSL=false
+#          username: root
+#          password: 123456
+          url: jdbc:mysql://localhost:13307/tqmsn?characterEncoding=UTF-8&useUnicode=true&useSSL=false
           username: root
+          password: tqms$2021@Shijiyunyi
+#          url: jdbc:mysql://39.98.69.134:13307/tqmsn?characterEncoding=UTF-8&useUnicode=true&useSSL=false
+#          username: tqmsn
 #          password: T9m5n@2022!
-#          password: tqms$2021@Shijiyunyi
-          password: 123456
           driver-class-name: com.mysql.jdbc.Driver
 #        sqlServer:
 #          url: jdbc:sqlserver://18.0.0.18:1433;DatabaseName=THIS4

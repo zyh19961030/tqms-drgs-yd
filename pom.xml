@@ -15,7 +15,7 @@
 
 	<modules>
 		<module>jeecg-boot-base-common</module>
-		<module>api</module>
+		<module>drgs</module>
 	</modules>
 
 	<repositories>
